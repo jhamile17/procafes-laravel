@@ -10,10 +10,10 @@
     <div class="d-none d-md-flex align-items-center flex-grow-1 mx-3" style="max-width:780px;">
       <ul class="nav me-3">
         <li class="nav-item">
-          <a href="{{ url('/nosotros') }}" class="nav-link px-2" style="color:#3E350E;">Nosotros</a>
+          <a href="{{ url('/nosotros') }}" class="nav-link px-2" style="color:#3E350E;">Nosotros chamos</a>
         </li>
         <li class="nav-item">
-          <a href="{{ url('/ubicacion') }}" class="nav-link px-2" style="color:#3E350E;">Ubícanos</a>
+          <a href="{{ url('/ubicacion') }}" class="nav-link px-2" style="color:#3E350E;">Ubícanos chamos</a>
         </li>
       </ul>
 
