@@ -9,7 +9,6 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Auth\GoogleController;
-use App\Http\Controllers\Auth\RegisterController;
 
 // Cliente autenticado
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
@@ -28,6 +27,8 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\OrderController;
+
+
 
 // Mercado Pago (namespace correcto)
 use App\Http\Controllers\Payment\MercadoPagoController;
@@ -62,17 +63,12 @@ Route::prefix('cart')->name('cart.')->group(function () {
 
 // Login / Registro
 Route::view('/login', 'auth.login')->middleware('guest')->name('login');
-
-// Soporte para submit clásico de registro
-Route::post('/register', [RegisterController::class, 'store'])
-    ->middleware('guest')
-    ->name('register.store');
+Route::view('/register', 'auth.register')->middleware('guest')->name('register');
 
 // Google OAuth
 Route::prefix('auth/google')->name('auth.google.')->group(function () {
     Route::get('/redirect', [GoogleController::class, 'redirect'])->name('redirect');
     Route::get('/callback', [GoogleController::class, 'callback'])->name('callback');
-
 });
 
 // Logout
@@ -131,14 +127,45 @@ Route::middleware(['auth','admin'])->prefix('admin')->name('admin.')->group(func
     Route::resource('products',   AdminProductController::class)->except(['show']);
     Route::resource('users',      AdminUserController::class)->except(['show']);
 
-    // Reportes (CSV + JSON)
-    Route::prefix('reports')->name('reports.')->group(function () {
-        Route::get('/revenue.csv',      [ReportController::class, 'revenueCsv'])->name('revenue');
-        Route::get('/revenue.json',     [ReportController::class, 'revenueJson'])->name('revenue.json'); // para gráfico
-        Route::get('/best-sellers.csv', [ReportController::class, 'bestSellersCsv'])->name('best');
-        Route::get('/products.csv',     [ReportController::class, 'productsCsv'])->name('products');
-        Route::get('/orders.csv',       [ReportController::class, 'ordersCsv'])->name('orders');
-    });
+// Reportes Excel + JSON
+Route::prefix('reports')->name('reports.')->group(function () {
+
+    // gráfico dashboard
+    Route::get(
+        '/revenue.json',
+        [ReportController::class, 'revenueJson']
+    )->name('revenue.json');
+
+    // ventas por fechas
+    Route::get(
+        '/sales-by-date',
+        [ReportController::class, 'salesByDate']
+    )->name('sales-by-date');
+
+    // productos más vendidos
+    Route::get(
+        '/best',
+        [ReportController::class, 'bestSellersExcel']
+    )->name('best');
+
+    // productos menos vendidos
+    Route::get(
+        '/least',
+        [ReportController::class, 'leastSellers']
+    )->name('least');
+
+    // inventario crítico
+    Route::get(
+        '/inventory',
+        [ReportController::class, 'criticalInventory']
+    )->name('inventory');
+
+    // ventas por categoría
+    Route::get(
+        '/category',
+        [ReportController::class, 'salesByCategory']
+    )->name('category');
+});
 
     // Billing (Boletas / Facturas)
     Route::get('/billing',         [BillingController::class, 'index'])->name('billing.index');

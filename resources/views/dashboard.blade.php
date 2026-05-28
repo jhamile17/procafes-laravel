@@ -47,38 +47,63 @@
 
       {{-- Reportes --}}
       <div class="dropdown">
-        <button class="btn btn-sm btn-outline-dark dropdown-toggle" data-bs-toggle="dropdown">
-          <i class="bi bi-download me-1"></i> Reportes
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li>
-            <a class="dropdown-item"
-               href="{{ Route::has('admin.reports.revenue') ? route('admin.reports.revenue') : url('/admin/reports/revenue.csv') }}">
-              <i class="bi bi-graph-up me-2"></i>Ingresos (últimos 12 meses)
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item"
-               href="{{ Route::has('admin.reports.best') ? route('admin.reports.best') : url('/admin/reports/best-sellers.csv') }}">
-              <i class="bi bi-trophy me-2"></i>Más vendidos (Top)
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item"
-               href="{{ Route::has('admin.reports.products') ? route('admin.reports.products') : url('/admin/reports/products.csv') }}">
-              <i class="bi bi-box-seam me-2"></i>Inventario de productos
-            </a>
-          </li>
-          <li><hr class="dropdown-divider"></li>
-          <li>
-            <a class="dropdown-item"
-               href="{{ Route::has('admin.reports.orders')
-                      ? route('admin.reports.orders', ['from'=>now()->subDays(30)->toDateString(),'to'=>now()->toDateString()])
-                      : url('/admin/reports/orders.csv?from='.now()->subDays(30)->toDateString().'&to='.now()->toDateString()) }}">
-              <i class="bi bi-receipt me-2"></i>Órdenes (últimos 30 días)
-            </a>
-          </li>
-        </ul>
+          <button class="btn btn-sm btn-outline-dark dropdown-toggle"
+                  data-bs-toggle="dropdown">
+              <i class="bi bi-download me-1"></i>
+              Reportes
+          </button>
+
+          <ul class="dropdown-menu dropdown-menu-end">
+
+              {{-- Ventas por fechas --}}
+              <li>
+                  <a class="dropdown-item"
+                     href="{{ route('admin.reports.sales-by-date', [
+                          'from' => now()->subMonth()->toDateString(),
+                          'to' => now()->toDateString()
+                     ]) }}">
+                      <i class="bi bi-calendar-range me-2"></i>
+                      Ventas últimos 12 meses
+                  </a>
+              </li>
+
+              {{-- Más vendidos --}}
+              <li>
+                  <a class="dropdown-item"
+                     href="{{ route('admin.reports.best') }}">
+                      <i class="bi bi-trophy me-2"></i>
+                      Productos más vendidos
+                  </a>
+              </li>
+
+              {{-- Menos vendidos --}}
+              <li>
+                  <a class="dropdown-item"
+                     href="{{ route('admin.reports.least') }}">
+                      <i class="bi bi-graph-down me-2"></i>
+                      Productos menos vendidos
+                  </a>
+              </li>
+
+              {{-- Inventario crítico --}}
+              <li>
+                  <a class="dropdown-item"
+                     href="{{ route('admin.reports.inventory') }}">
+                      <i class="bi bi-box-seam me-2"></i>
+                      Inventario crítico
+                  </a>
+              </li>
+
+              {{-- Ventas por categoría --}}
+              <li>
+                  <a class="dropdown-item"
+                     href="{{ route('admin.reports.category') }}">
+                      <i class="bi bi-cup-hot me-2"></i>
+                      Ventas por categoría
+                  </a>
+              </li>
+
+          </ul>
       </div>
     </div>
   </div>
