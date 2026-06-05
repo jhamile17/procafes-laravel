@@ -1,7 +1,6 @@
-FROM php:8.2-apache-bookworm
+FROM php:8.2-cli
 
-RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/debian.sources || true
-
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -10,10 +9,10 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libpng-dev \
     libonig-dev \
-    libxml2-dev \
-    && docker-php-ext-install pdo pdo_mysql zip
-# Habilitar mod_rewrite para Laravel
-RUN a2enmod rewrite
+    libxml2-dev
+
+# Instalar extensiones PHP necesarias
+RUN docker-php-ext-install pdo pdo_mysql zip
 
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -28,12 +27,10 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 
 # Permisos Laravel
-RUN chown -R www-data:www-data storage bootstrap/cache
-RUN chmod -R 775 storage bootstrap/cache
+RUN chmod -R 777 storage bootstrap/cache
 
-# Configuración Apache
-RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
-
+# Exponer puerto
 EXPOSE 8080
 
-CMD ["apache2-foreground"]
+# 🚀 EJECUTAR Laravel con artisan serve (LO QUE TE PIDEN)
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
