@@ -1,6 +1,6 @@
 FROM php:8.2-cli
 
-# Instalar dependencias del sistema
+# Dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -9,19 +9,24 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev
 
-# Instalar extensiones PHP necesarias
+# Extensiones PHP
 RUN docker-php-ext-install pdo pdo_mysql zip
 
-# Instalar Composer
+# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Directorio de trabajo
+WORKDIR /var/www
+
+# COPIAR EL PROYECTO (ESTO ES LO CLAVE)
+COPY . .
+
+# Instalar dependencias Laravel
 RUN composer install --no-dev --optimize-autoloader
 
 # Permisos Laravel
 RUN chmod -R 777 storage bootstrap/cache
 
-# Exponer puerto
 EXPOSE 8080
 
-# 🚀 EJECUTAR Laravel con artisan serve (LO QUE TE PIDEN)
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
