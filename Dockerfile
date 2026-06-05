@@ -1,6 +1,6 @@
 FROM php:8.2-cli
 
-# Instalar dependencias del sistema
+# Instalar Node.js + dependencias sistema
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -11,26 +11,30 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev
 
-# Instalar extensiones PHP necesarias
+# 🔥 INSTALAR NODE + NPM
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
+
+# Extensiones PHP
 RUN docker-php-ext-install pdo pdo_mysql zip
 
-# Instalar Composer
+# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Directorio de trabajo
 WORKDIR /var/www/html
 
-# Copiar proyecto
 COPY . .
 
-# Instalar dependencias Laravel
+# PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Permisos Laravel
+# 🔥 FRONTEND BUILD (IMPORTANTE)
+RUN npm install
+RUN npm run build
+
+# permisos
 RUN chmod -R 777 storage bootstrap/cache
 
-# Exponer puerto
 EXPOSE 8080
 
-# 🚀 EJECUTAR Laravel con artisan serve (LO QUE TE PIDEN)
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
