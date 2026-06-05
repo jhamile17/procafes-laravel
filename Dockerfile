@@ -1,6 +1,7 @@
-FROM php:8.2-apache
+FROM php:8.2-apache-bookworm
 
-# Dependencias del sistema
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/debian.sources || true
+
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -11,7 +12,6 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     && docker-php-ext-install pdo pdo_mysql zip
-
 # Habilitar mod_rewrite para Laravel
 RUN a2enmod rewrite
 
