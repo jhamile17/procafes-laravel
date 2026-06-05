@@ -1,15 +1,15 @@
 FROM php:8.2-cli 
 
 # Instalar dependencias del sistema 
-RUN apt-get update && apt-get install -y 
-  \ git 
-  \ unzip 
-  \ zip 
-  \ curl 
-  \ libzip-dev 
-  \ libpng-dev 
-  \ libonig-dev 
-  \ libxml2-dev 
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    zip \
+    curl \
+    libzip-dev \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev
 
 # Instalar extensiones PHP necesarias 
 RUN docker-php-ext-install pdo pdo_mysql zip 
