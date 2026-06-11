@@ -61,10 +61,6 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::delete('/',        [CartController::class, 'clear'])->name('clear');
 });
 
-// Login / Registro
-Route::view('/login', 'auth.login')->middleware('guest')->name('login');
-Route::view('/register', 'auth.register')->middleware('guest')->name('register');
-
 // Google OAuth
 Route::prefix('auth/google')->name('auth.google.')->group(function () {
     Route::get('/redirect', [GoogleController::class, 'redirect'])->name('redirect');
