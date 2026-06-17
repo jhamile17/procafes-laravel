@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\URL;
 class WelcomeVerifyEmail extends VerifyEmail
 {
     /**
-     * Genera la URL firmada de verificación (1 hora).
+     * Generar URL de verificación (válida 60 min)
      */
     protected function verificationUrl($notifiable): string
     {
@@ -18,24 +18,31 @@ class WelcomeVerifyEmail extends VerifyEmail
             'verification.verify',
             Carbon::now()->addMinutes(60),
             [
-                'id'   => $notifiable->getKey(),
-                'hash' => sha1($notifiable->getEmailForVerification()),
+                'id' => $notifiable->getKey(),
+                'hash' => sha1(
+                    $notifiable->getEmailForVerification()
+                ),
             ]
         );
     }
 
     /**
-     * Renderiza correo con nuestra vista Blade.
+     * Correo personalizado
      */
     public function toMail($notifiable): MailMessage
     {
-        $url = $this->verificationUrl($notifiable);
-
         return (new MailMessage)
-            ->subject('Confirma tu correo y ¡bienvenido a PROCAFES!')
-            ->view('emails.verify-welcome', [
-                'user' => $notifiable,
-                'url'  => $url,
-            ]);
+            ->subject(
+                'Confirma tu correo y ¡bienvenido a PROCAFES!'
+            )
+            ->view(
+                'emails.verify-welcome',
+                [
+                    'user' => $notifiable,
+                    'url' => $this->verificationUrl(
+                        $notifiable
+                    ),
+                ]
+            );
     }
 }
