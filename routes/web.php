@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\ChatbotController;
 
 // Público
 use App\Http\Controllers\HomeController;
@@ -46,6 +47,14 @@ Route::bind('product', fn($v)=>Product::findOrFail($v));
 | RUTAS PÚBLICAS
 |--------------------------------------------------------------------------
 */
+Route::get('/chatbot', function () {
+    return view('chatbot');
+});
+
+Route::post('/chatbot/send', [
+    ChatbotController::class,
+    'send'
+]);
 
 Route::get('/', [HomeController::class,'index'])->name('home');
 
