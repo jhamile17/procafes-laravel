@@ -29,18 +29,20 @@ function sendMessage() {
             message: message
         })
     })
-    .then(response => response.json())
-    .then(data => {
+   .then(response => response.json())
+.then(data => {
 
-        let chat = document.getElementById('chat');
+    console.log("RESPUESTA:", data);
 
-        chat.innerHTML += `
-            <p><b>Tú:</b> ${message}</p>
-            <p><b>Bot:</b> ${data.reply}</p>
-        `;
+    let chat = document.getElementById('chat');
 
-        document.getElementById('message').value='';
-    });
+    chat.innerHTML += `
+        <p><b>Tú:</b> ${message}</p>
+        <p><b>Bot:</b> ${JSON.stringify(data)}</p>
+    `;
+
+    document.getElementById('message').value='';
+});
 
 }
 </script>
