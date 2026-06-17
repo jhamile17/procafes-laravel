@@ -58,6 +58,13 @@ Route::post('/chatbot/send', [
     ChatbotController::class,
     'send'
 ]);
+Route::get('/test-key', function () {
+
+    return [
+        'key' => env('GEMINI_API_KEY')
+    ];
+
+});
 
 Route::get('/', [HomeController::class,'index'])->name('home');
 
