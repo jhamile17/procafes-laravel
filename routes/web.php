@@ -3,13 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\ChatbotController;
 
 // Público
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Auth\GoogleController;
 
 // Cliente
@@ -49,42 +49,15 @@ Route::bind('product', fn($v)=>Product::findOrFail($v));
 */
 Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])
     ->name('wishlist.toggle');
-
+    
 Route::get('/chatbot', function () {
     return view('chatbot');
 });
 
-public function send(Request $request)
-{
-    $apiKey = env('GEMINI_API_KEY');
-
-    $response = Http::post(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}",
-        [
-            "contents" => [
-                [
-                    "parts" => [
-                        [
-                            "text" => "Hola"
-                        ]
-                    ]
-                ]
-            ]
-        ]
-    );
-
-    return response()->json([
-        'status' => $response->status(),
-        'body' => $response->json(),
-    ]);
-}
-Route::get('/test-key', function () {
-
-    return [
-        'key' => env('GEMINI_API_KEY')
-    ];
-
-});
+Route::post('/chatbot/send', [
+    ChatbotController::class,
+    'send'
+]);
 
 Route::get('/', [HomeController::class,'index'])->name('home');
 
