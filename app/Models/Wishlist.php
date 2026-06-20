@@ -13,6 +13,11 @@ class Wishlist extends Model
 
     protected $fillable = ['user_id','product_id'];
 
+    protected $casts = [
+        'user_id' => 'integer',
+        'product_id' => 'integer',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

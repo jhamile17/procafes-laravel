@@ -11,10 +11,27 @@ class Product extends Model
     protected $table = 'products';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'name','price','stock','stock_minimo','status','categories_id','brand_id','image','description'
+        'name',
+        'price',
+        'stock',
+        'stock_minimo',
+        'status',
+        'categories_id',
+        'brand_id',
+        'image',
+        'description'
     ];
 
     protected $appends = ['image_url'];
+
+    protected $casts = [
+        'price' => 'float',
+        'stock' => 'integer',
+        'stock_minimo' => 'integer',
+        'status' => 'boolean',
+        'categories_id' => 'integer',
+        'brand_id' => 'integer',
+    ];
 
     public function getImageUrlAttribute()
     {
@@ -22,11 +39,30 @@ class Product extends Model
     }
 
     public function category() {
-        return $this->belongsTo(Category::class, 'categories_id', 'categories_id');
+        return $this->belongsTo(
+            Category::class, 'categories_id', 'categories_id');
     }
 
     public function brand() {
-        return $this->belongsTo(Brand::class, 'brand_id', 'brand_id');
+        return $this->belongsTo(
+            Brand::class, 'brand_id', 'brand_id');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(
+            Review::class, 'products_id', 'id');
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(
+            Wishlist::class, 'product_id', 'id');
+    }
+    public function orderItems()
+    {
+        return $this->hasMany(
+            OrderItem::class, 'product_id', 'id');
     }
 
     // Observer para cambios en stock

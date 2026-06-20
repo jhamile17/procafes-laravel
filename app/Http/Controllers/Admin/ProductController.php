@@ -24,93 +24,222 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::orderBy('name')->get();
-        $brands     = Brand::orderBy('name')->get();
+        $brands = Brand::orderBy('name')->get();
 
-        return view('admin.products.products-create', compact('categories', 'brands'));
+        return view('admin.products.products-create', compact(
+            'categories',
+            'brands'
+        ));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'          => ['required', 'string', 'max:255'],
-            'price'         => ['required', 'numeric', 'min:0'],
-            'stock'         => ['required', 'integer', 'min:0'],
-            'stock_minimo'  => ['required', 'integer', 'min:0'],
-            'categories_id' => ['required', Rule::exists('categories', 'categories_id')],
-            'brand_id'      => ['nullable', Rule::exists('brands', 'brand_id')],
-            'image'         => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'description'   => ['nullable', 'string'],
+            'name' => [
+                'required',
+                'string',
+                'max:255'
+            ],
+
+            'price' => [
+                'required',
+                'numeric',
+                'min:0'
+            ],
+
+            'stock' => [
+                'required',
+                'integer',
+                'min:0'
+            ],
+
+            'stock_minimo' => [
+                'required',
+                'integer',
+                'min:0'
+            ],
+
+            'categories_id' => [
+                'required',
+                Rule::exists('categories', 'categories_id')
+            ],
+
+            'brand_id' => [
+                'nullable',
+                Rule::exists('brands', 'brand_id')
+            ],
+
+            'image' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048'
+            ],
+
+            'description' => [
+                'nullable',
+                'string'
+            ],
         ]);
 
-        // ✅ Define estado automáticamente
-        $validated['status'] = $validated['stock'] > 0 ? 1 : 0;
+        // Convertir precio
+        $validated['price'] = (float) str_replace(
+            ',',
+            '.',
+            $validated['price']
+        );
 
-        // Normaliza el precio
-        $validated['price'] = (float) str_replace(',', '.', $validated['price']);
+        // Estado automático según stock
+        $validated['status'] =
+            $validated['stock'] > 0 ? 1 : 0;
 
-        // Sube imagen
+        // Guardar imagen
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('uploads/products', 'public');
+
+            $validated['image'] = $request
+                ->file('image')
+                ->store('products', 'public');
         }
 
         Product::create($validated);
 
         return redirect()
             ->route('admin.products.index')
-            ->with('ok', 'Producto creado correctamente.');
+            ->with(
+                'ok',
+                'Producto creado correctamente.'
+            );
     }
 
     public function edit(Product $product)
     {
         $categories = Category::orderBy('name')->get();
-        $brands     = Brand::orderBy('name')->get();
+        $brands = Brand::orderBy('name')->get();
 
-        return view('admin.products.products-edit', compact('product', 'categories', 'brands'));
+        return view('admin.products.products-edit', compact(
+            'product',
+            'categories',
+            'brands'
+        ));
     }
 
-    public function update(Request $request, Product $product)
-    {
+    public function update(
+        Request $request,
+        Product $product
+    ) {
         $validated = $request->validate([
-            'name'          => ['required', 'string', 'max:255'],
-            'price'         => ['required', 'numeric', 'min:0'],
-            'stock'         => ['required', 'integer', 'min:0'],
-            'stock_minimo'  => ['required', 'integer', 'min:0'],
-            'categories_id' => ['required', Rule::exists('categories', 'categories_id')],
-            'brand_id'      => ['nullable', Rule::exists('brands', 'brand_id')],
-            'image'         => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'description'   => ['nullable', 'string'],
+            'name' => [
+                'required',
+                'string',
+                'max:255'
+            ],
+
+            'price' => [
+                'required',
+                'numeric',
+                'min:0'
+            ],
+
+            'stock' => [
+                'required',
+                'integer',
+                'min:0'
+            ],
+
+            'stock_minimo' => [
+                'required',
+                'integer',
+                'min:0'
+            ],
+
+            'categories_id' => [
+                'required',
+                Rule::exists('categories', 'categories_id')
+            ],
+
+            'brand_id' => [
+                'nullable',
+                Rule::exists('brands', 'brand_id')
+            ],
+
+            'image' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048'
+            ],
+
+            'description' => [
+                'nullable',
+                'string'
+            ],
         ]);
 
-        $validated['status'] = $validated['stock'] > 0 ? 1 : 0;
+        $validated['price'] = (float) str_replace(
+            ',',
+            '.',
+            $validated['price']
+        );
 
-        // Normaliza el precio
-        $validated['price'] = (float) str_replace(',', '.', $validated['price']);
+        $validated['status'] =
+            $validated['stock'] > 0 ? 1 : 0;
 
-        // Reemplaza imagen si hay una nueva
         if ($request->hasFile('image')) {
-            if ($product->image && Storage::disk('public')->exists($product->image)) {
-                Storage::disk('public')->delete($product->image);
+
+            if (
+                $product->image &&
+                Storage::disk('public')->exists($product->image)
+            ) {
+                Storage::disk('public')->delete(
+                    $product->image
+                );
             }
-            $validated['image'] = $request->file('image')->store('uploads/products', 'public');
+
+            $validated['image'] = $request
+                ->file('image')
+                ->store('products', 'public');
         }
 
         $product->update($validated);
 
         return redirect()
             ->route('admin.products.index')
-            ->with('ok', 'Producto actualizado correctamente.');
+            ->with(
+                'ok',
+                'Producto actualizado correctamente.'
+            );
     }
 
     public function destroy(Product $product)
     {
-        if ($product->image && Storage::disk('public')->exists($product->image)) {
-            Storage::disk('public')->delete($product->image);
+        try {
+
+            if (
+                $product->image &&
+                Storage::disk('public')->exists($product->image)
+            ) {
+                Storage::disk('public')->delete(
+                    $product->image
+                );
+            }
+
+            $product->delete();
+
+            return redirect()
+                ->route('admin.products.index')
+                ->with(
+                    'ok',
+                    'Producto eliminado correctamente.'
+                );
+
+        } catch (\Throwable $e) {
+
+            return redirect()
+                ->route('admin.products.index')
+                ->with(
+                    'error',
+                    'No se puede eliminar el producto porque tiene pedidos asociados.'
+                );
         }
-
-        $product->delete();
-
-        return redirect()
-            ->route('admin.products.index')
-            ->with('ok', 'Producto eliminado correctamente.');
     }
 }

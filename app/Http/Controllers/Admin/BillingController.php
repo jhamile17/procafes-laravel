@@ -50,7 +50,7 @@ class BillingController extends Controller
         ) AS total
     ";
 
-    // 👇 Unimos con usuarios para traer el nombre
+    // Unimos con usuarios para traer el nombre
     $orders = DB::table('orders as o')
         ->leftJoin('order_items as oi', 'oi.order_id', '=', 'o.id')
         ->leftJoin('products as p', "p.$prodPk", '=', "oi.$productFk")
@@ -119,9 +119,13 @@ class BillingController extends Controller
 
         try {
             if ($type === 'DNI') {
-                $resp = Http::timeout(10)->get("{$base}/dni/{$doc}", ['token' => $token]);
+                $resp = Http::timeout(10)
+                ->retry(2, 500)
+                ->get("{$base}/dni/{$doc}", 
+                ['token' => $token]);
                 if (!$resp->ok()) {
-                    return $this->lookupReturn($request, false, 'Error API DNI: '.$resp->status(), $lookup, $resp->status());
+                    return $this->lookupReturn(
+                        $request, false, 'Error API DNI: '.$resp->status(), $lookup, $resp->status());
                 }
 
                 $data = $resp->json();
@@ -142,7 +146,7 @@ class BillingController extends Controller
             }
 
             // RUC
-            $resp = Http::timeout(10)->get("{$base}/ruc/{$doc}", ['token' => $token]);
+            $resp = Http::timeout(5)->get("{$base}/ruc/{$doc}", ['token' => $token]);
             if (!$resp->ok()) {
                 return $this->lookupReturn($request, false, 'Error API RUC: '.$resp->status(), $lookup, $resp->status());
             }
@@ -208,7 +212,10 @@ class BillingController extends Controller
         if ($request->filled('order_id')) {
             // Cargar la orden (debe estar pagada)
             $paid = ['paid','shipped','completed','success'];
-            $order = Order::where('id', $request->order_id)->whereIn('status', $paid)->first();
+            $order = Order::with('user')
+            ->where('id', $request->order_id)
+            ->whereIn('status', $paid)
+            ->first();
 
             if (!$order) {
                 return back()->with('warning', 'La orden no existe o no está pagada.');
@@ -217,9 +224,8 @@ class BillingController extends Controller
             // Detectar columnas de items
             $unitPriceCol = Schema::hasColumn('order_items','unit_price') ? 'unit_price'
                           : (Schema::hasColumn('order_items','price') ? 'price' : null);
-            $productFk    = Schema::hasColumn('order_items','product_id') ? 'product_id'
-                          : (Schema::hasColumn('order_items','products_id') ? 'products_id' : 'product_id');
-            $prodPk       = Schema::hasColumn('products','product_id') ? 'product_id' : 'id';
+            $productFk    = 'product_id';
+            $prodPk       = 'id';
 
             $items = DB::table('order_items as oi')
                 ->join('products as p', "p.$prodPk", '=', "oi.$productFk")
@@ -236,11 +242,13 @@ class BillingController extends Controller
             foreach ($items as $i => $it) {
                 $q = (float) $it->quantity;
                 // Si unit_price es 0 o null, usar p.price
-                $p = (isset($it->unit_price) && $it->unit_price > 0) ? (float)$it->unit_price : (float)$it->product_price;
+                $p = (isset($it->unit_price) && $it->unit_price > 0
+                )
+                 ? (float)$it->unit_price : (float)$it->product_price;
 
-                $opg  = $q * $p;
-                $tax  = round($opg * 0.18, 2);
-                $line = round($opg + $tax, 2);
+                $line = round($q * $p, 2);
+                $opg  = round($line / 1.18, 2);
+                $tax  = round($line - $opg, 2);
                 $op  += $opg;
                 $igv += $tax;
                 $total += $line;
@@ -250,23 +258,26 @@ class BillingController extends Controller
                     'description'=> $it->product_name,
                     'qty'        => $q,
                     'unit_price' => $p,
-                    'line_opg'   => round($opg,2),
+                    'line_opg'   => $opg,
                     'line_igv'   => $tax,
                     'line_total' => $line,
                 ];
             }
 
             $customerName = $order->user->name ?? 'Cliente';
-            $customerDoc  = '';
-            $customerAddr = '';
+            $customerDoc  = $order->user->document_number ?? '';
+            $customerAddr = $order->user->address ?? '';
 
         } else {
             // (Modo manual – opcional)
             $items = $request->input('items', []);
+            if (empty($items)) {
+                return back()->with('warning', 'Debemos agregar al menos un producto para generar el PDF.');
+            }
             foreach ($items as $i => $it) {
                 $q = (float) $it['qty'];
                 $p = (float) $it['unit_price'];
-                $opg  = $q * $p;
+                $opg  = round($q * $p, 2);
                 $tax  = round($opg * 0.18, 2);
                 $line = round($opg + $tax, 2);
                 $op  += $opg;
@@ -278,7 +289,7 @@ class BillingController extends Controller
                     'description'=> $it['description'],
                     'qty'        => $q,
                     'unit_price' => $p,
-                    'line_opg'   => round($opg,2),
+                    'line_opg'   => $opg,
                     'line_igv'   => $tax,
                     'line_total' => $line,
                 ];

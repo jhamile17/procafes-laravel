@@ -8,53 +8,104 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    // Lista de categorías
+    /**
+     * Lista de categorías
+     */
     public function index()
     {
-        $categories = Category::latest()->paginate(10);
+        $categories = Category::orderBy('name')
+            ->paginate(10);
+
         return view('admin.categories.categories-index', compact('categories'));
     }
 
-    // Formulario de creación
+    /**
+     * Formulario de creación
+     */
     public function create()
     {
         return view('admin.categories.categories-create');
     }
 
-    // Guarda nueva categoría
+    /**
+     * Guardar categoría
+     */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name',
-            'description' => 'nullable|string',
+        $validated = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:categories,name'
+            ],
+            'description' => [
+                'nullable',
+                'string'
+            ],
         ]);
 
-        Category::create($request->only('name', 'description'));
-        return redirect()->route('admin.categories.index')->with('ok', 'Categoría creada correctamente.');
+        Category::create($validated);
+
+        return redirect()
+            ->route('admin.categories.index')
+            ->with('ok', 'Categoría creada correctamente.');
     }
 
-    // Formulario de edición
+    /**
+     * Formulario editar
+     */
     public function edit(Category $category)
     {
-        return view('admin.categories.categories-edit', compact('category'));
+        return view(
+            'admin.categories.categories-edit',
+            compact('category')
+        );
     }
 
-    // Actualiza
+    /**
+     * Actualizar categoría
+     */
     public function update(Request $request, Category $category)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $category->categories_id . ',categories_id',
-            'description' => 'nullable|string',
+        $validated = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:categories,name,' .
+                $category->categories_id .
+                ',categories_id'
+            ],
+            'description' => [
+                'nullable',
+                'string'
+            ],
         ]);
 
-        $category->update($request->only('name', 'description'));
-        return redirect()->route('admin.categories.index')->with('ok', 'Categoría actualizada correctamente.');
+        $category->update($validated);
+
+        return redirect()
+            ->route('admin.categories.index')
+            ->with('ok', 'Categoría actualizada correctamente.');
     }
 
-    // Elimina
+    /**
+     * Eliminar categoría
+     */
     public function destroy(Category $category)
     {
+        if ($category->products()->exists()) {
+            return back()->with(
+                'error',
+                'No se puede eliminar la categoría porque tiene productos asociados.'
+            );
+        }
+
         $category->delete();
-        return redirect()->route('admin.categories.index')->with('ok', 'Categoría eliminada correctamente.');
+
+        return redirect()
+            ->route('admin.categories.index')
+            ->with('ok', 'Categoría eliminada correctamente.');
     }
 }

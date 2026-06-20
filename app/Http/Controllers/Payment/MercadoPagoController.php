@@ -17,6 +17,13 @@ class MercadoPagoController extends Controller
         $cart  = $request->session()->get('cart', []);
         $items = $cart['items'] ?? [];
 
+        //Evitar checkout sin productos
+        if (empty($items)){
+            return redirect()
+            ->route('products')
+            ->withErrors('Tu carrito está vacío. Agrega productos antes de proceder al pago.');
+        }
+
         // Totales DESDE precio final (con IGV)
         $baseTotal = 0.0;   // base imponible (sin IGV)
         $igvTotal  = 0.0;   // IGV
@@ -141,6 +148,8 @@ class MercadoPagoController extends Controller
     /** Éxito de pago */
     public function success(Request $request)
     {
+        //vaciar carrito despues del pago exitoso
+        $request->session()->forget('cart');
         return view('payments.status', [
             'status' => 'success',
             'data'   => $request->all(),

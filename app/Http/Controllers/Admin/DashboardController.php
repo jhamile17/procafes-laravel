@@ -46,32 +46,39 @@ class DashboardController extends Controller
         // ========================
         // 1) INGRESOS POR MES
         // ========================
-        if ($orderTotalField) {
-            $sumQuery = DB::table('orders as o')
-                ->selectRaw("DATE_FORMAT(o.created_at,'%Y-%m') as ym, SUM(o.{$orderTotalField}) as total")
+
+        if ($categoryId > 0) {
+
+            $rows = DB::table('orders as o')
+                ->join('order_items as oi', 'oi.order_id', '=', 'o.id')
+                ->join('products as p', 'p.id', '=', 'oi.product_id')
+                ->selectRaw("
+                    DATE_FORMAT(o.created_at,'%Y-%m') as ym,
+                    SUM(oi.subtotal) as total
+                ")
                 ->whereBetween('o.created_at', [$start, $end])
-                ->whereIn('o.status', $paidStatuses);
-
-            // Si hay filtro por categoría, unimos con items y products
-            if ($categoryId > 0) {
-                $sumQuery->join('order_items as oi', 'oi.order_id', '=', 'o.id')
-                         ->join('products as p', 'p.id', '=', 'oi.product_id')
-                         ->where('p.categories_id', $categoryId);
-            }
-
-            $rows = $sumQuery
+                ->whereIn('o.status', $paidStatuses)
+                ->where('p.categories_id', $categoryId)
                 ->groupBy('ym')
                 ->pluck('total', 'ym');
 
-            // Asegurar 12 valores (0 si no hay ventas)
-            $revenue = $months->map(function ($m) use ($rows) {
-                $key = $m->format('Y-m');
-                return round((float) ($rows[$key] ?? 0), 2);
-            })->values()->all();
         } else {
-            // Si no hay columna de total, llena con ceros
-            $revenue = array_fill(0, 12, 0);
+
+            $rows = DB::table('orders as o')
+                ->selectRaw("
+                    DATE_FORMAT(o.created_at,'%Y-%m') as ym,
+                    SUM(o.{$orderTotalField}) as total
+                ")
+                ->whereBetween('o.created_at', [$start, $end])
+                ->whereIn('o.status', $paidStatuses)
+                ->groupBy('ym')
+                ->pluck('total', 'ym');
         }
+
+        $revenue = $months->map(function ($m) use ($rows) {
+            $key = $m->format('Y-m');
+            return round((float) ($rows[$key] ?? 0), 2);
+        })->values()->all();
 
         // ========================
         // 2) CARDS RESUMEN
@@ -80,7 +87,7 @@ class DashboardController extends Controller
             'revenue'   => array_sum($revenue),
             'orders'    => (int) Order::count(),
             'products'  => (int) Product::count(),
-            'customers' => (int) User::whereIn('role', ['customer', 'user'])->count(),
+            'customers' => (int) User::where('role', ['customer', 'user'])->count(),
         ];
 
         // ========================
@@ -96,10 +103,12 @@ class DashboardController extends Controller
             ->all();
 
         // Detectar la PK real en categories (id, category_id, categories_id)
-        $catPk = null;
-        foreach (['id', 'category_id', 'categories_id'] as $cand) {
-            if (Schema::hasColumn('categories', $cand)) { $catPk = $cand; break; }
-        }
+        $categories = Category::select([
+        'categories_id as id',
+        'name'
+            ])
+            ->orderBy('name')
+            ->get();
 
         // Lista de categorías para el select (id => name) sin romper si no hay PK estándar
         $categories = $catPk
@@ -109,8 +118,7 @@ class DashboardController extends Controller
         // ========================
         // 4) PRODUCTOS MÁS VENDIDOS (Top 5)
         // ========================
-        $hasSubtotal = Schema::hasColumn('order_items', 'subtotal');
-        $hasPrice    = Schema::hasColumn('order_items', 'price');
+        
 
         $best = DB::table('order_items as oi')
             ->join('orders as o', 'o.id', '=', 'oi.order_id')
@@ -123,11 +131,7 @@ class DashboardController extends Controller
                 'p.name',
                 'p.image',
                 DB::raw('SUM(oi.quantity) as qty_sold'),
-                DB::raw(
-                    $hasSubtotal
-                        ? 'SUM(oi.subtotal) as amount'
-                        : ($hasPrice ? 'SUM(oi.quantity * oi.price) as amount' : '0 as amount')
-                ),
+                DB::raw('SUM(oi.subtotal) as amount'),
             ])
             ->groupBy('p.id', 'p.name', 'p.image')
             ->orderByDesc('qty_sold')
@@ -141,7 +145,7 @@ class DashboardController extends Controller
                         ? Storage::url($img)
                         : asset('images/no-image.png');
                 }
-                if (!$img) $img = 'https://via.placeholder.com/56';
+                if (!$img) $img = ('img/no-image.png'); // fallback local
 
                 return [
                     'id'     => $row->id,

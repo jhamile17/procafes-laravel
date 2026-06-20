@@ -14,11 +14,14 @@ class Brand extends Model
     public $incrementing = true;
     protected $keyType = 'int';
 
-    protected $fillable = ['name', 'description'];
-
-    // Fuerza a que el route key sea la PK real (por si acaso)
-    public function getRouteKeyName()
-    {
-        return $this->getKeyName(); // devuelve 'brand_id'
+    protected $fillable = [
+        'name', 'description'
+        ];
+    public function products() {
+        return $this->hasMany(
+            Product::class,
+             'brand_id', 
+             'brand_id');
     }
+   
 }

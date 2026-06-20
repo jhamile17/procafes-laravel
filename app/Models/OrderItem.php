@@ -7,24 +7,36 @@ use Illuminate\Database\Eloquent\Model;
 class OrderItem extends Model
 {
     protected $table = 'order_items';
-    protected $primaryKey = 'Order_items_id';
-    public $incrementing = true;
-    protected $keyType = 'int';
 
     protected $fillable = [
-        'orders_id','products_id','quantity','price','subtotal'
+        'orders_id',
+        'product_id',
+        'quantity',
+        'unit_price',
+        'subtotal'
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
+        'unit_price' => 'decimal:2',
         'subtotal' => 'decimal:2',
     ];
+        /*
+    |--------------------------------------------------------------------------
+    | Relaciones
+    |--------------------------------------------------------------------------
+     */
 
     public function order(){
-        return $this->belongsTo(Order::class, 'orders_id', 'Orders_id');
+        return $this->belongsTo(
+            Order::class, 
+            'order_id',
+            'id');
     }
 
     public function product(){
-        return $this->belongsTo(Product::class, 'products_id', 'products_id');
+        return $this->belongsTo(
+            Product::class, 
+            'product_id',
+            'id');
     }
 }

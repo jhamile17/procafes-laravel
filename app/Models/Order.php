@@ -6,13 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    /** Tabla y PK reales */
-    protected $table      = 'orders';
-    protected $primaryKey = 'id';
-    public $incrementing  = true;
-    protected $keyType    = 'int';
+    protected $table = 'orders';
 
-    /** Asignación masiva */
     protected $fillable = [
         'user_id',
         'shipping_address_id',
@@ -20,55 +15,64 @@ class Order extends Model
         'status',
     ];
 
-    /** Casts */
     protected $casts = [
         'total_price' => 'decimal:2',
     ];
 
-    /* ================= Relaciones ================= */
+    /*
+    |--------------------------------------------------------------------------
+    | Relaciones
+    |--------------------------------------------------------------------------
+    */
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class);
     }
 
     public function shippingAddress()
     {
-        return $this->belongsTo(ShippingAddress::class, 'shipping_address_id', 'id');
+        return $this->belongsTo(
+            ShippingAddress::class,
+            'shipping_address_id'
+        );
     }
 
     public function items()
     {
-        return $this->hasMany(OrderItem::class, 'order_id', 'id');
+        return $this->hasMany(
+            OrderItem::class,
+            'order_id'
+        );
     }
 
     public function payment()
     {
-        return $this->hasOne(Payment::class, 'order_id', 'id');
+        return $this->hasOne(
+            Payment::class,
+            'order_id'
+        );
     }
 
-    /* ============== Helpers / Accessors ============== */
+    /*
+    |--------------------------------------------------------------------------
+    | Helpers
+    |--------------------------------------------------------------------------
+    */
 
-    /** Mapa de estados → etiqueta en español */
     public static function statusMap(): array
     {
         return [
-            'paid'        => 'Pagado',
-            'shipped'     => 'Enviado',
-            'completed'   => 'Completado',
-            'success'     => 'Completado',
-            'processing'  => 'Procesando',
-            'pending'     => 'Pendiente',
-            'cancelled'   => 'Cancelado',
-            'canceled'    => 'Cancelado',
-            'failed'      => 'Fallido',
+            'pending'   => 'Pendiente',
+            'paid'      => 'Pagado',
+            'shipped'   => 'Enviado',
+            'cancelled' => 'Cancelado',
         ];
     }
 
-    /** $order->status_label */
     public function getStatusLabelAttribute(): string
     {
-        $map = self::statusMap();
-        return $map[$this->status] ?? ucfirst($this->status ?? 'desconocido');
+        return self::statusMap()[$this->status]
+            ?? ucfirst($this->status);
     }
 }
