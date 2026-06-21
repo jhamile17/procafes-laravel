@@ -3,13 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\AlertasStock;
-use App\Services\AlertasStockService;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
-    protected $table = 'products';
-    protected $primaryKey = 'id';
     protected $fillable = [
         'name',
         'price',
@@ -19,61 +18,77 @@ class Product extends Model
         'categories_id',
         'brand_id',
         'image',
-        'description'
+        'description',
     ];
 
-    protected $appends = ['image_url'];
-
-    protected $casts = [
-        'price' => 'float',
-        'stock' => 'integer',
-        'stock_minimo' => 'integer',
-        'status' => 'boolean',
-        'categories_id' => 'integer',
-        'brand_id' => 'integer',
+    protected $appends = [
+        'image_url',
     ];
 
-    public function getImageUrlAttribute()
+    protected function casts(): array
     {
-        return $this->image ? asset('storage/' . $this->image) : null;
+        return [
+            'price' => 'decimal:2',
+            'stock' => 'integer',
+            'stock_minimo' => 'integer',
+            'status' => 'boolean',
+            'categories_id' => 'integer',
+            'brand_id' => 'integer',
+        ];
     }
 
-    public function category() {
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image
+            ? Storage::disk('public')->url($this->image)
+            : null;
+    }
+
+    public function category(): BelongsTo
+    {
         return $this->belongsTo(
-            Category::class, 'categories_id', 'categories_id');
+            Category::class,
+            'categories_id',
+            'categories_id'
+        );
     }
 
-    public function brand() {
+    public function brand(): BelongsTo
+    {
         return $this->belongsTo(
-            Brand::class, 'brand_id', 'brand_id');
+            Brand::class,
+            'brand_id',
+            'brand_id'
+        );
     }
 
-    public function reviews()
+    public function reviews(): HasMany
     {
-        return $this->hasMany(
-            Review::class, 'products_id', 'id');
+        return $this->hasMany(Review::class, 'product_id');
     }
 
-    public function wishlists()
+    public function wishlists(): HasMany
     {
-        return $this->hasMany(
-            Wishlist::class, 'product_id', 'id');
-    }
-    public function orderItems()
-    {
-        return $this->hasMany(
-            OrderItem::class, 'product_id', 'id');
+        return $this->hasMany(Wishlist::class, 'product_id');
     }
 
-    // Observer para cambios en stock
-    protected static function booted()
+    public function orderItems(): HasMany
     {
-        static::updated(function ($product) {
-            // Si cambió el stock
-            if ($product->isDirty('stock')) {
-                // Revisar y disparar alerta + notificación
-                (new AlertasStockService())->revisarStock($product);
-            }
-        });
+        return $this->hasMany(OrderItem::class, 'product_id');
+    }
+
+    public function stockAlerts(): HasMany
+    {
+        return $this->hasMany(AlertasStock::class, 'product_id');
+    }
+
+    public function isLowStock(): bool
+    {
+        return $this->stock <= $this->stock_minimo;
+    }
+
+    public function isAvailable(int $quantity = 1): bool
+    {
+        return $this->status && $quantity > 0 && $this->stock >= $quantity;
     }
 }

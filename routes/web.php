@@ -82,8 +82,8 @@ Route::prefix('cart')->name('cart.')->group(function () {
 
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add', [CartController::class, 'add'])->name('add');
-    Route::patch('/{rowId}', [CartController::class, 'update'])->name('update');
-    Route::delete('/{rowId}', [CartController::class, 'remove'])->name('remove');
+    Route::patch('/{productId}', [CartController::class, 'update'])->name('update');
+    Route::delete('/{productId}', [CartController::class, 'remove'])->name('remove');
     Route::delete('/', [CartController::class, 'clear'])->name('clear');
 
 });
@@ -209,18 +209,25 @@ Route::prefix('admin')
 |--------------------------------------------------------------------------
 */
 
-Route::get('/checkout', [MercadoPagoController::class, 'checkout'])
+Route::get('/checkout', [CheckoutController::class, 'index'])
+    ->middleware('auth')
     ->name('checkout');
+
+Route::post('/checkout', [CheckoutController::class, 'store'])
+    ->middleware('auth')
+    ->name('checkout.store');
 
 /*
 |--------------------------------------------------------------------------
 | MERCADO PAGO
 |--------------------------------------------------------------------------
 */
-
+Route::get('/pagos/mercadopago', [MercadoPagoController::class, 'index'])
+    ->middleware('auth')
+    ->name('mp.checkout');
 Route::post('/pagos/crear-preferencia', [MercadoPagoController::class, 'createPreference'])
+    ->middleware('auth')
     ->name('mp.preference');
-
 Route::get('/pagos/exito', [MercadoPagoController::class, 'success'])
     ->name('mp.success');
 

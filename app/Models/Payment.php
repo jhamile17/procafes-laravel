@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends Model
 {
-    protected $table = 'payments';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_FAILED = 'failed';
 
     protected $fillable = [
         'order_id',
@@ -17,43 +20,38 @@ class Payment extends Model
         'status',
     ];
 
-    protected $casts = [
-        'amount' => 'decimal:2',
+    protected $appends = [
+        'status_label',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relaciones
-    |--------------------------------------------------------------------------
-    */
-
-    public function order()
+    protected function casts(): array
     {
-        return $this->belongsTo(
-            Order::class,
-            'order_id',
-            'id'
-        );
+        return [
+            'amount' => 'decimal:2',
+        ];
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Helpers
-    |--------------------------------------------------------------------------
-    */
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
+    }
 
     public static function statusMap(): array
     {
         return [
-            'pending'   => 'Pendiente',
-            'completed' => 'Completado',
-            'failed'    => 'Fallido',
+            self::STATUS_PENDING => 'Pendiente',
+            self::STATUS_COMPLETED => 'Completado',
+            self::STATUS_FAILED => 'Fallido',
         ];
     }
 
     public function getStatusLabelAttribute(): string
     {
-        return self::statusMap()[$this->status]
-            ?? ucfirst($this->status);
+        return self::statusMap()[$this->status] ?? ucfirst((string) $this->status);
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->status === self::STATUS_COMPLETED;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Cart extends Model
 {
@@ -16,18 +17,31 @@ class Cart extends Model
         'sub_total',
     ];
 
-    protected $casts = [
-        'price' => 'decimal:2',
-        'sub_total' => 'decimal:2',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'quantity' => 'integer',
+            'price' => 'decimal:2',
+            'sub_total' => 'decimal:2',
+        ];
+    }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function product()
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function refreshSubtotal(): void
+    {
+        $this->sub_total = bcmul(
+            (string) $this->price,
+            (string) $this->quantity,
+            2
+        );
     }
 }

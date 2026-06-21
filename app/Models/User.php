@@ -2,18 +2,22 @@
 
 namespace App\Models;
 
+use App\Notifications\WelcomeVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Notifications\WelcomeVerifyEmail;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use Notifiable, HasFactory, HasApiTokens;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
 
-    protected $table = 'users';
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_CUSTOMER = 'customer';
 
     protected $fillable = [
         'name',
@@ -24,8 +28,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'document_number',
         'role',
         'address',
-        // si en tu tabla existe, puedes agregar:
-        // 'email_verified_at',
     ];
 
     protected $hidden = [
@@ -33,52 +35,51 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed', // hash automático al asignar
-    ];
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
 
-    /* ================= Verificación de Email ================= */
-
-    /**
-     * Envía el correo de verificación usando tu plantilla personalizada.
-     */
     public function sendEmailVerificationNotification(): void
     {
         $this->notify(new WelcomeVerifyEmail());
     }
 
-    /* ================= Relaciones ================= */
-
-    public function shippingAddresses()
+    public function shippingAddresses(): HasMany
     {
-        return $this->hasMany(ShippingAddress::class, 'user_id');
+        return $this->hasMany(ShippingAddress::class);
     }
 
-    public function orders()
+    public function orders(): HasMany
     {
-        return $this->hasMany(Order::class, 'user_id');
+        return $this->hasMany(Order::class);
     }
 
-    public function wishlists()
+    public function wishlists(): HasMany
     {
-        return $this->hasMany(Wishlist::class, 'user_id');
+        return $this->hasMany(Wishlist::class);
     }
 
-    public function cartItems()
+    public function cartItems(): HasMany
     {
-        return $this->hasMany(Cart::class, 'user_id');
+        return $this->hasMany(Cart::class);
     }
 
-    public function reviews()
+    public function reviews(): HasMany
     {
-        return $this->hasMany(Review::class, 'user_id');
+        return $this->hasMany(Review::class);
     }
-
-    /* ================= Helpers ================= */
 
     public function isAdmin(): bool
     {
-        return (string)($this->role ?? '') === 'admin';
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isCustomer(): bool
+    {
+        return $this->role === self::ROLE_CUSTOMER;
     }
 }

@@ -3,57 +3,66 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-
-use App\Services\Cart\LegacySessionCartService;
+use App\Services\Cart\SessionCartService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
     public function __construct(
-        private readonly LegacySessionCartService $cartService,
+        private readonly SessionCartService $cartService,
     ) {
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json($this->cartService->summary());
+        return response()->json(
+            $this->cartService->summary($request)
+        );
     }
 
     public function add(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'id' => ['required'],
-            'name' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'numeric', 'min:0'],
+            'product_id' => ['required', 'integer', 'exists:products,id'],
             'qty' => ['nullable', 'integer', 'min:1'],
-            'image' => ['nullable', 'string'],
-            'url' => ['nullable', 'string'],
-            'variant' => ['nullable'],
         ]);
 
-        return response()->json($this->cartService->add($data));
+        return response()->json(
+            $this->cartService->add(
+                $request,
+                (int) $data['product_id'],
+                (int) ($data['qty'] ?? 1),
+            )
+        );
     }
 
-    public function update(Request $request, string $rowId): JsonResponse
+    public function update(Request $request, int $productId): JsonResponse
     {
         $data = $request->validate([
             'qty' => ['required', 'integer', 'min:1'],
         ]);
 
         return response()->json(
-            $this->cartService->update($rowId, (int) $data['qty'])
+            $this->cartService->update(
+                $request,
+                $productId,
+                (int) $data['qty'],
+            )
         );
     }
 
-    public function remove(string $rowId): JsonResponse
+    public function remove(Request $request, int $productId): JsonResponse
     {
-        return response()->json($this->cartService->remove($rowId));
+        return response()->json(
+            $this->cartService->remove($request, $productId)
+        );
     }
 
-    public function clear(): JsonResponse
+    public function clear(Request $request): JsonResponse
     {
-        return response()->json($this->cartService->clear());
+        return response()->json(
+            $this->cartService->clear($request)
+        );
     }
 }
-

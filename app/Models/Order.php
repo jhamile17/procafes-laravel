@@ -3,10 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
-    protected $table = 'orders';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_PAID = 'paid';
+    public const STATUS_SHIPPED = 'shipped';
+    public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
         'user_id',
@@ -15,64 +21,64 @@ class Order extends Model
         'status',
     ];
 
-    protected $casts = [
-        'total_price' => 'decimal:2',
+    protected $appends = [
+        'status_label',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relaciones
-    |--------------------------------------------------------------------------
-    */
+    protected function casts(): array
+    {
+        return [
+            'total_price' => 'decimal:2',
+        ];
+    }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function shippingAddress()
+    public function shippingAddress(): BelongsTo
     {
-        return $this->belongsTo(
-            ShippingAddress::class,
-            'shipping_address_id'
-        );
+        return $this->belongsTo(ShippingAddress::class);
     }
 
-    public function items()
+    public function items(): HasMany
     {
-        return $this->hasMany(
-            OrderItem::class,
-            'order_id'
-        );
+        return $this->hasMany(OrderItem::class);
     }
 
-    public function payment()
+    public function payment(): HasOne
     {
-        return $this->hasOne(
-            Payment::class,
-            'order_id'
-        );
+        return $this->hasOne(Payment::class);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Helpers
-    |--------------------------------------------------------------------------
-    */
 
     public static function statusMap(): array
     {
         return [
-            'pending'   => 'Pendiente',
-            'paid'      => 'Pagado',
-            'shipped'   => 'Enviado',
-            'cancelled' => 'Cancelado',
+            self::STATUS_PENDING => 'Pendiente',
+            self::STATUS_PAID => 'Pagado',
+            self::STATUS_SHIPPED => 'Enviado',
+            self::STATUS_CANCELLED => 'Cancelado',
         ];
     }
 
     public function getStatusLabelAttribute(): string
     {
-        return self::statusMap()[$this->status]
-            ?? ucfirst($this->status);
+        return self::statusMap()[$this->status] ?? ucfirst((string) $this->status);
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->status === self::STATUS_PAID;
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->status === self::STATUS_CANCELLED;
     }
 }

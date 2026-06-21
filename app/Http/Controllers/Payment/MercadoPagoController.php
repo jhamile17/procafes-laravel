@@ -3,174 +3,165 @@
 namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\Payment;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\View\View;
 
 class MercadoPagoController extends Controller
 {
     /**
-     * Página “Pagar con Mercado Pago”.
-     * Usa SIEMPRE precio final (con IGV) guardado en el carrito.
+     * Muestra la página previa al pago de una orden pendiente.
      */
-    public function checkout(Request $request)
+    public function index(Request $request): View|RedirectResponse
     {
-        $cart  = $request->session()->get('cart', []);
-        $items = $cart['items'] ?? [];
+        $orderId = $request->integer('order_id');
 
-        //Evitar checkout sin productos
-        if (empty($items)){
+        if (! $orderId) {
             return redirect()
-            ->route('products')
-            ->withErrors('Tu carrito está vacío. Agrega productos antes de proceder al pago.');
+                ->route('checkout')
+                ->withErrors(['order' => 'Selecciona una orden para continuar con el pago.']);
         }
 
-        // Totales DESDE precio final (con IGV)
-        $baseTotal = 0.0;   // base imponible (sin IGV)
-        $igvTotal  = 0.0;   // IGV
-        $grossTotal= 0.0;   // total con IGV
+        $order = Order::query()
+            ->with(['items.product', 'payment'])
+            ->whereKey($orderId)
+            ->where('user_id', $request->user()->id)
+            ->firstOrFail();
 
-        foreach ($items as $it) {
-            $qty       = (float)($it['qty']   ?? 1);
-            $unitGross = (float)($it['price'] ?? 0);      // precio final con IGV
-            $lineGross = round($unitGross * $qty, 2);
-
-            $lineBase  = round($lineGross / 1.18, 2);     // base = final / 1.18
-            $lineIgv   = round($lineGross - $lineBase, 2);
-
-            $baseTotal  += $lineBase;
-            $igvTotal   += $lineIgv;
-            $grossTotal += $lineGross;
+        if (! $order->isPending()) {
+            return redirect()
+                ->route('customer.dashboard')
+                ->withErrors(['order' => 'Esta orden ya no está pendiente de pago.']);
         }
 
-        // La vista que ya tienes espera estas llaves:
+        if ($order->payment?->payment_method !== 'mercadopago') {
+            return redirect()
+                ->route('customer.dashboard')
+                ->withErrors(['order' => 'Esta orden no usa Mercado Pago.']);
+        }
+
         return view('payments.mercadopago', [
-            'cart'     => $items,
-            'subtotal' => round($baseTotal, 2), // base imponible
-            'igv'      => round($igvTotal,  2),
-            'total'    => round($grossTotal,2), // total final
+            'order' => $order,
         ]);
     }
 
     /**
-     * Crea la preferencia y redirige al Checkout de Mercado Pago.
-     * - Si hay carrito en sesión: arma ítems reales con unit_price = precio final (con IGV).
-     * - Si no hay carrito: crea un ítem con el total recibido.
+     * Crea una preferencia desde los OrderItem guardados en la base de datos.
      */
-    public function createPreference(Request $request)
+    public function createPreference(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'order_id' => ['nullable','integer'],
-            'total'    => ['nullable','numeric'], // usado solo si no hay carrito
+        $data = $request->validate([
+            'order_id' => ['required', 'integer', 'exists:orders,id'],
         ]);
 
-        $accessToken = env('MP_ACCESS_TOKEN');
-        if (empty($accessToken)) {
-            return back()->withErrors('Falta MP_ACCESS_TOKEN en tu archivo .env');
+        $order = Order::query()
+            ->with(['items.product', 'payment'])
+            ->whereKey($data['order_id'])
+            ->where('user_id', $request->user()->id)
+            ->firstOrFail();
+
+        if (! $order->isPending()) {
+            return back()->withErrors([
+                'order' => 'Esta orden ya no está pendiente de pago.',
+            ]);
         }
 
-        // 1) Construir ítems desde carrito (si existe)
-        $cart      = $request->session()->get('cart', []);
-        $cartItems = $cart['items'] ?? [];
-        $items     = [];
-
-        if (is_array($cartItems) && count($cartItems) > 0) {
-            foreach ($cartItems as $it) {
-                $title = (string)($it['name'] ?? 'Producto');
-                $qty   = (int)   ($it['qty']  ?? 1);
-
-                // unit_price = PRECIO FINAL (con IGV). Sanitizamos por si viene S/ o comas.
-                $rawPrice = (string)($it['price'] ?? '0');
-                $numPrice = (float)str_replace(',', '.', preg_replace('/[^\d.,]/', '', $rawPrice));
-
-                if ($qty < 1)        $qty = 1;
-                if ($numPrice <= 0)  $numPrice = 0.01; // MP no acepta 0
-
-                $items[] = [
-                    'title'       => $title,
-                    'quantity'    => $qty,
-                    'unit_price'  => round($numPrice, 2), // NUMÉRICO (final con IGV)
-                    'currency_id' => 'PEN',
-                ];
-            }
+        if ($order->payment?->payment_method !== 'mercadopago') {
+            return back()->withErrors([
+                'order' => 'Esta orden no fue creada para Mercado Pago.',
+            ]);
         }
 
-        // 2) Si no hay carrito, crear un ítem con el total recibido
-        if (empty($items)) {
-            $total = (float)($validated['total'] ?? 0);
-            if ($total <= 0) {
-                return back()->withErrors('No hay items en el carrito ni total válido para crear la preferencia.');
-            }
+        if ($order->items->isEmpty()) {
+            return back()->withErrors([
+                'order' => 'La orden no tiene productos.',
+            ]);
+        }
 
-            $orderId = $validated['order_id'] ?? null;
+        $accessToken = config('services.mercadopago.token');
 
-            $items[] = [
-                'title'       => 'Compra PROCAFES' . ($orderId ? (" #{$orderId}") : ''),
-                'quantity'    => 1,
-                'unit_price'  => round($total, 2), // TOTAL FINAL (con IGV)
+        if (blank($accessToken)) {
+            return back()->withErrors([
+                'mercadopago' => 'Falta configurar MP_ACCESS_TOKEN en el archivo .env.',
+            ]);
+        }
+
+        $items = $order->items->map(function ($item): array {
+            return [
+                'title' => $item->product?->name ?? "Producto #{$item->product_id}",
+                'quantity' => $item->quantity,
+                'unit_price' => (float) $item->unit_price,
                 'currency_id' => 'PEN',
             ];
-        }
-
-        // Back URLs (usa valores por defecto si no están en .env)
-        $success = env('MP_SUCCESS_URL', route('home'));
-        $failure = env('MP_FAILURE_URL', route('home'));
-        $pending = env('MP_PENDING_URL', route('home'));
+        })->values()->all();
 
         $payload = [
-            'items'        => $items,
-            'back_urls'    => [
-                'success' => $success,
-                'failure' => $failure,
-                'pending' => $pending,
+            'items' => $items,
+            'external_reference' => (string) $order->id,
+            'back_urls' => [
+                'success' => route('mp.success'),
+                'failure' => route('mp.failure'),
+                'pending' => route('mp.pending'),
             ],
-            'auto_return'  => 'approved',
-            'notification_url' => url('/webhooks/mercadopago'),
+            'auto_return' => 'approved',
+            'notification_url' => route('mp.webhook'),
         ];
 
-        // Llamada a la API de preferencias
         $response = Http::withToken($accessToken)
+            ->acceptJson()
             ->post('https://api.mercadopago.com/checkout/preferences', $payload);
 
         if ($response->failed()) {
-            return back()->withErrors('Error API Mercado Pago: ' . $response->body());
+            report(new \RuntimeException(
+                'Mercado Pago preference error: '.$response->body()
+            ));
+
+            return back()->withErrors([
+                'mercadopago' => 'No se pudo iniciar el pago. Inténtalo nuevamente.',
+            ]);
         }
 
-        $data = $response->json();
-        $redirectUrl = $data['init_point'] ?? ($data['sandbox_init_point'] ?? null);
+        $preference = $response->json();
+        $redirectUrl = $preference['init_point']
+            ?? $preference['sandbox_init_point']
+            ?? null;
 
-        if (!$redirectUrl) {
-            return back()->withErrors('Respuesta inválida de Mercado Pago: ' . json_encode($data));
+        if (blank($redirectUrl)) {
+            return back()->withErrors([
+                'mercadopago' => 'Mercado Pago no devolvió una URL de pago válida.',
+            ]);
         }
 
         return redirect()->away($redirectUrl);
     }
 
-    /** Éxito de pago */
-    public function success(Request $request)
+    /**
+     * Esta URL solo muestra el resultado. El webhook es quien confirma el pago.
+     */
+    public function success(Request $request): View
     {
-        //vaciar carrito despues del pago exitoso
-        $request->session()->forget('cart');
         return view('payments.status', [
             'status' => 'success',
-            'data'   => $request->all(),
+            'data' => $request->all(),
         ]);
     }
 
-    /** Pago pendiente */
-    public function pending(Request $request)
+    public function pending(Request $request): View
     {
         return view('payments.status', [
             'status' => 'pending',
-            'data'   => $request->all(),
+            'data' => $request->all(),
         ]);
     }
 
-    /** Pago fallido */
-    public function failure(Request $request)
+    public function failure(Request $request): View
     {
         return view('payments.status', [
             'status' => 'failure',
-            'data'   => $request->all(),
+            'data' => $request->all(),
         ]);
     }
 }
