@@ -122,6 +122,7 @@ class BillingController extends Controller
                 $resp = Http::timeout(10)
                 ->retry(2, 500)
                 ->get("{$base}/dni/{$doc}", 
+                
                 ['token' => $token]);
                 if (!$resp->ok()) {
                     return $this->lookupReturn(

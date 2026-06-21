@@ -56,10 +56,13 @@ Route::bind('product', fn($v) => Product::findOrFail($v));
 | RUTAS PÚBLICAS
 |--------------------------------------------------------------------------
 */
-
+Route::get('/products', [ProductController::class, 'index'])
+    ->name('products');
 Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])
     ->name('wishlist.toggle');
-
+Route::post('/wishlist/', [WishlistController::class, 'index'])
+    ->middleware('auth')
+    ->name('wishlist.index');
 Route::get('/chatbot', fn () => view('chatbot'));
 
 Route::post('/chatbot/send', [ChatbotController::class, 'send']);
@@ -68,9 +71,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::view('/nosotros', 'nosotros')->name('nosotros');
 Route::view('/ubicanos', 'ubicanos')->name('ubicanos');
-
-Route::get('/products', [ProductController::class, 'index'])
-    ->name('products');
 
 /*
 |--------------------------------------------------------------------------

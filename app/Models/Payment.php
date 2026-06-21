@@ -28,6 +28,7 @@ class Payment extends Model
     {
         return [
             'amount' => 'decimal:2',
+            'transaction_json' => 'array',
         ];
     }
 

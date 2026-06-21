@@ -39,9 +39,11 @@ class Product extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        return $this->image
-            ? Storage::disk('public')->url($this->image)
-            : null;
+        if (!$this->image || !Storage::disk('public')->exists($this->image)) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->image);
     }
 
     public function category(): BelongsTo

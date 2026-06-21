@@ -108,28 +108,13 @@ window.addEventListener('DOMContentLoaded', () => {
     if (rawVariant){ try{ variant=JSON.parse(rawVariant);}catch{ variant=rawVariant; } }
 
     const payload = {
-      id: btn.dataset.id,
-      name: btn.dataset.name,
-      price: Number.parseFloat(btn.dataset.price) || 0,
-      qty: Math.max(1, Number.parseInt(btn.dataset.qty || '1',10)),
-      image: btn.dataset.image || null,
-      url: btn.dataset.url || null,
-      variant
+     product_id: Number.parseInt(btn.dataset.id,10),
+     quantity:Math.max(1, Number.parseInt(btn.dataset.qty || '1',10)),
     };
 
     try {
       const cart = await api(ROUTES.add,'POST',payload);
       render(cart);
-
-      // feedback: toast + abrir carrito
-      const actions = [{ label:'Ver carrito', class:'btn-outline-secondary', href:'#', dismiss:true }];
-      if (APP.isAuth && APP.routes.checkout) {
-        actions.unshift({ label:'Ir a pagar', class:'btn-primary', href: APP.routes.checkout });
-      } else {
-        // si no está logeado, invítalo a iniciar sesión para pagar
-        actions.unshift({ label:'Iniciar sesión', class:'btn-primary', href: APP.routes.login });
-      }
-      showToast({ title:'Producto agregado', body:`<strong>${payload.name}</strong> se añadió al carrito.`, actions });
 
       offcanvas?.show();
     } catch (err) {
@@ -177,5 +162,41 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!ROUTES.clear) return;
     try { const cart = await api(ROUTES.clear,'DELETE'); render(cart); }
     catch (err) { console.error('[CART] clear error:', err); }
+  });
+    // ---- WISHLIST ----
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.btn-wishlist');
+    if (!btn) return;
+
+    e.preventDefault();
+
+    try {
+      const response = await api('/wishlist/toggle', 'POST', {
+        product_id: btn.dataset.id
+      });
+
+      if (response.added) {
+        btn.classList.remove('btn-outline-danger');
+        btn.classList.add('btn-danger');
+        btn.innerHTML = '<i class="bi bi-heart-fill me-1"></i> En favoritos';
+      } else {
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-outline-danger');
+        btn.innerHTML = '<i class="bi bi-heart me-1"></i> Favoritos';
+      }
+    } catch (err) {
+      console.error('[WISHLIST] error:', err);
+
+      if (err.message.includes('401')) {
+        window.location.href = APP.routes.login;
+        return;
+      }
+
+      showToast({
+        title: 'Ups',
+        body: 'No se pudo actualizar favoritos.',
+        actions: []
+      });
+    }
   });
 });

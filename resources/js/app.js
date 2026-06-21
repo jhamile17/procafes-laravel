@@ -1,4 +1,5 @@
-import "bootstrap";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import './bootstrap';
+import * as bootstrap from 'bootstrap';
+import './cart';
 
 window.bootstrap = bootstrap;

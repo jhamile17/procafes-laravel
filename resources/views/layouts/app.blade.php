@@ -1,29 +1,46 @@
 <!doctype html>
 <html lang="es">
-
 <head>
     <x-layout.head />
+    @livewireStyles
 </head>
-
 <body>
-
     <x-layout.navbar />
 
     <main>
         @yield('content')
+        {{ $slot ?? '' }}
     </main>
 
     <x-layout.footer />
 
-    {{-- WhatsApp flotante --}}
     <x-ecommerce.whatsapp />
-
-    {{-- IA flotante --}}
     <x-chat.button />
-
-    {{-- Modal IA --}}
     <x-chat.modal />
 
-</body>
+    <x-ecommerce.cart-offcanvas />
 
+    <script>
+        window.Laravel = {
+            csrfToken: '{{ csrf_token() }}',
+            routes: {
+                index: '{{ route('cart.index') }}',
+                add: '{{ route('cart.add') }}',
+                base: '{{ url('/cart') }}',
+                clear: '{{ route('cart.clear') }}',
+            }
+        };
+
+        window.App = {
+            isAuth: @json(auth()->check()),
+            routes: {
+                login: '{{ route('login') }}',
+                checkout: '{{ route('checkout') }}',
+            }
+        };
+    </script>
+
+    @livewireScripts
+    @stack('scripts')
+</body>
 </html>
