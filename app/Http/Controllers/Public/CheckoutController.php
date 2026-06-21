@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Public;
+
+use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -146,3 +148,5 @@ class CheckoutController extends Controller
         return array_keys($arr) !== range(0, count($arr) - 1);
     }
 }
+
+

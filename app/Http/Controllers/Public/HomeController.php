@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Public;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Product;
 
@@ -20,3 +22,4 @@ class HomeController extends Controller
         return view('home', compact('products'));
     }
 }
+

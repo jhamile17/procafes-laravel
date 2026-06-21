@@ -6,13 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 // Controllers
-use App\Http\Controllers\WishlistController;
-use App\Http\Controllers\ChatbotController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Public\WishlistController;
+use App\Http\Controllers\Public\ChatbotController;
+use App\Http\Controllers\Public\ProductController;
 
 // Público
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\CartController;
+use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\Public\CartController;
 use App\Http\Controllers\Auth\GoogleController;
 
 // Cliente
@@ -20,7 +20,7 @@ use App\Http\Controllers\Customer\DashboardController as CustomerDashboardContro
 use App\Http\Controllers\Customer\BoletaController as CustomerBoletaController;
 
 // Checkout / pagos
-use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\Public\CheckoutController;
 use App\Http\Controllers\PaymentDemoController;
 
 // Admin
