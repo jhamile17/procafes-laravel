@@ -1,45 +1,27 @@
 <?php
 
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::middleware('guest')->group(function () {
-    // Login Livewire existente
     Volt::route('login', 'pages.auth.login')
         ->name('login');
 
-    // Registro tradicional
-    Route::get('register', function () {
-        return view('auth.register');
-    })->name('register');
+    Volt::route('register', 'pages.auth.register')
+        ->name('register');
 
-    Route::post('register', [RegisterController::class, 'store'])
-        ->name('register.store');
-
-    // Recuperación de contraseña
-    Route::get('forgot-password', [ForgotPasswordController::class, 'create'])
+    Volt::route('forgot-password', 'pages.auth.forgot-password')
         ->name('password.request');
 
-    Route::post('forgot-password', [ForgotPasswordController::class, 'store'])
-        ->name('password.email');
-
-    // Restablecer contraseña
-    Route::get('reset-password/{token}', [ResetPasswordController::class, 'create'])
+    Volt::route('reset-password/{token}', 'pages.auth.reset-password')
         ->name('password.reset');
-
-    Route::post('reset-password', [ResetPasswordController::class, 'store'])
-        ->name('password.update');
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('verify-email', function () {
-        return view('auth.verify-email');
-    })->name('verification.notice');
+    Volt::route('verify-email', 'pages.auth.verify-email')
+        ->name('verification.notice');
 
     Route::post('email/verification-notification', function (Request $request) {
         if ($request->user()->hasVerifiedEmail()) {
@@ -50,8 +32,18 @@ Route::middleware('auth')->group(function () {
 
         return back()->with('status', 'verification-link-sent');
     })->middleware('throttle:6,1')->name('verification.send');
-
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Enlace de verificación enviado por correo
+|--------------------------------------------------------------------------
+|
+| No usa middleware auth para que funcione aunque el usuario abra el
+| enlace desde otro navegador, perfil o dispositivo.
+| La seguridad la mantienen la firma temporal, el hash y el throttle.
+|
+*/
+Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');

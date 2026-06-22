@@ -14,7 +14,7 @@
                     </div>
                 @endif
 
-                <a href="{{ route('auth.google.redirect') }}"
+                <a href="{{ route('auth.google.login') }}"
                    class="btn btn-outline-dark w-100 mb-3">
                     <i class="bi bi-google me-2"></i>
                     Continuar con Google

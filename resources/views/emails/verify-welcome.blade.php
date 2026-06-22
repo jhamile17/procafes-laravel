@@ -1,57 +1,76 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8">
-    <title>Confirma tu cuenta | PROCAFES</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifica tu correo | PROCAFES</title>
 </head>
+<body style="margin:0; padding:0; background:#f6f3ef; font-family:Arial, Helvetica, sans-serif; color:#2f241e;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f6f3ef; padding:32px 16px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; max-width:600px; background:#ffffff; border-radius:12px; overflow:hidden;">
+                    <tr>
+                        <td align="center" style="background:#4a2c1f; padding:28px 32px;">
+                            <h1 style="margin:0; color:#ffffff; font-size:28px; letter-spacing:1px;">
+                                PROCAFES
+                            </h1>
+                            <p style="margin:8px 0 0; color:#f4dfc6; font-size:14px;">
+                                Café que acompaña tus mejores momentos
+                            </p>
+                        </td>
+                    </tr>
 
-<body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, Helvetica, sans-serif;">
-    <div style="max-width:640px; margin:0 auto; padding:24px;">
-        <div style="background:#ffffff; border-radius:10px; padding:28px; box-shadow:0 1px 3px rgba(0,0,0,.08);">
-            <div style="text-align:center; margin-bottom:20px;">
-                <img
-                    src="{{ url('images/logo.png') }}"
-                    alt="PROCAFES"
-                    height="42"
-                    style="display:inline-block; max-width:180px;"
-                >
-            </div>
+                    <tr>
+                        <td style="padding:36px 32px;">
+                            <h2 style="margin:0 0 18px; color:#4a2c1f; font-size:24px;">
+                                ¡Bienvenido{{ filled($user->name) ? ', ' . $user->name : '' }}!
+                            </h2>
 
-            <h1 style="margin:0 0 12px; color:#111827; font-size:22px; text-align:center;">
-                ¡Bienvenido a PROCAFES, {{ $user->name }}!
-            </h1>
+                            <p style="margin:0 0 16px; font-size:16px; line-height:1.6;">
+                                Gracias por crear tu cuenta en PROCAFES.
+                            </p>
 
-            <p style="margin:0 0 20px; color:#4b5563; font-size:15px; line-height:1.6; text-align:center;">
-                Gracias por registrarte. Para activar tu cuenta y confirmar que este correo te pertenece,
-                haz clic en el siguiente botón.
-            </p>
+                            <p style="margin:0 0 16px; font-size:16px; line-height:1.6;">
+                                Para activar tu cuenta y poder acceder a tu perfil, compras y pagos,
+                                verifica el correo con el que te registraste:
+                            </p>
 
-            <div style="text-align:center; margin:24px 0;">
-                <a
-                    href="{{ $url }}"
-                    target="_blank"
-                    rel="noopener"
-                    style="display:inline-block; background:#3E350E; color:#ffffff; text-decoration:none; padding:12px 20px; border-radius:8px; font-weight:bold;"
-                >
-                    Confirmar mi cuenta
-                </a>
-            </div>
+                            <p style="margin:0 0 24px; padding:12px 16px; background:#f1ebe5; border-radius:8px; font-size:16px; font-weight:bold; word-break:break-word;">
+                                {{ $user->email }}
+                            </p>
 
-            <p style="margin:0 0 10px; color:#6b7280; font-size:13px; line-height:1.6; text-align:center;">
-                Este enlace vence en 60 minutos.
-            </p>
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 auto 24px;">
+                                <tr>
+                                    <td style="background:#7b4b2a; border-radius:8px;">
+                                        <a href="{{ $url }}"
+                                           style="display:inline-block; padding:14px 24px; color:#ffffff; text-decoration:none; font-size:16px; font-weight:bold;">
+                                            Verificar mi correo
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
 
-            <p style="margin:0; color:#6b7280; font-size:13px; line-height:1.6; text-align:center;">
-                Si no creaste esta cuenta, puedes ignorar este correo.
-            </p>
+                            <p style="margin:0 0 12px; color:#665a53; font-size:14px; line-height:1.6;">
+                                Por seguridad, este enlace vence en 60 minutos.
+                            </p>
 
-            <hr style="border:0; border-top:1px solid #e5e7eb; margin:24px 0;">
+                            <p style="margin:0; color:#665a53; font-size:14px; line-height:1.6;">
+                                Si no creaste una cuenta en PROCAFES, puedes ignorar este mensaje.
+                            </p>
+                        </td>
+                    </tr>
 
-            <p style="margin:0; color:#9ca3af; font-size:12px; text-align:center;">
-                © {{ date('Y') }} PROCAFES. Todos los derechos reservados.
-            </p>
-        </div>
-    </div>
+                    <tr>
+                        <td align="center" style="padding:20px 32px; background:#f1ebe5;">
+                            <p style="margin:0; color:#756860; font-size:12px;">
+                                © {{ date('Y') }} PROCAFES. Todos los derechos reservados.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

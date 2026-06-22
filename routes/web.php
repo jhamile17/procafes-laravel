@@ -90,14 +90,20 @@ Route::prefix('cart')->name('cart.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| GOOGLE LOGIN
+| GOOGLE AUTH
 |--------------------------------------------------------------------------
 */
 
 Route::prefix('auth/google')->name('auth.google.')->group(function () {
 
-    Route::get('/redirect', [GoogleController::class, 'redirect'])->name('redirect');
-    Route::get('/callback', [GoogleController::class, 'callback'])->name('callback');
+    Route::get('/login', [GoogleController::class, 'redirectLogin'])
+        ->name('login');
+
+    Route::get('/register', [GoogleController::class, 'redirectRegister'])
+        ->name('register');
+
+    Route::get('/callback', [GoogleController::class, 'callback'])
+        ->name('callback');
 
 });
 
