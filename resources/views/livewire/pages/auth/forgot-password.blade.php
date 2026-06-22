@@ -8,11 +8,15 @@
                     Ingresa tu correo y te enviaremos un enlace para crear una nueva contraseña.
                 </p>
 
-                @if (session('status'))
-                    <div class="alert alert-success" role="alert">
+               @if (session('status'))
+                <div class="alert alert-success" role="alert">
+                    @if (session('status') === 'passwords.sent')
+                        Te enviamos un enlace para restablecer tu contraseña.
+                    @else
                         {{ session('status') }}
-                    </div>
-                @endif
+                    @endif
+                </div>
+            @endif
 
                 <form wire:submit="sendResetLink">
                     <div class="mb-3">

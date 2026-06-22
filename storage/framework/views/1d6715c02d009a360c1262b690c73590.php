@@ -92,17 +92,32 @@ new #[Layout('components.layouts.guest')] class extends Component {
                             id="email"
                             type="email"
                             wire:model="email"
-                            class="form-control @error('email') is-invalid @enderror"
+                            class="form-control <?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
                             autocomplete="email"
                             required
                             autofocus
                         >
 
-                        @error('email')
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                             <div class="invalid-feedback">
-                                {{ $message }}
+                                <?php echo e($message); ?>
+
                             </div>
-                        @enderror
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="mb-3">
@@ -114,16 +129,31 @@ new #[Layout('components.layouts.guest')] class extends Component {
                             id="password"
                             type="password"
                             wire:model="password"
-                            class="form-control @error('password') is-invalid @enderror"
+                            class="form-control <?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
                             autocomplete="new-password"
                             required
                         >
 
-                        @error('password')
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                             <div class="invalid-feedback">
-                                {{ $message }}
+                                <?php echo e($message); ?>
+
                             </div>
-                        @enderror
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="mb-4">
@@ -158,11 +188,11 @@ new #[Layout('components.layouts.guest')] class extends Component {
                 </form>
 
                 <p class="text-center mt-4 mb-0">
-                    <a href="{{ route('login') }}">
+                    <a href="<?php echo e(route('login')); ?>">
                         Volver a iniciar sesión
                     </a>
                 </p>
             </div>
         </div>
     </div>
-</div>
+</div><?php /**PATH E:\Pagina-web-\resources\views/livewire/pages/auth/reset-password.blade.php ENDPATH**/ ?>

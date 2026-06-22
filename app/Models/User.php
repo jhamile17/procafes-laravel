@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Notifications\WelcomeVerifyEmail;
+use App\Notifications\ResetPasswordProcafes;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -47,6 +48,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new WelcomeVerifyEmail());
     }
+     public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordProcafes($token));
+    }
 
     public function shippingAddresses(): HasMany
     {
@@ -82,4 +87,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->role === self::ROLE_CUSTOMER;
     }
+   
+
 }

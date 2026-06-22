@@ -3,7 +3,7 @@
 namespace App\Livewire\Pages\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -44,7 +44,7 @@ class Register extends Component
             'role' => User::ROLE_CUSTOMER,
         ]);
 
-        event(new Registered($user));
+        $user->sendEmailVerificationNotification();
 
         Auth::login($user);
 

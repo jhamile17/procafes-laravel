@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -106,7 +105,7 @@ class GoogleController extends Controller
 
                 $user->save();
 
-                event(new Registered($user));
+                $user->sendEmailVerificationNotification();
             }
 
             Auth::login($user, true);
