@@ -1,55 +1,57 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>Bienvenido a PROCAFES</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    /* estilos inline-friendly para correos */
-    body{margin:0;background:#f4f6f8;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif}
-    .wrap{max-width:640px;margin:0 auto;padding:24px}
-    .card{background:#ffffff;border-radius:10px;margin-top:24px;padding:28px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
-    .brand{display:block;text-align:center;margin:24px auto 0}
-    .h1{font-size:20px;line-height:1.3;margin:0 0 12px;color:#111827;font-weight:700;text-align:center}
-    .muted{color:#6b7280;font-size:14px;line-height:1.6;text-align:center;margin:0 0 20px}
-    .cta{display:inline-block;background:#3E350E;color:#fff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:600}
-    .cta-wrap{text-align:center;margin:16px 0 6px}
-    .small{font-size:12px;color:#9CA3AF;margin-top:24px;text-align:center}
-    .btn-alt{display:block;word-break:break-all;font-size:12px;color:#6b7280;text-decoration:none;margin-top:14px;text-align:center}
-    .divider{height:1px;background:#e5e7eb;margin:20px 0}
-    .footer{font-size:12px;color:#9CA3AF;text-align:center;margin-top:18px}
-  </style>
+    <meta charset="utf-8">
+    <title>Confirma tu cuenta | PROCAFES</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body>
-  <div class="wrap">
-    <img class="brand" src="{{ asset('images/logo.png') }}" alt="PROCAFES" height="42" onerror="this.style.display='none'">
 
-    <div class="card">
-      <h1 class="h1">¡Bienvenido a PROCAFES, {{ $user->name }}! 🎉</h1>
-      <p class="muted">
-        Gracias por registrarte en nuestra tienda. Para activar tu cuenta y mantenerla segura,
-        por favor confirma tu correo electrónico.
-      </p>
+<body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, Helvetica, sans-serif;">
+    <div style="max-width:640px; margin:0 auto; padding:24px;">
+        <div style="background:#ffffff; border-radius:10px; padding:28px; box-shadow:0 1px 3px rgba(0,0,0,.08);">
+            <div style="text-align:center; margin-bottom:20px;">
+                <img
+                    src="{{ url('images/logo.png') }}"
+                    alt="PROCAFES"
+                    height="42"
+                    style="display:inline-block; max-width:180px;"
+                >
+            </div>
 
-      <div class="cta-wrap">
-        <a class="cta" href="{{ $url }}" target="_blank" rel="noopener">
-          Confirmar cuenta
-        </a>
-      </div>
+            <h1 style="margin:0 0 12px; color:#111827; font-size:22px; text-align:center;">
+                ¡Bienvenido a PROCAFES, {{ $user->name }}!
+            </h1>
 
-      <p class="muted" style="margin-top:16px">
-        Si el botón no funciona, copia y pega este enlace en tu navegador:
-      </p>
-      <a class="btn-alt" href="{{ $url }}" target="_blank" rel="noopener">{{ $url }}</a>
+            <p style="margin:0 0 20px; color:#4b5563; font-size:15px; line-height:1.6; text-align:center;">
+                Gracias por registrarte. Para activar tu cuenta y confirmar que este correo te pertenece,
+                haz clic en el siguiente botón.
+            </p>
 
-      <div class="divider"></div>
+            <div style="text-align:center; margin:24px 0;">
+                <a
+                    href="{{ $url }}"
+                    target="_blank"
+                    rel="noopener"
+                    style="display:inline-block; background:#3E350E; color:#ffffff; text-decoration:none; padding:12px 20px; border-radius:8px; font-weight:bold;"
+                >
+                    Confirmar mi cuenta
+                </a>
+            </div>
 
-      <p class="muted" style="margin:0">
-        Si no creaste esta cuenta, puedes ignorar este mensaje.
-      </p>
+            <p style="margin:0 0 10px; color:#6b7280; font-size:13px; line-height:1.6; text-align:center;">
+                Este enlace vence en 60 minutos.
+            </p>
+
+            <p style="margin:0; color:#6b7280; font-size:13px; line-height:1.6; text-align:center;">
+                Si no creaste esta cuenta, puedes ignorar este correo.
+            </p>
+
+            <hr style="border:0; border-top:1px solid #e5e7eb; margin:24px 0;">
+
+            <p style="margin:0; color:#9ca3af; font-size:12px; text-align:center;">
+                © {{ date('Y') }} PROCAFES. Todos los derechos reservados.
+            </p>
+        </div>
     </div>
-
-    <p class="footer">© {{ date('Y') }} PROCAFES. Todos los derechos reservados.</p>
-  </div>
 </body>
 </html>

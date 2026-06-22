@@ -2,38 +2,39 @@
 
 namespace App\Livewire\Pages\Auth;
 
-use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
+use Livewire\Component;
 
 class Login extends Component
 {
     public array $state = [
-        'email'    => '',
+        'email' => '',
         'password' => '',
         'remember' => false,
     ];
 
     public function mount()
     {
-        // Si ya está autenticado, lo redirige según su rol
         if (Auth::check()) {
             return $this->afterLoginRedirect();
         }
+
+        return null;
     }
 
     public function login()
     {
         $this->validate([
-            'state.email'    => ['required', 'email'],
+            'state.email' => ['required', 'email'],
             'state.password' => ['required', 'string'],
         ]);
 
         $remember = (bool) ($this->state['remember'] ?? false);
 
         if (! Auth::attempt([
-            'email'    => $this->state['email'],
+            'email' => $this->state['email'],
             'password' => $this->state['password'],
         ], $remember)) {
             throw ValidationException::withMessages([
@@ -46,42 +47,43 @@ class Login extends Component
         return $this->afterLoginRedirect();
     }
 
-    /**
-     * Redirige según el rol o contexto
-     */
-    private function afterLoginRedirect()
+        private function afterLoginRedirect()
     {
         $user = Auth::user();
 
-        // 1️⃣ ADMIN → Dashboard administrativo
-        $isAdmin = method_exists($user, 'isAdmin')
-            ? $user->isAdmin()
-            : (($user->role ?? null) === 'admin');
+        if (! $user) {
+            return redirect()->route('login');
+        }
 
-        if ($isAdmin) {
+        /*
+        |--------------------------------------------------------------------------
+        | Usuario registrado con correo y aún no verificado
+        |--------------------------------------------------------------------------
+        | Google guarda email_verified_at porque Google ya confirmó el correo.
+        */
+        if (! $user->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Administrador
+        |--------------------------------------------------------------------------
+        */
+        if ($user->isAdmin()) {
             return redirect()->intended(route('admin.dashboard'));
         }
 
-        // 2️⃣ CLIENTE → Productos (home)
-        $hasIntended = session()->has('url.intended');
-        $cartCount   = (int) (session('cart.count') ?? 0);
-
-        // Si venía de una ruta protegida (como checkout), respétalo
-        if ($hasIntended) {
-            return redirect()->intended(route('home'));
+        /*
+        |--------------------------------------------------------------------------
+        | Cliente
+        |--------------------------------------------------------------------------
+        */
+        if (session()->has('url.intended')) {
+            return redirect()->intended(route('customer.dashboard'));
         }
 
-        // Si tenía carrito, lo manda a pagar
-        if ($cartCount > 0 && Route::has('checkout')) {
-            return redirect()->route('checkout');
-        }
-
-        // Por defecto, cliente → vista de productos
-        return redirect()->route('home');
+        return redirect()->route('customer.dashboard');
     }
-
-    public function render()
-    {
-        return view('livewire.pages.auth.login')->layout('layouts.app');
-    }
+    
 }

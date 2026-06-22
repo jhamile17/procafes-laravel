@@ -124,7 +124,7 @@ Route::post('/logout', function (Request $request) {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')->group(function () {
+/*Route::middleware('auth')->group(function () {
 
     Route::get('/email/verify', function () {
         return view('auth.verify-email');
@@ -148,7 +148,7 @@ Route::middleware('auth')->group(function () {
 
     })->middleware('throttle:6,1')->name('verification.send');
 
-});
+});*/
 
 /*
 |--------------------------------------------------------------------------
@@ -210,11 +210,11 @@ Route::prefix('admin')
 */
 
 Route::get('/checkout', [CheckoutController::class, 'index'])
-    ->middleware('auth')
+    ->middleware('auth', 'verified')
     ->name('checkout');
 
 Route::post('/checkout', [CheckoutController::class, 'store'])
-    ->middleware('auth')
+    ->middleware('auth', 'verified')
     ->name('checkout.store');
 
 /*
@@ -223,10 +223,10 @@ Route::post('/checkout', [CheckoutController::class, 'store'])
 |--------------------------------------------------------------------------
 */
 Route::get('/pagos/mercadopago', [MercadoPagoController::class, 'index'])
-    ->middleware('auth')
+    ->middleware('auth', 'verified')
     ->name('mp.checkout');
 Route::post('/pagos/crear-preferencia', [MercadoPagoController::class, 'createPreference'])
-    ->middleware('auth')
+    ->middleware('auth', 'verified')
     ->name('mp.preference');
 Route::get('/pagos/exito', [MercadoPagoController::class, 'success'])
     ->name('mp.success');

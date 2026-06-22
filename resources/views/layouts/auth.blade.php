@@ -7,7 +7,8 @@
 <body class="bg-light">
     <main class="min-vh-100 d-flex align-items-center py-4">
         <div class="container">
-            {{ $slot }}
+            @yield('content')
+            {{ $slot ?? '' }}
         </div>
     </main>
 

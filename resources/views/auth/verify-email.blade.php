@@ -1,72 +1,42 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Verificar correo</title>
+@extends('layouts.auth')
 
-    <style>
+@section('title', 'Verifica tu correo | PROCAFES')
 
-        body{
-            font-family:Arial,sans-serif;
-            background:#f5f5f5;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            height:100vh;
-        }
+@section('content')
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5 text-center">
+                <h1 class="h3 mb-3">Verifica tu correo electrónico</h1>
 
-        .card{
-            background:white;
-            padding:30px;
-            border-radius:10px;
-            width:400px;
-            text-align:center;
-            box-shadow:0 0 10px rgba(0,0,0,.1);
-        }
+                <p class="text-muted mb-4">
+                    Te enviamos un enlace de verificación a tu correo.
+                    Confírmalo para activar completamente tu cuenta.
+                </p>
 
-        button{
-            background:#6F4E37;
-            color:white;
-            border:none;
-            padding:12px 20px;
-            border-radius:5px;
-            cursor:pointer;
-        }
+                @if (session('status') === 'verification-link-sent')
+                    <div class="alert alert-success text-start" role="alert">
+                        Se envió un nuevo enlace de verificación a tu correo.
+                    </div>
+                @endif
 
-    </style>
+                <form method="POST" action="{{ route('verification.send') }}">
+                    @csrf
 
-</head>
-<body>
+                    <button type="submit" class="btn btn-dark">
+                        Reenviar correo de verificación
+                    </button>
+                </form>
 
-<div class="card">
+                <form method="POST" action="{{ route('logout') }}" class="mt-3">
+                    @csrf
 
-<h2>☕ PROCAFES</h2>
-
-<h3>Verifica tu correo electrónico</h3>
-
-<p>
-Te enviamos un enlace de verificación a tu correo.
-Debes confirmar que el correo ingresado es real antes de continuar.
-</p>
-
-@if(session('message'))
-<p>
-{{ session('message') }}
-</p>
-@endif
-
-<form method="POST"
-action="{{ route('verification.send') }}">
-
-@csrf
-
-<button type="submit">
-Reenviar correo
-</button>
-
-</form>
-
+                    <button type="submit" class="btn btn-link text-decoration-none">
+                        Cerrar sesión
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
-
-</body>
-</html>
+@endsection

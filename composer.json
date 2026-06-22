@@ -14,7 +14,7 @@
         "laravel/sanctum": "^4.3",
         "laravel/socialite": "^5.23",
         "laravel/tinker": "^2.10.1",
-        "livewire/livewire": "^3.6.4",
+        "livewire/livewire": "3.7.8",
         "livewire/volt": "^1.7.0",
         "mercadopago/dx-php": "^3.7",
         "mercadopago/sdk": "^0.5.6",

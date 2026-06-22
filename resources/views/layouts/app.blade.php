@@ -40,7 +40,7 @@
         };
     </script>
 
-    @livewireScripts
+    @<script src="{{ asset('vendor/livewire/livewire.min.js') }}"></script>
     @stack('scripts')
 </body>
 </html>

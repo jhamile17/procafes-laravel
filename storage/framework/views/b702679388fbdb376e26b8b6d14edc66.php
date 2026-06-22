@@ -175,8 +175,7 @@
         };
     </script>
 
-    <?php echo \Livewire\Mechanisms\FrontendAssets\FrontendAssets::scripts(); ?>
-
+    @<script src="<?php echo e(asset('vendor/livewire/livewire.min.js')); ?>"></script>
     <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 </html><?php /**PATH E:\Pagina-web-\resources\views/layouts/app.blade.php ENDPATH**/ ?>
