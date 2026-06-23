@@ -57,9 +57,13 @@ return [
     'token'    => env('DOCAPI_TOKEN'),
     'base'     => env('DOCAPI_BASE', 'https://dniruc.apisperu.com/api/v1'), 
     ],
+    
     'mercadopago' => [
     'public_key' => env('MP_PUBLIC_KEY', ''),
     'token'      => env('MP_ACCESS_TOKEN', ''),
 ],
-
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
+    ],
 ];

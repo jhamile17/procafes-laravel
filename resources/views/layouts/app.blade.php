@@ -16,7 +16,6 @@
 
     <x-ecommerce.whatsapp />
     <x-chat.button />
-    <x-chat.modal />
 
     <x-ecommerce.cart-offcanvas />
 

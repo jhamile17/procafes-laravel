@@ -113,26 +113,6 @@
 <?php $component = $__componentOriginalc19463f803328a22a9f39d42203ec2bf; ?>
 <?php unset($__componentOriginalc19463f803328a22a9f39d42203ec2bf); ?>
 <?php endif; ?>
-    <?php if (isset($component)) { $__componentOriginal48a084be812150cc0b2a0422777d5c65 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal48a084be812150cc0b2a0422777d5c65 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.chat.modal','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('chat.modal'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes([]); ?>
-<?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal48a084be812150cc0b2a0422777d5c65)): ?>
-<?php $attributes = $__attributesOriginal48a084be812150cc0b2a0422777d5c65; ?>
-<?php unset($__attributesOriginal48a084be812150cc0b2a0422777d5c65); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal48a084be812150cc0b2a0422777d5c65)): ?>
-<?php $component = $__componentOriginal48a084be812150cc0b2a0422777d5c65; ?>
-<?php unset($__componentOriginal48a084be812150cc0b2a0422777d5c65); ?>
-<?php endif; ?>
 
     <?php if (isset($component)) { $__componentOriginal02fb4485cd3af492e3a5c9160e853aa2 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal02fb4485cd3af492e3a5c9160e853aa2 = $attributes; } ?>

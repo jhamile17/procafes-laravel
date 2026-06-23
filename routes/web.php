@@ -63,9 +63,12 @@ Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])
 Route::post('/wishlist/', [WishlistController::class, 'index'])
     ->middleware('auth')
     ->name('wishlist.index');
-Route::get('/chatbot', fn () => view('chatbot'));
 
-Route::post('/chatbot/send', [ChatbotController::class, 'send']);
+Route::get('/chatbot', [ChatbotController::class, 'index'])
+    ->name('chatbot.index');
+
+Route::post('/chatbot/send', [ChatbotController::class, 'send'])
+    ->name('chatbot.send');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
