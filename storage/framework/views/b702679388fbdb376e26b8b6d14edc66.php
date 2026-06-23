@@ -21,6 +21,7 @@
 <?php $component = $__componentOriginal30de8f84a3b53438fc10f8a5d367579a; ?>
 <?php unset($__componentOriginal30de8f84a3b53438fc10f8a5d367579a); ?>
 <?php endif; ?>
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <?php echo \Livewire\Mechanisms\FrontendAssets\FrontendAssets::styles(); ?>
 
 </head>
@@ -154,8 +155,6 @@
             }
         };
     </script>
-
-    @<script src="<?php echo e(asset('vendor/livewire/livewire.min.js')); ?>"></script>
     <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 </html><?php /**PATH E:\Pagina-web-\resources\views/layouts/app.blade.php ENDPATH**/ ?>

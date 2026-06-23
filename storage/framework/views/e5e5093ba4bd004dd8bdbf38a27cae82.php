@@ -31,7 +31,7 @@
                         Ir a pagar
                     </a>
                 <?php else: ?>
-                    <a href="<?php echo e(route('login')); ?>" class="btn btn-dark">
+                    <a href="<?php echo e(route('checkout')); ?>" class="btn btn-dark">
                         Iniciar sesión para pagar
                     </a>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>

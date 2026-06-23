@@ -1,8 +1,6 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Finalizar compra | PROCAFES'); ?>
 
-@section('title', 'Finalizar compra | PROCAFES')
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
     .checkout-container {
         max-width: 1200px;
@@ -75,29 +73,29 @@
         }
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
-@php
+<?php $__env->startSection('content'); ?>
+<?php
     $money = fn ($amount) => number_format((float) $amount, 2);
-@endphp
+?>
 
 <div class="checkout-container">
     <div class="checkout-section">
         <h4 class="mb-3">Finalizar compra</h4>
 
-        @if ($errors->any())
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($errors->any()): ?>
             <div class="alert alert-danger">
                 <ul class="mb-0">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li><?php echo e($error); ?></li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </ul>
             </div>
-        @endif
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-        <form method="POST" action="{{ route('checkout.store') }}">
-            @csrf
+        <form method="POST" action="<?php echo e(route('checkout.store')); ?>">
+            <?php echo csrf_field(); ?>
 
             <div class="mb-3">
                 <label for="address" class="form-label">
@@ -108,7 +106,7 @@
                     id="address"
                     type="text"
                     name="address"
-                    value="{{ old('address') }}"
+                    value="<?php echo e(old('address')); ?>"
                     class="form-control"
                     placeholder="Ej.: Calle Los Cafetales 123"
                     required
@@ -123,7 +121,7 @@
                         id="city"
                         type="text"
                         name="city"
-                        value="{{ old('city') }}"
+                        value="<?php echo e(old('city')); ?>"
                         class="form-control"
                         required
                     >
@@ -136,7 +134,7 @@
                         id="state"
                         type="text"
                         name="state"
-                        value="{{ old('state') }}"
+                        value="<?php echo e(old('state')); ?>"
                         class="form-control"
                         required
                     >
@@ -151,7 +149,7 @@
                         id="zip_code"
                         type="text"
                         name="zip_code"
-                        value="{{ old('zip_code') }}"
+                        value="<?php echo e(old('zip_code')); ?>"
                         class="form-control"
                         required
                     >
@@ -164,7 +162,7 @@
                         id="country"
                         type="text"
                         name="country"
-                        value="{{ old('country', 'Perú') }}"
+                        value="<?php echo e(old('country', 'Perú')); ?>"
                         class="form-control"
                         required
                     >
@@ -181,7 +179,7 @@
                         name="payment_method"
                         id="payment_mercadopago"
                         value="mercadopago"
-                        @checked(old('payment_method', 'mercadopago') === 'mercadopago')
+                        <?php if(old('payment_method', 'mercadopago') === 'mercadopago'): echo 'checked'; endif; ?>
                     >
 
                     <label class="form-check-label" for="payment_mercadopago">
@@ -196,7 +194,7 @@
                         name="payment_method"
                         id="payment_bank_transfer"
                         value="bank_transfer"
-                        @checked(old('payment_method') === 'bank_transfer')
+                        <?php if(old('payment_method') === 'bank_transfer'): echo 'checked'; endif; ?>
                     >
 
                     <label class="form-check-label" for="payment_bank_transfer">
@@ -211,7 +209,7 @@
                         name="payment_method"
                         id="payment_cash"
                         value="cash"
-                        @checked(old('payment_method') === 'cash')
+                        <?php if(old('payment_method') === 'cash'): echo 'checked'; endif; ?>
                     >
 
                     <label class="form-check-label" for="payment_cash">
@@ -219,11 +217,19 @@
                     </label>
                 </div>
 
-                @error('payment_method')
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['payment_method'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                     <div class="text-danger small mt-1">
-                        {{ $message }}
+                        <?php echo e($message); ?>
+
                     </div>
-                @enderror
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
             <button type="submit" class="btn-confirm">
@@ -236,53 +242,56 @@
         <div class="summary-header">Resumen del pedido</div>
 
         <ul class="list-group mb-3">
-            @foreach ($items as $item)
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center gap-3">
-                        @if (!empty($item['image_url']))
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($item['image_url'])): ?>
                             <img
-                                src="{{ $item['image_url'] }}"
-                                alt="{{ $item['name'] }}"
+                                src="<?php echo e($item['image_url']); ?>"
+                                alt="<?php echo e($item['name']); ?>"
                                 style="width: 56px; height: 56px; object-fit: cover; border-radius: 8px;"
                             >
-                        @else
+                        <?php else: ?>
                             <div
                                 class="bg-light rounded d-flex align-items-center justify-content-center text-muted"
                                 style="width: 56px; height: 56px;"
                             >
                                 <i class="bi bi-cup-hot"></i>
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                         <div>
-                            <div class="fw-semibold">{{ $item['name'] }}</div>
+                            <div class="fw-semibold"><?php echo e($item['name']); ?></div>
                             <small class="text-muted">
-                                x{{ $item['quantity'] }}
+                                x<?php echo e($item['quantity']); ?>
+
                             </small>
                         </div>
                     </div>
 
                     <span class="fw-semibold">
-                        S/ {{ $money($item['subtotal']) }}
+                        S/ <?php echo e($money($item['subtotal'])); ?>
+
                     </span>
                 </li>
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </ul>
 
         <div class="summary-item">
             <span>Subtotal</span>
-            <strong>S/ {{ $money($subtotal) }}</strong>
+            <strong>S/ <?php echo e($money($subtotal)); ?></strong>
         </div>
 
         <div class="summary-item">
             <span>IGV (18%)</span>
-            <strong>S/ {{ $money($igv) }}</strong>
+            <strong>S/ <?php echo e($money($igv)); ?></strong>
         </div>
 
         <div class="summary-total d-flex justify-content-between">
             <span>Total</span>
-            <span>S/ {{ $money($total) }}</span>
+            <span>S/ <?php echo e($money($total)); ?></span>
         </div>
     </aside>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\Pagina-web-\resources\views/checkout/index.blade.php ENDPATH**/ ?>

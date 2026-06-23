@@ -1,7 +1,8 @@
 // resources/js/cart.js
 window.addEventListener('DOMContentLoaded', () => {
   const ROUTES = window.Laravel?.routes || {};
-  const CSRF   = window.Laravel?.csrfToken || document.querySelector('meta[name="csrf-token"]')?.content || '';
+  const getCsrfToken = () =>
+  document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
   const APP    = window.App || { isAuth:false, routes:{} };
 
   const badge       = document.getElementById('cartBadge');
@@ -21,8 +22,12 @@ window.addEventListener('DOMContentLoaded', () => {
   async function api(url, method='GET', data=null){
     const res = await fetch(url, {
       method,
-      headers: {'Accept':'application/json','X-CSRF-TOKEN':CSRF, ...(data?{'Content-Type':'application/json'}:{})},
-      body: data ? JSON.stringify(data) : null
+  headers: {
+    'Accept': 'application/json',
+    'X-CSRF-TOKEN': getCsrfToken(),
+    ...(data ? {'Content-Type': 'application/json'} : {})
+  },      
+  body: data ? JSON.stringify(data) : null
     });
     if (!isJsonResponse(res)) throw new Error(`Respuesta no JSON (${res.status})`);
     if (!res.ok) throw new Error((await res.json()).message || `HTTP ${res.status}`);
@@ -90,8 +95,22 @@ window.addEventListener('DOMContentLoaded', () => {
     toastEl.addEventListener('hidden.bs.toast', ()=> toastEl.remove());
   }
 
-  // init
-  if (ROUTES.index) api(ROUTES.index).then(render).catch(console.error);
+  // ---- API pública para otros componentes, como el chatbot ----
+    window.refreshCart = async function () {
+      if (!ROUTES.index) {
+        return;
+      }
+
+      try {
+        const cart = await api(ROUTES.index);
+        render(cart);
+      } catch (err) {
+        console.error('[CART] refresh error:', err);
+      }
+    };
+
+    // init
+    window.refreshCart();
 
   // ---- ADD ----
   document.addEventListener('click', async (e)=>{

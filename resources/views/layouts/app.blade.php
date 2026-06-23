@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <x-layout.head />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @livewireStyles
 </head>
 <body>
@@ -38,8 +39,6 @@
             }
         };
     </script>
-
-    @<script src="{{ asset('vendor/livewire/livewire.min.js') }}"></script>
     @stack('scripts')
 </body>
 </html>

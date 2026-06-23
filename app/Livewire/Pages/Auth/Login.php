@@ -54,6 +54,11 @@ class Login extends Component
             return redirect()->route('login');
         }
 
+        /*
+         * No eliminamos url.intended.
+         * Así, si llegó desde /checkout, Laravel recuerda ese destino
+         * incluso si antes debe verificar el correo.
+         */
         if (! $user->hasVerifiedEmail()) {
             return redirect()->route('verification.notice');
         }
@@ -62,11 +67,7 @@ class Login extends Component
             return redirect()->intended(route('admin.dashboard'));
         }
 
-        if (session()->has('url.intended')) {
-            return redirect()->intended(route('customer.dashboard'));
-        }
-
-        return redirect()->route('customer.dashboard');
+        return redirect()->intended(route('customer.dashboard'));
     }
 
     public function render()

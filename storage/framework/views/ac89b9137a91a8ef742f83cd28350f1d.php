@@ -76,11 +76,149 @@ document.addEventListener('DOMContentLoaded', () => {
             ? 'd-inline-block bg-dark text-white rounded p-2'
             : 'd-inline-block bg-light rounded p-2';
 
-        // textContent evita que HTML o scripts sean interpretados.
         bubble.textContent = text;
 
         wrapper.appendChild(bubble);
         chat.appendChild(wrapper);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function refreshCart() {
+        if (typeof window.refreshCart === 'function') {
+            window.refreshCart();
+        }
+    }
+
+    function openCart() {
+        const offcanvasElement = document.getElementById('cartOffcanvas');
+
+        if (!offcanvasElement || typeof bootstrap === 'undefined') {
+            addMessage(
+                'No pude abrir el carrito. Puedes continuar desde el botón de carrito de la página.',
+                'bot'
+            );
+            return;
+        }
+
+        refreshCart();
+
+        bootstrap.Offcanvas
+            .getOrCreateInstance(offcanvasElement)
+            .show();
+    }
+
+    function addProducts(products) {
+        if (!Array.isArray(products) || products.length === 0) {
+            return;
+        }
+
+        products.forEach((product) => {
+            const card = document.createElement('div');
+            card.className = 'card mb-2 shadow-sm';
+
+            const body = document.createElement('div');
+            body.className = 'card-body p-2';
+
+            if (product.image_url) {
+                const image = document.createElement('img');
+                image.src = product.image_url;
+                image.alt = product.name;
+                image.className = 'img-fluid rounded mb-2';
+                image.style.maxHeight = '120px';
+                image.style.objectFit = 'cover';
+                image.style.width = '100%';
+                body.appendChild(image);
+            }
+
+            const name = document.createElement('h3');
+            name.className = 'h6 mb-1';
+            name.textContent = product.name;
+            body.appendChild(name);
+
+            const description = document.createElement('p');
+            description.className = 'small text-muted mb-1';
+            description.textContent = product.description || 'Producto PROCAFES';
+            body.appendChild(description);
+
+            const price = document.createElement('p');
+            price.className = 'fw-bold mb-2';
+            price.textContent = product.price;
+            body.appendChild(price);
+
+            const actions = document.createElement('div');
+            actions.className = 'd-flex gap-2 flex-wrap';
+
+            const addButton = document.createElement('button');
+            addButton.type = 'button';
+            addButton.className = 'btn btn-dark btn-sm';
+            addButton.textContent = 'Agregar al carrito';
+
+            addButton.addEventListener('click', async () => {
+                addButton.disabled = true;
+                addButton.textContent = 'Agregando...';
+
+                try {
+                    const response = await fetch('/cart/add', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: JSON.stringify({
+                            product_id: product.id,
+                            quantity: 1,
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            data.message || 'No se pudo agregar el producto.'
+                        );
+                    }
+
+                    refreshCart();
+
+                    addMessage(
+                        `${product.name} fue agregado al carrito.`,
+                        'bot'
+                    );
+
+                    addButton.textContent = 'Agregado';
+                } catch (error) {
+                    addMessage(
+                        error.message ||
+                        'No se pudo agregar el producto al carrito.',
+                        'bot'
+                    );
+
+                    addButton.disabled = false;
+                    addButton.textContent = 'Agregar al carrito';
+                }
+            });
+
+            const viewCartButton = document.createElement('button');
+            viewCartButton.type = 'button';
+            viewCartButton.className = 'btn btn-outline-secondary btn-sm';
+            viewCartButton.textContent = 'Ver carrito';
+            viewCartButton.addEventListener('click', openCart);
+
+            const checkoutLink = document.createElement('a');
+            checkoutLink.href = '/checkout';
+            checkoutLink.className = 'btn btn-success btn-sm';
+            checkoutLink.textContent = 'Finalizar compra';
+
+            actions.appendChild(addButton);
+            actions.appendChild(viewCartButton);
+            actions.appendChild(checkoutLink);
+
+            body.appendChild(actions);
+            card.appendChild(body);
+            chat.appendChild(card);
+        });
+
         chat.scrollTop = chat.scrollHeight;
     }
 
@@ -133,24 +271,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (!response.ok) {
-                const validationError = data.errors?.message?.[0];
-
                 throw new Error(
-                    validationError ||
+                    data.errors?.message?.[0] ||
                     data.message ||
                     'No se pudo procesar tu consulta.'
                 );
             }
 
             if (!data.message) {
-                throw new Error('El asistente no devolvió una respuesta válida.');
+                throw new Error(
+                    'El asistente no devolvió una respuesta válida.'
+                );
             }
 
             addMessage(data.message, 'bot');
+            addProducts(data.products);
         } catch (error) {
-            showError(
+            addMessage(
                 error.message ||
-                'Ocurrió un error al comunicarse con el asistente.'
+                'El asistente está temporalmente no disponible. Intenta nuevamente en unos segundos.',
+                'bot'
             );
         } finally {
             input.disabled = false;
