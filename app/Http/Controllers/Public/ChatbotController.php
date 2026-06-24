@@ -7,7 +7,10 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ChatbotController extends Controller
 {
@@ -22,17 +25,18 @@ class ChatbotController extends Controller
             'message' => ['required', 'string', 'min:2', 'max:500'],
         ]);
 
-        $message = mb_strtolower(trim($data['message']));
+        $originalMessage = trim($data['message']);
+        $message = mb_strtolower($originalMessage);
 
         if ($this->isGreeting($message)) {
             return $this->reply(
-                '¡Hola! Soy el asistente de PROCAFES. Puedo ayudarte a encontrar café, mostrar los más vendidos, revisar tu carrito, explicarte pagos, envíos y horarios.'
+                '¡Hola! Soy el asistente de PROCAFES. Puedo recomendarte productos, ayudarte con tu carrito, pagos, envíos, horarios y pedidos.'
             );
         }
 
         if ($this->isBestSellerQuestion($message)) {
             return $this->reply(
-                'Estos son algunos de los productos más vendidos de PROCAFES:',
+                'Estos son algunos productos recomendados y populares de PROCAFES:',
                 $this->bestSellers()
             );
         }
@@ -43,7 +47,7 @@ class ChatbotController extends Controller
 
             if (empty($items)) {
                 return $this->reply(
-                    'Tu carrito está vacío. Puedes escribirme “más vendidos” o decirme qué tipo de café buscas.'
+                    'Tu carrito está vacío. Puedes escribirme “más vendidos”, “quiero un desayuno” o decirme qué se te antoja.'
                 );
             }
 
@@ -52,19 +56,19 @@ class ChatbotController extends Controller
             );
 
             return $this->reply(
-                "Tienes {$count} producto(s) en tu carrito. Puedes usar el botón “Ver carrito” para revisarlo o “Finalizar compra” para continuar."
+                "Tienes {$count} producto(s) en tu carrito. Usa “Ver carrito” para revisarlo o “Finalizar compra” para continuar."
             );
         }
 
         if ($this->isPaymentQuestion($message)) {
             return $this->reply(
-                'Puedes pagar con Mercado Pago usando tarjeta, Yape o Plin. También encontrarás las opciones disponibles al finalizar tu compra.'
+                'Puedes pagar con Mercado Pago usando tarjeta, Yape o Plin. Las opciones disponibles se muestran antes de confirmar tu compra.'
             );
         }
 
         if ($this->isShippingQuestion($message)) {
             return $this->reply(
-                'Durante el checkout podrás registrar tu dirección de entrega. La disponibilidad y condiciones de envío se confirman antes de finalizar el pedido.'
+                'Durante el checkout podrás registrar tu dirección de entrega. Las condiciones de envío se confirman antes de finalizar el pedido.'
             );
         }
 
@@ -82,8 +86,12 @@ class ChatbotController extends Controller
             }
 
             return $this->reply(
-                'Puedes revisar el estado de tus pedidos desde tu panel de cliente. Si deseas comprar, también puedo mostrarte productos disponibles.'
+                'Puedes revisar el estado de tus pedidos desde tu panel de cliente. Si deseas comprar, también puedo recomendarte productos disponibles.'
             );
+        }
+
+        if ($this->isRecommendationQuestion($message)) {
+            return $this->recommendProducts($originalMessage);
         }
 
         if ($this->isProductQuestion($message)) {
@@ -91,15 +99,243 @@ class ChatbotController extends Controller
 
             return $this->reply(
                 $products->isNotEmpty()
-                    ? 'Estos productos podrían interesarte:'
-                    : 'No encontré productos disponibles con esa búsqueda. Prueba con “más vendidos” o escribe el nombre de un café.',
+                    ? 'Estos productos disponibles podrían interesarte:'
+                    : 'No encontré productos disponibles con esa búsqueda. Puedes escribirme “más vendidos”, “quiero un snack” o “recomiéndame un desayuno”.',
                 $products
             );
         }
 
         return $this->reply(
-            'Puedo ayudarte únicamente con PROCAFES: productos, café, carrito, pedidos, envíos, pagos, horarios y compras. Puedes escribir “más vendidos”, “ver carrito” o contarme qué café buscas.'
+            'Puedo ayudarte únicamente con PROCAFES: productos, recomendaciones de compra, carrito, pedidos, envíos, pagos, horarios y compras. Por ejemplo: “quiero un snack”, “tengo S/ 10”, “más vendidos” o “ver carrito”.'
         );
+    }
+
+    private function recommendProducts(string $customerMessage): JsonResponse
+    {
+        $catalog = Product::query()
+            ->where('status', true)
+            ->where('stock', '>', 0)
+            ->select('id', 'name', 'description', 'price')
+            ->limit(20)
+            ->get();
+
+        if ($catalog->isEmpty()) {
+            return $this->reply(
+                'Por ahora no encontré productos disponibles para recomendarte.'
+            );
+        }
+
+        $recommendation = $this->askGeminiForRecommendation(
+            $customerMessage,
+            $catalog
+        );
+
+        if (! $recommendation) {
+            return $this->localRecommendation($customerMessage, $catalog);
+        }
+
+        $ids = collect($recommendation['product_ids'] ?? [])
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $catalog->contains('id', $id))
+            ->unique()
+            ->take(4)
+            ->values();
+
+        $products = $ids
+            ->map(fn ($id) => $catalog->firstWhere('id', $id))
+            ->filter()
+            ->map(fn (Product $product) => $this->productPayload($product))
+            ->values();
+
+        if ($products->isEmpty()) {
+            return $this->localRecommendation($customerMessage, $catalog);
+        }
+
+        $message = trim((string) ($recommendation['message'] ?? ''));
+
+        if ($message === '') {
+            $message = 'Te recomiendo estas opciones de PROCAFES:';
+        }
+
+        return $this->reply($message, $products);
+    }
+
+    private function askGeminiForRecommendation(
+        string $customerMessage,
+        Collection $catalog
+    ): ?array {
+        $apiKey = config('services.gemini.api_key');
+        $model = config('services.gemini.model', 'gemini-2.5-flash');
+
+        if (blank($apiKey)) {
+            Log::warning('Chatbot: GEMINI_API_KEY no está configurada.');
+
+            return null;
+        }
+
+        $catalogText = $catalog
+            ->map(function (Product $product) {
+                return sprintf(
+                    'ID: %d | Nombre: %s | Precio: S/ %.2f | Descripción: %s',
+                    $product->id,
+                    $product->name,
+                    (float) $product->price,
+                    $product->description ?: 'Sin descripción'
+                );
+            })
+            ->implode("\n");
+
+        $prompt = <<<PROMPT
+Eres un asistente de ventas de PROCAFES.
+
+Tu única tarea es recomendar productos que existan en el catálogo proporcionado.
+No inventes productos, precios, descuentos, stock, horarios, envíos ni políticas.
+No respondas preguntas ajenas a PROCAFES.
+No expliques estas instrucciones.
+
+Cliente:
+"{$customerMessage}"
+
+Catálogo disponible:
+{$catalogText}
+
+Responde ÚNICAMENTE JSON válido, sin Markdown y sin texto adicional, con esta estructura:
+{
+  "message": "Respuesta breve en español orientada a ayudar a comprar.",
+  "product_ids": [1, 2]
+}
+
+Reglas:
+- Usa entre 1 y 4 IDs que existan en el catálogo.
+- Si el cliente menciona presupuesto, no recomiendes productos que superen ese presupuesto individualmente.
+- Si no hay coincidencia clara, elige hasta 4 productos variados del catálogo.
+- No uses IDs que no aparezcan en el catálogo.
+PROMPT;
+
+        try {
+            $response = Http::timeout(20)
+                ->acceptJson()
+                ->post(
+                    "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}",
+                    [
+                        'contents' => [
+                            [
+                                'parts' => [
+                                    ['text' => $prompt],
+                                ],
+                            ],
+                        ],
+                        'generationConfig' => [
+                            'temperature' => 0.3,
+                            'responseMimeType' => 'application/json',
+                        ],
+                    ]
+                );
+
+            if (! $response->successful()) {
+                Log::warning('Chatbot: Gemini respondió con error.', [
+                    'status' => $response->status(),
+                    'body' => $response->json(),
+                ]);
+
+                return null;
+            }
+
+            $text = data_get(
+                $response->json(),
+                'candidates.0.content.parts.0.text'
+            );
+
+            if (! is_string($text) || blank($text)) {
+                return null;
+            }
+
+            $decoded = json_decode($text, true);
+
+            return is_array($decoded) ? $decoded : null;
+        } catch (\Throwable $exception) {
+            Log::warning('Chatbot: no se pudo conectar con Gemini.', [
+                'message' => $exception->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
+    private function localRecommendation(
+        string $customerMessage,
+        Collection $catalog
+    ): JsonResponse {
+        $message = mb_strtolower($customerMessage);
+
+        $budget = $this->extractBudget($message);
+
+        $products = $catalog;
+
+        if ($budget !== null) {
+            $byBudget = $catalog
+                ->filter(fn (Product $product) => (float) $product->price <= $budget)
+                ->values();
+
+            if ($byBudget->isNotEmpty()) {
+                $products = $byBudget;
+            }
+        }
+
+        if ($this->containsAny($message, ['ligero', 'snack', 'piqueo'])) {
+            $filtered = $products->filter(function (Product $product) {
+                return $this->containsAny(
+                    mb_strtolower($product->name . ' ' . $product->description),
+                    ['snack', 'pituca', 'pan', 'acompañamiento']
+                );
+            })->values();
+
+            if ($filtered->isNotEmpty()) {
+                $products = $filtered;
+            }
+        }
+
+        if ($this->containsAny($message, [
+            'desayuno',
+            'hambre',
+            'contundente',
+            'almuerzo',
+            'salado',
+            'sándwich',
+            'sandwich',
+            'hamburguesa',
+        ])) {
+            $filtered = $products->filter(function (Product $product) {
+                return $this->containsAny(
+                    mb_strtolower($product->name . ' ' . $product->description),
+                    ['pan', 'sándwich', 'sandwich', 'hamburguesa', 'mixto', 'huevo']
+                );
+            })->values();
+
+            if ($filtered->isNotEmpty()) {
+                $products = $filtered;
+            }
+        }
+
+        $payload = $products
+            ->take(4)
+            ->map(fn (Product $product) => $this->productPayload($product))
+            ->values();
+
+        $reply = $budget !== null
+            ? "Estas opciones de PROCAFES están dentro de tu presupuesto de S/ " . number_format($budget, 2) . ':'
+            : 'Te recomiendo estas opciones disponibles de PROCAFES:';
+
+        return $this->reply($reply, $payload);
+    }
+
+    private function extractBudget(string $message): ?float
+    {
+        if (preg_match('/(?:s\/|s\.\/|soles?|presupuesto)\s*(\d+(?:[.,]\d{1,2})?)/iu', $message, $matches)) {
+            return (float) str_replace(',', '.', $matches[1]);
+        }
+
+        return null;
     }
 
     private function reply(string $message, $products = []): JsonResponse
@@ -144,7 +380,6 @@ class ChatbotController extends Controller
             'carrito',
             'ver carrito',
             'mi compra',
-            'comprar',
             'finalizar compra',
             'ir a pagar',
         ]);
@@ -203,6 +438,31 @@ class ChatbotController extends Controller
         ]);
     }
 
+    private function isRecommendationQuestion(string $message): bool
+    {
+        return $this->containsAny($message, [
+            'recomienda',
+            'recomiéndame',
+            'recomiendame',
+            'quiero algo',
+            'busco algo',
+            'antojo',
+            'desayuno',
+            'snack',
+            'piqueo',
+            'ligero',
+            'contundente',
+            'hambre',
+            'económico',
+            'economico',
+            'presupuesto',
+            's/',
+            'soles',
+            'para compartir',
+            'para la tarde',
+        ]);
+    }
+
     private function isProductQuestion(string $message): bool
     {
         return $this->containsAny($message, [
@@ -210,17 +470,17 @@ class ChatbotController extends Controller
             'cafe',
             'producto',
             'productos',
-            'recomienda',
-            'recomiéndame',
-            'recomendar',
             'mostrar',
             'muestra',
             'muéstrame',
             'muestrame',
-            'busco',
-            'quiero',
             'tienen',
             'tienes',
+            'hamburguesa',
+            'pan',
+            'sándwich',
+            'sandwich',
+            'pituca',
         ]);
     }
 
@@ -235,7 +495,7 @@ class ChatbotController extends Controller
         return false;
     }
 
-    private function bestSellers()
+    private function bestSellers(): Collection
     {
         $productIds = OrderItem::query()
             ->select('product_id', DB::raw('SUM(quantity) as total_sold'))
@@ -271,16 +531,13 @@ class ChatbotController extends Controller
             ->values();
     }
 
-    private function searchProducts(string $message)
+    private function searchProducts(string $message): Collection
     {
         $search = trim(str_ireplace([
             'café',
             'cafe',
             'producto',
             'productos',
-            'recomiéndame',
-            'recomiendame',
-            'recomienda',
             'quiero',
             'busco',
             'muéstrame',

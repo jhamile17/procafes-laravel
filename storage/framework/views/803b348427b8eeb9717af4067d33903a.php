@@ -300,4 +300,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-</script><?php /**PATH E:\Pagina-web-\resources\views/components/chat/window.blade.php ENDPATH**/ ?>
+</script><?php /**PATH D:\Pagina-web-\resources\views/components/chat/window.blade.php ENDPATH**/ ?>

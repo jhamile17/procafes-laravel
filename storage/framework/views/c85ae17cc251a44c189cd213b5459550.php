@@ -8,4 +8,4 @@
 
 <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
 
-<?php echo $__env->yieldPushContent('styles'); ?><?php /**PATH E:\Pagina-web-\resources\views/components/layout/head.blade.php ENDPATH**/ ?>
+<?php echo $__env->yieldPushContent('styles'); ?><?php /**PATH D:\Pagina-web-\resources\views/components/layout/head.blade.php ENDPATH**/ ?>

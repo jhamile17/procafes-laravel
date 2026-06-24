@@ -155,4 +155,4 @@
         </div>
 
     </div>
-</nav><?php /**PATH E:\Pagina-web-\resources\views/components/layout/navbar.blade.php ENDPATH**/ ?>
+</nav><?php /**PATH D:\Pagina-web-\resources\views/components/layout/navbar.blade.php ENDPATH**/ ?>

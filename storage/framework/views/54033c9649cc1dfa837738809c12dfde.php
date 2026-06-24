@@ -48,4 +48,4 @@
     id="toastContainer"
     class="toast-container position-fixed bottom-0 end-0 p-3"
     style="z-index: 1100">
-</div><?php /**PATH E:\Pagina-web-\resources\views/components/ecommerce/cart-offcanvas.blade.php ENDPATH**/ ?>
+</div><?php /**PATH D:\Pagina-web-\resources\views/components/ecommerce/cart-offcanvas.blade.php ENDPATH**/ ?>

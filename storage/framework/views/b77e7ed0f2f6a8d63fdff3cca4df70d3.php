@@ -13,4 +13,4 @@
         class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
         0
     </span>
-</button><?php /**PATH E:\Pagina-web-\resources\views/components/ecommerce/cart-button.blade.php ENDPATH**/ ?>
+</button><?php /**PATH D:\Pagina-web-\resources\views/components/ecommerce/cart-button.blade.php ENDPATH**/ ?>

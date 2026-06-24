@@ -157,4 +157,4 @@
     </script>
     <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
-</html><?php /**PATH E:\Pagina-web-\resources\views/layouts/app.blade.php ENDPATH**/ ?>
+</html><?php /**PATH D:\Pagina-web-\resources\views/layouts/app.blade.php ENDPATH**/ ?>
