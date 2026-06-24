@@ -100,12 +100,10 @@ class GoogleController extends Controller
 
                 // PROCAFES solicita su propia verificación.
                 if (Schema::hasColumn($user->getTable(), 'email_verified_at')) {
-                    $user->email_verified_at = null;
+                    $user->email_verified_at = now();
                 }
 
                 $user->save();
-
-                $user->sendEmailVerificationNotification();
             }
 
             Auth::login($user, true);
