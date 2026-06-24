@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\PendingRegistration;
 use App\Models\User;
+use App\Notifications\ConfirmPendingRegistrationEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Facades\Socialite;
@@ -47,15 +48,38 @@ class GoogleController extends Controller
                     ]);
             }
 
-            // Sabemos si llegó desde Login o Registro.
             $flow = session()->pull('google_flow', 'login');
 
-            // Busca ignorando mayúsculas/minúsculas.
             $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
 
             /*
-             * Si vino desde Registro y el correo ya existe,
-             * no iniciar sesión: volver al registro con mensaje.
+             * REGISTRO CON GOOGLE:
+             * Si el correo no existe, todavía NO creamos User.
+             * Guardamos la solicitud pendiente y enviamos confirmación.
+             */
+            if ($flow === 'register' && ! $user) {
+                $pending = PendingRegistration::updateOrCreate(
+                    ['email' => $email],
+                    [
+                        'name' => $googleUser->getName()
+                            ?: data_get($googleUser->user, 'given_name', 'Usuario'),
+                        'phone' => null,
+                        'password' => Hash::make(Str::random(40)),
+                        'token' => Str::random(64),
+                        'expires_at' => now()->addMinutes(60),
+                    ]
+                );
+
+                $pending->notify(new ConfirmPendingRegistrationEmail($pending));
+
+                return redirect()
+                    ->route('register')
+                    ->with('status', 'Te enviamos un enlace de confirmación. Tu cuenta se creará cuando confirmes tu correo.');
+            }
+
+            /*
+             * Si intenta registrarse con Google pero el correo ya existe,
+             * no iniciar sesión automáticamente.
              */
             if ($flow === 'register' && $user) {
                 return redirect()
@@ -66,52 +90,20 @@ class GoogleController extends Controller
             }
 
             /*
-             * Desde Login o Registro, si el correo no existe,
-             * se crea una cuenta nueva.
+             * LOGIN CON GOOGLE:
+             * Solo permite entrar si el usuario ya existe.
+             * Si no existe, debe ir a Registro.
              */
             if (! $user) {
-                $user = new User();
-
-                $user->name = $googleUser->getName()
-                    ?: data_get($googleUser->user, 'given_name', 'Usuario');
-
-                $user->email = $email;
-                $user->password = Hash::make(Str::random(40));
-
-                if (Schema::hasColumn($user->getTable(), 'role')) {
-                    $user->role = User::ROLE_CUSTOMER;
-                }
-
-                if (Schema::hasColumn($user->getTable(), 'address')) {
-                    $user->address = null;
-                }
-
-                if (Schema::hasColumn($user->getTable(), 'phone')) {
-                    $user->phone = null;
-                }
-
-                if (Schema::hasColumn($user->getTable(), 'document_type')) {
-                    $user->document_type = null;
-                }
-
-                if (Schema::hasColumn($user->getTable(), 'document_number')) {
-                    $user->document_number = null;
-                }
-
-                // PROCAFES solicita su propia verificación.
-                if (Schema::hasColumn($user->getTable(), 'email_verified_at')) {
-                    $user->email_verified_at = now();
-                }
-
-                $user->save();
+                return redirect()
+                    ->route('register')
+                    ->withErrors([
+                        'email' => 'No existe una cuenta con este correo. Regístrate primero.',
+                    ]);
             }
 
             Auth::login($user, true);
             request()->session()->regenerate();
-
-            if (! $user->hasVerifiedEmail()) {
-                return redirect()->route('verification.notice');
-            }
 
             if ($user->isAdmin()) {
                 return redirect()->intended(route('admin.dashboard'));
@@ -120,7 +112,7 @@ class GoogleController extends Controller
             return redirect()->intended(route('customer.dashboard'));
 
         } catch (\Throwable $e) {
-            Log::error('Error en login con Google', [
+            Log::error('Error en autenticación con Google', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -130,7 +122,7 @@ class GoogleController extends Controller
             return redirect()
                 ->route('login')
                 ->withErrors([
-                    'google' => 'No se pudo iniciar sesión con Google. Intenta nuevamente.',
+                    'google' => 'No se pudo continuar con Google. Intenta nuevamente.',
                 ]);
         }
     }
