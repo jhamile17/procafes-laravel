@@ -43,15 +43,21 @@
                                 Ya puedes comprar, revisar tus pedidos y administrar tu cuenta en PROCAFES.
                             </p>
 
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 20px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; margin:0 0 20px;">
                                 <tr>
-                                    <td style="background-color:#c9282d; border-radius:7px;">
-                                        <a
-                                            href="{{ route('customer.dashboard') }}"
-                                            style="display:inline-block; padding:12px 18px; color:#ffffff; text-decoration:none; font-size:14px; font-weight:bold; line-height:1;"
-                                        >
-                                            Ir a mi cuenta
-                                        </a>
+                                    <td align="center">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                            <tr>
+                                                <td style="background-color:#c9282d; border-radius:7px;">
+                                                    <a
+                                                        href="{{ route('customer.dashboard') }}"
+                                                        style="display:inline-block; padding:12px 18px; color:#ffffff; text-decoration:none; font-size:14px; font-weight:bold; line-height:1;"
+                                                    >
+                                                        Ir a mi cuenta
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                             </table>

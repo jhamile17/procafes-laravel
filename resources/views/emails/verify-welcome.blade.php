@@ -49,15 +49,21 @@
                                 {{ $user->email }}
                             </p>
 
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 20px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; margin:0 0 20px;">
                                 <tr>
-                                    <td style="background-color:#c9282d; border-radius:7px;">
-                                        <a
-                                            href="{{ $url }}"
-                                            style="display:inline-block; padding:12px 18px; color:#ffffff; text-decoration:none; font-size:14px; font-weight:bold; line-height:1;"
-                                        >
-                                            Verificar mi correo
-                                        </a>
+                                    <td align="center">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                            <tr>
+                                                <td style="background-color:#c9282d; border-radius:7px;">
+                                                    <a
+                                                        href="{{ $url }}"
+                                                        style="display:inline-block; padding:12px 18px; color:#ffffff; text-decoration:none; font-size:14px; font-weight:bold; line-height:1;"
+                                                    >
+                                                        Verificar mi correo
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                             </table>
