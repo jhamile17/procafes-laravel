@@ -4,8 +4,10 @@ namespace App\Livewire\Pages\Auth;
 
 use App\Models\User;
 
-use Illuminate\Support\Facades\Auth;
+use App\Models\PendingRegistration;
+use App\Notifications\ConfirmPendingRegistrationEmail;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -33,42 +35,45 @@ class Register extends Component
         
         );
 
-        $user = User::create([
+        PendingRegistration::where('email', $data['email'])->delete();
+
+        $pending = PendingRegistration::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'phone' => $data['phone'] ?: null,
-            'address' => null,
-            'document_type' => null,
-            'document_number' => null,
-            'role' => User::ROLE_CUSTOMER,
+            'token' => Str::random(64),
+            'expires_at' => now()->addMinutes(60),
         ]);
 
-        $user->sendEmailVerificationNotification();
+        $pending->notify(new ConfirmPendingRegistrationEmail($pending));
 
-        Auth::login($user);
+        session()->flash(
+            'status',
+            'Te enviamos un enlace a tu correo. Tu cuenta se creará cuando confirmes el enlace.'
+        );
 
-        return redirect()->route('verification.notice');
+        return redirect()->route('register');
+        }
+
+        public function render()
+        {
+            return view('livewire.pages.auth.register')
+                ->layout('layouts.auth');
+        }
+        public function updatedEmail(): void
+         {
+        $this->validateOnly('email', [
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email'),
+            ],
+        ], [
+            'email.required' => 'Ingresa tu correo electrónico.',
+            'email.email' => 'Ingresa un correo electrónico válido.',
+            'email.unique' => 'Este correo ya está registrado. Inicia sesión o recupera tu contraseña.',
+        ]);
     }
-
-    public function render()
-    {
-        return view('livewire.pages.auth.register')
-            ->layout('layouts.auth');
-    }
-    public function updatedEmail(): void
-{
-    $this->validateOnly('email', [
-        'email' => [
-            'required',
-            'email',
-            'max:255',
-            Rule::unique('users', 'email'),
-        ],
-    ], [
-        'email.required' => 'Ingresa tu correo electrónico.',
-        'email.email' => 'Ingresa un correo electrónico válido.',
-        'email.unique' => 'Este correo ya está registrado. Inicia sesión o recupera tu contraseña.',
-    ]);
-}
 }
