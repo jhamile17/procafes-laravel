@@ -24,6 +24,7 @@ class Kernel extends ConsoleKernel
                  ->everyMinute()                // Se ejecuta cada minuto
                  ->withoutOverlapping()         // Evita que se ejecuten múltiples instancias simultáneamente
                  ->appendOutputTo(storage_path('logs/stock_check.log')); // Guarda logs y no sobrescribe archivo
+        $schedule->command('app:enviar-reactivacion')->everyMinute();
     }
 
     /**

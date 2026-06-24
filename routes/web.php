@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Models\User;
+use App\Notifications\UsuarioReactivacion;
 
 // Controllers
 use App\Http\Controllers\Public\WishlistController;
@@ -189,6 +191,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
+Route::get('/reactivar-test', function () {
+
+    $usuarios = User::whereNotNull('email')
+        ->where('email', 'like', '%@%') // básico
+        ->get();
+
+    foreach ($usuarios as $user) {
+
+        // Validar email correctamente
+        if (!filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+            continue; // saltar correos inválidos
+        }
+
+        $productos = Product::inRandomOrder()->take(3)->get();
+
+        $user->notify(new UsuarioReactivacion($productos));
+    }
+
+    return "Correos enviados";
+});
 /*
 |--------------------------------------------------------------------------
 | ADMIN
