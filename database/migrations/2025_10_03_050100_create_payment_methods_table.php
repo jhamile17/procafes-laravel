@@ -7,21 +7,30 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Ejecuta la migración.
      */
     public function up(): void
     {
-        Schema::create('wishlists', function (Blueprint $table) {
+        Schema::create('payment_methods', function (Blueprint $table) {
+
             $table->id();
+
+            $table->string('nombre', 100)->unique();
+
+            $table->text('descripcion')->nullable();
+
+            $table->boolean('estado')->default(true);
+
             $table->timestamps();
+
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Revierte la migración.
      */
     public function down(): void
     {
-        Schema::dropIfExists('wishlists');
+        Schema::dropIfExists('payment_methods');
     }
 };

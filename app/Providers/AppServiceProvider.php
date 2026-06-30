@@ -6,6 +6,8 @@ use App\Models\Wishlist;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use App\Models\Product;
+use App\Observers\ProductObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,5 +27,6 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('wishlistCount', $wishlistCount);
         });
+        Product::observe(ProductObserver::class);
     }
 }

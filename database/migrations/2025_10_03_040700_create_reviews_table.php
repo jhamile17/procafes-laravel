@@ -4,27 +4,36 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('reviews', function (Blueprint $table) {
+
             $table->id();
 
             $table->foreignId('user_id')
-                  ->constrained('users')
-                  ->cascadeOnDelete();
+                ->constrained('users')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
 
             $table->foreignId('product_id')
-                  ->constrained('products')
-                  ->cascadeOnDelete();
+                ->constrained('products')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
 
-            $table->unsignedTinyInteger('rating'); // 1-5
+            $table->unsignedTinyInteger('rating');
+
             $table->text('comment')->nullable();
 
             $table->timestamps();
 
-            // (opcional) un usuario solo una reseña por producto
-            // $table->unique(['user_id', 'product_id']);
+            // Un usuario solo puede comentar una vez el mismo producto.
+            $table->unique([
+                'user_id',
+                'product_id'
+            ]);
+
         });
     }
 
