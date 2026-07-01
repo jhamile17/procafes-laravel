@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Brand extends Model
+class AlertaStock extends Model
 {
     use HasFactory;
+
+    protected $table = 'alertas_stock';
 
     /*
     |--------------------------------------------------------------------------
@@ -17,10 +19,13 @@ class Brand extends Model
     */
 
     protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'status',
+        'product_id',
+        'nivel_alerta_id',
+        'stock_detectado',
+        'mensaje',
+        'enviado_correo',
+        'enviado_app',
+        'fecha_envio',
     ];
 
     /*
@@ -32,7 +37,9 @@ class Brand extends Model
     protected function casts(): array
     {
         return [
-            'status' => 'boolean',
+            'enviado_correo' => 'boolean',
+            'enviado_app' => 'boolean',
+            'fecha_envio' => 'datetime',
         ];
     }
 
@@ -42,20 +49,14 @@ class Brand extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function products(): HasMany
+    public function product(): BelongsTo
     {
-        return $this->hasMany(Product::class, 'brand_id');
+        return $this->belongsTo(Product::class);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Scopes
-    |--------------------------------------------------------------------------
-    */
-
-    public function scopeActivos($query)
+    public function nivelAlerta(): BelongsTo
     {
-        return $query->where('status', true);
+        return $this->belongsTo(NivelAlertaStock::class, 'nivel_alerta_id');
     }
 
     /*
@@ -64,8 +65,13 @@ class Brand extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function isActive(): bool
+    public function fueEnviada(): bool
     {
-        return $this->status;
+        return $this->enviado_correo || $this->enviado_app;
+    }
+
+    public function pendienteEnvio(): bool
+    {
+        return ! $this->fueEnviada();
     }
 }

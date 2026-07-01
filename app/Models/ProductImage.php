@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Brand extends Model
+class ProductImage extends Model
 {
     use HasFactory;
 
@@ -17,10 +17,10 @@ class Brand extends Model
     */
 
     protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'status',
+        'product_id',
+        'imagen',
+        'es_principal',
+        'orden',
     ];
 
     /*
@@ -32,7 +32,8 @@ class Brand extends Model
     protected function casts(): array
     {
         return [
-            'status' => 'boolean',
+            'es_principal' => 'boolean',
+            'orden' => 'integer',
         ];
     }
 
@@ -42,20 +43,9 @@ class Brand extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function products(): HasMany
+    public function product(): BelongsTo
     {
-        return $this->hasMany(Product::class, 'brand_id');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Scopes
-    |--------------------------------------------------------------------------
-    */
-
-    public function scopeActivos($query)
-    {
-        return $query->where('status', true);
+        return $this->belongsTo(Product::class);
     }
 
     /*
@@ -64,8 +54,8 @@ class Brand extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function isActive(): bool
+    public function isPrincipal(): bool
     {
-        return $this->status;
+        return $this->es_principal;
     }
 }

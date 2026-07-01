@@ -12,29 +12,48 @@ class Product extends Model
 {
     use HasFactory;
 
+    /*
+    |--------------------------------------------------------------------------
+    | Propiedades temporales
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     * Propiedad temporal para registrar
-     * el motivo del cambio de precio.
+     * Motivo del cambio de precio.
+     * Se utiliza desde el Observer cuando cambia el precio.
      */
     public ?string $motivo_cambio = null;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Asignación masiva
+    |--------------------------------------------------------------------------
+    */
 
     protected $fillable = [
 
         'categories_id',
+
         'brand_id',
+
         'tipo_consumo_id',
 
         'sku',
+
         'barcode',
 
         'name',
+
         'slug',
+
         'description',
 
         'cost_price',
+
         'sale_price',
 
         'stock',
+
         'stock_minimo',
 
         'image',
@@ -43,9 +62,25 @@ class Product extends Model
 
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | Atributos calculados
+    |--------------------------------------------------------------------------
+    */
+
     protected $appends = [
+
         'image_url',
+
+        'precio_formateado',
+
     ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Conversión de atributos
+    |--------------------------------------------------------------------------
+    */
 
     protected function casts(): array
     {
@@ -68,25 +103,6 @@ class Product extends Model
             'tipo_consumo_id' => 'integer',
 
         ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Accessors
-    |--------------------------------------------------------------------------
-    */
-
-    public function getImageUrlAttribute(): ?string
-    {
-        if (!$this->image) {
-            return null;
-        }
-
-        if (!Storage::disk('public')->exists($this->image)) {
-            return null;
-        }
-
-        return Storage::disk('public')->url($this->image);
     }
 
     /*
@@ -130,6 +146,11 @@ class Product extends Model
         return $this->hasMany(Wishlist::class);
     }
 
+    public function cartItems(): HasMany
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
@@ -147,9 +168,42 @@ class Product extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Helpers
+    | Scopes
     |--------------------------------------------------------------------------
     */
+
+    public function scopeActivos($query)
+    {
+        return $query->where('status', true);
+    }
+
+    public function scopeConStock($query)
+    {
+        return $query->where('stock', '>', 0);
+    }
+
+    public function scopeDisponibles($query)
+    {
+        return $query
+            ->where('status', true)
+            ->where('stock', '>', 0);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Métodos auxiliares
+    |--------------------------------------------------------------------------
+    */
+
+    public function isActive(): bool
+    {
+        return $this->status;
+    }
+
+    public function hasStock(): bool
+    {
+        return $this->stock > 0;
+    }
 
     public function isLowStock(): bool
     {
@@ -161,5 +215,29 @@ class Product extends Model
         return $this->status
             && $quantity > 0
             && $this->stock >= $quantity;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accesores y Mutadores
+    |--------------------------------------------------------------------------
+    */
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (!$this->image) {
+            return null;
+        }
+
+        if (!Storage::disk('public')->exists($this->image)) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->image);
+    }
+
+    public function getPrecioFormateadoAttribute(): string
+    {
+        return 'S/ ' . number_format($this->sale_price, 2);
     }
 }

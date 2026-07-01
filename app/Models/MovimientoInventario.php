@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Brand extends Model
+class MovimientoInventario extends Model
 {
     use HasFactory;
+
+    protected $table = 'movimientos_inventario';
 
     /*
     |--------------------------------------------------------------------------
@@ -17,10 +19,13 @@ class Brand extends Model
     */
 
     protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'status',
+        'product_id',
+        'tipo_movimiento_id',
+        'usuario_id',
+        'cantidad',
+        'stock_anterior',
+        'stock_actual',
+        'motivo',
     ];
 
     /*
@@ -32,7 +37,9 @@ class Brand extends Model
     protected function casts(): array
     {
         return [
-            'status' => 'boolean',
+            'cantidad' => 'integer',
+            'stock_anterior' => 'integer',
+            'stock_actual' => 'integer',
         ];
     }
 
@@ -42,20 +49,19 @@ class Brand extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function products(): HasMany
+    public function product(): BelongsTo
     {
-        return $this->hasMany(Product::class, 'brand_id');
+        return $this->belongsTo(Product::class);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Scopes
-    |--------------------------------------------------------------------------
-    */
-
-    public function scopeActivos($query)
+    public function tipoMovimiento(): BelongsTo
     {
-        return $query->where('status', true);
+        return $this->belongsTo(TipoMovimientoInventario::class, 'tipo_movimiento_id');
+    }
+
+    public function usuario(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'usuario_id');
     }
 
     /*
@@ -64,8 +70,13 @@ class Brand extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function isActive(): bool
+    public function isEntrada(): bool
     {
-        return $this->status;
+        return strtoupper($this->tipoMovimiento->codigo) === 'ENTRADA';
+    }
+
+    public function isSalida(): bool
+    {
+        return strtoupper($this->tipoMovimiento->codigo) === 'SALIDA';
     }
 }

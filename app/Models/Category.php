@@ -10,21 +10,62 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $table = 'categories';
-
-    protected $primaryKey = 'categories_id';
+    /*
+    |--------------------------------------------------------------------------
+    | Asignación masiva
+    |--------------------------------------------------------------------------
+    */
 
     protected $fillable = [
         'name',
+        'slug',
         'description',
+        'status',
     ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Conversión de atributos
+    |--------------------------------------------------------------------------
+    */
+
+    protected function casts(): array
+    {
+        return [
+            'status' => 'boolean',
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relaciones
+    |--------------------------------------------------------------------------
+    */
 
     public function products(): HasMany
     {
-        return $this->hasMany(
-            Product::class,
-            'categories_id',
-            'categories_id'
-        );
+        return $this->hasMany(Product::class, 'categories_id');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    public function scopeActivos($query)
+    {
+        return $query->where('status', true);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Métodos auxiliares
+    |--------------------------------------------------------------------------
+    */
+
+    public function isActive(): bool
+    {
+        return $this->status;
     }
 }
