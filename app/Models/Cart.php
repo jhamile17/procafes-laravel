@@ -2,46 +2,85 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Cart extends Model
 {
-    protected $table = 'cart';
+    use HasFactory;
+
+    protected $table = 'carts';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Asignación masiva
+    |--------------------------------------------------------------------------
+    */
 
     protected $fillable = [
         'user_id',
-        'product_id',
-        'quantity',
-        'price',
-        'sub_total',
+        'estado',
+        'ultima_actividad',
     ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Conversión de atributos
+    |--------------------------------------------------------------------------
+    */
 
     protected function casts(): array
     {
         return [
-            'quantity' => 'integer',
-            'price' => 'decimal:2',
-            'sub_total' => 'decimal:2',
+            'estado' => 'boolean',
+            'ultima_actividad' => 'datetime',
         ];
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relaciones
+    |--------------------------------------------------------------------------
+    */
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function product(): BelongsTo
+    public function items(): HasMany
     {
-        return $this->belongsTo(Product::class);
+        return $this->hasMany(CartItem::class);
     }
 
-    public function refreshSubtotal(): void
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    public function scopeActivos($query)
     {
-        $this->sub_total = bcmul(
-            (string) $this->price,
-            (string) $this->quantity,
-            2
-        );
+        return $query->where('estado', true);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Métodos auxiliares
+    |--------------------------------------------------------------------------
+    */
+
+    public function isActive(): bool
+    {
+        return $this->estado;
+    }
+
+    public function actualizarActividad(): void
+    {
+        $this->update([
+            'ultima_actividad' => now(),
+        ]);
     }
 }

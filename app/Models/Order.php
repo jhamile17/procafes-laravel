@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,21 +10,29 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
-    public const STATUS_PENDING = 'pending';
-    public const STATUS_PAID = 'paid';
-    public const STATUS_SHIPPED = 'shipped';
-    public const STATUS_CANCELLED = 'cancelled';
+    use HasFactory;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Asignación masiva
+    |--------------------------------------------------------------------------
+    */
 
     protected $fillable = [
         'user_id',
         'shipping_address_id',
+        'estado_pedido_id',
+        'numero_pedido',
         'total_price',
-        'status',
+        'delivery_type',
+        'observaciones',
     ];
 
-    protected $appends = [
-        'status_label',
-    ];
+    /*
+    |--------------------------------------------------------------------------
+    | Conversión de atributos
+    |--------------------------------------------------------------------------
+    */
 
     protected function casts(): array
     {
@@ -31,6 +40,12 @@ class Order extends Model
             'total_price' => 'decimal:2',
         ];
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relaciones
+    |--------------------------------------------------------------------------
+    */
 
     public function user(): BelongsTo
     {
@@ -40,6 +55,11 @@ class Order extends Model
     public function shippingAddress(): BelongsTo
     {
         return $this->belongsTo(ShippingAddress::class);
+    }
+
+    public function estadoPedido(): BelongsTo
+    {
+        return $this->belongsTo(EstadoPedido::class);
     }
 
     public function items(): HasMany
@@ -52,33 +72,19 @@ class Order extends Model
         return $this->hasOne(Payment::class);
     }
 
-    public static function statusMap(): array
+    /*
+    |--------------------------------------------------------------------------
+    | Métodos auxiliares
+    |--------------------------------------------------------------------------
+    */
+
+    public function calcularTotal(): float
     {
-        return [
-            self::STATUS_PENDING => 'Pendiente',
-            self::STATUS_PAID => 'Pagado',
-            self::STATUS_SHIPPED => 'Enviado',
-            self::STATUS_CANCELLED => 'Cancelado',
-        ];
+        return (float) $this->items()->sum('subtotal');
     }
 
-    public function getStatusLabelAttribute(): string
+    public function totalItems(): int
     {
-        return self::statusMap()[$this->status] ?? ucfirst((string) $this->status);
-    }
-
-    public function isPending(): bool
-    {
-        return $this->status === self::STATUS_PENDING;
-    }
-
-    public function isPaid(): bool
-    {
-        return $this->status === self::STATUS_PAID;
-    }
-
-    public function isCancelled(): bool
-    {
-        return $this->status === self::STATUS_CANCELLED;
+        return (int) $this->items()->sum('quantity');
     }
 }

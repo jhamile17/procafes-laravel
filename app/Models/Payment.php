@@ -2,57 +2,83 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends Model
 {
-    public const STATUS_PENDING = 'pending';
-    public const STATUS_COMPLETED = 'completed';
-    public const STATUS_FAILED = 'failed';
+    use HasFactory;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Asignación masiva
+    |--------------------------------------------------------------------------
+    */
 
     protected $fillable = [
         'order_id',
-        'payment_method',
+        'payment_method_id',
+        'estado_pago_id',
         'amount',
         'transaction_id',
-        'transaction_json',
-        'status',
+        'reference',
+        'transaction_data',
     ];
 
-    protected $appends = [
-        'status_label',
-    ];
+    /*
+    |--------------------------------------------------------------------------
+    | Conversión de atributos
+    |--------------------------------------------------------------------------
+    */
 
     protected function casts(): array
     {
         return [
             'amount' => 'decimal:2',
-            'transaction_json' => 'array',
+            'transaction_data' => 'array',
         ];
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relaciones
+    |--------------------------------------------------------------------------
+    */
 
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
     }
 
-    public static function statusMap(): array
+    public function paymentMethod(): BelongsTo
     {
-        return [
-            self::STATUS_PENDING => 'Pendiente',
-            self::STATUS_COMPLETED => 'Completado',
-            self::STATUS_FAILED => 'Fallido',
-        ];
+        return $this->belongsTo(PaymentMethod::class);
     }
 
-    public function getStatusLabelAttribute(): string
+    public function estadoPago(): BelongsTo
     {
-        return self::statusMap()[$this->status] ?? ucfirst((string) $this->status);
+        return $this->belongsTo(EstadoPago::class);
     }
 
-    public function isCompleted(): bool
+    /*
+    |--------------------------------------------------------------------------
+    | Métodos auxiliares
+    |--------------------------------------------------------------------------
+    */
+
+    public function isPendiente(): bool
     {
-        return $this->status === self::STATUS_COMPLETED;
+        return strtoupper($this->estadoPago->codigo) === 'PENDIENTE';
+    }
+
+    public function isPagado(): bool
+    {
+        return strtoupper($this->estadoPago->codigo) === 'PAGADO';
+    }
+
+    public function isRechazado(): bool
+    {
+        return strtoupper($this->estadoPago->codigo) === 'RECHAZADO';
     }
 }

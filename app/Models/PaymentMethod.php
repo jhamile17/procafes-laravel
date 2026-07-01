@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Review extends Model
+class PaymentMethod extends Model
 {
     use HasFactory;
 
@@ -16,11 +16,12 @@ class Review extends Model
     |--------------------------------------------------------------------------
     */
 
+    protected $table = 'payment_methods';
+
     protected $fillable = [
-        'user_id',
-        'product_id',
-        'rating',
-        'comment',
+        'nombre',
+        'descripcion',
+        'estado',
     ];
 
     /*
@@ -32,7 +33,7 @@ class Review extends Model
     protected function casts(): array
     {
         return [
-            'rating' => 'integer',
+            'estado' => 'boolean',
         ];
     }
 
@@ -42,14 +43,20 @@ class Review extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function user(): BelongsTo
+    public function payments(): HasMany
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(Payment::class);
     }
 
-    public function product(): BelongsTo
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    public function scopeActivos($query)
     {
-        return $this->belongsTo(Product::class);
+        return $query->where('estado', true);
     }
 
     /*
@@ -58,8 +65,8 @@ class Review extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function esPositiva(): bool
+    public function isActive(): bool
     {
-        return $this->rating >= 4;
+        return $this->estado;
     }
 }

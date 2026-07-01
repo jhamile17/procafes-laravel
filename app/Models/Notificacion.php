@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Review extends Model
+class Notificacion extends Model
 {
     use HasFactory;
+
+    protected $table = 'notificaciones';
 
     /*
     |--------------------------------------------------------------------------
@@ -18,9 +20,11 @@ class Review extends Model
 
     protected $fillable = [
         'user_id',
-        'product_id',
-        'rating',
-        'comment',
+        'titulo',
+        'mensaje',
+        'tipo',
+        'leido',
+        'fecha_lectura',
     ];
 
     /*
@@ -32,7 +36,8 @@ class Review extends Model
     protected function casts(): array
     {
         return [
-            'rating' => 'integer',
+            'leido' => 'boolean',
+            'fecha_lectura' => 'datetime',
         ];
     }
 
@@ -47,19 +52,22 @@ class Review extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class);
-    }
-
     /*
     |--------------------------------------------------------------------------
     | Métodos auxiliares
     |--------------------------------------------------------------------------
     */
 
-    public function esPositiva(): bool
+    public function marcarComoLeida(): void
     {
-        return $this->rating >= 4;
+        $this->update([
+            'leido' => true,
+            'fecha_lectura' => now(),
+        ]);
+    }
+
+    public function isLeida(): bool
+    {
+        return $this->leido;
     }
 }

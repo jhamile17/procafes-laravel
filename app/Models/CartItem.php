@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Review extends Model
+class CartItem extends Model
 {
     use HasFactory;
+
+    protected $table = 'cart_items';
 
     /*
     |--------------------------------------------------------------------------
@@ -17,10 +19,11 @@ class Review extends Model
     */
 
     protected $fillable = [
-        'user_id',
+        'cart_id',
         'product_id',
-        'rating',
-        'comment',
+        'quantity',
+        'price',
+        'sub_total',
     ];
 
     /*
@@ -32,7 +35,9 @@ class Review extends Model
     protected function casts(): array
     {
         return [
-            'rating' => 'integer',
+            'quantity' => 'integer',
+            'price' => 'decimal:2',
+            'sub_total' => 'decimal:2',
         ];
     }
 
@@ -42,9 +47,9 @@ class Review extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function user(): BelongsTo
+    public function cart(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Cart::class);
     }
 
     public function product(): BelongsTo
@@ -58,8 +63,12 @@ class Review extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function esPositiva(): bool
+    public function actualizarSubtotal(): void
     {
-        return $this->rating >= 4;
+        $this->sub_total = bcmul(
+            (string) $this->price,
+            (string) $this->quantity,
+            2
+        );
     }
 }
