@@ -12,7 +12,13 @@ use Livewire\Form;
 
 class LoginForm extends Form
 {
-    #[Validate('required|string|email')]
+    /*
+    |--------------------------------------------------------------------------
+    | Datos
+    |--------------------------------------------------------------------------
+    */
+
+    #[Validate('required|email')]
     public string $email = '';
 
     #[Validate('required|string')]
@@ -21,29 +27,39 @@ class LoginForm extends Form
     #[Validate('boolean')]
     public bool $remember = false;
 
-    /**
-     * Attempt to authenticate the request's credentials.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Autenticar
+    |--------------------------------------------------------------------------
+    */
+
     public function authenticate(): void
     {
+        $this->validate();
+
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+        if (! Auth::attempt([
+            'email' => strtolower(trim($this->email)),
+            'password' => $this->password,
+        ], $this->remember)) {
+
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'form.email' => trans('auth.failed'),
+                'form.email' => __('auth.failed'),
             ]);
         }
 
         RateLimiter::clear($this->throttleKey());
     }
 
-    /**
-     * Ensure the authentication request is not rate limited.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Limitar intentos
+    |--------------------------------------------------------------------------
+    */
+
     protected function ensureIsNotRateLimited(): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
@@ -52,21 +68,50 @@ class LoginForm extends Form
 
         event(new Lockout(request()));
 
-        $seconds = RateLimiter::availableIn($this->throttleKey());
+        $seconds = RateLimiter::availableIn(
+            $this->throttleKey()
+        );
 
         throw ValidationException::withMessages([
+
             'form.email' => trans('auth.throttle', [
+
                 'seconds' => $seconds,
+
                 'minutes' => ceil($seconds / 60),
-            ]),
+
+            ])
+
         ]);
     }
 
-    /**
-     * Get the authentication rate limiting throttle key.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Llave del RateLimiter
+    |--------------------------------------------------------------------------
+    */
+
     protected function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
+        return Str::transliterate(
+
+            Str::lower($this->email)
+
+            .'|'
+
+            .request()->ip()
+
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Limpiar formulario
+    |--------------------------------------------------------------------------
+    */
+
+    public function clear(): void
+    {
+        $this->reset();
     }
 }

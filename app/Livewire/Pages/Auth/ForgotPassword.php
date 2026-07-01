@@ -2,30 +2,40 @@
 
 namespace App\Livewire\Pages\Auth;
 
+use App\Livewire\Forms\ForgotPasswordForm;
 use Illuminate\Support\Facades\Password;
 use Livewire\Component;
 
 class ForgotPassword extends Component
 {
-    public string $email = '';
+    public ForgotPasswordForm $form;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Enviar enlace
+    |--------------------------------------------------------------------------
+    */
 
     public function sendResetLink(): void
     {
-        $this->validate([
-            'email' => ['required', 'email'],
-        ]);
-
-        $status = Password::sendResetLink([
-            'email' => $this->email,
-        ]);
+        $status = $this->form->sendResetLink();
 
         if ($status === Password::RESET_LINK_SENT) {
-            session()->flash('status', __($status));
+
+            session()->flash(
+                'status',
+                __($status)
+            );
+
+            $this->form->clear();
 
             return;
         }
 
-        $this->addError('email', __($status));
+        $this->addError(
+            'form.email',
+            __($status)
+        );
     }
 
     public function render()

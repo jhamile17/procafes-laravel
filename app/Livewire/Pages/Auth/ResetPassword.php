@@ -2,59 +2,53 @@
 
 namespace App\Livewire\Pages\Auth;
 
-use Illuminate\Support\Facades\Hash;
+use App\Livewire\Forms\ResetPasswordForm;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rules\Password as PasswordRule;
 use Livewire\Component;
 
 class ResetPassword extends Component
 {
-    public string $token = '';
-    public string $email = '';
-    public string $password = '';
-    public string $password_confirmation = '';
+    public ResetPasswordForm $form;
 
     public function mount(string $token): void
     {
-        $this->token = $token;
-        $this->email = (string) request()->query('email', '');
+        $this->form->token = $token;
+
+        $this->form->email = request()->query('email', '');
     }
 
-    public function resetPassword()
-    {
-        $this->validate([
-            'token' => ['required'],
-            'email' => ['required', 'email'],
-            'password' => [
-                'required',
-                'confirmed',
-                PasswordRule::min(8),
-            ],
-        ]);
+    /*
+    |--------------------------------------------------------------------------
+    | Restablecer contraseña
+    |--------------------------------------------------------------------------
+    */
 
-        $status = Password::reset(
-            [
-                'email' => $this->email,
-                'password' => $this->password,
-                'password_confirmation' => $this->password_confirmation,
-                'token' => $this->token,
-            ],
-            function ($user, string $password) {
-                $user->forceFill([
-                    'password' => Hash::make($password),
-                    'remember_token' => Str::random(60),
-                ])->save();
-            }
-        );
+    public function resetPassword(): void
+    {
+        $status = $this->form->resetPassword();
 
         if ($status === Password::PASSWORD_RESET) {
-            return redirect()
-                ->route('login')
-                ->with('status', 'Tu contraseña fue actualizada. Ya puedes iniciar sesión.');
+
+            session()->flash(
+
+                'status',
+
+                'Tu contraseña fue actualizada correctamente.'
+
+            );
+
+            $this->redirectRoute('login');
+
+            return;
         }
 
-        $this->addError('email', __($status));
+        $this->addError(
+
+            'form.email',
+
+            __($status)
+
+        );
     }
 
     public function render()

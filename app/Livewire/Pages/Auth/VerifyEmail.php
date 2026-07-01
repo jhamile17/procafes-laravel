@@ -6,11 +6,34 @@ use Livewire\Component;
 
 class VerifyEmail extends Component
 {
+    /*
+    |--------------------------------------------------------------------------
+    | Reenviar correo
+    |--------------------------------------------------------------------------
+    */
+
     public function resendVerificationEmail(): void
     {
+        if (! auth()->check()) {
+            return;
+        }
+
+        if (auth()->user()->hasVerifiedEmail()) {
+
+            $this->redirectRoute('login');
+
+            return;
+
+        }
+
+        auth()->user()->sendEmailVerificationNotification();
+
         session()->flash(
+
             'status',
-            'Si no encuentras el correo, revisa Spam o espera unos minutos antes de solicitar otro enlace.'
+
+            'Te enviamos un nuevo enlace de verificación a tu correo.'
+
         );
     }
 

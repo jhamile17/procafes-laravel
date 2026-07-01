@@ -102,11 +102,43 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->estado;
     }
+        /*
+    |--------------------------------------------------------------------------
+    | Construir nombre completo
+    |--------------------------------------------------------------------------
+    */
+
+    public static function construirNombreCompleto(
+        string $nombres,
+        string $apellidoPaterno,
+        ?string $apellidoMaterno = null
+    ): string {
+
+        return trim(
+            implode(' ', array_filter([
+                trim($nombres),
+                trim($apellidoPaterno),
+                $apellidoMaterno ? trim($apellidoMaterno) : null,
+            ]))
+        );
+
+    }
     //cambios para nombre completo
     public function getNombreCompletoAttribute(): string
     {
-        return trim(
-            "{$this->nombres} {$this->apellido_paterno} {$this->apellido_materno}"
+        return self::construirNombreCompleto(
+            $this->nombres,
+            $this->apellido_paterno,
+            $this->apellido_materno
         );
     }
+        /*
+    |--------------------------------------------------------------------------
+    | Tipos de autenticación
+    |--------------------------------------------------------------------------
+    */
+
+    public const PROVIDER_LOCAL = 'local';
+
+    public const PROVIDER_GOOGLE = 'google';
 }

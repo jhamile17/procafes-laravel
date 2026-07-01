@@ -34,4 +34,23 @@ class Role extends Model
     {
         return $this->hasMany(User::class);
     }
+    /*
+    |--------------------------------------------------------------------------
+    | Métodos auxiliares
+    |--------------------------------------------------------------------------
+    */
+
+    public static function customer(): self
+    {
+        return self::query()
+            ->where('codigo', 'CUSTOMER')
+            ->firstOrFail();
+    }
+
+    public static function admin(): self
+    {
+        return self::query()
+            ->where('codigo', 'ADMIN')
+            ->firstOrFail();
+    }
 }

@@ -2,77 +2,92 @@
 
 namespace App\Livewire\Pages\Auth;
 
+use App\Livewire\Forms\LoginForm;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 class Login extends Component
 {
-    public array $state = [
-        'email' => '',
-        'password' => '',
-        'remember' => false,
-    ];
+    public LoginForm $form;
 
-    public function mount()
+    /*
+    |--------------------------------------------------------------------------
+    | Inicializar
+    |--------------------------------------------------------------------------
+    */
+
+    public function mount(): void
     {
         if (Auth::check()) {
-            return $this->afterLoginRedirect();
-        }
 
-        return null;
+            $this->redirectAfterLogin();
+
+        }
     }
 
-    public function login()
+    /*
+    |--------------------------------------------------------------------------
+    | Login
+    |--------------------------------------------------------------------------
+    */
+
+    public function login(): void
     {
-        $this->validate([
-            'state.email' => ['required', 'email'],
-            'state.password' => ['required', 'string'],
-        ]);
-
-        $remember = (bool) ($this->state['remember'] ?? false);
-
-        if (! Auth::attempt([
-            'email' => $this->state['email'],
-            'password' => $this->state['password'],
-        ], $remember)) {
-            throw ValidationException::withMessages([
-                'state.email' => __('auth.failed'),
-            ]);
-        }
+        $this->form->authenticate();
 
         session()->regenerate();
 
-        return $this->afterLoginRedirect();
+        $this->redirectAfterLogin();
     }
 
-    private function afterLoginRedirect()
+    /*
+    |--------------------------------------------------------------------------
+    | Redirección
+    |--------------------------------------------------------------------------
+    */
+
+    private function redirectAfterLogin(): void
     {
         $user = Auth::user();
 
         if (! $user) {
-            return redirect()->route('login');
+
+            $this->redirectRoute('login');
+
+            return;
+
         }
 
-        /*
-         * No eliminamos url.intended.
-         * Así, si llegó desde /checkout, Laravel recuerda ese destino
-         * incluso si antes debe verificar el correo.
-         */
         if (! $user->hasVerifiedEmail()) {
-            return redirect()->route('verification.notice');
+
+            $this->redirectRoute('verification.notice');
+
+            return;
+
         }
 
         if ($user->isAdmin()) {
-            return redirect()->intended(route('admin.dashboard'));
+
+            $this->redirectIntended(
+
+                route('admin.dashboard')
+
+            );
+
+            return;
+
         }
 
-        return redirect()->intended(route('customer.dashboard'));
+        $this->redirectIntended(
+
+            route('customer.dashboard')
+
+        );
     }
 
     public function render()
     {
         return view('livewire.pages.auth.login')
-            ->layout('layouts.app');
+            ->layout('layouts.auth');
     }
 }
