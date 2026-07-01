@@ -18,19 +18,15 @@ class ShippingAddressesSeeder extends Seeder
 
         ShippingAddress::updateOrCreate(
             [
-                'user_id' => $cliente->id,
-                'address' => 'Av. Principal 123'
+                'user_id'   => $cliente->id,
+                'direccion' => 'Av. Principal 123',
             ],
             [
-                'city' => 'Lima',
-
-                'state' => 'Lima',
-
-                'zip_code' => '15001',
-
-                'country' => 'Perú',
-
-                'es_principal' => true,
+                'city'          => 'Lima',
+                'state'         => 'Lima',
+                'zip_code'      => '15001',
+                'country'       => 'Perú',
+                'es_principal'  => true,
             ]
         );
     }

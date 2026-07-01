@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CategoriesSeeder extends Seeder
 {
@@ -13,47 +14,47 @@ class CategoriesSeeder extends Seeder
 
             [
                 'name' => 'Cafés Calientes',
-                'description' => 'Bebidas calientes preparadas con café.'
+                'description' => 'Bebidas calientes preparadas con café.',
             ],
 
             [
                 'name' => 'Cafés Fríos',
-                'description' => 'Bebidas frías preparadas con café.'
+                'description' => 'Bebidas frías preparadas con café.',
             ],
 
             [
                 'name' => 'Frappés',
-                'description' => 'Frappés de diferentes sabores.'
+                'description' => 'Frappés de diferentes sabores.',
             ],
 
             [
                 'name' => 'Jugos',
-                'description' => 'Jugos naturales.'
+                'description' => 'Jugos naturales.',
             ],
 
             [
                 'name' => 'Cremoladas',
-                'description' => 'Cremoladas artesanales.'
+                'description' => 'Cremoladas artesanales.',
             ],
 
             [
                 'name' => 'Chocolates',
-                'description' => 'Chocolates de la marca PROCafés.'
+                'description' => 'Chocolates de la marca PROCAFES.',
             ],
 
             [
                 'name' => 'Licores',
-                'description' => 'Licores de café.'
+                'description' => 'Licores de café.',
             ],
 
             [
                 'name' => 'Café en Bolsa',
-                'description' => 'Café tostado y molido.'
+                'description' => 'Café tostado y molido.',
             ],
 
             [
                 'name' => 'Accesorios',
-                'description' => 'Productos y accesorios.'
+                'description' => 'Productos y accesorios.',
             ],
 
         ];
@@ -62,20 +63,20 @@ class CategoriesSeeder extends Seeder
 
             DB::table('categories')->updateOrInsert(
 
-                ['name' => $category['name']],
+                [
+                    'slug' => Str::slug($category['name']),
+                ],
 
                 [
-
+                    'name' => $category['name'],
+                    'slug' => Str::slug($category['name']),
                     'description' => $category['description'],
-
+                    'status' => true,
+                    'updated_at' => now(),
                     'created_at' => now(),
-
-                    'updated_at' => now()
-
                 ]
 
             );
-
         }
     }
 }

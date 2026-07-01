@@ -84,11 +84,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new WelcomeVerifyEmail());
     }
-     public function sendPasswordResetNotification(string $token): void
+    public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPasswordProcafes($token));
     }
-
     //metodos auxiliares
     public function isAdmin(): bool
     {

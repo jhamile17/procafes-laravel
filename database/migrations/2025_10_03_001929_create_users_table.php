@@ -18,17 +18,17 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
 
-            // Nombre completo (Compatibilidad Laravel)
+            // Nombre completo (compatibilidad con Laravel)
             $table->string('name');
 
             // Datos personales
-            $table->string('nombres',100);
-            $table->string('apellido_paterno',100);
-            $table->string('apellido_materno',100);
+            $table->string('nombres', 100);
+            $table->string('apellido_paterno', 100);
+            $table->string('apellido_materno', 100);
 
             // Documento
-            $table->string('tipo_documento',20);
-            $table->string('numero_documento',20)->unique();
+            $table->string('tipo_documento', 20);
+            $table->string('numero_documento', 20)->unique();
 
             // Correo
             $table->string('email')->unique();
@@ -37,12 +37,12 @@ return new class extends Migration
             // Contraseña
             $table->string('password')->nullable();
 
-            // Login Social
+            // Login social
             $table->string('provider')->default('local');
             $table->string('provider_id')->nullable()->unique();
 
             // Contacto
-            $table->string('celular',20)->nullable();
+            $table->string('celular', 20)->nullable();
             $table->text('direccion')->nullable();
 
             // Estado

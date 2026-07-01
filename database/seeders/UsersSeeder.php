@@ -11,52 +11,66 @@ class UsersSeeder extends Seeder
 {
     public function run(): void
     {
-        $adminRole = Role::where('codigo', 'ADMIN')->first();
-        $customerRole = Role::where('codigo', 'CUSTOMER')->first();
+        $adminRole = Role::where('codigo', 'ADMIN')->firstOrFail();
+        $customerRole = Role::where('codigo', 'CUSTOMER')->firstOrFail();
 
         User::updateOrCreate(
             [
-                'email' => 'admin@procafes.com'
+                'email' => 'admin@procafes.com',
             ],
             [
+                'role_id' => $adminRole->id,
+
                 'name' => 'Administrador',
+
+                'nombres' => 'Administrador',
+                'apellido_paterno' => 'Sistema',
+                'apellido_materno' => 'PROCAFES',
+
+                'tipo_documento' => 'DNI',
+                'numero_documento' => '00000000',
 
                 'password' => Hash::make('Admin123*'),
 
-                'phone' => '999999999',
+                'provider' => 'local',
+                'provider_id' => null,
 
-                'document_type' => 'DNI',
+                'celular' => '999999999',
+                'direccion' => 'Oficina Principal',
 
-                'document_number' => '00000000',
-
-                'role_id' => $adminRole?->id,
+                'estado' => true,
 
                 'email_verified_at' => now(),
-
-                'address' => 'Oficina Principal'
             ]
         );
 
         User::updateOrCreate(
             [
-                'email' => 'cliente@procafes.com'
+                'email' => 'cliente@procafes.com',
             ],
             [
+                'role_id' => $customerRole->id,
+
                 'name' => 'Cliente Demo',
+
+                'nombres' => 'Cliente',
+                'apellido_paterno' => 'Demo',
+                'apellido_materno' => 'PROCAFES',
+
+                'tipo_documento' => 'DNI',
+                'numero_documento' => '11111111',
 
                 'password' => Hash::make('Cliente123*'),
 
-                'phone' => '988888888',
+                'provider' => 'local',
+                'provider_id' => null,
 
-                'document_type' => 'DNI',
+                'celular' => '988888888',
+                'direccion' => 'Lima',
 
-                'document_number' => '11111111',
-
-                'role_id' => $customerRole?->id,
+                'estado' => true,
 
                 'email_verified_at' => now(),
-
-                'address' => 'Lima'
             ]
         );
     }

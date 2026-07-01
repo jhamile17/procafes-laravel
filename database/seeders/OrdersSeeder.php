@@ -12,7 +12,7 @@ class OrdersSeeder extends Seeder
 {
     public function run(): void
     {
-        $user = User::where('role', User::ROLE_CUSTOMER)->first();
+        $user = User::where('email', 'cliente@procafes.com')->first();
 
         if (!$user) {
             return;
@@ -31,11 +31,9 @@ class OrdersSeeder extends Seeder
         }
 
         Order::updateOrCreate(
-
             [
                 'numero_pedido' => 'PC-2026-000001',
             ],
-
             [
                 'user_id' => $user->id,
 
@@ -43,14 +41,12 @@ class OrdersSeeder extends Seeder
 
                 'estado_pedido_id' => $estado->id,
 
-                'total_price' => 0,
+                'total_price' => 0.00,
 
                 'delivery_type' => 'DELIVERY',
 
                 'observaciones' => 'Pedido de prueba.',
-
             ]
-
         );
     }
 }
