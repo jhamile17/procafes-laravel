@@ -67,18 +67,45 @@ class Payment extends Model
     |--------------------------------------------------------------------------
     */
 
+    public function actualizarEstado(EstadoPago $estado): void
+    {
+        $this->update([
+            'estado_pago_id' => $estado->id,
+        ]);
+    }
+
     public function isPendiente(): bool
     {
-        return strtoupper($this->estadoPago->codigo) === 'PENDIENTE';
+        return $this->estadoPago?->esPendiente() ?? false;
     }
 
     public function isPagado(): bool
     {
-        return strtoupper($this->estadoPago->codigo) === 'PAGADO';
+        return $this->estadoPago?->esPagado() ?? false;
     }
 
     public function isRechazado(): bool
     {
-        return strtoupper($this->estadoPago->codigo) === 'RECHAZADO';
+        return $this->estadoPago?->esRechazado() ?? false;
+    }
+
+    public function isCancelado(): bool
+    {
+        return $this->estadoPago?->esCancelado() ?? false;
+    }
+      /*
+    |--------------------------------------------------------------------------
+    | Helpers
+    |--------------------------------------------------------------------------
+    */
+
+    public function tieneTransaccion(): bool
+    {
+        return !empty($this->transaction_id);
+    }
+
+    public function tieneReferencia(): bool
+    {
+        return !empty($this->reference);
     }
 }

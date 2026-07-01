@@ -70,5 +70,8 @@ class CartItem extends Model
             (string) $this->quantity,
             2
         );
+        if ($guardar){
+            $this->save();
+        }
     }
 }

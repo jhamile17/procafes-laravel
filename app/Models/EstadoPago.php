@@ -70,4 +70,30 @@ class EstadoPago extends Model
     {
         return $this->status;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helpers de estado
+    |--------------------------------------------------------------------------
+    */
+
+    public function esPendiente(): bool
+    {
+        return strtoupper($this->codigo) === 'PENDIENTE';
+    }
+
+    public function esPagado(): bool
+    {
+        return strtoupper($this->codigo) === 'PAGADO';
+    }
+
+    public function esRechazado(): bool
+    {
+        return strtoupper($this->codigo) === 'RECHAZADO';
+    }
+
+    public function esCancelado(): bool
+    {
+        return strtoupper($this->codigo) === 'CANCELADO';
+    }
 }

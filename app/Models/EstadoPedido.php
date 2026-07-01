@@ -70,4 +70,30 @@ class EstadoPedido extends Model
     {
         return $this->status;
     }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Helpers de estado
+    |--------------------------------------------------------------------------
+    */
+
+    public function esPendiente(): bool
+    {
+        return strtoupper($this->codigo) === 'PENDIENTE';
+    }
+
+    public function esConfirmado(): bool
+    {
+        return strtoupper($this->codigo) === 'CONFIRMADO';
+    }
+
+    public function esCancelado(): bool
+    {
+        return strtoupper($this->codigo) === 'CANCELADO';
+    }
+
+    public function esEntregado(): bool
+    {
+        return strtoupper($this->codigo) === 'ENTREGADO';
+    }
 }
