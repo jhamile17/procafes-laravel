@@ -3,243 +3,290 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+
+use App\Http\Requests\Catalogo\StoreProductRequest;
+use App\Http\Requests\Catalogo\UpdateProductRequest;
+
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Brand;
+use App\Models\TipoConsumo;
+
+use App\Services\Catalogo\ProductService;
+
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
-    public function index()
-    {
-        $products = Product::with(['category', 'brand'])
-            ->latest()
-            ->paginate(10);
-
-        return view('admin.products.products-index', compact('products'));
-    }
-
-    public function create()
-    {
-        $categories = Category::orderBy('name')->get();
-        $brands = Brand::orderBy('name')->get();
-
-        return view('admin.products.products-create', compact(
-            'categories',
-            'brands'
-        ));
-    }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255'
-            ],
-
-            'price' => [
-                'required',
-                'numeric',
-                'min:0'
-            ],
-
-            'stock' => [
-                'required',
-                'integer',
-                'min:0'
-            ],
-
-            'stock_minimo' => [
-                'required',
-                'integer',
-                'min:0'
-            ],
-
-            'categories_id' => [
-                'required',
-                Rule::exists('categories', 'categories_id')
-            ],
-
-            'brand_id' => [
-                'nullable',
-                Rule::exists('brands', 'brand_id')
-            ],
-
-            'image' => [
-                'nullable',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:2048'
-            ],
-
-            'description' => [
-                'nullable',
-                'string'
-            ],
-        ]);
-
-        // Convertir precio
-        $validated['price'] = (float) str_replace(
-            ',',
-            '.',
-            $validated['price']
-        );
-
-        // Estado automático según stock
-        $validated['status'] =
-            $validated['stock'] > 0 ? 1 : 0;
-
-        // Guardar imagen
-        if ($request->hasFile('image')) {
-
-            $validated['image'] = $request
-                ->file('image')
-                ->store('products', 'public');
-        }
-
-        Product::create($validated);
-
-        return redirect()
-            ->route('admin.products.index')
-            ->with(
-                'ok',
-                'Producto creado correctamente.'
-            );
-    }
-
-    public function edit(Product $product)
-    {
-        $categories = Category::orderBy('name')->get();
-        $brands = Brand::orderBy('name')->get();
-
-        return view('admin.products.products-edit', compact(
-            'product',
-            'categories',
-            'brands'
-        ));
-    }
-
-    public function update(
-        Request $request,
-        Product $product
+    public function __construct(
+        private readonly ProductService $productService
     ) {
-        $validated = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255'
-            ],
-
-            'price' => [
-                'required',
-                'numeric',
-                'min:0'
-            ],
-
-            'stock' => [
-                'required',
-                'integer',
-                'min:0'
-            ],
-
-            'stock_minimo' => [
-                'required',
-                'integer',
-                'min:0'
-            ],
-
-            'categories_id' => [
-                'required',
-                Rule::exists('categories', 'categories_id')
-            ],
-
-            'brand_id' => [
-                'nullable',
-                Rule::exists('brands', 'brand_id')
-            ],
-
-            'image' => [
-                'nullable',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:2048'
-            ],
-
-            'description' => [
-                'nullable',
-                'string'
-            ],
-        ]);
-
-        $validated['price'] = (float) str_replace(
-            ',',
-            '.',
-            $validated['price']
-        );
-
-        $validated['status'] =
-            $validated['stock'] > 0 ? 1 : 0;
-
-        if ($request->hasFile('image')) {
-
-            if (
-                $product->image &&
-                Storage::disk('public')->exists($product->image)
-            ) {
-                Storage::disk('public')->delete(
-                    $product->image
-                );
-            }
-
-            $validated['image'] = $request
-                ->file('image')
-                ->store('products', 'public');
-        }
-
-        $product->update($validated);
-
-        return redirect()
-            ->route('admin.products.index')
-            ->with(
-                'ok',
-                'Producto actualizado correctamente.'
-            );
     }
 
-    public function destroy(Product $product)
+    /*
+    |--------------------------------------------------------------------------
+    | Listado
+    |--------------------------------------------------------------------------
+    */
+
+    public function index(Request $request): View
     {
+        $products = $this->productService->paginar(
+            filtros: $request->only([
+                'buscar',
+                'categoria',
+                'marca',
+                'tipo',
+                'estado',
+                'stock',
+                'orden',
+                'direccion',
+            ]),
+            perPage: 10
+        );
+
+        return view(
+            'admin.products.index',
+            compact('products')
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Formulario Crear
+    |--------------------------------------------------------------------------
+    */
+
+    public function create(): View
+    {
+        $categories = Category::query()
+            ->orderBy('name')
+            ->get();
+
+        $brands = Brand::query()
+            ->orderBy('name')
+            ->get();
+
+        $tiposConsumo = TipoConsumo::query()
+            ->orderBy('nombre')
+            ->get();
+
+        return view(
+            'admin.products.create',
+            compact(
+                'categories',
+                'brands',
+                'tiposConsumo'
+            )
+        );
+    }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Guardar producto
+    |--------------------------------------------------------------------------
+    */
+
+    public function store(
+        StoreProductRequest $request
+    ): RedirectResponse {
+
         try {
 
+            $datos = $request->validated();
+
+            if ($request->hasFile('image')) {
+
+                $datos['image'] = $request
+                    ->file('image')
+                    ->store(
+                        'products',
+                        'public'
+                    );
+
+            }
+
+            $this->productService->crear($datos);
+
+            return redirect()
+
+                ->route('admin.products.index')
+
+                ->with(
+                    'success',
+                    'Producto registrado correctamente.'
+                );
+
+        } catch (\Throwable $e) {
+
+            report($e);
+
+            return back()
+
+                ->withInput()
+
+                ->with(
+                    'error',
+                    'No fue posible registrar el producto.'
+                );
+
+        }
+
+    }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Formulario Editar
+    |--------------------------------------------------------------------------
+    */
+
+    public function edit(
+        Product $product
+    ): View {
+
+        $categories = Category::query()
+            ->orderBy('name')
+            ->get();
+
+        $brands = Brand::query()
+            ->orderBy('name')
+            ->get();
+
+        $tiposConsumo = TipoConsumo::query()
+            ->orderBy('nombre')
+            ->get();
+
+        return view(
+            'admin.products.edit',
+            compact(
+                'product',
+                'categories',
+                'brands',
+                'tiposConsumo'
+            )
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Actualizar producto
+    |--------------------------------------------------------------------------
+    */
+
+    public function update(
+        UpdateProductRequest $request,
+        Product $product
+    ): RedirectResponse {
+
+        try {
+
+            $datos = $request->validated();
+
+            if ($request->hasFile('image')) {
+
+                if (
+                    $product->image &&
+                    Storage::disk('public')->exists($product->image)
+                ) {
+
+                    Storage::disk('public')
+                        ->delete($product->image);
+
+                }
+
+                $datos['image'] = $request
+                    ->file('image')
+                    ->store(
+                        'products',
+                        'public'
+                    );
+
+            }
+
+            $this->productService->actualizar(
+                $product,
+                $datos
+            );
+
+            return redirect()
+
+                ->route('admin.products.index')
+
+                ->with(
+                    'success',
+                    'Producto actualizado correctamente.'
+                );
+
+        } catch (\Throwable $e) {
+
+            report($e);
+
+            return back()
+
+                ->withInput()
+
+                ->with(
+                    'error',
+                    'No fue posible actualizar el producto.'
+                );
+
+        }
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Eliminar producto
+    |--------------------------------------------------------------------------
+    */
+
+    public function destroy(
+        int $id
+    ): RedirectResponse {
+
+        try {
+
+            $product = $this->productService->obtener($id);
+
             if (
                 $product->image &&
                 Storage::disk('public')->exists($product->image)
             ) {
-                Storage::disk('public')->delete(
-                    $product->image
-                );
+
+                Storage::disk('public')
+                    ->delete($product->image);
+
             }
 
-            $product->delete();
+            $this->productService->eliminar($product);
 
             return redirect()
+
                 ->route('admin.products.index')
+
                 ->with(
-                    'ok',
+                    'success',
                     'Producto eliminado correctamente.'
                 );
 
         } catch (\Throwable $e) {
 
+            report($e);
+
             return redirect()
+
                 ->route('admin.products.index')
+
                 ->with(
                     'error',
-                    'No se puede eliminar el producto porque tiene pedidos asociados.'
+                    'No se pudo eliminar el producto.'
                 );
+
         }
+
     }
+
 }
