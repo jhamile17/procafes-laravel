@@ -27,7 +27,10 @@ class DashboardController extends Controller
 
         $pedidos = Order::count();
 
-        $ventas = Order::sum('total_price');
+        // SOLO ventas reales (si quieres luego agregamos estados de pago)
+        $ventas = Order::whereHas('estadoPedido', function ($q) {
+            $q->where('codigo', 'CONFIRMADO');
+        })->sum('total_price');
 
         $productosStockBajo = Product::stockBajo()
             ->orderBy('stock')
@@ -39,22 +42,14 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('dashboard', [
-
+        return view('admin.dashboard', [
             'productos' => $productos,
-
             'clientes' => $clientes,
-
             'administradores' => $administradores,
-
             'pedidos' => $pedidos,
-
             'ventas' => $ventas,
-
             'productosStockBajo' => $productosStockBajo,
-
             'ultimosProductos' => $ultimosProductos,
-
         ]);
     }
 }

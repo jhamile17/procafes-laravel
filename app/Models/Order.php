@@ -87,4 +87,9 @@ class Order extends Model
     {
         return (int) $this->items()->sum('quantity');
     }
+
+    public function status()
+    {
+        return $this->belongsTo(EstadoPedido::class, 'estado_pedido_id');
+    }
 }

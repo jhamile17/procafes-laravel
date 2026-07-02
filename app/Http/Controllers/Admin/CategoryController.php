@@ -4,32 +4,48 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Services\Catalogo\CategoryService;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    /**
-     * Lista de categorías
-     */
+    public function __construct(
+        private readonly CategoryService $categoryService
+    ) {}
+
+    /*
+    |--------------------------------------------------------------------------
+    | Listado
+    |--------------------------------------------------------------------------
+    */
+
     public function index()
     {
-        $categories = Category::orderBy('name')
-            ->paginate(10);
+        $categories = $this->categoryService->obtenerTodos();
 
-        return view('admin.categories.categories-index', compact('categories'));
+        return view(
+            'admin.categories.categories-index',
+            compact('categories')
+        );
     }
 
-    /**
-     * Formulario de creación
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Formulario crear
+    |--------------------------------------------------------------------------
+    */
+
     public function create()
     {
         return view('admin.categories.categories-create');
     }
 
-    /**
-     * Guardar categoría
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Guardar
+    |--------------------------------------------------------------------------
+    */
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -45,16 +61,22 @@ class CategoryController extends Controller
             ],
         ]);
 
-        Category::create($validated);
+        // generar slug automático si no viene
+        $validated['slug'] = str($validated['name'])->slug();
+
+        $this->categoryService->crear($validated);
 
         return redirect()
             ->route('admin.categories.index')
-            ->with('ok', 'Categoría creada correctamente.');
+            ->with('success', 'Categoría creada correctamente.');
     }
 
-    /**
-     * Formulario editar
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Editar
+    |--------------------------------------------------------------------------
+    */
+
     public function edit(Category $category)
     {
         return view(
@@ -63,9 +85,12 @@ class CategoryController extends Controller
         );
     }
 
-    /**
-     * Actualizar categoría
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Actualizar
+    |--------------------------------------------------------------------------
+    */
+
     public function update(Request $request, Category $category)
     {
         $validated = $request->validate([
@@ -73,9 +98,7 @@ class CategoryController extends Controller
                 'required',
                 'string',
                 'max:255',
-                'unique:categories,name,' .
-                $category->categories_id .
-                ',categories_id'
+                'unique:categories,name,' . $category->id
             ],
             'description' => [
                 'nullable',
@@ -83,29 +106,37 @@ class CategoryController extends Controller
             ],
         ]);
 
-        $category->update($validated);
+        $validated['slug'] = str($validated['name'])->slug();
+
+        $this->categoryService->actualizar($category, $validated);
 
         return redirect()
             ->route('admin.categories.index')
-            ->with('ok', 'Categoría actualizada correctamente.');
+            ->with('success', 'Categoría actualizada correctamente.');
     }
 
-    /**
-     * Eliminar categoría
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Eliminar
+    |--------------------------------------------------------------------------
+    */
+
     public function destroy(Category $category)
     {
-        if ($category->products()->exists()) {
+        try {
+
+            $this->categoryService->eliminar($category);
+
+            return redirect()
+                ->route('admin.categories.index')
+                ->with('success', 'Categoría eliminada correctamente.');
+
+        } catch (\Throwable $e) {
+
             return back()->with(
                 'error',
                 'No se puede eliminar la categoría porque tiene productos asociados.'
             );
         }
-
-        $category->delete();
-
-        return redirect()
-            ->route('admin.categories.index')
-            ->with('ok', 'Categoría eliminada correctamente.');
     }
 }

@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Category;
+use App\Models\Brand;
+use App\Models\TipoConsumo;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -195,6 +199,11 @@ class Product extends Model
         return $query->where('status', true);
     }
 
+    public function scopeInactivos($query)
+    {
+        return $query->where('status', false);
+    }
+
     public function scopeConStock($query)
     {
         return $query->where('stock', '>', 0);
@@ -205,11 +214,6 @@ class Product extends Model
         return $query
             ->where('status', true)
             ->where('stock', '>', 0);
-    }
-
-    public function scopeInactivos($query)
-    {
-        return $query->where('status', self::INACTIVO);
     }
 
     public function scopeStockBajo($query)
@@ -279,17 +283,11 @@ class Product extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function getImageUrlAttribute(): ?string
+    public function getImageUrlAttribute(): string
     {
-        if (!$this->image) {
-            return asset('images/no-image.png');
-        }
-
-        if (!Storage::disk('public')->exists($this->image)) {
-            return asset('images/no-image.png');
-        }
-
-        return Storage::disk('public')->url($this->image);
+        return $this->image
+            ? asset('storage/' . $this->image)
+            : asset('images/no-image.png');
     }
 
     public function getPrecioFormateadoAttribute(): string
@@ -299,13 +297,9 @@ class Product extends Model
 
     public function getStockStatusAttribute(): string
     {
-        if ($this->stock <= 0) {
-            return 'Agotado';
-        }
+        if ($this->stock <= 0) return 'Agotado';
 
-        if ($this->stock <= $this->stock_minimo) {
-            return 'Stock Bajo';
-        }
+        if ($this->stock <= $this->stock_minimo) return 'Stock Bajo';
 
         return 'Disponible';
     }

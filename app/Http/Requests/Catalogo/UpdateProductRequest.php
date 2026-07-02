@@ -19,7 +19,7 @@ class UpdateProductRequest extends FormRequest
         return [
 
             'categories_id' => [
-                'nullable',
+                'required',
                 'exists:categories,id',
             ],
 
@@ -30,7 +30,7 @@ class UpdateProductRequest extends FormRequest
 
             'tipo_consumo_id' => [
                 'nullable',
-                'exists:tipos_consumo,id',
+                'exists:tipo_consumos,id',
             ],
 
             'name' => [
@@ -41,17 +41,17 @@ class UpdateProductRequest extends FormRequest
 
             'slug' => [
                 'nullable',
-                Rule::unique('products', 'slug')->ignore($product),
+                Rule::unique('products', 'slug')->ignore($product->id),
             ],
 
             'sku' => [
                 'nullable',
-                Rule::unique('products', 'sku')->ignore($product),
+                Rule::unique('products', 'sku')->ignore($product->id),
             ],
 
             'barcode' => [
                 'nullable',
-                Rule::unique('products', 'barcode')->ignore($product),
+                Rule::unique('products', 'barcode')->ignore($product->id),
             ],
 
             'description' => [
@@ -89,10 +89,27 @@ class UpdateProductRequest extends FormRequest
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048',
             ],
+        ];
+    }
 
-            'status' => [
-                'boolean',
-            ],
+    public function messages(): array
+    {
+        return [
+
+            'sale_price.gte' =>
+                'El precio de venta debe ser mayor o igual al costo.',
+
+            'categories_id.required' =>
+                'La categoría es obligatoria.',
+
+            'categories_id.exists' =>
+                'La categoría seleccionada no existe.',
+
+            'brand_id.exists' =>
+                'La marca seleccionada no existe.',
+
+            'tipo_consumo_id.exists' =>
+                'El tipo de consumo seleccionado no existe.',
         ];
     }
 }

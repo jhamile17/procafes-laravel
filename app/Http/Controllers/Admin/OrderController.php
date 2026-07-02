@@ -15,100 +15,47 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $q = trim((string) $request->get('q', ''));
-        $status = $request->get('status');
+        $q = trim($request->get('q', ''));
 
-        $orders = DB::table('orders as o')
-            ->join('users as u', 'u.id', '=', 'o.user_id')
-            ->select(
-                'o.id',
-                'o.status',
-                'o.total_price',
-                'o.created_at',
-                'u.name as customer_name',
-                'u.email as customer_email'
-            )
-            ->when($q !== '', function ($query) use ($q) {
-                $like = "%{$q}%";
+        $orders = Order::with(['user', 'estadoPedido'])
+            ->when($q, function ($query) use ($q) {
 
-                $query->where(function ($w) use ($like) {
-                    $w->where('u.name', 'like', $like)
-                      ->orWhere('u.email', 'like', $like)
-                      ->orWhere('o.id', 'like', $like);
-                });
+                $query->where('numero_pedido', 'like', "%{$q}%")
+                    ->orWhereHas('user', function ($q2) use ($q) {
+                        $q2->where('name', 'like', "%{$q}%")
+                        ->orWhere('email', 'like', "%{$q}%");
+                    });
+
             })
-            ->when($status, function ($query) use ($status) {
-                $query->where('o.status', $status);
-            })
-            ->orderByDesc('o.created_at')
+            ->latest()
             ->paginate(12)
             ->withQueryString();
 
-        $statuses = DB::table('orders')
-            ->select('status')
-            ->distinct()
-            ->pluck('status');
-
-        $statusMap = Order::statusMap();
-
-        return view('admin.orders.index', compact(
-            'orders',
-            'statuses',
-            'status',
-            'q',
-            'statusMap'
-        ));
+        return view('admin.orders.index', compact('orders', 'q'));
     }
-
     /**
      * Detalle de orden
      */
-    public function show($id)
+    public function show(Order $order)
     {
-        $order = DB::table('orders as o')
-            ->leftJoin('users as u', 'u.id', '=', 'o.user_id')
-            ->select(
-                'o.*',
-                'u.name as customer_name',
-                'u.email as customer_email'
-            )
-            ->where('o.id', $id)
-            ->first();
+        $order->load([
+            'user',
+            'estadoPedido',
+            'items.product',
+            'shippingAddress',
+        ]);
 
-        if (!$order) {
-            return redirect()
-                ->route('admin.orders.index')
-                ->with('warning', 'La orden no existe.');
-        }
-
-        $items = DB::table('order_items as oi')
-            ->join('products as p', 'p.id', '=', 'oi.product_id')
-            ->select(
-                'oi.id',
-                'p.name as product_name',
-                'oi.quantity',
-                'oi.unit_price',
-                'oi.subtotal'
-            )
-            ->where('oi.order_id', $id)
-            ->orderBy('oi.id')
-            ->get();
+        $items = $order->items;
 
         $totals = [
-            'items_subtotal' => (float) $items->sum('subtotal'),
-            'order_total' => (float) $order->total_price,
+            'items_subtotal' => $items->sum('subtotal'),
+            'order_total' => $order->total_price,
         ];
-
-        $statusMap = Order::statusMap();
-
-        $statusLabel = $statusMap[$order->status]
-            ?? ucfirst($order->status);
 
         return view('admin.orders.show', compact(
             'order',
             'items',
-            'totals',
-            'statusLabel'
+            'totals'
         ));
     }
 
@@ -117,33 +64,18 @@ class OrderController extends Controller
      */
     public function updateStatus(Request $request, Order $order)
     {
-        $allowed = [
-            'pending',
-            'paid',
-            'shipped',
-            'cancelled',
-        ];
-
         $request->validate([
-            'status' => 'required|in:' . implode(',', $allowed),
+            'estado_pedido_id' => 'required|exists:estados_pedido,id',
         ]);
 
-        $newStatus = $request->status;
-
-        if ($order->status === $newStatus) {
-            return back()->with(
-                'status',
-                'La orden ya tiene ese estado.'
-            );
+        if ($order->estado_pedido_id == $request->estado_pedido_id) {
+            return back()->with('info', 'La orden ya tiene ese estado.');
         }
 
         $order->update([
-            'status' => $newStatus
+            'estado_pedido_id' => $request->estado_pedido_id
         ]);
 
-        return back()->with(
-            'status',
-            'Estado actualizado correctamente.'
-        );
+        return back()->with('success', 'Estado actualizado correctamente.');
     }
 }

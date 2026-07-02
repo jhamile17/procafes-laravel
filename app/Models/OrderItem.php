@@ -12,12 +12,6 @@ class OrderItem extends Model
 
     protected $table = 'order_items';
 
-    /*
-    |--------------------------------------------------------------------------
-    | Asignación masiva
-    |--------------------------------------------------------------------------
-    */
-
     protected $fillable = [
         'order_id',
         'product_id',
@@ -25,12 +19,6 @@ class OrderItem extends Model
         'unit_price',
         'subtotal',
     ];
-
-    /*
-    |--------------------------------------------------------------------------
-    | Conversión de atributos
-    |--------------------------------------------------------------------------
-    */
 
     protected function casts(): array
     {
@@ -40,12 +28,6 @@ class OrderItem extends Model
             'subtotal' => 'decimal:2',
         ];
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Relaciones
-    |--------------------------------------------------------------------------
-    */
 
     public function order(): BelongsTo
     {
@@ -59,16 +41,13 @@ class OrderItem extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Métodos auxiliares
+    | FIX IMPORTANTE
     |--------------------------------------------------------------------------
     */
 
     public function recalcularSubtotal(): void
     {
-        $this->subtotal = bcmul(
-            (string) $this->unit_price,
-            (string) $this->quantity,
-            2
-        );
+        $this->subtotal = $this->quantity * $this->unit_price;
+        $this->save(); // 🔥 IMPORTANTE: persistir cambio
     }
 }

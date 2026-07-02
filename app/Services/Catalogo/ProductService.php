@@ -43,6 +43,15 @@ class ProductService
     {
         return DB::transaction(function () use ($product) {
 
+            // eliminar imagen si existe
+            if ($product->image) {
+                $path = storage_path('app/public/' . $product->image);
+
+                if (file_exists($path)) {
+                    unlink($path);
+                }
+            }
+
             return (bool) $product->delete();
         });
     }
@@ -231,19 +240,13 @@ class ProductService
 
     public function activar(Product $product): Product
     {
-        $product->update([
-            'status' => true,
-        ]);
-
+        $product->update(['status' => 1]);
         return $product->fresh();
     }
 
     public function desactivar(Product $product): Product
     {
-        $product->update([
-            'status' => false,
-        ]);
-
+        $product->update(['status' => 0]);
         return $product->fresh();
     }
 
@@ -281,14 +284,33 @@ class ProductService
         ?Product $product = null
     ): array {
 
+        // limpiar strings
         $datos = array_map(function ($valor) {
-            return is_string($valor)
-                ? trim($valor)
-                : $valor;
+            return is_string($valor) ? trim($valor) : $valor;
         }, $datos);
 
-        $datos = $this->prepararSlug($datos, $product);
+        // normalizar stock
+        if (isset($datos['stock'])) {
+            $datos['stock'] = (int) $datos['stock'];
+        }
 
+        if (isset($datos['stock_minimo'])) {
+            $datos['stock_minimo'] = (int) $datos['stock_minimo'];
+        }
+
+        // normalizar precios
+        foreach (['cost_price', 'sale_price'] as $field) {
+            if (isset($datos[$field])) {
+                $datos[$field] = (float) str_replace(',', '.', $datos[$field]);
+            }
+        }
+
+        // normalizar status
+        if (isset($datos['status'])) {
+            $datos['status'] = filter_var($datos['status'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        $datos = $this->prepararSlug($datos, $product);
         $datos = $this->prepararSku($datos);
 
         return $datos;

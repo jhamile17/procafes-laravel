@@ -13,16 +13,6 @@ class CategoryService
 {
     /*
     |--------------------------------------------------------------------------
-    | Constructor
-    |--------------------------------------------------------------------------
-    */
-
-    public function __construct()
-    {
-    }
-
-    /*
-    |--------------------------------------------------------------------------
     | Crear categoría
     |--------------------------------------------------------------------------
     */
@@ -35,7 +25,7 @@ class CategoryService
                 'name' => $datos['name'],
                 'slug' => $datos['slug'],
                 'description' => $datos['description'] ?? null,
-                'status' => $datos['status'] ?? true,
+                'status' => (bool) ($datos['status'] ?? true),
             ]);
 
         });
@@ -47,23 +37,22 @@ class CategoryService
     |--------------------------------------------------------------------------
     */
 
-    public function actualizar(
-        Category $category,
-        array $datos
-    ): Category {
-
-        DB::transaction(function () use ($category, $datos) {
+    public function actualizar(Category $category, array $datos): Category
+    {
+        return DB::transaction(function () use ($category, $datos) {
 
             $category->update([
                 'name' => $datos['name'],
                 'slug' => $datos['slug'],
                 'description' => $datos['description'] ?? null,
-                'status' => $datos['status'] ?? $category->status,
+                'status' => isset($datos['status'])
+                    ? (bool) $datos['status']
+                    : $category->status,
             ]);
 
-        });
+            return $category->refresh();
 
-        return $category->fresh();
+        });
     }
 
     /*
@@ -75,9 +64,7 @@ class CategoryService
     public function eliminar(Category $category): bool
     {
         if (! $category->delete()) {
-            throw new RuntimeException(
-                'No fue posible eliminar la categoría.'
-            );
+            throw new RuntimeException('No fue posible eliminar la categoría.');
         }
 
         return true;
@@ -91,55 +78,50 @@ class CategoryService
 
     public function obtener(int $id): Category
     {
-        return Category::query()
-            ->findOrFail($id);
+        return Category::findOrFail($id);
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener todas las categorías
+    | Obtener todas
     |--------------------------------------------------------------------------
     */
 
     public function obtenerTodos(): Collection
     {
-        return Category::query()
-            ->orderBy('name')
-            ->get();
+        return Category::orderBy('name')->get();
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener categorías activas
+    | Obtener activas
     |--------------------------------------------------------------------------
     */
 
     public function obtenerActivas(): Collection
     {
-        return Category::query()
-            ->activos()
+        return Category::where('status', 1)
             ->orderBy('name')
             ->get();
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Buscar categorías
+    | Buscar categorías (CORREGIDO)
     |--------------------------------------------------------------------------
     */
 
     public function buscar(string $busqueda): Collection
     {
         return Category::query()
+            ->where(function ($query) use ($busqueda) {
 
-            ->where('name', 'like', "%{$busqueda}%")
+                $query->where('name', 'like', "%{$busqueda}%")
+                    ->orWhere('slug', 'like', "%{$busqueda}%")
+                    ->orWhere('description', 'like', "%{$busqueda}%");
 
-            ->orWhere('slug', 'like', "%{$busqueda}%")
-
-            ->orWhere('description', 'like', "%{$busqueda}%")
-
+            })
             ->orderBy('name')
-
             ->get();
     }
 }
