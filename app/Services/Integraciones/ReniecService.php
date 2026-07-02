@@ -20,6 +20,18 @@ class ReniecService
 
         $this->token = env('APIS_PERU_TOKEN');
     }
+        protected function http()
+    {
+        return Http::acceptJson()
+            ->withOptions([
+                'curl' => [
+                    CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                ],
+            ])
+            ->withToken($this->token)
+            ->connectTimeout(3)
+            ->timeout(8);
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -40,11 +52,9 @@ class ReniecService
         }
 
         try {
-
-            $response = Http::acceptJson()
-                ->withToken($this->token)
-                ->timeout(15)
+            $response = $this->http()
                 ->get("{$this->baseUrl}/dni/{$dni}");
+
 
             if ($response->failed()) {
                 return [
@@ -98,9 +108,7 @@ class ReniecService
 
         try {
 
-            $response = Http::acceptJson()
-                ->withToken($this->token)
-                ->timeout(15)
+            $response = $this->http()
                 ->get("{$this->baseUrl}/ruc/{$ruc}");
 
             if ($response->failed()) {

@@ -28,7 +28,9 @@
                                 wire:model.live="form.tipo_documento">
 
                                 <option value="DNI">DNI</option>
-
+                                <option value="RUC">
+                                    RUC
+                                </option>
                                 <option value="CE">
                                     Carné de Extranjería
                                 </option>
@@ -43,16 +45,42 @@
                             <label class="form-label">
                                 Número de documento
                             </label>
+                            <div class="input-group">
+                             
                             <input
                                 type="text"
                                 class="form-control @error('form.numero_documento') is-invalid @enderror"
-                                wire:model.live="form.numero_documento"
-                                wire:blur="buscarDocumento">
+                                wire:model.live.debounce.500ms="form.numero_documento"
+                                maxlength="{{ match($form->tipo_documento) {
+                                    'DNI' => 8,
+                                    'RUC' => 11,
+                                    default => 20,
+                                } }}"
+                                inputmode="{{in_array($form->tipo_documento,['DNI','RUC']) ? 'numeric' : 'text'}}"
+                                oninput="
+                                    if(['DNI','RUC'].includes('{{$form->tipo_documento}}')) {
+                                     this.value = this.value.replace(/[^0-9]/g, '');}
+                                      ">
+                            <button
+                                type="button"
+                                class="btn btn-dark"
+                                wire:click="buscarDocumento"
+                                wire:loading.attr="disabled"
+                                wire:target="buscarDocumento"
+                                @disabled(!$this->puedeBuscarDocumento())>
+                                <span wire:loading.remove wire:target="buscarDocumento">
+                                    Buscar
+                                </span>
+                                <span wire:loading wire:target="buscarDocumento">
+                                    Buscando...
+                                </span>
+                            </button>
                             @error('form.numero_documento')
                                 <div class="invalid-feedback">
                                     {{ $message }}
                                 </div>
                             @enderror
+                            </div>
                             @if($form->estadoDocumento === \App\Livewire\Forms\RegisterForm::DOCUMENTO_CONSULTANDO)
                                 <small class="text-primary">
                                     Consultando documento...
@@ -108,25 +136,19 @@
                         <div class="col-md-4">
 
                             <label class="form-label">
-
                                 Apellido materno
-
                             </label>
-
                             <input
                                 type="text"
                                 class="form-control @error('form.apellido_materno') is-invalid @enderror"
                                 wire:model.live="form.apellido_materno"
                                 @disabled(!$form->permitirEdicionManual)>
-
                             @error('form.apellido_materno')
                                 <div class="invalid-feedback">
                                     {{ $message }}
                                 </div>
                             @enderror
-
                         </div>
-
                         {{-- Correo --}}
                         <div class="col-md-6">
                             <label class="form-label">
@@ -186,11 +208,12 @@
                     <button
                         type="submit"
                         class="btn btn-dark w-100 mt-4"
-                        wire:loading.attr="disabled">
-                        <span wire:loading.remove>
+                        wire:loading.attr="disabled"
+                        wire:target="register">
+                        <span wire:loading.remove wire:target="register">
                             Crear cuenta
                         </span>
-                        <span wire:loading>
+                        <span wire:loading wire:target="register">
                             Registrando...
                         </span>
                     </button>

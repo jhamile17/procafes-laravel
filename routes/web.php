@@ -221,6 +221,7 @@ Route::post('/checkout', [CheckoutController::class, 'store'])
 | MERCADO PAGO
 |--------------------------------------------------------------------------
 */
+/*
 Route::get('/pagos/mercadopago', [MercadoPagoController::class, 'index'])
     ->middleware('auth', 'verified')
     ->name('mp.checkout');
@@ -238,7 +239,7 @@ Route::get('/pagos/error', [MercadoPagoController::class, 'failure'])
 
 Route::post('/webhooks/mercadopago', [MercadoPagoWebhookController::class, 'handle'])
     ->name('mp.webhook');
-
+*/
 /*
 |--------------------------------------------------------------------------
 | AUTH SYSTEM

@@ -13,7 +13,7 @@ class RegisterForm extends Form
     #[Validate('required|string|max:20')]
     public string $tipo_documento = 'DNI';
 
-    #[Validate('required|string|max:20|unique:users,numero_documento')]
+    #[Validate('required|max:20|unique:users,numero_documento')]
     public string $numero_documento = '';
 
     #[Validate('required|string|max:100')]
@@ -24,6 +24,7 @@ class RegisterForm extends Form
 
     #[Validate('nullable|string|max:100')]
     public string $apellido_materno = '';
+
 
     /*
     |--------------------------------------------------------------------------
@@ -81,21 +82,34 @@ class RegisterForm extends Form
     */
 
     protected function rules(): array
-    {
-        return [
+{
+    $numeroDocumento = match ($this->tipo_documento) {
 
-            'password' => [
+        'DNI'        => 'required|digits:8|unique:users,numero_documento',
 
-                'required',
+        'RUC'        => 'required|digits:11|unique:users,numero_documento',
 
-                'confirmed',
+        'CE'         => 'required|string|max:20|unique:users,numero_documento',
 
-                Password::defaults(),
+        'PASAPORTE'  => 'required|string|max:20|unique:users,numero_documento',
 
-            ],
+        default      => 'required|string|max:20',
 
-        ];
-    }
+    };
+
+    return [
+
+        'numero_documento' => $numeroDocumento,
+
+        'password' => [
+            'required',
+            'confirmed',
+            Password::defaults(),
+        ],
+
+    ];
+}
+        
 
     /*
     |--------------------------------------------------------------------------

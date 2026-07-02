@@ -1,3 +1,22 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import "bootstrap-icons/font/bootstrap-icons.css";
-@import './chatbot.css';
+
+/* ===========================
+   PROCAFES DESIGN SYSTEM
+=========================== */
+
+@import "./variables.css";
+@import "./typography.css";
+@import "./buttons.css";
+@import "./forms.css";
+@import "./cards.css";
+@import "./navbar.css";
+@import "./footer.css";
+@import "./animations.css";
+@import "./utilities.css";
+
+/* ===========================
+   COMPONENTES
+=========================== */
+
+@import "./chatbot.css";

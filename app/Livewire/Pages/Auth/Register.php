@@ -20,6 +20,13 @@ class Register extends Component
     public function buscarDocumento(
         ReniecService $reniecService
     ): void {
+        $inicio = microtime(true);
+
+        $respuesta = $reniecService->consultarDni(
+            $this->form->numero_documento
+        );
+
+        logger('Tiempo RENIEC: ' . (microtime(true) - $inicio));
 
         $this->form->estadoDocumento = RegisterForm::DOCUMENTO_SIN_CONSULTAR;
 
@@ -103,6 +110,14 @@ class Register extends Component
         );
 
         return redirect()->route('login');
+    }
+    public function puedeBuscarDocumento(): bool
+    {
+        return match ($this->form->tipo_documento) {
+            'DNI' => strlen($this->form->numero_documento) === 8,
+            'RUC' => strlen($this->form->numero_documento) === 11,
+            default => false,
+        };
     }
 
     public function render()
