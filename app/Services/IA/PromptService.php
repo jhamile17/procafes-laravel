@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Chatbot;
+namespace App\Services\IA;
 
 use Illuminate\Support\Collection;
 

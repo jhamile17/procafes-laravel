@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
@@ -11,6 +12,19 @@ use Illuminate\Support\Facades\Storage;
 class Product extends Model
 {
     use HasFactory;
+    use SoftDeletes;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Constantes
+    |--------------------------------------------------------------------------
+    */
+
+    public const ACTIVO = true;
+
+    public const INACTIVO = false;
+
+    public const STOCK_MINIMO_DEFAULT = 5;
 
     /*
     |--------------------------------------------------------------------------
@@ -73,6 +87,10 @@ class Product extends Model
         'image_url',
 
         'precio_formateado',
+
+        'stock_status',
+
+        'stock_badge',
 
     ];
 
@@ -189,6 +207,20 @@ class Product extends Model
             ->where('stock', '>', 0);
     }
 
+    public function scopeInactivos($query)
+    {
+        return $query->where('status', self::INACTIVO);
+    }
+
+    public function scopeStockBajo($query)
+    {
+        return $query->whereColumn(
+            'stock',
+            '<=',
+            'stock_minimo'
+        );
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Métodos auxiliares
@@ -198,6 +230,20 @@ class Product extends Model
     public function isActive(): bool
     {
         return $this->status;
+    }
+
+    public function activar(): void
+    {
+        $this->update([
+            'status' => self::ACTIVO,
+        ]);
+    }
+
+    public function desactivar(): void
+    {
+        $this->update([
+            'status' => self::INACTIVO,
+        ]);
     }
 
     public function hasStock(): bool
@@ -217,6 +263,16 @@ class Product extends Model
             && $this->stock >= $quantity;
     }
 
+    public function incrementarStock(int $cantidad): void
+    {
+        $this->increment('stock', $cantidad);
+    }
+
+    public function disminuirStock(int $cantidad): void
+    {
+        $this->decrement('stock', $cantidad);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Accesores y Mutadores
@@ -226,11 +282,11 @@ class Product extends Model
     public function getImageUrlAttribute(): ?string
     {
         if (!$this->image) {
-            return null;
+            return asset('images/no-image.png');
         }
 
         if (!Storage::disk('public')->exists($this->image)) {
-            return null;
+            return asset('images/no-image.png');
         }
 
         return Storage::disk('public')->url($this->image);
@@ -239,5 +295,31 @@ class Product extends Model
     public function getPrecioFormateadoAttribute(): string
     {
         return 'S/ ' . number_format($this->sale_price, 2);
+    }
+
+    public function getStockStatusAttribute(): string
+    {
+        if ($this->stock <= 0) {
+            return 'Agotado';
+        }
+
+        if ($this->stock <= $this->stock_minimo) {
+            return 'Stock Bajo';
+        }
+
+        return 'Disponible';
+    }
+
+    public function getStockBadgeAttribute(): string
+    {
+        if ($this->stock <= 0) {
+            return 'danger';
+        }
+
+        if ($this->stock <= $this->stock_minimo) {
+            return 'warning';
+        }
+
+        return 'success';
     }
 }

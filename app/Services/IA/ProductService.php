@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Chatbot;
+namespace App\Services\IA;
 
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
