@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Models\User;
 use App\Notifications\UsuarioReactivacion;
 
@@ -130,37 +129,7 @@ Route::post('/logout', function (Request $request) {
 
 })->middleware('auth')->name('logout');
 
-/*
-|--------------------------------------------------------------------------
-| VERIFICACIÓN DE CORREO
-|--------------------------------------------------------------------------
-*/
 
-Route::middleware('auth')->group(function () {
-
-    Route::get('/email/verify', function () {
-        return view('auth.verify-email');
-    })->name('verification.notice');
-
-    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-
-        $request->fulfill();
-
-        return redirect()
-            ->route('customer.dashboard')
-            ->with('success', 'Correo verificado correctamente');
-
-    })->middleware('signed')->name('verification.verify');
-
-    Route::post('/email/verification-notification', function (Request $request) {
-
-        $request->user()->sendEmailVerificationNotification();
-
-        return back()->with('message', 'Correo reenviado');
-
-    })->middleware('throttle:6,1')->name('verification.send');
-
-});
 
 Route::get('/reactivar-test', function () {
 
