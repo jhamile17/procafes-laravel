@@ -47,7 +47,7 @@
                                 type="text"
                                 class="form-control @error('form.numero_documento') is-invalid @enderror"
                                 wire:model.live="form.numero_documento"
-                                wire:blur="form.buscarDocumento">
+                                wire:blur="buscarDocumento">
                             @error('form.numero_documento')
                                 <div class="invalid-feedback">
                                     {{ $message }}

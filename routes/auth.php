@@ -3,28 +3,32 @@
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Livewire\Volt\Volt;
+use App\Livewire\Pages\Auth\Login;
+use App\Livewire\Pages\Auth\Register;
+use App\Livewire\Pages\Auth\ForgotPassword;
+use App\Livewire\Pages\Auth\ResetPassword;
+use App\Livewire\Pages\Auth\VerifyEmail;
 
 Route::middleware('guest')->group(function () {
 
-    Volt::route('login', 'pages.auth.login')
+    Route::get('login', Login::class)
         ->name('login');
 
-    Volt::route('register', 'pages.auth.register')
+    Route::get('register', Register::class)
         ->name('register');
 
-    Volt::route('forgot-password', 'pages.auth.forgot-password')
+    Route::get('forgot-password', ForgotPassword::class)
         ->name('password.request');
 
-    Volt::route('reset-password/{token}', 'pages.auth.reset-password')
+    Route::get('reset-password/{token}', ResetPassword::class)
         ->name('password.reset');
 
 });
 
 Route::middleware('auth')->group(function () {
 
-    Volt::route('verify-email', 'pages.auth.verify-email')
-        ->name('verification.notice');
+   Route::get('verify-email', VerifyEmail::class)
+    ->name('verification.notice');
 
     Route::post('email/verification-notification', function (Request $request) {
 

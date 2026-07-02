@@ -82,7 +82,7 @@ Route::view('/ubicanos', 'ubicanos')->name('ubicanos');
 | CARRITO
 |--------------------------------------------------------------------------
 */
-
+/*
 Route::prefix('cart')->name('cart.')->group(function () {
 
     Route::get('/', [CartController::class, 'index'])->name('index');
@@ -92,6 +92,7 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::delete('/', [CartController::class, 'clear'])->name('clear');
 
 });
+*/
 
 /*
 |--------------------------------------------------------------------------
@@ -210,7 +211,7 @@ Route::prefix('admin')
 | CHECKOUT (PUENTE PARA FRONTEND)
 |--------------------------------------------------------------------------
 */
-
+/*
 Route::get('/checkout', [CheckoutController::class, 'index'])
     ->middleware('auth', 'verified')
     ->name('checkout');
@@ -218,7 +219,7 @@ Route::get('/checkout', [CheckoutController::class, 'index'])
 Route::post('/checkout', [CheckoutController::class, 'store'])
     ->middleware('auth', 'verified')
     ->name('checkout.store');
-
+*/
 /*
 |--------------------------------------------------------------------------
 | MERCADO PAGO

@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Services\Integraciones;
-use Illuminate\Support\Facades\Http;
+
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Http;
 
 class ReniecService
 {
@@ -13,11 +14,11 @@ class ReniecService
     public function __construct()
     {
         $this->baseUrl = rtrim(
-            config('services.apisperu.url', env('APIS_PERU_URL')),
+            env('APIS_PERU_URL'),
             '/'
         );
 
-        $this->token = config('services.apisperu.token', env('APIS_PERU_TOKEN'));
+        $this->token = env('APIS_PERU_TOKEN');
     }
 
     /*
@@ -34,7 +35,7 @@ class ReniecService
             return [
                 'success' => false,
                 'message' => 'El DNI debe contener 8 dígitos.',
-                'data'    => null,
+                'data' => null,
             ];
         }
 
@@ -49,16 +50,14 @@ class ReniecService
                 return [
                     'success' => false,
                     'message' => 'No fue posible consultar el DNI.',
-                    'data'    => null,
+                    'data' => $response->json(),
                 ];
             }
-
-            $data = $response->json();
 
             return [
                 'success' => true,
                 'message' => null,
-                'data'    => $data,
+                'data' => $response->json(),
             ];
 
         } catch (RequestException $exception) {
@@ -66,7 +65,7 @@ class ReniecService
             return [
                 'success' => false,
                 'message' => $exception->getMessage(),
-                'data'    => null,
+                'data' => null,
             ];
 
         } catch (\Throwable $exception) {
@@ -74,7 +73,7 @@ class ReniecService
             return [
                 'success' => false,
                 'message' => $exception->getMessage(),
-                'data'    => null,
+                'data' => null,
             ];
         }
     }
@@ -93,7 +92,7 @@ class ReniecService
             return [
                 'success' => false,
                 'message' => 'El RUC debe contener 11 dígitos.',
-                'data'    => null,
+                'data' => null,
             ];
         }
 
@@ -108,16 +107,14 @@ class ReniecService
                 return [
                     'success' => false,
                     'message' => 'No fue posible consultar el RUC.',
-                    'data'    => null,
+                    'data' => $response->json(),
                 ];
             }
-
-            $data = $response->json();
 
             return [
                 'success' => true,
                 'message' => null,
-                'data'    => $data,
+                'data' => $response->json(),
             ];
 
         } catch (RequestException $exception) {
@@ -125,7 +122,7 @@ class ReniecService
             return [
                 'success' => false,
                 'message' => $exception->getMessage(),
-                'data'    => null,
+                'data' => null,
             ];
 
         } catch (\Throwable $exception) {
@@ -133,7 +130,7 @@ class ReniecService
             return [
                 'success' => false,
                 'message' => $exception->getMessage(),
-                'data'    => null,
+                'data' => null,
             ];
         }
     }
