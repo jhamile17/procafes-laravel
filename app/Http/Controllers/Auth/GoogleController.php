@@ -4,140 +4,240 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\Auth\UserRegistrationService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
 {
-    public function redirectLogin()
+    /*
+    |--------------------------------------------------------------------------
+    | Redirección Login
+    |--------------------------------------------------------------------------
+    */
+
+    public function redirectLogin(): RedirectResponse
     {
-        session(['google_flow' => 'login']);
+        session([
+            'google_flow' => 'login',
+        ]);
 
         return $this->googleProvider()
-            ->scopes(['openid', 'profile', 'email'])
+            ->scopes([
+                'openid',
+                'profile',
+                'email',
+            ])
             ->redirect();
     }
 
-    public function redirectRegister()
+    /*
+    |--------------------------------------------------------------------------
+    | Redirección Registro
+    |--------------------------------------------------------------------------
+    */
+
+    public function redirectRegister(): RedirectResponse
     {
-        session(['google_flow' => 'register']);
+        session([
+            'google_flow' => 'register',
+        ]);
 
         return $this->googleProvider()
-            ->scopes(['openid', 'profile', 'email'])
+            ->scopes([
+                'openid',
+                'profile',
+                'email',
+            ])
             ->redirect();
     }
 
-    public function callback()
-    {
+    /*
+    |--------------------------------------------------------------------------
+    | Callback Google
+    |--------------------------------------------------------------------------
+    */
+
+    public function callback(
+        UserRegistrationService $registrationService
+    ): RedirectResponse {
+
         try {
+
             $googleUser = $this->googleProvider()->user();
 
-            $email = strtolower(trim((string) $googleUser->getEmail()));
+            $email = strtolower(
+                trim((string) $googleUser->getEmail())
+            );
 
             if ($email === '') {
+
                 return redirect()
                     ->route('login')
                     ->withErrors([
-                        'google' => 'Google no devolvió una dirección de correo.',
+                        'google' => 'Google no devolvió un correo electrónico válido.',
                     ]);
             }
 
-            // Sabemos si llegó desde Login o Registro.
             $flow = session()->pull('google_flow', 'login');
 
-            // Busca ignorando mayúsculas/minúsculas.
-            $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
+            $user = User::query()
+                ->whereRaw('LOWER(email) = ?', [$email])
+                ->first();
 
             /*
-             * Si vino desde Registro y el correo ya existe,
-             * no iniciar sesión: volver al registro con mensaje.
-             */
-            if ($flow === 'register' && $user) {
+            |--------------------------------------------------------------------------
+            | Registro
+            |--------------------------------------------------------------------------
+            */
+
+            if ($flow === 'register') {
+
+                if ($user) {
+
+                    return redirect()
+                        ->route('register')
+                        ->withErrors([
+                            'email' => 'Este correo ya se encuentra registrado.',
+                        ]);
+                }
+
+                $fullName = trim(
+                    (string) ($googleUser->getName() ?: 'Usuario')
+                );
+
+                $parts = preg_split('/\s+/', $fullName);
+
+                $nombres = $parts[0] ?? 'Usuario';
+
+                $apellidoPaterno = $parts[1] ?? '';
+
+                $apellidoMaterno = count($parts) >= 3
+                    ? implode(' ', array_slice($parts, 2))
+                    : '';
+
+                $user = $registrationService->register([
+
+                    'nombres' => $nombres,
+
+                    'apellido_paterno' => $apellidoPaterno,
+
+                    'apellido_materno' => $apellidoMaterno,
+
+                    'tipo_documento' => null,
+
+                    'numero_documento' => null,
+
+                    'email' => $email,
+
+                    'password' => bin2hex(random_bytes(32)),
+
+                    'provider' => User::PROVIDER_GOOGLE,
+
+                    'provider_id' => $googleUser->getId(),
+
+                    'email_verified_at' => now(),
+
+                ]);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Login
+            |--------------------------------------------------------------------------
+            */
+
+            if (! $user) {
+
                 return redirect()
-                    ->route('register')
+                    ->route('login')
                     ->withErrors([
-                        'email' => 'Este correo ya está registrado. Inicia sesión para continuar.',
+                        'email' => 'No existe una cuenta registrada con este correo.',
                     ]);
             }
 
             /*
-             * Desde Login o Registro, si el correo no existe,
-             * se crea una cuenta nueva.
-             */
-            if (! $user) {
-                $user = new User();
+            |--------------------------------------------------------------------------
+            | Vincular proveedor
+            |--------------------------------------------------------------------------
+            */
 
-                $user->name = $googleUser->getName()
-                    ?: data_get($googleUser->user, 'given_name', 'Usuario');
-
-                $user->email = $email;
-                $user->password = Hash::make(Str::random(40));
-
-                if (Schema::hasColumn($user->getTable(), 'role')) {
-                    $user->role = User::ROLE_CUSTOMER;
-                }
-
-                if (Schema::hasColumn($user->getTable(), 'address')) {
-                    $user->address = null;
-                }
-
-                if (Schema::hasColumn($user->getTable(), 'phone')) {
-                    $user->phone = null;
-                }
-
-                if (Schema::hasColumn($user->getTable(), 'document_type')) {
-                    $user->document_type = null;
-                }
-
-                if (Schema::hasColumn($user->getTable(), 'document_number')) {
-                    $user->document_number = null;
-                }
-
-                // PROCAFES solicita su propia verificación.
-                if (Schema::hasColumn($user->getTable(), 'email_verified_at')) {
-                    $user->email_verified_at = null;
-                }
-
-                $user->save();
-
-                $user->sendEmailVerificationNotification();
+            if (
+                empty($user->provider)
+                || $user->provider === User::PROVIDER_LOCAL
+            ) {
+                $user = $registrationService->linkProvider(
+                    $user,
+                    User::PROVIDER_GOOGLE,
+                    $googleUser->getId()
+                );
             }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Actualizar último acceso
+            |--------------------------------------------------------------------------
+            */
+
+            $registrationService->updateLastAccess($user);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Iniciar sesión
+            |--------------------------------------------------------------------------
+            */
 
             Auth::login($user, true);
+
             request()->session()->regenerate();
 
-            if (! $user->hasVerifiedEmail()) {
-                return redirect()->route('verification.notice');
-            }
+            /*
+            |--------------------------------------------------------------------------
+            | Redirección
+            |--------------------------------------------------------------------------
+            */
 
             if ($user->isAdmin()) {
-                return redirect()->intended(route('admin.dashboard'));
+
+                return redirect()->intended(
+                    route('admin.dashboard')
+                );
             }
 
-            return redirect()->intended(route('customer.dashboard'));
+            return redirect()->intended(
+                route('customer.dashboard')
+            );
 
-        } catch (\Throwable $e) {
-            Log::error('Error en login con Google', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'class' => get_class($e),
-            ]);
+        } catch (\Throwable $exception) {
+
+            Log::error(
+                'Google Login Error',
+                [
+                    'message' => $exception->getMessage(),
+                    'file' => $exception->getFile(),
+                    'line' => $exception->getLine(),
+                    'trace' => $exception->getTraceAsString(),
+                ]
+            );
 
             return redirect()
                 ->route('login')
                 ->withErrors([
-                    'google' => 'No se pudo iniciar sesión con Google. Intenta nuevamente.',
+                    'google' => 'No fue posible iniciar sesión con Google.',
                 ]);
         }
     }
 
-    private function googleProvider(): Provider
+    /*
+    |--------------------------------------------------------------------------
+    | Provider
+    |--------------------------------------------------------------------------
+    */
+
+    protected function googleProvider(): Provider
     {
         $provider = Socialite::driver('google');
 

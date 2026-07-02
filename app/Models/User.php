@@ -15,6 +15,9 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
+    
+    public const PROVIDER_LOCAL = 'local';
+    public const PROVIDER_GOOGLE = 'google';
 
     //asignacion masiva
         protected $fillable = [
@@ -132,13 +135,6 @@ class User extends Authenticatable implements MustVerifyEmail
             $this->apellido_materno
         );
     }
-        /*
-    |--------------------------------------------------------------------------
-    | Tipos de autenticación
-    |--------------------------------------------------------------------------
-    */
+    
 
-    public const PROVIDER_LOCAL = 'local';
-
-    public const PROVIDER_GOOGLE = 'google';
 }

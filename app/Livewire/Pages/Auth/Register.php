@@ -20,9 +20,31 @@ class Register extends Component
         UserRegistrationService $registrationService
     )
     {
-        $this->form->register(
-            $registrationService
-        );
+        $this->validate();
+
+        $this->form->normalizarDatos();
+
+        $registrationService->register([
+
+            'nombres' => $this->form->nombres,
+
+            'apellido_paterno' => $this->form->apellido_paterno,
+
+            'apellido_materno' => $this->form->apellido_materno,
+
+            'tipo_documento' => $this->form->tipo_documento,
+
+            'numero_documento' => $this->form->numero_documento,
+
+            'email' => $this->form->email,
+
+            'password' => $this->form->password,
+
+            'celular' => $this->form->celular,
+
+        ]);
+
+        $this->form->clear();
 
         session()->flash(
 
