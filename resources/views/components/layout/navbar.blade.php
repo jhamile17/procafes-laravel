@@ -106,7 +106,7 @@
                         type="submit"
                         class="search-btn">
 
-                        <i class="bi bi-search"></i>
+                        <i class="bi bi-search search-icon"></i>
 
                     </button>
 
@@ -206,16 +206,13 @@
 
                     <a
                         href="{{ route('login') }}"
-                        class="btn btn-outline-primary btn-auth">
-
+                        class="btn-login">
                         Iniciar sesión
-
                     </a>
 
                     <a
                         href="{{ route('register') }}"
-                        class="btn btn-primary btn-auth">
-
+                        class="btn-register">
                         Registrarse
 
                     </a>
