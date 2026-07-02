@@ -3,35 +3,26 @@
     <div class="container">
 
         {{-- Logo --}}
-        <a class="navbar-brand d-flex align-items-center"
-           href="{{ route('home') }}">
+        <a href="{{ route('home') }}" class="navbar-brand">
 
             <img
-                src="{{ asset('images/logo.png') }}"
+                src="{{ asset('images/logo.jpg') }}"
                 alt="Procafes"
                 class="navbar-logo">
 
-            <div>
-
-                <div class="brand-title">
-                    PROCAFES
-                </div>
-
-                <div class="brand-subtitle">
-                    Café de especialidad
-                </div>
-
-            </div>
+            <span class="brand-title">
+                PROCAFES
+            </span>
 
         </a>
 
-        {{-- Botón Responsive --}}
+        {{-- Botón responsive --}}
         <button
             class="navbar-toggler"
             type="button"
             data-bs-toggle="collapse"
-            data-bs-target="#nav"
-            aria-controls="nav"
+            data-bs-target="#navbarContent"
+            aria-controls="navbarContent"
             aria-expanded="false"
             aria-label="Toggle navigation">
 
@@ -39,18 +30,18 @@
 
         </button>
 
-        <div class="collapse navbar-collapse" id="nav">
+        <div
+            class="collapse navbar-collapse"
+            id="navbarContent">
 
             {{-- Menú --}}
-            <ul class="navbar-nav mx-auto">
+            <ul class="navbar-nav nav-menu mx-auto">
 
                 <li class="nav-item">
 
                     <a
                         href="{{ route('home') }}"
                         class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}">
-
-                        <i class="bi bi-house-door"></i>
 
                         Inicio
 
@@ -64,8 +55,6 @@
                         href="{{ route('products') }}"
                         class="nav-link {{ request()->routeIs('products') ? 'active' : '' }}">
 
-                        <i class="bi bi-cup-hot"></i>
-
                         Productos
 
                     </a>
@@ -77,8 +66,6 @@
                     <a
                         href="{{ route('nosotros') }}"
                         class="nav-link {{ request()->routeIs('nosotros') ? 'active' : '' }}">
-
-                        <i class="bi bi-people"></i>
 
                         Nosotros
 
@@ -92,8 +79,6 @@
                         href="{{ route('ubicanos') }}"
                         class="nav-link {{ request()->routeIs('ubicanos') ? 'active' : '' }}">
 
-                        <i class="bi bi-geo-alt"></i>
-
                         Ubícanos
 
                     </a>
@@ -104,20 +89,26 @@
 
             {{-- Buscador --}}
             <form
-                class="navbar-search"
                 action="{{ route('products') }}"
-                method="GET">
+                method="GET"
+                class="navbar-search">
 
-                <div class="position-relative">
-
-                    <i class="bi bi-search navbar-search-icon"></i>
+                <div class="search-box">
 
                     <input
                         type="search"
                         name="search"
-                        class="form-control"
                         value="{{ request('search') }}"
-                        placeholder="Buscar productos...">
+                        placeholder="Buscar productos..."
+                        class="form-control">
+
+                    <button
+                        type="submit"
+                        class="search-btn">
+
+                        <i class="bi bi-search"></i>
+
+                    </button>
 
                 </div>
 
@@ -125,6 +116,16 @@
 
             {{-- Acciones --}}
             <div class="nav-actions">
+
+                {{-- Favoritos --}}
+                <a
+                    href="{{ route('wishlist.index') }}"
+                    class="nav-icon"
+                    title="Favoritos">
+
+                    <i class="bi bi-heart"></i>
+
+                </a>
 
                 {{-- Carrito --}}
                 <x-ecommerce.cart-button />
@@ -134,12 +135,10 @@
                     <div class="dropdown">
 
                         <button
-                            class="btn btn-outline-primary dropdown-toggle"
+                            class="nav-user"
                             data-bs-toggle="dropdown">
 
-                            <i class="bi bi-person-circle me-2"></i>
-
-                            {{ Auth::user()->name }}
+                            <i class="bi bi-person"></i>
 
                         </button>
 
@@ -180,14 +179,14 @@
                             <li>
 
                                 <form
-                                    method="POST"
-                                    action="{{ route('logout') }}">
+                                    action="{{ route('logout') }}"
+                                    method="POST">
 
                                     @csrf
 
                                     <button
-                                        type="submit"
-                                        class="dropdown-item">
+                                        class="dropdown-item"
+                                        type="submit">
 
                                         <i class="bi bi-box-arrow-right me-2"></i>
 
@@ -207,23 +206,19 @@
 
                     <a
                         href="{{ route('login') }}"
-                        class="btn btn-outline-primary">
+                        class="btn btn-outline-primary btn-auth">
 
                         Iniciar sesión
 
                     </a>
 
-                    @if(Route::has('register'))
+                    <a
+                        href="{{ route('register') }}"
+                        class="btn btn-primary btn-auth">
 
-                        <a
-                            href="{{ route('register') }}"
-                            class="btn btn-primary">
+                        Registrarse
 
-                            Registrarse
-
-                        </a>
-
-                    @endif
+                    </a>
 
                 @endauth
 
