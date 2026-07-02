@@ -18,40 +18,14 @@ class Register extends Component
 
     public function register(
         UserRegistrationService $registrationService
-    )
-    {
-        $this->validate();
-
-        $this->form->normalizarDatos();
-
-        $registrationService->register([
-
-            'nombres' => $this->form->nombres,
-
-            'apellido_paterno' => $this->form->apellido_paterno,
-
-            'apellido_materno' => $this->form->apellido_materno,
-
-            'tipo_documento' => $this->form->tipo_documento,
-
-            'numero_documento' => $this->form->numero_documento,
-
-            'email' => $this->form->email,
-
-            'password' => $this->form->password,
-
-            'celular' => $this->form->celular,
-
-        ]);
+    ) {
+        $this->form->register($registrationService);
 
         $this->form->clear();
 
         session()->flash(
-
             'success',
-
             'Tu cuenta fue creada correctamente. Revisa tu correo para verificarla antes de iniciar sesión.'
-
         );
 
         return redirect()->route('login');

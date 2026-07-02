@@ -37,10 +37,12 @@ class LoginForm extends Form
     {
         $this->validate();
 
+        $this->email = strtolower(trim($this->email));
+
         $this->ensureIsNotRateLimited();
 
         if (! Auth::attempt([
-            'email' => strtolower(trim($this->email)),
+            'email' => $this->email,
             'password' => $this->password,
         ], $this->remember)) {
 
@@ -73,15 +75,10 @@ class LoginForm extends Form
         );
 
         throw ValidationException::withMessages([
-
             'form.email' => trans('auth.throttle', [
-
                 'seconds' => $seconds,
-
                 'minutes' => ceil($seconds / 60),
-
-            ])
-
+            ]),
         ]);
     }
 
@@ -94,13 +91,7 @@ class LoginForm extends Form
     protected function throttleKey(): string
     {
         return Str::transliterate(
-
-            Str::lower($this->email)
-
-            .'|'
-
-            .request()->ip()
-
+            Str::lower($this->email) . '|' . request()->ip()
         );
     }
 
@@ -113,5 +104,7 @@ class LoginForm extends Form
     public function clear(): void
     {
         $this->reset();
+
+        $this->remember = false;
     }
 }

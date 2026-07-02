@@ -10,12 +10,6 @@ use Livewire\Form;
 
 class RegisterForm extends Form
 {
-    protected UserRegistrationService $registrationService;
-    public function boot(UserRegistrationService $registrationService): void
-    {
-        $this->registrationService = $registrationService;
-    }
-
     #[Validate('required|string|max:20')]
     public string $tipo_documento = 'DNI';
 
@@ -53,21 +47,20 @@ class RegisterForm extends Form
     public string $password = '';
 
     public string $password_confirmation = '';
-     /*
+
+    /*
     |--------------------------------------------------------------------------
     | Estado del documento
     |--------------------------------------------------------------------------
     */
 
     public const DOCUMENTO_SIN_CONSULTAR = 'sin_consultar';
-
     public const DOCUMENTO_CONSULTANDO = 'consultando';
-
     public const DOCUMENTO_ENCONTRADO = 'encontrado';
-
     public const DOCUMENTO_NO_ENCONTRADO = 'no_encontrado';
 
     public string $estadoDocumento = self::DOCUMENTO_SIN_CONSULTAR;
+
     /*
     |--------------------------------------------------------------------------
     | Estado de la interfaz
@@ -87,13 +80,11 @@ class RegisterForm extends Form
     protected function rules(): array
     {
         return [
-
             'password' => [
                 'required',
                 'confirmed',
                 Password::defaults(),
             ],
-
         ];
     }
 
@@ -106,9 +97,7 @@ class RegisterForm extends Form
     public function buscarDocumento(): void
     {
         $this->estadoDocumento = self::DOCUMENTO_SIN_CONSULTAR;
-
         $this->permitirEdicionManual = true;
-
         $this->documentoConsultado = false;
 
         if ($this->tipo_documento !== 'DNI') {
@@ -134,9 +123,7 @@ class RegisterForm extends Form
         */
 
         $this->estadoDocumento = self::DOCUMENTO_NO_ENCONTRADO;
-
         $this->permitirEdicionManual = true;
-
         $this->documentoConsultado = true;
     }
 
@@ -146,23 +133,32 @@ class RegisterForm extends Form
     |--------------------------------------------------------------------------
     */
 
-   public function register(
-    UserRegistrationService $registrationService
-    ): User{
+    public function register(
+        UserRegistrationService $registrationService
+    ): User {
         $this->validate();
+
         $this->normalizarDatos();
+
         return $registrationService->register([
-            'tipo_documento' => $this->tipo_documento,
-            'numero_documento' => $this->numero_documento,
-            'nombres' => $this->nombres,
-            'apellido_paterno' => $this->apellido_paterno,
-            'apellido_materno' => $this->apellido_materno,
-            'email' => $this->email,
-            'password' => $this->password,
-            'celular' => $this->celular,
+            'tipo_documento'     => $this->tipo_documento,
+            'numero_documento'   => $this->numero_documento,
+            'nombres'            => $this->nombres,
+            'apellido_paterno'   => $this->apellido_paterno,
+            'apellido_materno'   => $this->apellido_materno,
+            'email'              => $this->email,
+            'password'           => $this->password,
+            'celular'            => $this->celular,
         ]);
     }
-      protected function normalizarDatos(): void
+
+    /*
+    |--------------------------------------------------------------------------
+    | Normalizar datos
+    |--------------------------------------------------------------------------
+    */
+
+    public function normalizarDatos(): void
     {
         $this->nombres = trim($this->nombres);
 
@@ -178,6 +174,7 @@ class RegisterForm extends Form
 
         $this->celular = trim($this->celular);
     }
+
     /*
     |--------------------------------------------------------------------------
     | Limpiar formulario
@@ -187,6 +184,7 @@ class RegisterForm extends Form
     public function clear(): void
     {
         $this->reset();
+
         $this->tipo_documento = 'DNI';
 
         $this->estadoDocumento = self::DOCUMENTO_SIN_CONSULTAR;
