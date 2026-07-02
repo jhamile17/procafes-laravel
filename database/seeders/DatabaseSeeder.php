@@ -17,8 +17,8 @@ class DatabaseSeeder extends Seeder
             |--------------------------------------------------------------------------
             */
 
-            RolesSeeder::class,
-            UsersSeeder::class,
+            RoleSeeder::class,
+            UserSeeder::class,
 
             /*
             |--------------------------------------------------------------------------

@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
-class UsersSeeder extends Seeder
+class UserSeeder extends Seeder
 {
     public function run(): void
     {
@@ -32,7 +32,7 @@ class UsersSeeder extends Seeder
 
                 'password' => Hash::make('Admin123*'),
 
-                'provider' => 'local',
+                'provider' => User::PROVIDER_LOCAL,
                 'provider_id' => null,
 
                 'celular' => '999999999',
@@ -62,7 +62,7 @@ class UsersSeeder extends Seeder
 
                 'password' => Hash::make('Cliente123*'),
 
-                'provider' => 'local',
+                'provider' => User::PROVIDER_LOCAL,
                 'provider_id' => null,
 
                 'celular' => '988888888',

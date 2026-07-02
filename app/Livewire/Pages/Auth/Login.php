@@ -68,21 +68,12 @@ class Login extends Component
 
         if ($user->isAdmin()) {
 
-            $this->redirectIntended(
-
-                route('admin.dashboard')
-
-            );
+            $this->redirect('/admin/dashboard');
 
             return;
-
         }
 
-        $this->redirectIntended(
-
-            route('customer.dashboard')
-
-        );
+        $this->redirect('/cliente');
     }
 
     public function render()
