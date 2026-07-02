@@ -1,11 +1,31 @@
-<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top border-bottom">
+<nav class="navbar navbar-expand-lg">
+
     <div class="container">
 
         {{-- Logo --}}
-        <a class="navbar-brand fw-bold" href="{{ route('home') }}">
-            PROCAFES
+        <a class="navbar-brand d-flex align-items-center"
+           href="{{ route('home') }}">
+
+            <img
+                src="{{ asset('images/logo.png') }}"
+                alt="Procafes"
+                class="navbar-logo">
+
+            <div>
+
+                <div class="brand-title">
+                    PROCAFES
+                </div>
+
+                <div class="brand-subtitle">
+                    Café de especialidad
+                </div>
+
+            </div>
+
         </a>
 
+        {{-- Botón Responsive --}}
         <button
             class="navbar-toggler"
             type="button"
@@ -14,125 +34,203 @@
             aria-controls="nav"
             aria-expanded="false"
             aria-label="Toggle navigation">
+
             <span class="navbar-toggler-icon"></span>
+
         </button>
 
         <div class="collapse navbar-collapse" id="nav">
 
             {{-- Menú --}}
-            <ul class="navbar-nav me-auto">
+            <ul class="navbar-nav mx-auto">
+
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('home') ? 'active fw-bold' : '' }}"
-                       href="{{ route('home') }}">
+
+                    <a
+                        href="{{ route('home') }}"
+                        class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}">
+
+                        <i class="bi bi-house-door"></i>
+
                         Inicio
+
                     </a>
+
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('products') ? 'active fw-bold' : '' }}"
-                       href="{{ route('products') }}">
+
+                    <a
+                        href="{{ route('products') }}"
+                        class="nav-link {{ request()->routeIs('products') ? 'active' : '' }}">
+
+                        <i class="bi bi-cup-hot"></i>
+
                         Productos
+
                     </a>
+
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('nosotros') ? 'active fw-bold' : '' }}"
-                       href="{{ route('nosotros') }}">
+
+                    <a
+                        href="{{ route('nosotros') }}"
+                        class="nav-link {{ request()->routeIs('nosotros') ? 'active' : '' }}">
+
+                        <i class="bi bi-people"></i>
+
                         Nosotros
+
                     </a>
+
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('ubicanos') ? 'active fw-bold' : '' }}"
-                       href="{{ route('ubicanos') }}">
+
+                    <a
+                        href="{{ route('ubicanos') }}"
+                        class="nav-link {{ request()->routeIs('ubicanos') ? 'active' : '' }}">
+
+                        <i class="bi bi-geo-alt"></i>
+
                         Ubícanos
+
                     </a>
+
                 </li>
+
             </ul>
 
             {{-- Buscador --}}
-            <form class="d-flex mx-lg-3 my-3 my-lg-0" action="{{ route('products') }}" method="GET">
-                <input
-                    class="form-control me-2"
-                    type="search"
-                    name="search"
-                    placeholder="Buscar café..."
-                    aria-label="Buscar">
+            <form
+                class="navbar-search"
+                action="{{ route('products') }}"
+                method="GET">
 
-                <button class="btn btn-outline-dark" type="submit">
-                    <i class="bi bi-search"></i>
-                </button>
+                <div class="position-relative">
+
+                    <i class="bi bi-search navbar-search-icon"></i>
+
+                    <input
+                        type="search"
+                        name="search"
+                        class="form-control"
+                        value="{{ request('search') }}"
+                        placeholder="Buscar productos...">
+
+                </div>
+
             </form>
 
-            {{-- Carrito --}}
-            <div class="me-3">
+            {{-- Acciones --}}
+            <div class="nav-actions">
+
+                {{-- Carrito --}}
                 <x-ecommerce.cart-button />
+
+                @auth
+
+                    <div class="dropdown">
+
+                        <button
+                            class="btn btn-outline-primary dropdown-toggle"
+                            data-bs-toggle="dropdown">
+
+                            <i class="bi bi-person-circle me-2"></i>
+
+                            {{ Auth::user()->name }}
+
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end">
+
+                            <li>
+
+                                <a
+                                    class="dropdown-item"
+                                    href="{{ route('customer.dashboard') }}">
+
+                                    <i class="bi bi-speedometer2 me-2"></i>
+
+                                    Mi panel
+
+                                </a>
+
+                            </li>
+
+                            <li>
+
+                                <a
+                                    class="dropdown-item"
+                                    href="{{ route('profile') }}">
+
+                                    <i class="bi bi-person me-2"></i>
+
+                                    Perfil
+
+                                </a>
+
+                            </li>
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li>
+
+                                <form
+                                    method="POST"
+                                    action="{{ route('logout') }}">
+
+                                    @csrf
+
+                                    <button
+                                        type="submit"
+                                        class="dropdown-item">
+
+                                        <i class="bi bi-box-arrow-right me-2"></i>
+
+                                        Cerrar sesión
+
+                                    </button>
+
+                                </form>
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                @else
+
+                    <a
+                        href="{{ route('login') }}"
+                        class="btn btn-outline-primary">
+
+                        Iniciar sesión
+
+                    </a>
+
+                    @if(Route::has('register'))
+
+                        <a
+                            href="{{ route('register') }}"
+                            class="btn btn-primary">
+
+                            Registrarse
+
+                        </a>
+
+                    @endif
+
+                @endauth
+
             </div>
-
-            {{-- Usuario --}}
-           @auth
-
-<div class="dropdown">
-
-    <button
-        class="btn btn-outline-dark dropdown-toggle"
-        data-bs-toggle="dropdown">
-
-        {{ Auth::user()->name }}
-    </button>
-
-    <ul class="dropdown-menu dropdown-menu-end">
-
-        <li>
-            <a class="dropdown-item"
-               href="{{ route('customer.dashboard') }}">
-                Mi panel
-            </a>
-        </li>
-
-        <li>
-            <a class="dropdown-item"
-               href="{{ route('profile') }}">
-                Perfil
-            </a>
-        </li>
-
-        <li><hr class="dropdown-divider"></li>
-
-        <li>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="dropdown-item">
-                    Cerrar sesión
-                </button>
-            </form>
-        </li>
-
-    </ul>
-
-</div>
-
-@else
-
-<div class="d-flex gap-2">
-
-    <a href="{{ route('login') }}"
-       class="btn btn-outline-dark">
-        Iniciar sesión
-    </a>
-
-    @if(Route::has('register'))
-        <a href="{{ route('register') }}"
-           class="btn btn-dark">
-            Registrarse
-        </a>
-    @endif
-
-</div>
-
-@endauth
 
         </div>
 
     </div>
+
 </nav>

@@ -1,0 +1,89 @@
+/*
+|--------------------------------------------------------------------------
+| FONDOS
+|--------------------------------------------------------------------------
+*/
+
+.bg-cream{
+
+    background:var(--color-background);
+
+}
+
+.bg-coffee{
+
+    background:var(--color-coffee);
+
+}
+
+.bg-primary{
+
+    background:var(--color-primary);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| TEXTO
+|--------------------------------------------------------------------------
+*/
+
+.text-coffee{
+
+    color:var(--color-coffee);
+
+}
+
+.text-primary{
+
+    color:var(--color-primary);
+
+}
+
+.text-muted{
+
+    color:var(--color-text-light)!important;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| SOMBRAS
+|--------------------------------------------------------------------------
+*/
+
+.shadow-soft{
+
+    box-shadow:var(--shadow-sm);
+
+}
+
+.shadow-medium{
+
+    box-shadow:var(--shadow-md);
+
+}
+
+.shadow-large{
+
+    box-shadow:var(--shadow-lg);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| BORDES
+|--------------------------------------------------------------------------
+*/
+
+.rounded-soft{
+
+    border-radius:var(--radius-md);
+
+}
+
+.rounded-large{
+
+    border-radius:var(--radius-lg);
+
+}

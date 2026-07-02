@@ -1,0 +1,79 @@
+/*
+|--------------------------------------------------------------------------
+| FORMULARIOS
+|--------------------------------------------------------------------------
+*/
+
+.form-label{
+    font-size:.92rem;
+    font-weight:600;
+    color:var(--color-coffee);
+    margin-bottom:.45rem;
+
+}
+.form-text{
+    color:var(--color-text-light);
+    font-size:.85rem;
+}
+.form-control,
+.form-select{
+    height:48px;
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-md);
+    background:var(--color-surface);
+    color:var(--color-text);
+    font-size:.95rem;
+    transition:all var(--transition);
+    box-shadow:none;
+}
+.form-control::placeholder{
+    color:#B0B0B0;
+}
+.form-control:hover,
+.form-select:hover{
+    border-color:#D6D6D6;
+}
+
+.form-control:focus,
+.form-select:focus{
+    border-color:var(--color-primary);
+    box-shadow:0 0 0 .18rem rgba(214,40,40,.10);
+    background:#fff;
+}
+
+/*
+|--------------------------------------------------------------------------
+| INPUTS DESHABILITADOS
+|--------------------------------------------------------------------------
+*/
+
+.form-control:disabled,
+.form-select:disabled{
+    background:#F6F6F6;
+    color:#666;
+    cursor:not-allowed;
+    opacity:1;
+}
+textarea.form-control{
+    min-height:120px;
+    resize:none;
+
+}
+.is-valid{
+    border-color:var(--color-success)!important;
+}
+.is-valid:focus{
+    border-color:var(--color-success)!important;
+    box-shadow:0 0 0 .18rem rgba(25,135,84,.10)!important;
+}
+.is-invalid{
+    border-color:var(--color-danger)!important;
+}
+.is-invalid:focus{
+    border-color:var(--color-danger)!important;
+    box-shadow:0 0 0 .18rem rgba(220,53,69,.10)!important;
+}
+.invalid-feedback{
+    font-size:.82rem;
+    margin-top:.4rem;
+}
