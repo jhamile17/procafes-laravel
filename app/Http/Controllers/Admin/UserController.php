@@ -11,12 +11,11 @@ class UserController extends Controller
     public function index()
     {
         $users = User::latest()->paginate(10);        
-        return view('admin.users.users-index', compact('users'));
-    }
+        return view('admin.users.index', compact('users'));    }
 
     public function create()
 {
-    return view('admin.users.users-create');
+    return view('admin.users.create');
 }
 
 // Guardar el nuevo usuario
@@ -64,9 +63,9 @@ public function store(Request $request)
 }
 
     public function edit(User $user)
-{
-    return view('admin.users.users-edit', compact('user'));
-}
+    {
+        return view('admin.users.edit', compact('user'));
+    }
 
     public function update(Request $request, User $user)
     {

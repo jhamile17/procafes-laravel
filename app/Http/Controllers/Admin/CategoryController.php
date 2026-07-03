@@ -24,7 +24,7 @@ class CategoryController extends Controller
         $categories = $this->categoryService->obtenerTodos();
 
         return view(
-            'admin.categories.categories-index',
+            'admin.categories.index',
             compact('categories')
         );
     }
@@ -37,7 +37,7 @@ class CategoryController extends Controller
 
     public function create()
     {
-        return view('admin.categories.categories-create');
+        return view('admin.categories.create');
     }
 
     /*
@@ -80,7 +80,7 @@ class CategoryController extends Controller
     public function edit(Category $category)
     {
         return view(
-            'admin.categories.categories-edit',
+            'admin.categories.edit',
             compact('category')
         );
     }

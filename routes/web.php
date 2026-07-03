@@ -26,11 +26,11 @@ use App\Http\Controllers\Public\CheckoutController;
 use App\Http\Controllers\PaymentDemoController;
 
 // Admin
-use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
-use App\Http\Controllers\Admin\BrandController as AdminBrandController;
+use App\Http\Controllers\Admin\CategoryController as CategoryController;
+use App\Http\Controllers\Admin\BrandController as BrandController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
-use App\Http\Controllers\Admin\UserController as AdminUserController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\UserController as UserController;
+use App\Http\Controllers\Admin\DashboardController as DashboardController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\OrderController;
@@ -186,13 +186,13 @@ Route::prefix('admin')
     ->middleware(['auth', 'verified'])
     ->group(function () {
 
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])
-            ->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
-        Route::resource('/categories', AdminCategoryController::class);
-        Route::resource('/brands', AdminBrandController::class);
-        Route::resource('/products', AdminProductController::class);
-        Route::resource('/users', AdminUserController::class);
+        Route::resource('/categories', CategoryController::class);
+        Route::resource('/brands', BrandController::class);
+        Route::resource('/products', ProductController::class);
+        Route::resource('/users', UserController::class);
 
         Route::get('/reports', [ReportController::class, 'index'])
             ->name('reports.index');

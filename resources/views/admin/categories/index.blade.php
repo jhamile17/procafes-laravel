@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Marcas')
+@section('title', 'Categorías')
 
 @section('content')
 
@@ -10,25 +10,25 @@
 
         <h2 class="fw-bold mb-1">
 
-            Marcas
+            Categorías
 
         </h2>
 
         <p class="text-muted mb-0">
 
-            Administra las marcas registradas en PROCÁFES.
+            Administra las categorías de los productos de PROCÁFES.
 
         </p>
 
     </div>
 
     <a
-        href="{{ route('admin.brands.create') }}"
+        href="{{ route('admin.categories.create') }}"
         class="btn btn-warning">
 
         <i class="bi bi-plus-circle me-2"></i>
 
-        Nueva Marca
+        Nueva categoría
 
     </a>
 
@@ -82,8 +82,7 @@
 
                         </th>
 
-                        <th
-                            width="160"
+                        <th width="160"
                             class="text-end">
 
                             Acciones
@@ -96,7 +95,7 @@
 
                 <tbody>
 
-                    @forelse($brands as $brand)
+                    @forelse($categories as $category)
 
                         <tr>
 
@@ -104,7 +103,7 @@
 
                                 <strong>
 
-                                    {{ $brand->name }}
+                                    {{ $category->name }}
 
                                 </strong>
 
@@ -112,14 +111,14 @@
 
                             <td>
 
-                                {{ \Illuminate\Support\Str::limit($brand->description,70) }}
+                                {{ \Illuminate\Support\Str::limit($category->description,70) }}
 
                             </td>
 
                             <td class="text-end">
 
                                 <a
-                                    href="{{ route('admin.brands.edit',$brand) }}"
+                                    href="{{ route('admin.categories.edit',$category) }}"
                                     class="btn btn-sm btn-outline-primary">
 
                                     <i class="bi bi-pencil-square"></i>
@@ -127,10 +126,10 @@
                                 </a>
 
                                 <form
-                                    action="{{ route('admin.brands.destroy',$brand) }}"
+                                    action="{{ route('admin.categories.destroy',$category) }}"
                                     method="POST"
                                     class="d-inline"
-                                    onsubmit="return confirm('¿Eliminar esta marca?')">
+                                    onsubmit="return confirm('¿Eliminar esta categoría?')">
 
                                     @csrf
 
@@ -158,12 +157,12 @@
                                 class="text-center py-5">
 
                                 <i
-                                    class="bi bi-award"
+                                    class="bi bi-tags"
                                     style="font-size:55px;"></i>
 
                                 <br><br>
 
-                                No existen marcas registradas.
+                                No existen categorías registradas.
 
                             </td>
 
@@ -179,11 +178,11 @@
 
     </div>
 
-    @if(method_exists($brands,'links'))
+    @if(method_exists($categories,'links'))
 
         <div class="card-footer bg-white">
 
-            {{ $brands->onEachSide(1)->links() }}
+            {{ $categories->onEachSide(1)->links() }}
 
         </div>
 

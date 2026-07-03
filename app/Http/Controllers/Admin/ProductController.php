@@ -48,9 +48,17 @@ class ProductController extends Controller
             perPage: 10
         );
 
+        $categories = Category::orderBy('name')->get();
+
+        $brands = Brand::orderBy('name')->get();
+
         return view(
             'admin.products.index',
-            compact('products')
+            compact(
+                'products',
+                'categories',
+                'brands'
+            )
         );
     }
 
