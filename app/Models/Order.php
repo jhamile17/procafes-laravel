@@ -88,8 +88,10 @@ class Order extends Model
         return (int) $this->items()->sum('quantity');
     }
 
-    public function status()
+    public function actualizarTotal(): void
     {
-        return $this->belongsTo(EstadoPedido::class, 'estado_pedido_id');
+        $this->update([
+            'total_price' => $this->calcularTotal(),
+        ]);
     }
 }

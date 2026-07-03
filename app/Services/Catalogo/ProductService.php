@@ -252,6 +252,43 @@ class ProductService
 
     /*
     |--------------------------------------------------------------------------
+    | Estadísticas
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Total de productos.
+     */
+    public function totalProductos(): int
+    {
+        return Product::count();
+    }
+
+    /**
+     * Total de productos activos.
+     */
+    public function totalActivos(): int
+    {
+        return Product::where('status', true)->count();
+    }
+
+    /**
+     * Productos con stock bajo.
+     */
+    public function productosStockBajo(int $limite = 10): Collection
+    {
+        return Product::with([
+                'category',
+                'brand'
+            ])
+            ->stockBajo()
+            ->orderBy('stock')
+            ->take($limite)
+            ->get();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Consulta Base
     |--------------------------------------------------------------------------
     */
