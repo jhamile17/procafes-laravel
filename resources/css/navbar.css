@@ -5,25 +5,16 @@
 */
 
 .navbar{
-
     position: sticky;
-
     top: 0;
-
     z-index: 1050;
-
     padding: .9rem 0;
-
-    background: rgba(255,255,255,.94);
-
+    background: rgba(255,255,255,.95);
+    -webkit-backdrop-filter: blur(14px);
     backdrop-filter: blur(14px);
-
     border-bottom: 1px solid var(--color-border);
-
     box-shadow: var(--shadow-sm);
-
     transition: all .25s ease;
-
 }
 
 /*
@@ -47,32 +38,25 @@
 */
 
 .navbar-brand{
-
     display:flex;
-
     align-items:center;
-
     gap:.75rem;
-
     text-decoration:none;
-
     flex-shrink:0;
-
+    color:inherit;
 }
-
+.navbar-brand:hover{
+    color:inherit;
+    text-decoration:none;
+}
 .navbar-logo{
-
-    width:46px;
-
-    height:46px;
-
+    width:48px;
+    height:48px;
+    min-width:48px;
     object-fit:contain;
-
     transition:.25s;
-
 }
-
-.navbar-brand:hover .navbar-logo{
+.navbar-brand:hover.navbar-logo{
 
     transform:rotate(-4deg) scale(1.05);
 
@@ -99,35 +83,21 @@
 */
 
 .nav-menu{
-
-    display:flex;
-
-    align-items:center;
-
     gap:1rem;
-
 }
 
 .nav-link{
-
     position:relative;
-
     padding:.65rem .75rem !important;
-
     font-size:.95rem;
-
     font-weight:500;
-
     color:var(--color-coffee)!important;
-
     transition:.25s;
-
+    white-space:nowrap;
 }
 
 .nav-link:hover{
-
     color:var(--color-primary)!important;
-
 }
 
 .nav-link::after{
@@ -175,77 +145,50 @@
 */
 
 .navbar-search{
-
-    width:320px;
-
-    margin-left:1.5rem;
-
+    width:100%;
+    max-width: 320px;
 }
 
 .search-box{
-
     position:relative;
-
 }
 
 .search-box input{
-
     width:100%;
-
     height:46px;
-
     padding:0 52px 0 20px;
-
     border-radius:999px;
-
     border:1px solid var(--color-border);
-
     background:var(--color-cream);
-
     transition:.25s;
-
 }
 
 .search-box input:focus{
-
     border-color:var(--color-primary);
-
     box-shadow:0 0 0 .18rem rgba(214,40,40,.12);
-
 }
 
 .search-btn{
-
     position:absolute;
-
     right:5px;
-
     top:50%;
-
     transform:translateY(-50%);
-
     width:38px;
-
     height:38px;
-
     border:none;
-
     border-radius:50%;
-
     background:transparent;
-
     color:#666;
-
     transition:.25s;
-
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
 }
 
 .search-btn:hover{
-
     background:var(--color-primary);
-
     color:#fff;
-
 }
 
 /*
@@ -255,53 +198,31 @@
 */
 
 .nav-actions{
-
     display:flex;
-
     align-items:center;
-
     gap:.75rem;
-
-    margin-left:1.5rem;
-
+    padding-left:1.5rem;
 }
 
 .nav-icon{
-
     width:42px;
-
     height:42px;
-
     border-radius:50%;
-
     display:flex;
-
     align-items:center;
-
     justify-content:center;
-
     text-decoration:none;
-
     color:var(--color-coffee);
-
     border:1px solid var(--color-border);
-
     background:#fff;
-
-    transition:.25s;
-
+    transition:.25s
 }
 
 .nav-icon:hover{
-
     transform:translateY(-2px);
-
     color:#fff;
-
     background:var(--color-primary);
-
     border-color:var(--color-primary);
-
 }
 
 .nav-icon i{
@@ -317,29 +238,19 @@
 */
 
 .btn-auth{
-
     height:42px;
-
     padding:0 1.35rem;
-
     display:flex;
-
     align-items:center;
-
     justify-content:center;
-
     border-radius:999px;
-
     font-weight:600;
-
     transition:.25s;
 
 }
 
 .btn-auth:hover{
-
     transform:translateY(-2px);
-
 }
 
 /*
@@ -349,29 +260,22 @@
 */
 
 .nav-user{
-
     width:42px;
-
     height:42px;
-
     border:none;
-
     border-radius:50%;
-
     background:#fff;
-
     border:1px solid var(--color-border);
-
     transition:.25s;
-
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
 
 .nav-user:hover{
-
     background:var(--color-primary);
-
     color:#fff;
-
 }
 
 /*
@@ -415,33 +319,19 @@
 */
 
 .dropdown-menu{
-
     border:none;
-
     border-radius:18px;
-
     box-shadow:var(--shadow-md);
-
     padding:.6rem;
-
 }
-
 .dropdown-item{
-
     border-radius:12px;
-
     padding:.7rem 1rem;
-
     transition:.2s;
-
 }
-
 .dropdown-item:hover{
-
     background:rgba(214,40,40,.08);
-
     color:var(--color-primary);
-
 }
 
 /*

@@ -1,38 +1,32 @@
 /*
 |--------------------------------------------------------------------------
-| BOTONES BASE
+| BUTTON BASE
 |--------------------------------------------------------------------------
 */
 
 .btn{
-
     font-family:'Poppins',sans-serif;
-
     font-weight:600;
-
-    border-radius:var(--radius-pill);
-
-    padding:.75rem 1.5rem;
-
+    border-radius:999px;
     transition:all var(--transition);
-
     border:none;
-
     letter-spacing:.2px;
-
     box-shadow:none;
-
 }
 
+.btn:hover{
+    transform:translateY(-2px);
+}
 .btn:focus{
-
     box-shadow:none;
-
 }
-
+.btn:focus-visible{
+    outline:2px solid rgba(214,40,40,.25);
+    outline-offset:2px;
+}
 /*
 |--------------------------------------------------------------------------
-| BOTÓN PRINCIPAL
+| PRIMARY
 |--------------------------------------------------------------------------
 */
 
@@ -40,9 +34,9 @@
 
     background:var(--color-primary);
 
-    color:#fff;
+    border-color:var(--color-primary);
 
-    border:none;
+    color:#fff;
 
 }
 
@@ -50,41 +44,14 @@
 
     background:var(--color-primary-hover);
 
+    border-color:var(--color-primary-hover);
+
     color:#fff;
 
-    transform:translateY(-2px);
-
-    box-shadow:var(--shadow-md);
-
 }
-
 /*
 |--------------------------------------------------------------------------
-| BOTÓN SECUNDARIO
-|--------------------------------------------------------------------------
-*/
-
-.btn-secondary{
-
-    background:var(--color-secondary);
-
-    color:var(--color-coffee);
-
-    border:none;
-
-}
-
-.btn-secondary:hover{
-
-    transform:translateY(-2px);
-
-    box-shadow:var(--shadow-md);
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| BOTÓN CAFÉ
+| COFFEE
 |--------------------------------------------------------------------------
 */
 
@@ -98,29 +65,24 @@
 
 .btn-coffee:hover{
 
-    background:#2E2223;
+    background:#2f2624;
 
     color:#fff;
 
-    transform:translateY(-2px);
-
-    box-shadow:var(--shadow-md);
-
 }
-
 /*
 |--------------------------------------------------------------------------
-| BOTÓN OUTLINE
+| OUTLINE
 |--------------------------------------------------------------------------
 */
 
 .btn-outline-primary{
 
-    background:#fff;
+    border:2px solid var(--color-primary);
 
     color:var(--color-primary);
 
-    border:2px solid var(--color-primary);
+    background:#fff;
 
 }
 
@@ -130,174 +92,154 @@
 
     color:#fff;
 
-    transform:translateY(-2px);
-
 }
-
 /*
 |--------------------------------------------------------------------------
-| BOTÓN GOOGLE
-|--------------------------------------------------------------------------
-*/
-
-.btn-google{
-
-    background:#fff;
-
-    border:1px solid var(--color-border);
-
-    color:var(--color-text);
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    gap:.75rem;
-
-    font-weight:600;
-
-}
-
-.btn-google:hover{
-
-    background:#fff;
-
-    transform:translateY(-2px);
-
-    box-shadow:var(--shadow-md);
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| BOTÓN ICONO
+| ICON BUTTON
 |--------------------------------------------------------------------------
 */
 
 .btn-icon{
 
-    width:45px;
-
-    height:45px;
-
-    border-radius:50%;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| BOTÓN GRANDE
-|--------------------------------------------------------------------------
-*/
-
-.btn-lg{
-
-    padding:1rem 2rem;
-
-    font-size:1rem;
-
-}
-/*
-|--------------------------------------------------------------------------
-| BOTONES NAVBAR
-|--------------------------------------------------------------------------
-*/
-
-.btn-login,
-.btn-register{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
+    width:42px;
 
     height:42px;
 
-    padding:0 22px;
+    display:flex;
 
-    border-radius:999px;
+    align-items:center;
 
-    font-size:.95rem;
+    justify-content:center;
 
-    font-weight:600;
+    border-radius:50%;
 
-    text-decoration:none;
-
-    transition:all .25s ease;
+    padding:0;
 
 }
+/*
+|--------------------------------------------------------------------------
+| CART BUTTON
+|--------------------------------------------------------------------------
+*/
 
-/* Login */
+.btn-cart{
 
-.btn-login{
+    width:100%;
 
-    color:var(--color-primary);
-
-    border:1.5px solid var(--color-primary);
-
-    background:#fff;
+    min-height:46px;
 
 }
+/*
+|--------------------------------------------------------------------------
+| WISHLIST BUTTON
+|--------------------------------------------------------------------------
+*/
 
-.btn-login:hover{
+.btn-wishlist{
 
-    background:var(--color-primary);
+    width:42px;
+
+    height:42px;
+
+}
+/*
+|--------------------------------------------------------------------------
+| WHATSAPP BUTTON
+|--------------------------------------------------------------------------
+*/
+
+.btn-whatsapp{
+
+    background:#25D366;
 
     color:#fff;
 
-    transform:translateY(-2px);
-
-    box-shadow:var(--shadow-sm);
-
 }
 
-.btn-login:focus,
-.btn-login:focus-visible{
+.btn-whatsapp:hover{
 
-    outline:none;
-
-    box-shadow:none;
-
-}
-
-/* Register */
-
-.btn-register{
+    background:#1fb85a;
 
     color:#fff;
 
-    background:var(--color-primary);
+}
+/*
+|--------------------------------------------------------------------------
+| CHATBOT BUTTON
+|--------------------------------------------------------------------------
+*/
 
-    border:1px solid var(--color-primary);
+.btn-chat{
+
+    background:var(--color-coffee);
+
+    color:#fff;
 
 }
 
-.btn-register:hover{
+.btn-chat:hover{
 
-    background:var(--color-primary-hover);
+    background:#2f2624;
 
-    border-color:var(--color-primary-hover);
+    color:#fff;
 
-    transform:translateY(-2px);
+}
+/*
+|--------------------------------------------------------------------------
+| ADMIN BUTTON
+|--------------------------------------------------------------------------
+*/
 
-    box-shadow:var(--shadow-sm);
+.btn-admin{
+
+    background:#1f2937;
+
+    color:#fff;
 
 }
 
-.btn-register:focus,
-.btn-register:focus-visible{
+.btn-admin:hover{
 
-    outline:none;
+    background:#111827;
 
-    box-shadow:none;
+    color:#fff;
+
+}
+/*
+|--------------------------------------------------------------------------
+| SIZES
+|--------------------------------------------------------------------------
+*/
+
+.btn-sm{
+
+    min-height:36px;
+
+}
+
+.btn{
+
+    min-height:44px;
+
+}
+
+.btn-lg{
+
+    min-height:52px;
+
+}
+/*
+|--------------------------------------------------------------------------
+| DISABLED
+|--------------------------------------------------------------------------
+*/
+
+.btn:disabled{
+
+    opacity:.65;
+
+    cursor:not-allowed;
+
+    transform:none;
 
 }

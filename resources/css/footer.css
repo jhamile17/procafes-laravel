@@ -1,0 +1,238 @@
+/*
+|--------------------------------------------------------------------------
+| FOOTER
+|--------------------------------------------------------------------------
+*/
+.footer{
+    background:var(--color-coffee);
+    color:#fff;
+    padding:2rem 0 1rem;
+    margin-top:4rem;
+    border-top:3px solid var(--color-primary);
+}
+
+/*
+|--------------------------------------------------------------------------
+| BRAND
+|--------------------------------------------------------------------------
+*/
+.footer-brand{
+    margin-bottom:.5rem;
+}
+.footer-logo{
+    width: 48px;
+    height: 48px;
+    object-fit:contain;
+    margin-bottom:.75rem;
+}
+
+.footer-title{
+    font-family:'Playfair Display',serif;
+    font-size:1.55em;
+    margin-bottom:.45rem;
+    font-weight:700;
+    color:#fff;
+}
+
+.footer-description{
+    color:rgba(255,255,255,.72);
+    line-height:1.6;
+    max-width:260px;
+    font-size:.95rem;
+    line-height: 1.6;
+    margin-bottom:0;
+}
+
+/*
+|--------------------------------------------------------------------------
+| TITLES
+|--------------------------------------------------------------------------
+*/
+.footer-heading{
+    font-size:1rem;
+    font-weight:700;
+    color:#fff;
+    margin-bottom:.8rem;
+    position:relative;
+}
+
+.footer-heading::after{
+    content:"";
+    position:absolute;
+    left:0;
+    bottom:-6px;
+    width:36px;
+    height:2px;
+    border-radius:999px;
+    background:var(--color-primary);
+}
+
+/*
+|--------------------------------------------------------------------------
+| LINKS
+|--------------------------------------------------------------------------
+*/
+
+.footer-links{
+    list-style:none;
+    padding:0;
+    margin:0;
+}
+.footer-links li{
+    margin-bottom:.45rem;
+}
+.footer-links a{
+    color:rgba(255,255,255,.75);
+    text-decoration:none;
+    transition:var(--transition);
+}
+
+.footer-links a:hover{
+    color:#fff;
+    padding-left:6px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| CONTACT
+|--------------------------------------------------------------------------
+*/
+
+.footer-contact{
+    list-style:none;
+    padding:0;
+    margin:0;
+}
+
+.footer-contact li{
+    display:flex;
+    gap:.7rem;
+    margin-bottom:.55rem;
+    color:rgba(255,255,255,.75);
+}
+
+.footer-contact i{
+    color:var(--color-primary);
+    font-size:1rem;
+    margin-top:3px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| SOCIAL
+|--------------------------------------------------------------------------
+*/
+
+.footer-social{
+    display:flex;
+    gap:.6rem;
+    margin-top:.8rem;
+
+}
+
+.footer-social a{
+    width: 36px;
+    height: 36px;   
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    transition:var(--transition);
+}
+
+.footer-social a:hover{
+    background:var(--color-primary);
+    transform:translateY(-3px);
+}
+
+/*
+|--------------------------------------------------------------------------
+| DIVIDER
+|--------------------------------------------------------------------------
+*/
+
+.footer-divider{
+    margin:1.3rem 0 .8rem;
+    border-color:rgba(255,255,255,.10);
+}
+
+/*
+|--------------------------------------------------------------------------
+| COPYRIGHT
+|--------------------------------------------------------------------------
+*/
+
+.footer-bottom{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:.75rem;
+    flex-wrap:wrap;
+}
+
+.footer-copy{
+    color:rgba(255,255,255,.65);
+    margin:0;
+    font-size:.88rem;
+}
+
+.footer-bottom-links{
+
+    display:flex;
+
+    gap:1rem;
+
+}
+
+.footer-bottom-links a{
+
+    color:rgba(255,255,255,.65);
+
+    text-decoration:none;
+
+    transition:var(--transition);
+
+}
+
+.footer-bottom-links a:hover{
+
+    color:#fff;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| RESPONSIVE
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width:991px){
+
+    .footer{
+
+        text-align:center;
+
+    }
+
+    .footer-description{
+
+        margin:0 auto 2rem;
+    }
+    .footer-heading::after{
+        left:50%;
+        transform:translateX(-50%);
+    }
+    .footer-contact li{
+        justify-content:center;
+    }
+    .footer-social{
+        justify-content:center;
+    }
+    .footer-bottom{
+        justify-content:center;
+        text-align:center;
+    }
+}

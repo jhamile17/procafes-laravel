@@ -5,11 +5,10 @@
 */
 
 .form-label{
-    font-size:.92rem;
     font-weight:600;
+    font-size:.92rem;
     color:var(--color-coffee);
-    margin-bottom:.45rem;
-
+    margin-bottom:.5rem;
 }
 .form-text{
     color:var(--color-text-light);
@@ -17,27 +16,34 @@
 }
 .form-control,
 .form-select{
+
     height:48px;
+
+    border-radius:14px;
+
     border:1px solid var(--color-border);
-    border-radius:var(--radius-md);
-    background:var(--color-surface);
+
+    background:#fff;
+
     color:var(--color-text);
-    font-size:.95rem;
+
     transition:all var(--transition);
+
     box-shadow:none;
+
 }
 .form-control::placeholder{
-    color:#B0B0B0;
+    color: #b5b5b5;
 }
 .form-control:hover,
 .form-select:hover{
-    border-color:#D6D6D6;
+    border-color:#CFCFCF;
 }
 
 .form-control:focus,
 .form-select:focus{
     border-color:var(--color-primary);
-    box-shadow:0 0 0 .18rem rgba(214,40,40,.10);
+    box-shadow:0 0 0 .2rem rgba(214,40,40,.10);
     background:#fff;
 }
 
@@ -76,4 +82,108 @@ textarea.form-control{
 .invalid-feedback{
     font-size:.82rem;
     margin-top:.4rem;
+}
+/*
+|--------------------------------------------------------------------------
+| INPUT GROUP
+|--------------------------------------------------------------------------
+*/
+
+.input-group{
+    overflow:hidden;
+    border-radius:14px;;
+
+}
+.input-group .btn{
+    border-radius:0 14px 14px 0;
+}
+.input-group .form-control{
+    border-radius:14px 0 0 14px;
+
+}
+/*
+|--------------------------------------------------------------------------
+| INPUT GROUP
+|--------------------------------------------------------------------------
+*/
+
+.input-group{
+
+    overflow:hidden;
+
+    border-radius:var(--radius-md);
+
+}
+
+.input-group .form-control{
+    border-radius:var(--radius-md) 0 0 var(--radius-md);
+}
+.input-group .btn{
+    border-radius:0 var(--radius-md) var(--radius-md) 0;
+}
+.form-check-input{
+    cursor:pointer;
+    border-radius: 16px;
+}
+.form-check-input:checked{
+    background:var(--color-primary);
+    border-color:var(--color-primary);
+
+}
+.form-check-input[type=radio]{
+
+    border-radius:50%;
+
+}
+.is-valid{
+
+    border-color:#198754!important;
+
+}
+
+.is-invalid{
+
+    border-color:#dc3545!important;
+
+}
+
+.invalid-feedback{
+
+    font-size:.82rem;
+
+}
+.form-control:disabled,
+.form-select:disabled{
+
+    background:#F6F6F6;
+
+    cursor:not-allowed;
+
+}
+textarea.form-control{
+
+    min-height:130px;
+
+    resize:none;
+
+}
+.form-search{
+
+    padding-left:45px;
+
+}
+.password-toggle{
+
+    cursor:pointer;
+
+}
+@media (max-width:768px){
+
+    .form-control,
+    .form-select{
+
+        height:46px;
+
+    }
+
 }
