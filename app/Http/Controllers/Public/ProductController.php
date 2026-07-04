@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Catalogo\ProductService;
 use App\Services\Catalogo\CategoryService;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ProductController extends Controller
 {

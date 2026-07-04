@@ -1,13 +1,16 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Services\Checkout;
+
 use App\Models\Order;
 use App\Services\Pagos\PaymentService;
 use App\Services\Pasarelas\IzipayService;
 use App\Services\Ventas\CartService;
 use App\Services\Ventas\OrderService;
 use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 class CheckoutService
 {
@@ -20,8 +23,11 @@ class CheckoutService
     }
 
     /*
-    Resumen
+    |--------------------------------------------------------------------------
+    | Obtener resumen del checkout
+    |--------------------------------------------------------------------------
     */
+
     public function obtenerResumen(int $userId): array
     {
         $cart = $this->cartService->obtenerCarrito($userId);
@@ -30,13 +36,36 @@ class CheckoutService
 
             'cart' => $cart,
 
-            'items' => $this->cartService->obtenerItems($cart),
+            'items' => $this->cartService
+                ->obtenerItems($cart),
 
-            'total' => $this->cartService->calcularTotal($cart),
+            'total' => $this->cartService
+                ->calcularTotal($cart),
 
-            'cantidad' => $this->cartService->contarProductos($cart),
+            'cantidad' => $this->cartService
+                ->contarProductos($cart),
 
         ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validar Checkout
+    |--------------------------------------------------------------------------
+    */
+
+    public function validar(int $userId): void
+    {
+        $cart = $this->cartService
+            ->obtenerCarrito($userId);
+
+        if ($cart->items()->doesntExist()) {
+
+            throw new RuntimeException(
+                'El carrito se encuentra vacío.'
+            );
+
+        }
     }
 
     /*
@@ -46,32 +75,24 @@ class CheckoutService
     */
 
     public function procesar(
-
         int $userId,
-
         int $shippingAddressId,
-
         string $deliveryType,
-
         int $paymentMethodId,
-
         ?string $observaciones = null,
-
     ): Order {
 
         return DB::transaction(function () use (
 
             $userId,
-
             $shippingAddressId,
-
             $deliveryType,
-
             $paymentMethodId,
-
             $observaciones
 
         ) {
+
+            $this->validar($userId);
 
             $cart = $this->cartService
                 ->obtenerCarrito($userId);
@@ -90,12 +111,23 @@ class CheckoutService
                     $paymentMethodId
                 );
 
+            /*
+            |--------------------------------------------------------------------------
+            | Pasarela Izipay
+            |--------------------------------------------------------------------------
+            |
+            | Cuando se integre la API aquí se generará
+            | el token, la URL de pago o la transacción.
+            |
+            */
+
             $this->izipayService
                 ->crearTransaccion($payment);
 
             return $order->fresh([
                 'items.product',
-                'payment',
+                'payment.paymentMethod',
+                'payment.estadoPago',
             ]);
 
         });

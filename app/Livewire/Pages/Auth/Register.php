@@ -5,6 +5,8 @@ namespace App\Livewire\Pages\Auth;
 use App\Livewire\Forms\RegisterForm;
 use App\Services\Auth\UserRegistrationService;
 use App\Services\Integraciones\ReniecService;
+use App\Services\Ventas\CartService;
+use App\Services\Ventas\SessionCartService;
 use Livewire\Component;
 
 class Register extends Component

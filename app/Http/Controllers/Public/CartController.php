@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\CartItem;
+use App\Models\Product;
 use App\Services\Ventas\CartService;
+use App\Services\Ventas\SessionCartService;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
     public function __construct(
         protected CartService $cartService,
+        protected SessionCartService $sessionCartService,
     ) {
     }
 
@@ -22,34 +25,41 @@ class CartController extends Controller
 
     public function index(Request $request)
     {
-        if (! $request->user()) {
+        if ($request->user()) {
 
-            return redirect()
-                ->route('login')
-                ->with(
-                    'info',
-                    'Inicia sesión para ver tu carrito.'
-                );
+            $cart = $this->cartService->obtenerCarrito(
+                $request->user()->id
+            );
+
+            $items = $this->cartService->obtenerItems($cart);
+
+            $count = $this->cartService->contarProductos($cart);
+
+            $total = $this->cartService->calcularTotal($cart);
+
+        } else {
+
+            $items = collect(
+                $this->sessionCartService->obtener($request)
+            )->values();
+
+            $count = $this->sessionCartService->cantidad($request);
+
+            $total = $this->sessionCartService->total($request);
 
         }
 
-        $cart = $this->cartService->obtenerCarrito(
-            $request->user()->id
-        );
+        return response()->json([
 
-        return view('cart.index', [
+            'items' => $items,
 
-            'cart' => $cart,
+            'count' => $count,
 
-            'items' => $this->cartService
-                ->obtenerItems($cart),
-
-            'total' => $this->cartService
-                ->calcularTotal($cart),
+            'total' => $total,
 
         ]);
-    }
-
+    }    
+    
     /*
     |--------------------------------------------------------------------------
     | Agregar producto
@@ -74,31 +84,40 @@ class CartController extends Controller
 
         ]);
 
-        if (! $request->user()) {
+        $product = Product::findOrFail(
+            $request->product_id
+        );
 
-            return redirect()
-                ->route('login')
-                ->with(
-                    'info',
-                    'Inicia sesión para agregar productos.'
-                );
+        $cantidad = (int) ($request->cantidad ?? 1);
+
+        if ($request->user()) {
+
+            $this->cartService->agregarProducto(
+
+                $request->user()->id,
+
+                $product->id,
+
+                $cantidad
+
+            );
+
+        } else {
+
+            $this->sessionCartService->agregar(
+
+                $request,
+
+                $product,
+
+                $cantidad
+
+            );
 
         }
 
-        $this->cartService->agregarProducto(
-
-            $request->user()->id,
-
-            (int) $request->product_id,
-
-            (int) ($request->cantidad ?? 1)
-
-        );
-
-        return back()->with(
-            'success',
-            'Producto agregado al carrito.'
-        );
+        return $this->index($request);
+        
     }
 
     /*
@@ -108,8 +127,8 @@ class CartController extends Controller
     */
 
     public function update(
-        CartItem $item,
-        Request $request
+        Request $request,
+        int $productId
     ) {
 
         $request->validate([
@@ -122,18 +141,38 @@ class CartController extends Controller
 
         ]);
 
-        $this->cartService->actualizarCantidad(
+        if ($request->user()) {
 
-            $item,
+            $cart = $this->cartService
+                ->obtenerCarrito($request->user()->id);
 
-            (int) $request->cantidad
+            $item = $cart->items()
+                ->where('product_id', $productId)
+                ->firstOrFail();
 
-        );
+            $this->cartService->actualizarCantidad(
 
-        return back()->with(
-            'success',
-            'Cantidad actualizada.'
-        );
+                $item,
+
+                (int) $request->cantidad
+
+            );
+
+        } else {
+
+            $this->sessionCartService->actualizar(
+
+                $request,
+
+                $productId,
+
+                (int) $request->cantidad
+
+            );
+
+        }
+
+        return $this->index($request);
     }
 
     /*
@@ -142,14 +181,35 @@ class CartController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function remove(CartItem $item)
-    {
-        $this->cartService->eliminarProducto($item);
+    public function remove(
+        Request $request,
+        int $productId
+    ) {
 
-        return back()->with(
-            'success',
-            'Producto eliminado.'
-        );
+        if ($request->user()) {
+
+            $cart = $this->cartService
+                ->obtenerCarrito($request->user()->id);
+
+            $item = $cart->items()
+                ->where('product_id', $productId)
+                ->first();
+
+            if ($item) {
+
+                $this->cartService
+                    ->eliminarProducto($item);
+
+            }
+
+        } else {
+
+            $this->sessionCartService
+                ->eliminar($request, $productId);
+
+        }
+
+        return $this->index($request);
     }
 
     /*
@@ -157,18 +217,23 @@ class CartController extends Controller
     | Vaciar carrito
     |--------------------------------------------------------------------------
     */
-
     public function clear(Request $request)
     {
-        $cart = $this->cartService->obtenerCarrito(
-            $request->user()->id
-        );
+        if ($request->user()) {
 
-        $this->cartService->vaciarCarrito($cart);
+            $cart = $this->cartService
+                ->obtenerCarrito($request->user()->id);
 
-        return back()->with(
-            'success',
-            'Carrito vaciado.'
-        );
+            $this->cartService
+                ->vaciarCarrito($cart);
+
+        } else {
+
+            $this->sessionCartService
+                ->vaciar($request);
+
+        }
+
+        return $this->index($request);
     }
 }

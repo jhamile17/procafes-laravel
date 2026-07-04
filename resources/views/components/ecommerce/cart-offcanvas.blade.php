@@ -31,7 +31,7 @@
                         Ir a pagar
                     </a>
                 @else
-                    <a href="{{ route('checkout') }}" class="btn btn-dark">
+                    <a href="{{ route('login') }}" class="btn btn-dark">
                         Iniciar sesión para pagar
                     </a>
                 @endauth

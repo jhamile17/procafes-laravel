@@ -17,7 +17,7 @@ class CartService
         protected InventoryService $inventoryService
     ) {
     }
-
+        private const MAX_CANTIDAD = 8;
     /*
     |--------------------------------------------------------------------------
     | Obtener o crear carrito
@@ -48,13 +48,16 @@ class CartService
         int $productId,
         int $cantidad = 1
     ): CartItem {
-
         if ($cantidad <= 0) {
             throw new RuntimeException(
                 'La cantidad debe ser mayor que cero.'
             );
         }
-
+       if ($cantidad > self::MAX_CANTIDAD) {
+            throw new RuntimeException(
+                'Solo puedes comprar hasta 8 unidades de este producto.'
+            );
+        }
         return DB::transaction(function () use (
             $userId,
             $productId,
@@ -70,34 +73,24 @@ class CartService
                 ->where('product_id', $product->id)
                 ->first();
 
-            if ($item) {
-
-                $this->actualizarCantidad(
-                    $item,
-                    $item->quantity + $cantidad
-                );
-
-            } else {
-
-                $this->inventoryService->validarStock(
+          if ($item) {
+            $this->actualizarCantidad(
+                $item,
+                $item->quantity + $cantidad
+            );
+        } else {
+            $this->inventoryService->validarStock(
                     $product,
                     $cantidad
                 );
 
-                $item = new CartItem();
-
-                $item->cart_id = $cart->id;
-
-                $item->product_id = $product->id;
-
-                $item->quantity = $cantidad;
-
-                $item->price = $product->sale_price;
-
-                $item->actualizarSubtotal();
-
-                $item->save();
-
+                $item = CartItem::create([
+                    'cart_id'    => $cart->id,
+                    'product_id' => $product->id,
+                    'quantity'   => $cantidad,
+                    'price'      => $product->sale_price,
+                    'sub_total'  => $cantidad * $product->sale_price,
+                ]);
             }
 
             $this->actualizarActividad($cart);
@@ -122,6 +115,14 @@ class CartService
 
             throw new RuntimeException(
                 'La cantidad debe ser mayor que cero.'
+            );
+
+        }
+
+        if ($cantidad > self::MAX_CANTIDAD) {
+
+            throw new RuntimeException(
+                'Solo puedes comprar hasta 8 unidades de este producto.'
             );
 
         }

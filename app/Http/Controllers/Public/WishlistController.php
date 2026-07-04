@@ -7,6 +7,9 @@ use App\Models\Product;
 use App\Services\Ventas\WishlistService;
 use Illuminate\Http\Request;
 use RuntimeException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class WishlistController extends Controller
 {
@@ -21,7 +24,7 @@ class WishlistController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function index(Request $request)
+    public function index(Request $request):View|RedirectResponse
     {
         if (! $request->user()) {
             return redirect()
@@ -44,7 +47,7 @@ class WishlistController extends Controller
     public function store(
         Product $product,
         Request $request
-    ) {
+    ):RedirectResponse{
 
         if (! $request->user()) {
 
@@ -85,11 +88,17 @@ class WishlistController extends Controller
     public function destroy(
         Product $product,
         Request $request
-    ) {
+    ): RedirectResponse {
 
         if (! $request->user()) {
-            return redirect()->route('login');
-        }
+
+        return redirect()
+            ->route('login')
+            ->with('info', 'Inicia sesión para administrar tus favoritos.');
+
+    }
+
+    try {
 
         $this->wishlistService->eliminar(
             $request->user()->id,
@@ -100,7 +109,16 @@ class WishlistController extends Controller
             'success',
             'Producto eliminado de favoritos.'
         );
+
+    } catch (RuntimeException $e) {
+
+        return back()->with(
+            'info',
+            $e->getMessage()
+        );
+
     }
+}
 
     /*
     |--------------------------------------------------------------------------
@@ -108,7 +126,7 @@ class WishlistController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function toggle(Request $request)
+    public function toggle(Request $request): JsonResponse
     {
         if (! $request->user()) {
 
@@ -151,9 +169,7 @@ class WishlistController extends Controller
             );
 
             $added = true;
-
         }
-
         return response()->json([
             'ok' => true,
             'added' => $added,

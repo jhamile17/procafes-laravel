@@ -89,20 +89,22 @@ Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])
 /*
  CARRITO
 */
-Route::prefix('cart')
-    ->name('cart.')
-    ->group(function () {
-        Route::get('/', [CartController::class, 'index'])
-            ->name('index');
-        Route::post('/add', [CartController::class, 'add'])
-            ->name('add');
-        Route::patch('/{productId}', [CartController::class, 'update'])
-            ->name('update');
-        Route::delete('/{productId}', [CartController::class, 'remove'])
-            ->name('remove');
-        Route::delete('/', [CartController::class, 'clear'])
-            ->name('clear');
-    });
+Route::prefix('cart')->group(function () {
+
+    Route::get('/', [CartController::class, 'index'])
+        ->name('cart.index');
+
+    Route::post('/', [CartController::class, 'add'])
+        ->name('cart.add');
+
+    Route::patch('/{productId}', [CartController::class, 'update']);
+
+    Route::delete('/{productId}', [CartController::class, 'remove']);
+
+    Route::delete('/', [CartController::class, 'clear'])
+        ->name('cart.clear');
+
+});
 
 /*
 |--------------------------------------------------------------------------
