@@ -1,109 +1,164 @@
 <?php
 
 namespace App\Http\Controllers\Public;
+
 use App\Http\Controllers\Controller;
-use App\Models\Wishlist;
 use App\Models\Product;
+use App\Services\Ventas\WishlistService;
 use Illuminate\Http\Request;
+use RuntimeException;
 
 class WishlistController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
+    public function __construct(
+        protected WishlistService $wishlistService,
+    ) {
     }
 
-    // LISTA DE FAVORITOS
+    /*
+    |--------------------------------------------------------------------------
+    | Lista de favoritos
+    |--------------------------------------------------------------------------
+    */
+
     public function index(Request $request)
     {
-        $items = Wishlist::with('product')
-            ->where('user_id', $request->user()->id)
-            ->latest()
-            ->get();
+        if (! $request->user()) {
+            return redirect()
+                ->route('login')
+                ->with('info', 'Inicia sesión para ver tus favoritos.');
+        }
+
+        $items = $this->wishlistService
+            ->obtenerFavoritos($request->user()->id);
 
         return view('wishlist.index', compact('items'));
     }
 
-    // AGREGAR
-    public function store(Product $product, Request $request)
-    {
-        $userId = $request->user()->id;
+    /*
+    |--------------------------------------------------------------------------
+    | Agregar
+    |--------------------------------------------------------------------------
+    */
 
-        $exists = Wishlist::where([
-            'user_id' => $userId,
-            'product_id' => $product->id
-        ])->exists();
+    public function store(
+        Product $product,
+        Request $request
+    ) {
 
-        if ($exists) {
-            return back()->with('info', 'Este producto ya está en tu lista de deseos.');
+        if (! $request->user()) {
+
+            return redirect()
+                ->route('login')
+                ->with('info', 'Inicia sesión para agregar favoritos.');
+
         }
 
-        Wishlist::create([
-            'user_id' => $userId,
-            'product_id' => $product->id,
-        ]);
+        try {
 
-        return back()->with('success', 'Producto agregado a tu lista de deseos.');
+            $this->wishlistService->agregar(
+                $request->user()->id,
+                $product->id
+            );
+
+            return back()->with(
+                'success',
+                'Producto agregado a favoritos.'
+            );
+
+        } catch (RuntimeException $e) {
+
+            return back()->with(
+                'info',
+                $e->getMessage()
+            );
+
+        }
     }
 
-    // ELIMINAR
-    public function destroy(Product $product, Request $request)
-    {
-        Wishlist::where([
-            'user_id' => $request->user()->id,
-            'product_id' => $product->id
-        ])->delete();
+    /*
+    |--------------------------------------------------------------------------
+    | Eliminar
+    |--------------------------------------------------------------------------
+    */
 
-        return back()->with('success', 'Producto eliminado de favoritos.');
+    public function destroy(
+        Product $product,
+        Request $request
+    ) {
+
+        if (! $request->user()) {
+            return redirect()->route('login');
+        }
+
+        $this->wishlistService->eliminar(
+            $request->user()->id,
+            $product->id
+        );
+
+        return back()->with(
+            'success',
+            'Producto eliminado de favoritos.'
+        );
     }
 
-    // TOGGLE AJAX
+    /*
+    |--------------------------------------------------------------------------
+    | Toggle Ajax
+    |--------------------------------------------------------------------------
+    */
+
     public function toggle(Request $request)
     {
-        if (!$request->user()) {
+        if (! $request->user()) {
 
             return response()->json([
                 'ok' => false,
-                'message' => 'Debe iniciar sesión.'
+                'message' => 'Debe iniciar sesión.',
             ], 401);
+
         }
 
         $request->validate([
             'product_id' => [
                 'required',
                 'integer',
-                'exists:products,id'
+                'exists:products,id',
             ],
         ]);
 
         $userId = $request->user()->id;
-        $productId = $request->product_id;
 
-        $wishlist = Wishlist::where([
-            'user_id' => $userId,
-            'product_id' => $productId
-        ])->first();
+        $productId = (int) $request->product_id;
 
-        if ($wishlist) {
+        if ($this->wishlistService->existe(
+            $userId,
+            $productId
+        )) {
 
-            $wishlist->delete();
+            $this->wishlistService->eliminar(
+                $userId,
+                $productId
+            );
 
             $added = false;
 
         } else {
 
-            Wishlist::create([
-                'user_id' => $userId,
-                'product_id' => $productId,
-            ]);
+            $this->wishlistService->agregar(
+                $userId,
+                $productId
+            );
 
             $added = true;
+
         }
 
         return response()->json([
             'ok' => true,
             'added' => $added,
-            'count' => Wishlist::where('user_id', $userId)->count()
+            'count' => $this->wishlistService
+                ->contarFavoritos($userId),
         ]);
     }
 }

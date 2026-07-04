@@ -3,66 +3,172 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use App\Services\Cart\SessionCartService;
-use Illuminate\Http\JsonResponse;
+use App\Models\CartItem;
+use App\Services\Ventas\CartService;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
     public function __construct(
-        private readonly SessionCartService $cartService,
+        protected CartService $cartService,
     ) {
     }
 
-    public function index(Request $request): JsonResponse
+    /*
+    |--------------------------------------------------------------------------
+    | Mostrar carrito
+    |--------------------------------------------------------------------------
+    */
+
+    public function index(Request $request)
     {
-        return response()->json(
-            $this->cartService->summary($request)
+        if (! $request->user()) {
+
+            return redirect()
+                ->route('login')
+                ->with(
+                    'info',
+                    'Inicia sesión para ver tu carrito.'
+                );
+
+        }
+
+        $cart = $this->cartService->obtenerCarrito(
+            $request->user()->id
         );
+
+        return view('cart.index', [
+
+            'cart' => $cart,
+
+            'items' => $this->cartService
+                ->obtenerItems($cart),
+
+            'total' => $this->cartService
+                ->calcularTotal($cart),
+
+        ]);
     }
 
-    public function add(Request $request): JsonResponse
+    /*
+    |--------------------------------------------------------------------------
+    | Agregar producto
+    |--------------------------------------------------------------------------
+    */
+
+    public function add(Request $request)
     {
-        $data = $request->validate([
-            'product_id' => ['required', 'integer', 'exists:products,id'],
-            'qty' => ['nullable', 'integer', 'min:1'],
+        $request->validate([
+
+            'product_id' => [
+                'required',
+                'integer',
+                'exists:products,id',
+            ],
+
+            'cantidad' => [
+                'nullable',
+                'integer',
+                'min:1',
+            ],
+
         ]);
 
-        return response()->json(
-            $this->cartService->add(
-                $request,
-                (int) $data['product_id'],
-                (int) ($data['qty'] ?? 1),
-            )
+        if (! $request->user()) {
+
+            return redirect()
+                ->route('login')
+                ->with(
+                    'info',
+                    'Inicia sesión para agregar productos.'
+                );
+
+        }
+
+        $this->cartService->agregarProducto(
+
+            $request->user()->id,
+
+            (int) $request->product_id,
+
+            (int) ($request->cantidad ?? 1)
+
+        );
+
+        return back()->with(
+            'success',
+            'Producto agregado al carrito.'
         );
     }
 
-    public function update(Request $request, int $productId): JsonResponse
-    {
-        $data = $request->validate([
-            'qty' => ['required', 'integer', 'min:1'],
+    /*
+    |--------------------------------------------------------------------------
+    | Actualizar cantidad
+    |--------------------------------------------------------------------------
+    */
+
+    public function update(
+        CartItem $item,
+        Request $request
+    ) {
+
+        $request->validate([
+
+            'cantidad' => [
+                'required',
+                'integer',
+                'min:1',
+            ],
+
         ]);
 
-        return response()->json(
-            $this->cartService->update(
-                $request,
-                $productId,
-                (int) $data['qty'],
-            )
+        $this->cartService->actualizarCantidad(
+
+            $item,
+
+            (int) $request->cantidad
+
+        );
+
+        return back()->with(
+            'success',
+            'Cantidad actualizada.'
         );
     }
 
-    public function remove(Request $request, int $productId): JsonResponse
+    /*
+    |--------------------------------------------------------------------------
+    | Eliminar
+    |--------------------------------------------------------------------------
+    */
+
+    public function remove(CartItem $item)
     {
-        return response()->json(
-            $this->cartService->remove($request, $productId)
+        $this->cartService->eliminarProducto($item);
+
+        return back()->with(
+            'success',
+            'Producto eliminado.'
         );
     }
 
-    public function clear(Request $request): JsonResponse
+    /*
+    |--------------------------------------------------------------------------
+    | Vaciar carrito
+    |--------------------------------------------------------------------------
+    */
+
+    public function clear(Request $request)
     {
-        return response()->json(
-            $this->cartService->clear($request)
+        $cart = $this->cartService->obtenerCarrito(
+            $request->user()->id
+        );
+
+        $this->cartService->vaciarCarrito($cart);
+
+        return back()->with(
+            'success',
+            'Carrito vaciado.'
         );
     }
 }

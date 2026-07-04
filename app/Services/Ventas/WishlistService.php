@@ -13,16 +13,6 @@ class WishlistService
 {
     /*
     |--------------------------------------------------------------------------
-    | Constructor
-    |--------------------------------------------------------------------------
-    */
-
-    public function __construct()
-    {
-    }
-
-    /*
-    |--------------------------------------------------------------------------
     | Agregar producto a favoritos
     |--------------------------------------------------------------------------
     */
@@ -33,11 +23,9 @@ class WishlistService
     ): Wishlist {
 
         if ($this->existe($userId, $productId)) {
-
             throw new RuntimeException(
                 'El producto ya se encuentra en la lista de favoritos.'
             );
-
         }
 
         return DB::transaction(function () use (
@@ -46,11 +34,8 @@ class WishlistService
         ) {
 
             return Wishlist::create([
-
-                'user_id' => $userId,
-
+                'user_id'    => $userId,
                 'product_id' => $productId,
-
             ]);
 
         });
@@ -58,7 +43,7 @@ class WishlistService
 
     /*
     |--------------------------------------------------------------------------
-    | Eliminar producto de favoritos
+    | Eliminar producto
     |--------------------------------------------------------------------------
     */
 
@@ -68,19 +53,14 @@ class WishlistService
     ): bool {
 
         $wishlist = Wishlist::query()
-
             ->where('user_id', $userId)
-
             ->where('product_id', $productId)
-
             ->first();
 
         if (! $wishlist) {
-
             throw new RuntimeException(
                 'El producto no existe en la lista de favoritos.'
             );
-
         }
 
         return $wishlist->delete();
@@ -88,7 +68,7 @@ class WishlistService
 
     /*
     |--------------------------------------------------------------------------
-    | Verificar si un producto es favorito
+    | Existe
     |--------------------------------------------------------------------------
     */
 
@@ -98,17 +78,14 @@ class WishlistService
     ): bool {
 
         return Wishlist::query()
-
             ->where('user_id', $userId)
-
             ->where('product_id', $productId)
-
             ->exists();
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener favoritos de un usuario
+    | Obtener favoritos
     |--------------------------------------------------------------------------
     */
 
@@ -117,13 +94,9 @@ class WishlistService
     ): Collection {
 
         return Wishlist::query()
-
             ->with('product')
-
             ->where('user_id', $userId)
-
             ->latest()
-
             ->get();
     }
 
@@ -138,9 +111,7 @@ class WishlistService
     ): int {
 
         return Wishlist::query()
-
             ->where('user_id', $userId)
-
             ->count();
     }
 }

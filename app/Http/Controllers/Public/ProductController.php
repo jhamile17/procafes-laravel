@@ -3,45 +3,36 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
-use App\Models\Product;
+use App\Services\Catalogo\ProductService;
+use App\Services\Catalogo\CategoryService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
+    public function __construct(
+        protected ProductService $productService,
+        protected CategoryService $categoryService,
+    ) {
+    }
+
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'brand'])
-            ->where('status', 1)
-            ->latest();
+        $filters = [
 
-        if ($request->filled('categoria')) {
-            $query->where('categories_id', $request->integer('categoria'));
-        }
+            'buscar' => $request->input('search'),
 
-        if ($request->filled('search')) {
-            $search = trim($request->string('search')->toString());
+            'categoria' => $request->input('categoria'),
 
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
+        ];
 
-        $products = $query
-            ->paginate(12)
-            ->withQueryString();
+        return view('products', [
 
-        $categories = Category::orderBy('name')->get();
+            'products' => $this->productService->paginar($filters, 12),
 
-        $counts = DB::table('products')
-            ->select('categories_id', DB::raw('COUNT(*) as total'))
-            ->where('status', 1)
-            ->groupBy('categories_id')
-            ->pluck('total', 'categories_id')
-            ->toArray();
+            'categories' => $this->categoryService->obtenerActivas(),
 
-        return view('products', compact('products', 'categories', 'counts'));
+            'counts' => $this->productService->contarPorCategorias(),
+
+        ]);
     }
 }

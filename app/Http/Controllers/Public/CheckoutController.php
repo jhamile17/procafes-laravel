@@ -4,67 +4,99 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Services\Checkout\CheckoutService;
-use App\Services\OrderService\OrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class CheckoutController extends Controller
 {
     public function __construct(
-        private readonly CheckoutService $checkoutService,
-        private readonly OrderService $orderService,
+        protected CheckoutService $checkoutService,
     ) {
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Mostrar Checkout
+    |--------------------------------------------------------------------------
+    */
+
     public function index(Request $request): View|RedirectResponse
     {
-        try {
-            $items = $this->checkoutService->itemsFromSession(
-                $request->session()->get('cart', [])
+        if (! $request->user()) {
+
+            return redirect()
+                ->route('login')
+                ->with(
+                    'info',
+                    'Debe iniciar sesión para continuar con la compra.'
+                );
+
+        }
+
+        $resumen = $this->checkoutService
+            ->obtenerResumen(
+                $request->user()->id
             );
 
-            return view('checkout.index', [
-                'items' => $items,
-                ...$this->checkoutService->totals($items),
-            ]);
-        } catch (ValidationException $exception) {
-            return redirect()
-                ->route('products')
-                ->withErrors($exception->errors());
-        }
+        return view(
+            'checkout.index',
+            $resumen
+        );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Procesar Checkout
+    |--------------------------------------------------------------------------
+    */
 
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'address' => ['required', 'string', 'max:1000'],
-            'city' => ['required', 'string', 'max:100'],
-            'state' => ['required', 'string', 'max:100'],
-            'zip_code' => ['required', 'string', 'max:20'],
-            'country' => ['required', 'string', 'max:100'],
-            'payment_method' => [
+
+            'shipping_address_id' => [
                 'required',
-                Rule::in(['mercadopago', 'bank_transfer', 'cash']),
+                'integer',
             ],
+
+            'delivery_type' => [
+                'required',
+                'string',
+            ],
+
+            'payment_method_id' => [
+                'required',
+                'integer',
+            ],
+
+            'observaciones' => [
+                'nullable',
+                'string',
+                'max:1000',
+            ],
+
         ]);
 
-        $order = $this->orderService->createPendingOrder(
-            $request->user(),
-            $request->session()->get('cart', []),
-            $data,
-        );
+        $order = $this->checkoutService->procesar(
 
-        if ($order->payment->payment_method === 'mercadopago') {
-            return redirect()
-            ->route('mp.checkout', ['orderId' => $order->id]);
-            
-        }
+            $request->user()->id,
+
+            (int) $data['shipping_address_id'],
+
+            $data['delivery_type'],
+
+            (int) $data['payment_method_id'],
+
+            $data['observaciones'] ?? null,
+
+        );
 
         return redirect()
             ->route('customer.dashboard')
-            ->with('success', "Pedido #{$order->id} creado correctamente.");
+            ->with(
+                'success',
+                "Pedido {$order->numero_pedido} creado correctamente."
+            );
     }
 }

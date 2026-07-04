@@ -1,9 +1,178 @@
-<x-ui.section-title />
+/*==================================
+    FEATURED
+==================================*/
 
-Filtros
+.featured-section{
 
-@foreach($products)
+    padding:80px 0;
 
-<x-ecommerce.product-card />
+}
 
-@endforeach
+.featured-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:end;
+
+    margin-bottom:35px;
+
+}
+
+.featured-header .section-header{
+
+    margin:0;
+
+    text-align:left;
+
+}
+
+.featured-link{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    text-decoration:none;
+
+    color:var(--primary);
+
+    font-weight:600;
+
+    transition:.3s;
+
+}
+
+.featured-link:hover{
+
+    color:var(--secondary);
+
+}
+
+.featured-filters{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    justify-content:center;
+
+    gap:14px;
+
+    margin-bottom:45px;
+
+}
+
+.filter-button{
+
+    border:none;
+
+    background:#f5f5f5;
+
+    color:#555;
+
+    padding:12px 24px;
+
+    border-radius:50px;
+
+    font-weight:600;
+
+    transition:.3s;
+
+}
+
+.filter-button:hover{
+
+    background:var(--primary);
+
+    color:#fff;
+
+}
+
+.filter-button.active{
+
+    background:var(--primary);
+
+    color:#fff;
+
+}
+
+.products-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(5,1fr);
+
+    gap:24px;
+
+}
+
+.featured-empty{
+
+    grid-column:1/-1;
+
+    text-align:center;
+
+    color:#888;
+
+    padding:60px 0;
+
+}
+@media(max-width:1200px){
+
+    .products-grid{
+
+        grid-template-columns:repeat(4,1fr);
+
+    }
+
+}
+
+@media(max-width:992px){
+
+    .featured-header{
+
+        flex-direction:column;
+
+        align-items:center;
+
+        gap:20px;
+
+    }
+
+    .featured-header .section-header{
+
+        text-align:center;
+
+    }
+
+    .products-grid{
+
+        grid-template-columns:repeat(3,1fr);
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    .products-grid{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+@media(max-width:576px){
+
+    .products-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+}

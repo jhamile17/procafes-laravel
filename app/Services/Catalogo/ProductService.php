@@ -78,7 +78,7 @@ class ProductService
     public function obtenerActivos(): Collection
     {
         return $this->consultaBase()
-            ->where('status', true)
+            ->activos()
             ->orderBy('name')
             ->get();
     }
@@ -86,8 +86,8 @@ class ProductService
     public function obtenerDisponibles(): Collection
     {
         return $this->consultaBase()
-            ->where('status', true)
-            ->where('stock', '>', 0)
+            ->activos()
+            ->disponibles()
             ->orderBy('name')
             ->get();
     }
@@ -128,6 +128,23 @@ class ProductService
         return $this->consultaBase()
             ->where('slug', $slug)
             ->firstOrFail();
+    }
+    public function obtenerDestacados(int $cantidad = 8): Collection
+    {
+        return $this->consultaBase()
+            ->disponibles()
+            ->latest()
+            ->take($cantidad)
+            ->get();
+    }
+    public function contarPorCategorias(): array
+    {
+        return Product::query()
+            ->activos()
+            ->select('categories_id', DB::raw('COUNT(*) as total'))
+            ->groupBy('categories_id')
+            ->pluck('total', 'categories_id')
+            ->toArray();
     }
 
     /*

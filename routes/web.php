@@ -4,26 +4,28 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Brand;
+use App\Models\Category;
+use App\Models\Product;
 use App\Notifications\UsuarioReactivacion;
 
 
-// Controllers
-use App\Http\Controllers\Public\WishlistController;
-use App\Http\Controllers\Public\ChatbotController;
-use App\Http\Controllers\Public\ProductController;
-
 // Público
 use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\Public\ProductController;
 use App\Http\Controllers\Public\CartController;
+use App\Http\Controllers\Public\WishlistController;
+use App\Http\Controllers\Public\CheckoutController;
+use App\Http\Controllers\Public\ChatbotController;
+
+// Auth
 use App\Http\Controllers\Auth\GoogleController;
 
 // Cliente
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\BoletaController as CustomerBoletaController;
 
-// Checkout / pagos
-use App\Http\Controllers\Public\CheckoutController;
-use App\Http\Controllers\PaymentDemoController;
+
 
 // Admin
 use App\Http\Controllers\Admin\CategoryController as CategoryController;
@@ -35,62 +37,72 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\OrderController;
 
+// Checkout / pagos
+use App\Http\Controllers\PaymentDemoController;
 // Mercado Pago
 use App\Http\Controllers\Payment\MercadoPagoController;
 use App\Http\Controllers\Payment\MercadoPagoWebhookController;
 
-// Models
-use App\Models\Brand;
-use App\Models\Category;
-use App\Models\Product;
+
 
 /*
 |--------------------------------------------------------------------------
 | MODEL BINDINGS
 |--------------------------------------------------------------------------
 */
-Route::bind('brand', fn($v) => Brand::findOrFail($v));
-Route::bind('category', fn($v) => Category::findOrFail($v));
-Route::bind('product', fn($v) => Product::findOrFail($v));
+Route::bind('brand', fn($v) => Brand::findOrFail($value));
+Route::bind('category', fn($v) => Category::findOrFail($value));
+Route::bind('product', fn($v) => Product::findOrFail($value));
 
 /*
 |--------------------------------------------------------------------------
 | RUTAS PÚBLICAS
 |--------------------------------------------------------------------------
 */
+Route::get('/', [HomeController::class, 'index'])
+    ->name('home');
+Route::view('/nosotros', 'nosotros')
+    ->name('nosotros');
+Route::view('/ubicanos', 'ubicanos')
+    ->name('ubicanos');
+
+//productos
 Route::get('/products', [ProductController::class, 'index'])
     ->name('products');
-Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])
-    ->name('wishlist.toggle');
-Route::post('/wishlist/', [WishlistController::class, 'index'])
-    ->middleware('auth')
-    ->name('wishlist.index');
 /*
 |--------------------------------------------------------------------------
 CHATBOT
 |--------------------------------------------------------------------------
 */
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
-
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
 Route::view('/nosotros', 'nosotros')->name('nosotros');
 Route::view('/ubicanos', 'ubicanos')->name('ubicanos');
 
+//wishlist favoritos
+Route::get('/wishlist', [WishlistController::class, 'index'])
+    ->name('wishlist.index');
+Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])
+    ->name('wishlist.toggle');
+
+
 /*
-|--------------------------------------------------------------------------
-| CARRITO
-|--------------------------------------------------------------------------
+ CARRITO
 */
-Route::prefix('cart')->name('cart.')->group(function () {
-
-    Route::get('/', [CartController::class, 'index'])->name('index');
-    Route::post('/add', [CartController::class, 'add'])->name('add');
-    Route::patch('/{productId}', [CartController::class, 'update'])->name('update');
-    Route::delete('/{productId}', [CartController::class, 'remove'])->name('remove');
-    Route::delete('/', [CartController::class, 'clear'])->name('clear');
-
-});
+Route::prefix('cart')
+    ->name('cart.')
+    ->group(function () {
+        Route::get('/', [CartController::class, 'index'])
+            ->name('index');
+        Route::post('/add', [CartController::class, 'add'])
+            ->name('add');
+        Route::patch('/{productId}', [CartController::class, 'update'])
+            ->name('update');
+        Route::delete('/{productId}', [CartController::class, 'remove'])
+            ->name('remove');
+        Route::delete('/', [CartController::class, 'clear'])
+            ->name('clear');
+    });
 
 /*
 |--------------------------------------------------------------------------
@@ -191,7 +203,7 @@ Route::prefix('admin')
 
         Route::resource('/categories', CategoryController::class);
         Route::resource('/brands', BrandController::class);
-        Route::resource('/products', ProductController::class);
+        Route::resource('/products', AdminProductController::class);
         Route::resource('/users', UserController::class);
 
         Route::get('/reports', [ReportController::class, 'index'])
