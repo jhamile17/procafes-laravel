@@ -28,8 +28,6 @@ class RouteServiceProvider extends ServiceProvider
 
         }
         
-            Route::get('/', fn() => view('welcome'))->name('home');
-
     });
     }
 }

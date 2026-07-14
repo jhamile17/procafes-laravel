@@ -3,10 +3,8 @@
 namespace App\Livewire\Pages\Auth;
 
 use App\Livewire\Forms\RegisterForm;
-use App\Services\Auth\UserRegistrationService;
+use App\Services\Auth\PendingRegistrationService;
 use App\Services\Integraciones\ReniecService;
-use App\Services\Ventas\CartService;
-use App\Services\Ventas\SessionCartService;
 use Livewire\Component;
 
 class Register extends Component
@@ -95,24 +93,27 @@ class Register extends Component
     | Registrar usuario
     |--------------------------------------------------------------------------
     */
-
-    public function register(
-        UserRegistrationService $registrationService
-    ) {
+   public function register(
+    PendingRegistrationService $pendingService
+    )
+    {
+        $email = $this->form->email;
 
         $this->form->register(
-            $registrationService
+            $pendingService
         );
 
         $this->form->clear();
 
-        session()->flash(
-            'success',
-            'Tu cuenta fue creada correctamente. Revisa tu correo para verificarla antes de iniciar sesión.'
-        );
+        session([
+        'registration_email' => $email,
+        ]);
 
-        return redirect()->route('login');
+        return redirect()->route(
+            'register.check-email'
+        );
     }
+
     public function puedeBuscarDocumento(): bool
     {
         return match ($this->form->tipo_documento) {

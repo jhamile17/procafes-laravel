@@ -36,7 +36,10 @@
                     </a>
                 @endauth
 
-                <button id="btnClearCart" type="button" class="btn btn-outline-danger">
+                <button 
+                    id="btnClearCart" 
+                    type="button"
+                    class="btn btn-outline-danger">
                     Vaciar carrito
                 </button>
             </div>

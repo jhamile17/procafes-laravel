@@ -285,9 +285,10 @@ class Product extends Model
 
     public function getImageUrlAttribute(): string
     {
-        return $this->image
-            ? asset('storage/' . $this->image)
-            : asset('images/no-image.png');
+        if (filled($this->image)) {
+        return Storage::url($this->image);
+    }
+        return asset('images/no-image.png');
     }
 
     public function getPrecioFormateadoAttribute(): string
@@ -316,4 +317,5 @@ class Product extends Model
 
         return 'success';
     }
+    
 }

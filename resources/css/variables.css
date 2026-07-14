@@ -1,7 +1,6 @@
 :root{
 
     /* Marca */
-
     --color-primary:#D62828;
     --color-primary-hover:#B71C1C;
     --color-coffee:#3D2C2E;
@@ -11,26 +10,58 @@
     --color-border:#ECE7E2;
     --color-text:#2B2B2B;
     --color-text-light:#777777;
-
+    /*estados*/
+    --color-success:#18A558;
+    --color-info:#2563EB;
+    --color-warning:#F59E0B;
+    --color-danger:#DC3545;
+    --color-white:#FFFFFF;
+    --color-coffee-dark:#2F2624;
+    --color-whatsapp:#25D366;
+    --color-whatsapp-hover:#1FB85A;
+    --color-admin:#1F2937;
+    --color-admin-hover:#111827;
+    /* Superficies */
+    --color-surface-alt:#FAFAFA;
+    /* Bordes */
+    --color-border-light:#ECECEC;
+     /* Fondos */
+    --color-background-start:#FFFDFB;
+    --color-background-end:#F7F2EC;
+    /* Estados */
+    --color-success-soft:#E9F8EF;
+    /* Componentes */
+    --color-progress:#EFE8DF;
+    /* Texto */
+    --color-text-muted:#888888;
+    --color-text-disabled:#999999;
+    /*navbar*/
+    --color-icon:#666666;
+    --color-primary-soft:rgba(214,40,40,.08);
+    --color-primary-focus:rgba(214,40,40,.12);
     /* Radius */
-
     --radius-sm:10px;
     --radius-md:14px;
     --radius-lg:20px;
+    --radius-mi:50px;
     --radius-pill:999px;
-
     /* Sombras */
-
     --shadow-xs:0 2px 8px rgba(0,0,0,.05);
-
     --shadow-sm:0 8px 24px rgba(0,0,0,.08);
-
     --shadow-md:0 14px 40px rgba(0,0,0,.12);
-
     --shadow-lg:0 24px 60px rgba(0,0,0,.16);
-
+    /* Espaciado */
+    --space-xs:.5rem;
+    --space-sm:1rem;
+    --space-md:1.5rem;
+    --space-lg:2rem;
+    --space-xl:3rem;
+    --space-2xl:5rem;
     /* Transiciones */
-
     --transition:.25s ease;
+    --color-background:#F7F2EC;
 
+    --animation-fast:.35s;
+    --animation-normal:.6s;
+    --animation-slow:3s;
 }

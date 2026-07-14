@@ -2,21 +2,23 @@
 
     <div class="container">
 
-        {{-- Logo --}}
-        <a href="{{ route('home') }}" class="navbar-brand">
+        {{-- ===================== LOGO ===================== --}}
+        <a
+            href="{{ route('home') }}"
+            class="navbar-brand">
 
             <img
                 src="{{ asset('images/logo.jpg') }}"
-                alt="Procafes"
+                alt="PROCÁFES"
                 class="navbar-logo">
 
             <span class="brand-title">
-                PROCAFES
+                PROCÁFES
             </span>
 
         </a>
 
-        {{-- Botón responsive --}}
+        {{-- ===================== RESPONSIVE ===================== --}}
         <button
             class="navbar-toggler"
             type="button"
@@ -24,7 +26,7 @@
             data-bs-target="#navbarContent"
             aria-controls="navbarContent"
             aria-expanded="false"
-            aria-label="Toggle navigation">
+            aria-label="Abrir menú">
 
             <span class="navbar-toggler-icon"></span>
 
@@ -34,60 +36,44 @@
             class="collapse navbar-collapse"
             id="navbarContent">
 
-            {{-- Menú --}}
+            {{-- ===================== MENÚ ===================== --}}
             <ul class="navbar-nav nav-menu mx-auto">
 
                 <li class="nav-item">
-
                     <a
                         href="{{ route('home') }}"
                         class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}">
-
                         Inicio
-
                     </a>
-
                 </li>
 
                 <li class="nav-item">
-
                     <a
                         href="{{ route('products') }}"
                         class="nav-link {{ request()->routeIs('products') ? 'active' : '' }}">
-
                         Productos
-
                     </a>
-
                 </li>
 
                 <li class="nav-item">
-
                     <a
                         href="{{ route('nosotros') }}"
                         class="nav-link {{ request()->routeIs('nosotros') ? 'active' : '' }}">
-
                         Nosotros
-
                     </a>
-
                 </li>
 
                 <li class="nav-item">
-
                     <a
                         href="{{ route('ubicanos') }}"
                         class="nav-link {{ request()->routeIs('ubicanos') ? 'active' : '' }}">
-
                         Ubícanos
-
                     </a>
-
                 </li>
 
             </ul>
 
-            {{-- Buscador --}}
+            {{-- ===================== BUSCADOR ===================== --}}
             <form
                 action="{{ route('products') }}"
                 method="GET"
@@ -99,14 +85,15 @@
                         type="search"
                         name="search"
                         value="{{ request('search') }}"
-                        placeholder="Buscar productos..."
-                        class="form-control">
+                        class="form-control"
+                        placeholder="Buscar productos...">
 
                     <button
                         type="submit"
-                        class="search-btn">
+                        class="search-btn"
+                        aria-label="Buscar">
 
-                        <i class="bi bi-search search-icon"></i>
+                        <i class="bi bi-search"></i>
 
                     </button>
 
@@ -114,62 +101,72 @@
 
             </form>
 
-            {{-- Acciones --}}
+            {{-- ===================== ACCIONES ===================== --}}
             <div class="nav-actions">
 
                 {{-- Favoritos --}}
-                <a
-                    href="{{ route('wishlist.index') }}"
-                    class="nav-icon"
-                    title="Favoritos">
+                <button
+                    type="button"
+                    class="btn btn-icon position-relative"
+                    onclick="window.location='{{ route('wishlist.index') }}'"
+                    aria-label="Favoritos">
 
                     <i class="bi bi-heart"></i>
 
-                </a>
+                    <span
+                        id="wishlistBadge"
+                        class="wishlist-badge">
+                        0
+                    </span>
+
+                    <span
+                        id="wishlistMessage"
+                        class="wishlist-message"></span>
+
+                </button>
 
                 {{-- Carrito --}}
                 <x-ecommerce.cart-button />
 
                 @auth
 
+                    {{-- Usuario --}}
                     <div class="dropdown">
 
                         <button
-                            class="nav-user"
-                            data-bs-toggle="dropdown">
+                            class="btn btn-user"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
 
-                            <i class="bi bi-person"></i>
+                            <i class="bi bi-person-circle"></i>
+
+                            <span class="nav-user-name">
+                                {{ explode(' ', auth()->user()->nombres)[0] }}
+                            </span>
+
+                            <i class="bi bi-chevron-down small"></i>
 
                         </button>
 
                         <ul class="dropdown-menu dropdown-menu-end">
 
                             <li>
-
                                 <a
                                     class="dropdown-item"
                                     href="{{ route('customer.dashboard') }}">
-
                                     <i class="bi bi-speedometer2 me-2"></i>
-
                                     Mi panel
-
                                 </a>
-
                             </li>
 
                             <li>
-
                                 <a
                                     class="dropdown-item"
                                     href="{{ route('profile') }}">
-
                                     <i class="bi bi-person me-2"></i>
-
                                     Perfil
-
                                 </a>
-
                             </li>
 
                             <li>
@@ -185,8 +182,8 @@
                                     @csrf
 
                                     <button
-                                        class="dropdown-item"
-                                        type="submit">
+                                        type="submit"
+                                        class="dropdown-item">
 
                                         <i class="bi bi-box-arrow-right me-2"></i>
 
@@ -204,15 +201,19 @@
 
                 @else
 
+                    {{-- Invitado --}}
                     <a
                         href="{{ route('login') }}"
-                        class="btn-login">
+                        class="btn btn-login">
+
                         Iniciar sesión
+
                     </a>
 
                     <a
                         href="{{ route('register') }}"
-                        class="btn-register">
+                        class="btn btn-register">
+
                         Registrarse
 
                     </a>

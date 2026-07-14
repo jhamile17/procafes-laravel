@@ -3,7 +3,7 @@
 namespace App\Livewire\Forms;
 
 use App\Models\User;
-use App\Services\Auth\UserRegistrationService;
+use App\Services\Auth\PendingRegistrationService;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
@@ -82,7 +82,7 @@ class RegisterForm extends Form
     */
 
     protected function rules(): array
-{
+    {
     $numeroDocumento = match ($this->tipo_documento) {
 
         'DNI'        => 'required|digits:8|unique:users,numero_documento',
@@ -118,14 +118,14 @@ class RegisterForm extends Form
     */
 
     public function register(
-        UserRegistrationService $registrationService
-    ): User {
+        PendingRegistrationService $pendingService
+    ): void {
 
         $this->validate();
 
         $this->normalizarDatos();
 
-        return $registrationService->register([
+        $pendingService->registrar([
 
             'tipo_documento' => $this->tipo_documento,
 

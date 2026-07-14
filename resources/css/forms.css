@@ -1,106 +1,148 @@
 /*
 |--------------------------------------------------------------------------
-| FORMULARIOS
+| LABELS
 |--------------------------------------------------------------------------
 */
 
 .form-label{
-    font-weight:600;
-    font-size:.92rem;
-    color:var(--color-coffee);
     margin-bottom:.5rem;
+    font-size:.92rem;
+    font-weight:600;
+    color:var(--color-coffee);
 }
+
 .form-text{
-    color:var(--color-text-light);
     font-size:.85rem;
+    color:var(--color-text-light);
 }
+
+/*
+|--------------------------------------------------------------------------
+| INPUTS
+|--------------------------------------------------------------------------
+*/
+
 .form-control,
 .form-select{
 
     height:48px;
 
-    border-radius:14px;
+    color:var(--color-text);
+
+    background:var(--color-surface);
 
     border:1px solid var(--color-border);
 
-    background:#fff;
-
-    color:var(--color-text);
-
-    transition:all var(--transition);
+    border-radius:var(--radius-md);
 
     box-shadow:none;
 
+    transition:
+        border-color var(--transition),
+        background-color var(--transition),
+        box-shadow var(--transition);
+
 }
+
 .form-control::placeholder{
-    color: #b5b5b5;
+
+    color:var(--color-placeholder);
+
 }
+
 .form-control:hover,
 .form-select:hover{
-    border-color:#CFCFCF;
+
+    border-color:var(--color-border-hover);
+
 }
 
 .form-control:focus,
 .form-select:focus{
+
+    background:var(--color-surface);
+
     border-color:var(--color-primary);
+
     box-shadow:0 0 0 .2rem rgba(214,40,40,.10);
-    background:#fff;
+
 }
 
 /*
 |--------------------------------------------------------------------------
-| INPUTS DESHABILITADOS
+| DISABLED
 |--------------------------------------------------------------------------
 */
 
 .form-control:disabled,
 .form-select:disabled{
-    background:#F6F6F6;
-    color:#666;
+
+    background:var(--color-disabled);
+
+    color:var(--color-text-light);
+
     cursor:not-allowed;
+
     opacity:1;
-}
-textarea.form-control{
-    min-height:120px;
-    resize:none;
 
 }
-.is-valid{
-    border-color:var(--color-success)!important;
-}
-.is-valid:focus{
-    border-color:var(--color-success)!important;
-    box-shadow:0 0 0 .18rem rgba(25,135,84,.10)!important;
-}
-.is-invalid{
-    border-color:var(--color-danger)!important;
-}
-.is-invalid:focus{
-    border-color:var(--color-danger)!important;
-    box-shadow:0 0 0 .18rem rgba(220,53,69,.10)!important;
-}
-.invalid-feedback{
-    font-size:.82rem;
-    margin-top:.4rem;
-}
+
 /*
 |--------------------------------------------------------------------------
-| INPUT GROUP
+| TEXTAREA
 |--------------------------------------------------------------------------
 */
 
-.input-group{
-    overflow:hidden;
-    border-radius:14px;;
+textarea.form-control{
+
+    min-height:130px;
+
+    resize:none;
 
 }
-.input-group .btn{
-    border-radius:0 14px 14px 0;
-}
-.input-group .form-control{
-    border-radius:14px 0 0 14px;
+
+/*
+|--------------------------------------------------------------------------
+| VALIDATION
+|--------------------------------------------------------------------------
+*/
+
+.is-valid{
+
+    border-color:var(--color-success)!important;
 
 }
+
+.is-valid:focus{
+
+    border-color:var(--color-success)!important;
+
+    box-shadow:0 0 0 .18rem rgba(25,135,84,.10)!important;
+
+}
+
+.is-invalid{
+
+    border-color:var(--color-danger)!important;
+
+}
+
+.is-invalid:focus{
+
+    border-color:var(--color-danger)!important;
+
+    box-shadow:0 0 0 .18rem rgba(220,53,69,.10)!important;
+
+}
+
+.invalid-feedback{
+
+    margin-top:.4rem;
+
+    font-size:.82rem;
+
+}
+
 /*
 |--------------------------------------------------------------------------
 | INPUT GROUP
@@ -116,67 +158,69 @@ textarea.form-control{
 }
 
 .input-group .form-control{
+
     border-radius:var(--radius-md) 0 0 var(--radius-md);
+
 }
+
 .input-group .btn{
+
     border-radius:0 var(--radius-md) var(--radius-md) 0;
+
 }
+
+/*
+|--------------------------------------------------------------------------
+| FORM CHECK
+|--------------------------------------------------------------------------
+*/
+
 .form-check-input{
+
     cursor:pointer;
-    border-radius: 16px;
+
+    border-radius:16px;
+
 }
+
 .form-check-input:checked{
+
     background:var(--color-primary);
+
     border-color:var(--color-primary);
 
 }
-.form-check-input[type=radio]{
+
+.form-check-input[type="radio"]{
 
     border-radius:50%;
 
 }
-.is-valid{
 
-    border-color:#198754!important;
+/*
+|--------------------------------------------------------------------------
+| HELPERS
+|--------------------------------------------------------------------------
+*/
 
-}
-
-.is-invalid{
-
-    border-color:#dc3545!important;
-
-}
-
-.invalid-feedback{
-
-    font-size:.82rem;
-
-}
-.form-control:disabled,
-.form-select:disabled{
-
-    background:#F6F6F6;
-
-    cursor:not-allowed;
-
-}
-textarea.form-control{
-
-    min-height:130px;
-
-    resize:none;
-
-}
 .form-search{
 
     padding-left:45px;
 
 }
+
 .password-toggle{
 
     cursor:pointer;
 
 }
+
+/*
+|--------------------------------------------------------------------------
+| RESPONSIVE
+|--------------------------------------------------------------------------
+*/
+
 @media (max-width:768px){
 
     .form-control,

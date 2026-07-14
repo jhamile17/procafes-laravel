@@ -2,6 +2,10 @@
 
 <div class="product-price">
 
-    S/ {{ number_format($product->price,2) }}
+    <span class="current-price">
+
+        {{ $product->precio_formateado }}
+
+    </span>
 
 </div>

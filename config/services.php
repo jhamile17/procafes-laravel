@@ -38,7 +38,7 @@ return [
     'google' => [
     'client_id'     => env('GOOGLE_CLIENT_ID'),
     'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-    'redirect'      => env('GOOGLE_REDIRECT', 'https://pro-cafes.com/auth/google/callback'),
+    'redirect'      => env('GOOGLE_REDIRECT', 'http://127.0.0.1:8000/auth/google/callback'),
     ],
 
     'payu' => [
@@ -51,11 +51,6 @@ return [
     'mode'        => env('PAYU_MODE', 'sandbox'),
     'response'    => env('PAYU_RESPONSE_URL'),
     'confirmation'=> env('PAYU_CONFIRMATION_URL'),
-    ],
-    'docapi' => [
-    'provider' => env('DOCAPI_PROVIDER', 'apisperu'),   // apisperu | apiperu
-    'token'    => env('DOCAPI_TOKEN'),
-    'base'     => env('DOCAPI_BASE', 'https://dniruc.apisperu.com/api/v1'), 
     ],
     
     'mercadopago' => [

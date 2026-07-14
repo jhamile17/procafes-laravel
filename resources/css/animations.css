@@ -1,66 +1,117 @@
-/*
-|--------------------------------------------------------------------------
-| TRANSICIONES
-|--------------------------------------------------------------------------
-*/
-
-*{
-
-    transition:
-        background-color var(--transition),
-        color var(--transition),
-        border-color var(--transition),
-        box-shadow var(--transition),
-        transform var(--transition);
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| HOVER ELEGANTE
-|--------------------------------------------------------------------------
-*/
-
+/*HOVER*/
 .hover-lift:hover{
-
     transform:translateY(-4px);
-
 }
-
 .hover-scale:hover{
-
     transform:scale(1.02);
-
 }
-
-/*
-|--------------------------------------------------------------------------
-| FADE
-|--------------------------------------------------------------------------
-*/
+/*ANIMACIONES*/
 
 .fade-in{
+    animation:fadeIn var(--animation-fast) ease;
+}
+.fade-up{
+    animation:fadeUp var(--animation-normal) ease;
+}
+.float{
+    animation:float var(--animation-slow) ease-in-out infinite;
+}
 
-    animation:fadeIn .35s ease;
+/*animacion de favoritos*/
+.wishlist-message{
+
+    position:absolute;
+
+    top:-24px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    font-size:1rem;
+
+    color:var(--color-primary);
+
+    opacity:0;
+
+    pointer-events:none;
 
 }
+
+.wishlist-message i{
+
+    display:block;
+
+}
+.wishlist-message.show{
+
+    animation:wishlistMessage .8s ease forwards;
+
+}
+@keyframes wishlistMessage{
+
+    0%{
+
+        opacity:0;
+
+        transform:translate(-50%,10px);
+
+    }
+
+    25%{
+
+        opacity:1;
+
+        transform:translate(-50%,0);
+
+    }
+
+    100%{
+
+        opacity:0;
+
+        transform:translate(-50%,-18px);
+
+    }
+
+}
+/*KEYFRAMES*/
 
 @keyframes fadeIn{
 
     from{
-
         opacity:0;
-
-        transform:translateY(10px);
-
     }
 
     to{
-
         opacity:1;
+    }
 
-        transform:none;
+}
 
+@keyframes fadeUp{
+
+    from{
+        opacity:0;
+        transform:translateY(24px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
+
+@keyframes float{
+
+    0%,
+    100%{
+        transform:translateY(0);
+    }
+
+    50%{
+        transform:translateY(-6px);
     }
 
 }

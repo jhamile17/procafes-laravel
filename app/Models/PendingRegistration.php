@@ -3,27 +3,67 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 
 class PendingRegistration extends Model
 {
-    use Notifiable;
     protected $fillable = [
-        'name',
+
+        'nombres',
+        'apellido_paterno',
+        'apellido_materno',
+
+        'tipo_documento',
+        'numero_documento',
+
+        'telefono',
+
         'email',
-        'phone',
+
         'password',
+
         'token',
+
         'expires_at',
+
     ];
-    protected function casts(): array
+
+    protected $casts = [
+
+        'expires_at' => 'datetime',
+
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Verificar expiración
+    |--------------------------------------------------------------------------
+    */
+
+    public function expirado(): bool
     {
-        return [
-            'expires_at' => 'datetime',
-        ];
+        return $this->expires_at->isPast();
     }
-    public function routeNotificationForMail($notification)
+
+    /*
+    |--------------------------------------------------------------------------
+    | Crear token
+    |--------------------------------------------------------------------------
+    */
+
+    public static function generarToken(): string
     {
-        return $this->email;
+        return (string) \Illuminate\Support\Str::uuid();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Fecha de expiración
+    |--------------------------------------------------------------------------
+    */
+
+    public static function fechaExpiracion(): Carbon
+    {
+        return now()->addHours(24);
     }
 }

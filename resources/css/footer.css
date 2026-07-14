@@ -180,20 +180,16 @@
 }
 
 .footer-bottom-links{
-
     display:flex;
-
     gap:1rem;
-
 }
 
 .footer-bottom-links a{
 
     color:rgba(255,255,255,.65);
-
     text-decoration:none;
-
     transition:var(--transition);
+    font-size:.88rem;
 
 }
 

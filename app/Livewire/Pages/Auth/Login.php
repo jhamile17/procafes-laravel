@@ -71,14 +71,6 @@ class Login extends Component
 
         }
 
-        if (! $user->hasVerifiedEmail()) {
-
-            $this->redirectRoute('verification.notice');
-
-            return;
-
-        }
-
         if ($user->isAdmin()) {
 
             $this->redirectRoute('admin.dashboard');

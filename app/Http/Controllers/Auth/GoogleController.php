@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
-
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Auth\UserRegistrationService;
@@ -18,28 +17,27 @@ class GoogleController extends Controller
     | Redirección Login
     |--------------------------------------------------------------------------
     */
-
     public function redirectLogin(): RedirectResponse
     {
         session([
             'google_flow' => 'login',
         ]);
-
         return $this->googleProvider()
             ->scopes([
                 'openid',
                 'profile',
                 'email',
             ])
+            ->with([
+                'prompt'=>'select_account'
+            ])
             ->redirect();
     }
-
     /*
     |--------------------------------------------------------------------------
     | Redirección Registro
     |--------------------------------------------------------------------------
     */
-
     public function redirectRegister(): RedirectResponse
     {
         session([
@@ -52,48 +50,47 @@ class GoogleController extends Controller
                 'profile',
                 'email',
             ])
+            ->with([
+                'prompt' => 'select_account'
+            ])
             ->redirect();
     }
-
     /*
     |--------------------------------------------------------------------------
     | Callback Google
     |--------------------------------------------------------------------------
     */
-
     public function callback(
         UserRegistrationService $registrationService
     ): RedirectResponse {
-
         try {
 
             $googleUser = $this->googleProvider()->user();
-
             $email = strtolower(
                 trim((string) $googleUser->getEmail())
             );
-
             if ($email === '') {
-
                 return redirect()
                     ->route('login')
                     ->withErrors([
                         'google' => 'Google no devolvió un correo electrónico válido.',
                     ]);
             }
-
-            $flow = session()->pull('google_flow', 'login');
-
+            $flow = session()->pull(
+                'google_flow',
+                'login'
+            );
             $user = User::query()
-                ->whereRaw('LOWER(email) = ?', [$email])
+                ->whereRaw(
+                    'LOWER(email) = ?',
+                    [$email]
+                )
                 ->first();
-
             /*
             |--------------------------------------------------------------------------
-            | Registro
+            | Registro con Google
             |--------------------------------------------------------------------------
             */
-
             if ($flow === 'register') {
 
                 if ($user) {
@@ -106,41 +103,44 @@ class GoogleController extends Controller
                 }
 
                 $fullName = trim(
-                    (string) ($googleUser->getName() ?: 'Usuario')
+                    (string) (
+                        $googleUser->getName()
+                        ?: 'Usuario'
+                    )
                 );
 
-                $parts = preg_split('/\s+/', $fullName);
+                $parts = preg_split(
+                    '/\s+/',
+                    $fullName
+                );
 
                 $nombres = $parts[0] ?? 'Usuario';
 
                 $apellidoPaterno = $parts[1] ?? '';
 
                 $apellidoMaterno = count($parts) >= 3
-                    ? implode(' ', array_slice($parts, 2))
+                    ? implode(
+                        ' ',
+                        array_slice($parts, 2)
+                    )
                     : '';
 
                 $user = $registrationService->register([
-
                     'nombres' => $nombres,
-
                     'apellido_paterno' => $apellidoPaterno,
-
                     'apellido_materno' => $apellidoMaterno,
-
-                    'tipo_documento' => null,
-
-                    'numero_documento' => null,
-
+                    'tipo_documento' => 'PENDIENTE',
+                    'numero_documento' => 'PENDIENTE',
                     'email' => $email,
-
-                    'password' => bin2hex(random_bytes(32)),
-
+                    'password' => bin2hex(
+                        random_bytes(32)
+                    ),
                     'provider' => User::PROVIDER_GOOGLE,
-
                     'provider_id' => $googleUser->getId(),
-
+                    'celular' => '',
+                    'direccion' => '',
+                    'foto_perfil' => $googleUser->getAvatar(),
                     'email_verified_at' => now(),
-
                 ]);
             }
 
@@ -169,11 +169,31 @@ class GoogleController extends Controller
                 empty($user->provider)
                 || $user->provider === User::PROVIDER_LOCAL
             ) {
+
                 $user = $registrationService->linkProvider(
+
                     $user,
+
                     User::PROVIDER_GOOGLE,
+
                     $googleUser->getId()
+
                 );
+
+            } elseif (
+
+                $user->provider === User::PROVIDER_GOOGLE
+
+                && $user->provider_id !== $googleUser->getId()
+
+            ) {
+
+                return redirect()
+                    ->route('login')
+                    ->withErrors([
+                        'google' => 'La cuenta de Google no coincide con el proveedor registrado.',
+                    ]);
+
             }
 
             /*
@@ -182,7 +202,31 @@ class GoogleController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            $registrationService->updateLastAccess($user);
+            $registrationService->updateLastAccess(
+                $user
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Actualizar foto de perfil
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+
+                $googleUser->getAvatar()
+
+                && $user->foto_perfil !== $googleUser->getAvatar()
+
+            ) {
+
+                $user->update([
+
+                    'foto_perfil' => $googleUser->getAvatar(),
+
+                ]);
+
+            }
 
             /*
             |--------------------------------------------------------------------------
@@ -190,9 +234,14 @@ class GoogleController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            Auth::login($user, true);
+            Auth::login(
+                $user,
+                true
+            );
 
-            request()->session()->regenerate();
+            request()
+                ->session()
+                ->regenerate();
 
             /*
             |--------------------------------------------------------------------------
@@ -210,9 +259,7 @@ class GoogleController extends Controller
             return redirect()->intended(
                 route('customer.dashboard')
             );
-
         } catch (\Throwable $exception) {
-
             Log::error(
                 'Google Login Error',
                 [
@@ -222,7 +269,6 @@ class GoogleController extends Controller
                     'trace' => $exception->getTraceAsString(),
                 ]
             );
-
             return redirect()
                 ->route('login')
                 ->withErrors([
@@ -230,13 +276,11 @@ class GoogleController extends Controller
                 ]);
         }
     }
-
     /*
     |--------------------------------------------------------------------------
     | Provider
     |--------------------------------------------------------------------------
     */
-
     protected function googleProvider(): Provider
     {
         $provider = Socialite::driver('google');
@@ -244,7 +288,6 @@ class GoogleController extends Controller
         if (app()->environment('local')) {
             $provider->stateless();
         }
-
         return $provider;
     }
 }

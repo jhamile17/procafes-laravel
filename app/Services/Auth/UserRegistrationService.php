@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Services\Auth;
-
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
@@ -10,96 +9,79 @@ use Illuminate\Support\Str;
 
 class UserRegistrationService
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Registrar usuario
-    |--------------------------------------------------------------------------
-    */
+   public function register(array $data): User
+        {
+            return DB::transaction(function () use ($data) {
 
-    public function register(array $data): User
-    {
-        return DB::transaction(function () use ($data) {
+                $role = Role::query()
+                    ->where('codigo', 'CUSTOMER')
+                    ->firstOrFail();
 
-            $role = Role::query()
-                ->where('codigo', 'CUSTOMER')
-                ->firstOrFail();
+                $nombreCompleto = $data['name']
+                    ?? User::construirNombreCompleto(
+                        $data['nombres'] ?? '',
+                        $data['apellido_paterno'] ?? '',
+                        $data['apellido_materno'] ?? ''
+                    );
 
-            $nombreCompleto = $data['name']
-                ?? User::construirNombreCompleto(
-                    $data['nombres'] ?? '',
-                    $data['apellido_paterno'] ?? '',
-                    $data['apellido_materno'] ?? ''
-                );
+                $user = User::create([
 
-            $user = User::create([
+                    'role_id' => $data['role_id'] ?? $role->id,
+                    'name' => $nombreCompleto,
+                    'nombres' => $data['nombres']
+                        ?? $nombreCompleto,
+                    'apellido_paterno' => $data['apellido_paterno']
+                        ?? '',
+                    'apellido_materno' => $data['apellido_materno']
+                        ?? '',
+                    'tipo_documento' => $data['tipo_documento']
+                        ?? null,
+                    'numero_documento' => $data['numero_documento']
+                        ?? null,
+                    'email' => strtolower(
+                        trim($data['email'])
+                    ),
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Contraseña
+                    |--------------------------------------------------------------------------
+                    |
+                    | Siempre llega en texto plano.
+                    | El cast "hashed" del modelo User la cifra automáticamente.
+                    |
+                    */
 
-                'role_id' => $data['role_id'] ?? $role->id,
+                    'password' => $data['password']
+                        ?? Str::random(60),
 
-                'name' => $nombreCompleto,
+                    'provider' => $data['provider']
+                        ?? User::PROVIDER_LOCAL,
 
-                'nombres' => $data['nombres']
-                    ?? $nombreCompleto,
+                    'provider_id' => $data['provider_id']
+                        ?? null,
 
-                'apellido_paterno' => $data['apellido_paterno']
-                    ?? '',
+                    'celular' => $data['celular']
+                        ?? null,
 
-                'apellido_materno' => $data['apellido_materno']
-                    ?? '',
+                    'direccion' => $data['direccion']
+                        ?? null,
 
-                'tipo_documento' => $data['tipo_documento']
-                    ?? null,
+                    'foto_perfil' => $data['foto_perfil']
+                        ?? null,
 
-                'numero_documento' => $data['numero_documento']
-                    ?? null,
+                    'estado' => true,
 
-                'email' => strtolower(
-                    trim($data['email'])
-                ),
+                    'ultimo_acceso' => now(),
 
-                /*
-                |--------------------------------------------------------------------------
-                | Si el proveedor no tiene contraseña
-                | generamos una aleatoria.
-                |--------------------------------------------------------------------------
-                */
+                    'email_verified_at' => $data['email_verified_at']
+                        ?? null,
 
-                'password' => $data['password']
-                    ?? Str::random(60),
+                ]);
 
-                'provider' => $data['provider']
-                    ?? User::PROVIDER_LOCAL,
+                return $user->fresh();
 
-                'provider_id' => $data['provider_id']
-                    ?? null,
-
-                'celular' => $data['celular']
-                    ?? null,
-
-                'direccion' => $data['direccion']
-                    ?? null,
-
-                'foto_perfil' => $data['foto_perfil']
-                    ?? null,
-
-                'estado' => true,
-
-                'ultimo_acceso' => now(),
-
-                'email_verified_at' => $data['email_verified_at']
-                    ?? null,
-
-            ]);
-
-            if (
-                $user->provider === User::PROVIDER_LOCAL
-                && ! $user->hasVerifiedEmail()
-            ) {
-                $user->sendEmailVerificationNotification();
-            }
-
-            return $user;
-        });
-    }
+            });
+        }
 
     /*
     |--------------------------------------------------------------------------
@@ -130,7 +112,7 @@ class UserRegistrationService
 
     /*
     |--------------------------------------------------------------------------
-    | Verificar correo
+    | Marcar correo como verificado
     |--------------------------------------------------------------------------
     */
 
@@ -154,7 +136,9 @@ class UserRegistrationService
     public function updateLastAccess(User $user): void
     {
         $user->update([
+
             'ultimo_acceso' => now(),
+
         ]);
     }
 }

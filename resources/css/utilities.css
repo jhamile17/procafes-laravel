@@ -1,132 +1,75 @@
 /*
 |--------------------------------------------------------------------------
-| FONDOS
+| BACKGROUND
 |--------------------------------------------------------------------------
 */
 
 .bg-cream{
-
     background:var(--color-background);
-
 }
 
 .bg-coffee{
-
     background:var(--color-coffee);
-
 }
 
 .bg-primary{
-
     background:var(--color-primary);
-
 }
 
 /*
 |--------------------------------------------------------------------------
-| TEXTO
+| TEXT
 |--------------------------------------------------------------------------
 */
 
 .text-coffee{
-
     color:var(--color-coffee);
-
 }
 
 .text-primary{
-
     color:var(--color-primary);
-
 }
 
 .text-muted{
-
     color:var(--color-text-light)!important;
+}
 
+.text-gold{
+    color:var(--color-gold);
 }
 
 /*
 |--------------------------------------------------------------------------
-| SOMBRAS
+| SHADOWS
 |--------------------------------------------------------------------------
 */
 
 .shadow-soft{
-
     box-shadow:var(--shadow-sm);
-
 }
 
 .shadow-medium{
-
     box-shadow:var(--shadow-md);
-
 }
 
 .shadow-large{
-
     box-shadow:var(--shadow-lg);
-
 }
 
 /*
 |--------------------------------------------------------------------------
-| BORDES
+| BORDER RADIUS
 |--------------------------------------------------------------------------
 */
 
 .rounded-soft{
-
     border-radius:var(--radius-md);
-
 }
 
 .rounded-large{
-
     border-radius:var(--radius-lg);
-
-}
-.section-header{
-    max-width: 760px;
-    margin: 0 auto 60px;
-    text-align: center;
 }
 
-.section-tag{
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-
-    color: var(--secondary);
-
-    font-size: .95rem;
-
-    font-weight: 600;
-
-    margin-bottom: 12px;
-}
-
-.section-title{
-    color: var(--dark);
-
-    font-size: clamp(2rem,4vw,2.8rem);
-
-    font-weight: 700;
-
-    line-height: 1.2;
-
-    margin-bottom: 18px;
-}
-
-.section-description{
-
-    color: #6c757d;
-
-    font-size: 1rem;
-
-    line-height: 1.8;
-
-    margin: 0;
+.rounded-pill{
+    border-radius:var(--radius-pill);
 }

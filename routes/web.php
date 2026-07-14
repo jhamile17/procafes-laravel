@@ -2,13 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\CompleteRegistrationController;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Notifications\UsuarioReactivacion;
-
 
 // Público
 use App\Http\Controllers\Public\HomeController;
@@ -20,7 +20,9 @@ use App\Http\Controllers\Public\ChatbotController;
 
 // Auth
 use App\Http\Controllers\Auth\GoogleController;
-
+use App\Http\Controllers\Auth\ResendRegistrationController;
+use App\Http\Controllers\Auth\WelcomeController;
+use App\Http\Controllers\Auth\CheckEmailController;
 // Cliente
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\BoletaController as CustomerBoletaController;
@@ -43,17 +45,6 @@ use App\Http\Controllers\PaymentDemoController;
 use App\Http\Controllers\Payment\MercadoPagoController;
 use App\Http\Controllers\Payment\MercadoPagoWebhookController;
 
-
-
-/*
-|--------------------------------------------------------------------------
-| MODEL BINDINGS
-|--------------------------------------------------------------------------
-*/
-Route::bind('brand', fn($v) => Brand::findOrFail($value));
-Route::bind('category', fn($v) => Category::findOrFail($value));
-Route::bind('product', fn($v) => Product::findOrFail($value));
-
 /*
 |--------------------------------------------------------------------------
 | RUTAS PÚBLICAS
@@ -75,17 +66,24 @@ CHATBOT
 |--------------------------------------------------------------------------
 */
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::view('/nosotros', 'nosotros')->name('nosotros');
-Route::view('/ubicanos', 'ubicanos')->name('ubicanos');
 
 //wishlist favoritos
-Route::get('/wishlist', [WishlistController::class, 'index'])
-    ->name('wishlist.index');
-Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])
-    ->name('wishlist.toggle');
+Route::prefix('wishlist')
+    ->name('wishlist.')
+    ->group(function () {
 
+        Route::get('/', [WishlistController::class, 'index'])
+            ->middleware('auth')
+            ->name('index');
 
+        Route::post('/toggle', [WishlistController::class, 'toggle'])
+            ->name('toggle');
+
+        Route::post('/sync', [WishlistController::class, 'sync'])
+            ->middleware('auth')
+            ->name('sync');
+
+    });
 /*
  CARRITO
 */
@@ -123,8 +121,25 @@ Route::prefix('auth/google')->name('auth.google.')->group(function () {
     Route::get('/callback', [GoogleController::class, 'callback'])
         ->name('callback');
 
-});
+    });
+    Route::get(
+        '/register/verify/{token}',
+        CompleteRegistrationController::class
+    )->name('register.complete');
+    Route::get(
+    '/register/check-email',
+    CheckEmailController::class
+    )->name('register.check-email');
 
+  Route::get(
+    '/register/welcome',
+    WelcomeController::class
+    )->middleware('auth')
+    ->name('register.welcome');
+    Route::post(
+        '/register/resend',
+        ResendRegistrationController::class
+    )->name('register.resend');
 /*
 |--------------------------------------------------------------------------
 | LOGOUT

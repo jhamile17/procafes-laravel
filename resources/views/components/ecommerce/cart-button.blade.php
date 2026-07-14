@@ -1,6 +1,6 @@
 <button
     type="button"
-    class="btn btn-outline-dark position-relative rounded-pill"
+    class="btn btn-icon nav-icon position-relative"
     data-bs-toggle="offcanvas"
     data-bs-target="#cartOffcanvas"
     aria-controls="cartOffcanvas"
@@ -10,7 +10,10 @@
 
     <span
         id="cartBadge"
-        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        class="cart-badge">
+
         0
+
     </span>
+
 </button>

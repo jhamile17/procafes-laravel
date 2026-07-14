@@ -1,23 +1,12 @@
 @props(['product'])
 
-@php
-    use Illuminate\Support\Facades\Storage;
-
-    if (!empty($product->image_url)) {
-        $image = $product->image_url;
-    } elseif (!empty($product->image)) {
-        $image = Storage::url($product->image);
-    } else {
-        $image = asset('images/no-image.png');
-    }
-@endphp
-<div class="product-card h-100">
+<div class="product-card">
 
     <div class="product-image">
 
         <img
-            src="{{ $image }}"
-            alt="{{ $product->name }}">
+            src="{{ $product->image_url }}"
+            alt="Producto {{ $product->name }}">
 
         <x-ecommerce.product.badge
             :product="$product"/>
@@ -54,7 +43,7 @@
 
             <x-ecommerce.product.add-cart-button
                 :product="$product"
-                :image="$image"/>
+                :image="$product->image_url"/>
 
         </div>
 

@@ -12,20 +12,26 @@
                 <x-home.hero-slide
                     active="true"
                     image="hero-1.jpg"
-                    title="Momentos únicos,<br><span>sabor inolvidable</span>"
-                    subtitle="Descubre nuestros cafés premium, bebidas artesanales y productos seleccionados para disfrutar cada momento."
+                    title="El sabor del café peruano,<br><span>más cerca de ti</span>"
+                    subtitle="En PROCÁFES compartimos el aroma y la tradición del café peruano con bebidas preparadas para disfrutar cada momento."
+                    button="Ver productos"
+                    :url="route('products')"
                 />
 
                 <x-home.hero-slide
                     image="hero-2.jpg"
-                    title="Cada taza cuenta una historia"
-                    subtitle="El mejor café comienza con ingredientes de calidad y una preparación perfecta."
+                    title="Cada taza<br><span>se prepara con dedicación</span>"
+                    subtitle="Creemos que un buen café comienza con la pasión por cada detalle. Desde la selección del grano hasta el último toque."
+                    button="Conoce nuestra historia"
+                    :url="route('nosotros')"
                 />
 
                 <x-home.hero-slide
                     image="hero-3.jpg"
-                    title="Comparte grandes momentos"
-                    subtitle="Frappés, chocolates, cafés calientes y mucho más para disfrutar en familia."
+                    title="Mucho más<br><span>que café</span>"
+                    subtitle="Frappés, chocolates, tés y bebidas preparadas para acompañarte en cualquier momento del día."
+                    button="Ver menú"
+                    :url="route('products')"
                 />
 
             </div>
