@@ -250,6 +250,10 @@
             </th>
 
             <th>
+                Descripción
+            </th>
+
+            <th>
 
                 Categoría
 
@@ -356,6 +360,12 @@
 
                     @endif
 
+                </td>
+
+                <td style="max-width:250px;">
+                    <small class="text-muted">
+                        {{ \Illuminate\Support\Str::limit($product->description, 80) }}
+                    </small>
                 </td>
 
                 {{-- Categoría --}}

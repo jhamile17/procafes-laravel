@@ -30,7 +30,7 @@ class UpdateProductRequest extends FormRequest
 
             'tipo_consumo_id' => [
                 'nullable',
-                'exists:tipo_consumos,id',
+                'exists:tipos_consumo,id',
             ],
 
             'name' => [

@@ -14,47 +14,72 @@ class CategoriesSeeder extends Seeder
 
             [
                 'name' => 'Cafés Calientes',
-                'description' => 'Bebidas calientes preparadas con café.',
+                'description' => 'Bebidas calientes preparadas a base de café.',
             ],
 
             [
                 'name' => 'Cafés Fríos',
-                'description' => 'Bebidas frías preparadas con café.',
+                'description' => 'Bebidas frías preparadas a base de café.',
             ],
 
             [
                 'name' => 'Frappés',
-                'description' => 'Frappés de diferentes sabores.',
+                'description' => 'Frappés de diferentes sabores elaborados con ingredientes seleccionados.',
             ],
 
             [
                 'name' => 'Jugos',
-                'description' => 'Jugos naturales.',
+                'description' => 'Jugos naturales preparados con frutas frescas.',
             ],
 
             [
                 'name' => 'Cremoladas',
-                'description' => 'Cremoladas artesanales.',
+                'description' => 'Cremoladas artesanales y bebidas frozen.',
+            ],
+
+            [
+                'name' => 'Cold Brew',
+                'description' => 'Bebidas preparadas mediante extracción en frío del café.',
+            ],
+
+            [
+                'name' => 'Refrescos',
+                'description' => 'Refrescos naturales preparados con frutas y café.',
+            ],
+
+            [
+                'name' => 'Piqueos Artesanales',
+                'description' => 'Piqueos y acompañamientos preparados al momento.',
+            ],
+
+            [
+                'name' => 'Sándwiches',
+                'description' => 'Sándwiches, hamburguesas y tostadas artesanales.',
+            ],
+
+            [
+                'name' => 'Café Bar',
+                'description' => 'Bebidas y cócteles especiales preparados con café.',
             ],
 
             [
                 'name' => 'Chocolates',
-                'description' => 'Chocolates de la marca PROCAFES.',
+                'description' => 'Chocolates y productos derivados del cacao.',
             ],
 
             [
                 'name' => 'Licores',
-                'description' => 'Licores de café.',
+                'description' => 'Licores y bebidas alcohólicas especiales.',
             ],
 
             [
                 'name' => 'Café en Bolsa',
-                'description' => 'Café tostado y molido.',
+                'description' => 'Café tostado y molido en distintas presentaciones.',
             ],
 
             [
                 'name' => 'Accesorios',
-                'description' => 'Productos y accesorios.',
+                'description' => 'Accesorios y artículos relacionados con el café.',
             ],
 
         ];
@@ -72,8 +97,8 @@ class CategoriesSeeder extends Seeder
                     'slug' => Str::slug($category['name']),
                     'description' => $category['description'],
                     'status' => true,
-                    'updated_at' => now(),
                     'created_at' => now(),
+                    'updated_at' => now(),
                 ]
 
             );

@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
 
         User::updateOrCreate(
             [
-                'email' => 'admin@procafes.com',
+                'email' => 'procafes3@gmail.com',
             ],
             [
                 'role_id' => $adminRole->id,
