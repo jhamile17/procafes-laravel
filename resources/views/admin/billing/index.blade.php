@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('title','Boletas y Facturas | PROCAFES')
 
-@section('admin-content')
+@section('content')
 <div class="d-flex align-items-center justify-content-between mb-3">
   <h1 class="h4 mb-0">Boletas y Facturas</h1>
 </div>

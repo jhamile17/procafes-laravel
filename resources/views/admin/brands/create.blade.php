@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('admin-content')
+@section('content')
 <h2 class="h5 mb-3">Nueva marca</h2>
 
 <form action="{{ route('admin.brands.store') }}" method="POST">
