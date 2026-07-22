@@ -1,108 +1,240 @@
 @extends('layouts.app')
-@section('title','Nosotros | PROCAFES')
+
+@section('title', 'Nosotros | PROCÁFES')
 
 @section('content')
-<style>
-  :root{
-    --brand-100:#F2DD6C; /* amarillo suave */
-    --brand-200:#DAAD29;
-    --brand-700:#794515; /* marrón */
-    --brand-900:#3E350E; /* marrón oscuro */
-    --surface:#EAE9E7;
-  }
-  /* HERO */
-  .hero-about{
-    background:
-      linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.55)),
-      url('{{ asset("images/hero1.jpg") }}') center/cover no-repeat;
-    color:#fff;
-  }
-  .accent{ width:56px;height:6px;border-radius:6px;background:var(--brand-200); }
-</style>
 
-{{-- HERO --}}
-<section class="hero-about py-5">
-  <div class="container text-center">
-    <span class="badge text-dark" style="background:var(--brand-100)">Nosotros</span>
-    <h1 class="fw-bold mt-2 mb-2">Sobre PROCAFES</h1>
-    <p class="lead mb-0">Comprometidos con el café peruano y el desarrollo de nuestra región.</p>
-  </div>
-</section>
+    {{-- Hero --}}
+    <x-hero
+        image="nosotros-hero.jpg"
+        title="Nuestra historia,<br><span>nuestra pasión por el café</span>"
+        subtitle="En PROCÁFES creemos que cada taza representa tradición, calidad y el compromiso de ofrecer una experiencia única a cada uno de nuestros clientes."
+    />
 
-{{-- ¿QUIÉNES SOMOS? (imagen más pequeña) --}}
-<section class="py-5 bg-white">
-  <div class="container">
-    <div class="row justify-content-center g-4">
-      <div class="col-lg-5 d-flex justify-content-center">
-        <img
-          src="{{ asset('images/nosotros.jpg') }}"
-          alt="Quiénes somos PROCAFES"
-          class="img-fluid rounded-4 shadow-sm rounded-2xl shadow-md"
-          style="max-width:420px; object-fit:cover;"
-        >
-      </div>
-      <div class="col-lg-6">
-        <div class="accent mb-2"></div>
-        <h2 class="fw-bold mb-3" style="color:var(--brand-700)">¿Quiénes somos?</h2>
-        <p class="fs-5 mb-0">
-          Somos una empresa dedicada a la <strong>comercialización y transformación del café, cacao y derivados</strong>,
-          trabajando con productores locales de la región Junín. Promovemos el consumo interno del café peruano
-          a través de bebidas, desayunos y experiencias que celebran la cultura cafetalera de Pichanaki.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
+    {{-- Nuestra Historia --}}
+    <section class="section about-history">
 
-{{-- MISIÓN & VISIÓN (texto, no imagen) --}}
-<section class="py-5" style="background:var(--surface)">
-  <div class="container">
-    <div class="text-center mb-4">
-      <div class="accent mx-auto mb-2"></div>
-      <h2 class="fw-bold" style="color:var(--brand-700)">Misión y Visión</h2>
-    </div>
-    <div class="row g-4">
-      <div class="col-md-6">
-        <div class="bg-white p-4 rounded-4 border rounded-2xl shadow-sm h-100">
-          <h3 class="h5 fw-bold text-uppercase mb-2" style="color:var(--brand-900)">Nuestra misión</h3>
-          <p class="mb-0">
-            Comercializamos <strong>café, cacao y derivados</strong> e incentivamos el consumo interno del café
-            mediante bebidas y platos de la zona, comprometidos con cada actor de la cadena de valor del café
-            y la calidad de nuestros productos y servicios.
-          </p>
+        <div class="container">
+
+            <div class="row align-items-center g-5">
+
+                <div class="col-lg-6">
+
+                    <div class="section-header text-start">
+
+                        <span class="section-tag">
+                            Nuestra Historia
+                        </span>
+
+                        <h2 class="section-title">
+                            El café que une tradición, calidad y pasión.
+                        </h2>
+
+                        <div class="section-divider"></div>
+
+                    </div>
+
+                    <div class="about-history-content">
+
+                        <p class="about-history-text">
+                            En PROCÁFES creemos que una buena taza de café comienza mucho antes de ser servida. Inicia con la selección de granos de calidad, continúa con una preparación cuidadosa y termina creando momentos especiales para cada persona que nos visita.
+                        </p>
+
+                        <p class="about-history-text">
+                            Nuestro compromiso es ofrecer una experiencia cálida, cercana y auténtica, donde cada bebida refleje la dedicación por el café peruano y el deseo de compartir su esencia con nuestros clientes.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-6">
+
+                    <div class="about-history-image">
+
+                        <img
+                            src="{{ asset('images/nosotros/historia.jpg') }}"
+                            alt="Historia de PROCÁFES"
+                            class="img-fluid">
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
-      </div>
-      <div class="col-md-6">
-        <div class="bg-white p-4 rounded-4 border rounded-2xl shadow-sm h-100">
-          <h3 class="h5 fw-bold text-uppercase mb-2" style="color:var(--brand-900)">Nuestra visión</h3>
-          <p class="mb-0">
-            Ser líderes en la <strong>Región Junín</strong> en tostado de café comercial y especial y en la
-            preparación de bebidas con café 100% peruano, con proyección al mercado nacional e internacional.
-          </p>
+
+    </section>
+
+    {{-- Nuestra Esencia --}}
+    <section class="section about-essence">
+
+        <div class="container">
+
+            <div class="section-header">
+
+                <span class="section-tag">
+                    Nuestra Esencia
+                </span>
+
+                <h2 class="section-title">
+                    Los principios que guían cada taza que servimos.
+                </h2>
+
+                <div class="section-divider"></div>
+
+                <p class="section-description">
+                    Cada detalle en PROCÁFES refleja nuestro compromiso con la calidad, el servicio y la pasión por el auténtico café peruano.
+                </p>
+
+            </div>
+
+            <div class="row g-4">
+
+                <div class="col-lg-4">
+
+                    <article class="essence-card">
+
+                        <div class="essence-icon">
+
+                            <i class="bi bi-cup-hot"></i>
+
+                        </div>
+
+                        <h3 class="essence-title">
+                            Misión
+                        </h3>
+
+                        <p class="essence-text">
+                            Brindar experiencias memorables a través de bebidas elaboradas con ingredientes de calidad y un servicio cercano que haga sentir a cada cliente como en casa.
+                        </p>
+
+                    </article>
+
+                </div>
+
+                <div class="col-lg-4">
+
+                    <article class="essence-card">
+
+                        <div class="essence-icon">
+
+                            <i class="bi bi-bullseye"></i>
+
+                        </div>
+
+                        <h3 class="essence-title">
+                            Visión
+                        </h3>
+
+                        <p class="essence-text">
+                            Consolidarnos como una cafetería referente por la excelencia de nuestros productos, la innovación constante y el compromiso con nuestros clientes.
+                        </p>
+
+                    </article>
+
+                </div>
+
+                <div class="col-lg-4">
+
+                    <article class="essence-card">
+
+                        <div class="essence-icon">
+
+                            <i class="bi bi-heart"></i>
+
+                        </div>
+
+                        <h3 class="essence-title">
+                            Valores
+                        </h3>
+
+                        <p class="essence-text">
+                            Calidad, compromiso, respeto, calidez e innovación son los valores que inspiran cada decisión y cada taza que servimos.
+                        </p>
+
+                    </article>
+
+                </div>
+
+            </div>
+
         </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-{{-- NUESTRO EQUIPO (centrado y mejorado) --}}
-<section class="py-5 bg-white">
-  <div class="container text-center">
-    <div class="accent mx-auto mb-2"></div>
-    <h2 class="fw-bold mb-3" style="color:var(--brand-700)">Nuestro equipo</h2>
-    <p class="text-muted mb-4">
-      El alma de PROCAFES está en su gente: baristas, tostadores y productores comprometidos.
-    </p>
+    </section>
 
-    {{-- Imagen al centro con ancho controlado --}}
-    <div class="d-flex justify-content-center">
-      <img
-        src="{{ asset('images/equipo.jpg') }}"
-        alt="Equipo PROCAFES"
-        class="img-fluid rounded-4 shadow-sm rounded-2xl shadow-lg"
-        style="max-width:760px; object-fit:cover;"
-      >
-    </div>
-  </div>
-</section>
+    {{-- ¿Por qué elegir PROCÁFES? --}}
+    <section class="section about-benefits">
+
+        <div class="container">
+
+            <div class="row align-items-start g-5">
+
+                <div class="col-lg-6">
+
+                    <div class="about-benefits-image">
+
+                        <img
+                            src="{{ asset('images/nosotros/beneficios.jpg') }}"
+                            alt="¿Por qué elegir PROCÁFES?"
+                            class="img-fluid">
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-6">
+
+                    <div class="section-header text-start">
+
+                        <span class="section-tag">
+                            ¿Por qué elegirnos?
+                        </span>
+
+                        <h2 class="section-title">
+                            Más que café, creamos experiencias memorables.
+                        </h2>
+
+                        <div class="section-divider"></div>
+
+                    </div>
+
+                    <ul class="about-benefits-list">
+
+                        <li>
+                            <i class="bi bi-check-circle-fill"></i>
+                            Café peruano cuidadosamente seleccionado.
+                        </li>
+
+                        <li>
+                            <i class="bi bi-check-circle-fill"></i>
+                            Ingredientes frescos y de alta calidad.
+                        </li>
+
+                        <li>
+                            <i class="bi bi-check-circle-fill"></i>
+                            Ambiente cálido y acogedor para compartir.
+                        </li>
+
+                        <li>
+                            <i class="bi bi-check-circle-fill"></i>
+                            Atención cercana y personalizada.
+                        </li>
+
+                        <li>
+                            <i class="bi bi-check-circle-fill"></i>
+                            Pasión por cada bebida que servimos.
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
 @endsection

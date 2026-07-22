@@ -7,7 +7,7 @@
 </head>
 <body>
 
-    <x-layout.navbar />
+    <x-navbar.navbar/>
 
     <main>
         @yield('content')

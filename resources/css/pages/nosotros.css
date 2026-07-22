@@ -1,0 +1,141 @@
+/*ABOUT HISTORY*/
+.about-history{
+    background:var(--color-white);
+    padding:var(--space-2xl) 0;
+}
+.section-header.text-start{
+    max-width:100%;
+    margin-bottom:var(--space-lg);
+}
+.section-header.text-start .section-divider{
+    margin:var(--space-md) 0;
+}
+.about-history-content{
+    display:flex;
+    flex-direction:column;
+    gap:var(--space-md);
+}
+.about-history-text{
+    margin:0;
+    color:var(--color-text-light);
+    line-height:1.9;
+}
+.about-history-image{
+    overflow:hidden;
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm);
+}
+.about-history-image img{
+    display:block;
+    width:100%;
+    max-height:500px;
+    object-fit:cover;
+    border-radius:inherit;
+    transition:transform var(--transition);
+}
+/*ABOUT ESSENCE*/
+.about-essence{
+    padding:var(--space-xl) 0;
+}
+.about-essence .section-header{
+    max-width:720px;
+    margin:0 auto var(--space-lg);
+    text-align:center;
+}
+.about-essence .section-divider{
+    margin:var(--space-md) auto;
+}
+.about-essence .section-description{
+    max-width:620px;
+    margin:0 auto;
+}
+.essence-card{
+    height:100%;
+    padding:1.2rem;
+    background:var(--color-white);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm);
+    text-align:center;
+}
+.essence-icon{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:54px;
+    height:54px;
+    margin:0 auto 1rem;
+    border-radius:50%;
+    background:rgba(110,74,48,.08);
+    color:var(--color-primary);
+    font-size:1.25rem;
+}
+.essence-title{
+    margin-bottom:.75rem;
+    font-size:1.4rem;
+}
+.essence-text{
+    margin:0;
+    font-size:.95rem;
+    line-height:1.7;
+    color:var(--color-text-light);
+}
+/*==========================================================================
+    ABOUT BENEFITS
+==========================================================================*/
+.about-benefits{
+    padding:var(--space-2xl) 0;
+    background:var(--color-white);
+}
+.about-benefits .col-lg-6:last-child{
+    padding-left:clamp(1.5rem,4vw,4rem);
+}
+.about-benefits .section-header{
+    margin-bottom:var(--space-lg);
+}
+.about-benefits-image{
+    overflow:hidden;
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm);
+}
+.about-benefits-image img{
+    width:100%;
+    max-height:400px;
+    object-fit:cover;
+}
+
+.about-benefits-list{
+    display:flex;
+    flex-direction:column;
+    gap:var(--space-lg);
+    margin:0;
+    padding:0;
+    list-style:none;
+}
+
+.about-benefits-list li{
+    display:flex;
+    align-items:flex-start;
+    gap:var(--space-md);
+    color:var(--color-text);
+    line-height:1.7;
+}
+.about-benefits-list i{
+    flex-shrink:0;
+    margin-top:3px;
+    color:var(--color-primary);
+    font-size:1rem;
+}
+.about-history-image:hover img,
+.about-benefits-image:hover img{
+    transform:scale(1.05);
+}
+@media (max-width:992px){
+
+    .about-benefits .col-lg-6:last-child{
+
+        padding-left:calc(var(--bs-gutter-x) * .5);
+
+    }
+
+}

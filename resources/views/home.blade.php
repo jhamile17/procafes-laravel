@@ -1,17 +1,13 @@
 @extends('layouts.app')
 
-@section('title','Inicio')
+@section('title', 'Inicio')
 
 @section('content')
 
-<x-home.hero />
-<x-home.methods />
-<x-home.categories />
-<x-home.featured 
-    :products="$products"
-    :categories="$categories"/>
-<x-home.banner />
-<x-home.benefits />
-<x-home.newsletter />
-<x-home.testimonials />
+    <x-home.hero />
+
+    <x-home.methods :methods="$methods" />
+
+    <x-home.featured :products="$products" />
+
 @endsection

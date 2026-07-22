@@ -13,6 +13,7 @@
 /* ===========================
    COMPONENTES
 =========================== */
+@import "./admin.css";
 
 @import "./buttons.css";
 @import "./forms.css";
@@ -20,7 +21,6 @@
 @import "./auth.css";
 @import "./navbar.css";
 @import "./footer.css";
-@import "./utilities.css";
 
 
 @import "./chatbot.css";
@@ -28,9 +28,9 @@
 /*home*/
 @import "./home/hero.css";
 @import "./home/methods.css";
-@import "./home/categories.css";
 @import "./home/featured.css";
-@import "./home/banner.css";
-@import "./home/benefits.css";
-@import "./home/newsletter.css";
-@import "./home/testimonials.css";
+
+
+@import "./pages/products.css";
+@import "./pages/nosotros.css";
+@import "./pages/ubicanos.css";

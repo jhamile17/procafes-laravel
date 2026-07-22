@@ -17,6 +17,7 @@ use App\Http\Controllers\Public\CartController;
 use App\Http\Controllers\Public\WishlistController;
 use App\Http\Controllers\Public\CheckoutController;
 use App\Http\Controllers\Public\ChatbotController;
+use App\Http\Controllers\Public\UbicanosController;
 
 // Auth
 use App\Http\Controllers\Auth\GoogleController;
@@ -54,9 +55,8 @@ Route::get('/', [HomeController::class, 'index'])
     ->name('home');
 Route::view('/nosotros', 'nosotros')
     ->name('nosotros');
-Route::view('/ubicanos', 'ubicanos')
+Route::get('/ubicanos', [UbicanosController::class, 'index'])
     ->name('ubicanos');
-
 //productos
 Route::get('/products', [ProductController::class, 'index'])
     ->name('products');

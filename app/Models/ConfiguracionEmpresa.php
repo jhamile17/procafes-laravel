@@ -11,12 +11,6 @@ class ConfiguracionEmpresa extends Model
 
     protected $table = 'configuracion_empresa';
 
-    /*
-    |--------------------------------------------------------------------------
-    | Asignación masiva
-    |--------------------------------------------------------------------------
-    */
-
     protected $fillable = [
         'nombre_empresa',
         'ruc',
@@ -29,14 +23,11 @@ class ConfiguracionEmpresa extends Model
         'tiktok',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Métodos auxiliares
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Obtiene la configuración principal de la empresa.
+     */
     public static function obtener(): ?self
     {
-        return self::query()->first();
+        return static::query()->first();
     }
 }

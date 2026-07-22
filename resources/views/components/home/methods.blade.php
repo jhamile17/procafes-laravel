@@ -1,75 +1,98 @@
-@php
-$methods = [
-    [
-        'image' => 'v60hario.png',
-        'name' => 'V60 Hario',
-        'description' => 'Método filtrado que resalta las notas suaves y florales.'
-    ],
-    [
-        'image' => 'aeropress.png',
-        'name' => 'AeroPress',
-        'description' => 'Preparación rápida con cuerpo intenso y gran aroma.'
-    ],
-    [
-        'image' => 'chemex.png',
-        'name' => 'Chemex',
-        'description' => 'Filtrado elegante que ofrece una taza limpia y balanceada.'
-    ],
-    [
-        'image' => 'prensa.png',
-        'name' => 'Prensa Francesa',
-        'description' => 'Extracción completa para un café con mayor cuerpo.'
-    ],
-    [
-        'image' => 'moka.png',
-        'name' => 'Moka Italiana',
-        'description' => 'Un clásico italiano con sabor intenso y tradicional.'
-    ],
-    [
-        'image' => 'syphon.png',
-        'name' => 'Syphon',
-        'description' => 'Método de laboratorio que resalta aromas complejos.'
-    ]
-];
-@endphp
-
+@props([
+    'methods'
+])
 <section class="methods-section">
 
     <div class="container">
 
-        <div class="section-header">
+        <div class="methods-header">
 
-            <h2 class="section-title">
-                Métodos de preparación artesanal
-            </h2>
+            <div class="methods-info">
 
-            <p class="section-description">
-                Descubre diferentes técnicas para disfrutar un café excepcional.
-            </p>
+                <span class="section-subtitle">
+                    Cultura Cafetera
+                </span>
+
+                <h2 class="section-title">
+                    Métodos de Preparación
+                </h2>
+
+                <p class="section-description">
+                    Descubre diferentes formas de preparar un excelente café.
+                </p>
+
+            </div>
+
+            <a
+                href="{{ route('products', ['category' => 'accesorios']) }}"
+                class="btn-link-arrow"
+                aria-label="Ver accesorios para métodos de preparación">
+
+                <span>Ver accesorios</span>
+
+                <i
+                    class="bi bi-arrow-right"
+                    aria-hidden="true">
+                </i>
+
+            </a>
 
         </div>
 
-        <div class="methods-grid">
+        <div class="methods-wrapper">
 
-            @foreach($methods as $method)
+            <button
+                class="methods-arrow methods-prev"
+                type="button"
+                aria-label="Método anterior">
 
-                <div class="method-card">
+                <i
+                    class="bi bi-chevron-left"
+                    aria-hidden="true">
+                </i>
 
-                    <div class="method-circle">
+            </button>
 
-                        <img
-                            src="{{ asset('images/methods/'.$method['image']) }}"
-                            alt="{{ $method['name'] }}">
+            <div
+                id="methodsSlider"
+                class="methods-slider"
+                aria-label="Carrusel de métodos de preparación">
 
-                    </div>
+                @foreach($methods as $method)
 
-                    <h3>{{ $method['name'] }}</h3>
+                    <article class="method-item fade-up">
 
-                    <p>{{ $method['description'] }}</p>
+                        <div class="method-image">
 
-                </div>
+                            <img
+                                src="{{ asset('images/methods/'.$method['image']) }}"
+                                alt="{{ $method['name'] }}"
+                                loading="lazy"
+                                decoding="async">
 
-            @endforeach
+                        </div>
+
+                        <h3>{{ $method['name'] }}</h3>
+
+                        <p>{{ $method['description'] }}</p>
+
+                    </article>
+
+                @endforeach
+
+            </div>
+
+            <button
+                class="methods-arrow methods-next"
+                type="button"
+                aria-label="Siguiente método">
+
+                <i
+                    class="bi bi-chevron-right"
+                    aria-hidden="true">
+                </i>
+
+            </button>
 
         </div>
 

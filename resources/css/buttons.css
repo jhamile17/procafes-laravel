@@ -246,6 +246,59 @@
 }
 /*
 |--------------------------------------------------------------------------
+| LINK BUTTON
+|--------------------------------------------------------------------------
+*/
+
+.btn-link-arrow{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:.45rem;
+
+    padding:0;
+
+    background:none;
+
+    border:none;
+
+    color:var(--color-primary);
+
+    font-size:.95rem;
+
+    font-weight:600;
+
+    text-decoration:none;
+
+    transition:
+        color var(--transition),
+        gap var(--transition);
+
+}
+
+.btn-link-arrow:hover{
+
+    color:var(--color-primary-hover);
+
+    gap:.75rem;
+
+}
+
+.btn-link-arrow i{
+
+    transition:transform var(--transition);
+
+}
+
+.btn-link-arrow:hover i{
+
+    transform:translateX(4px);
+
+}
+/*
+|--------------------------------------------------------------------------
 | ADMIN BUTTON
 |--------------------------------------------------------------------------
 */

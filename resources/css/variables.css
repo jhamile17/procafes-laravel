@@ -10,6 +10,10 @@
     --color-border:#ECE7E2;
     --color-text:#2B2B2B;
     --color-text-light:#777777;
+    /*Formularios*/
+    --color-placeholder:#9CA3AF;
+    --color-border-hover:#D9D2CB;
+    --color-disabled:#F5F5F5;
     /*estados*/
     --color-success:#18A558;
     --color-info:#2563EB;
@@ -39,11 +43,19 @@
     --color-icon:#666666;
     --color-primary-soft:rgba(214,40,40,.08);
     --color-primary-focus:rgba(214,40,40,.12);
+    --navbar-height:80px;
+    --navbar-search-width:460px;
+    --navbar-icon-size:44px;
+    --navbar-avatar-size:40px;
+    --navbar-logo-size:48px;
+    --navbar-badge-size:18px;
+    --navbar-dropdown-width:240px;
+    --navbar-z-index:1030;
     /* Radius */
     --radius-sm:10px;
     --radius-md:14px;
     --radius-lg:20px;
-    --radius-mi:50px;
+    --radius-xl:50px;
     --radius-pill:999px;
     /* Sombras */
     --shadow-xs:0 2px 8px rgba(0,0,0,.05);
@@ -57,6 +69,9 @@
     --space-lg:2rem;
     --space-xl:3rem;
     --space-2xl:5rem;
+    /*Tipo de letra*/
+    --font-heading: "Playfair Display", serif;
+    --font-body: "Poppins", sans-serif;
     /* Transiciones */
     --transition:.25s ease;
     --color-background:#F7F2EC;

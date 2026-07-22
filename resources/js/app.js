@@ -19,3 +19,5 @@ import './modules/auth/check-email';
 import './modules/auth/welcome';
 
 import './modules/wishlist/wishlist';
+
+import './home/methods';
