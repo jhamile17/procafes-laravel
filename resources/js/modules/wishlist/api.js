@@ -5,7 +5,7 @@
 export async function getWishlist() {
 
     const response = await fetch(
-        window.App.routes.wishlist.index,
+        window.Laravel.routes.wishlist.index,
         {
             headers: {
                 'Accept': 'application/json',
@@ -30,7 +30,7 @@ export async function getWishlist() {
 export async function toggleWishlist(productId) {
 
     const response = await fetch(
-        window.App.routes.wishlist.toggle,
+        window.Laravel.routes.wishlist.toggle,
         {
             method: 'POST',
 
@@ -63,7 +63,7 @@ export async function toggleWishlist(productId) {
 export async function getWishlistCount() {
 
     const response = await fetch(
-        window.App.routes.wishlist.count,
+        window.Laravel.routes.wishlist.count,
         {
             headers: {
                 'Accept': 'application/json',
@@ -88,7 +88,7 @@ export async function getWishlistCount() {
 export async function clearWishlist() {
 
     const response = await fetch(
-        window.App.routes.wishlist.clear,
+        window.Laravel.routes.wishlist.clear,
         {
             method: 'DELETE',
 
