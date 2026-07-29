@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Ejecutar la migración.
+     */
     public function up(): void
     {
         Schema::create('cart_items', function (Blueprint $table) {
@@ -30,33 +33,49 @@ return new class extends Migration
 
             /*
             |--------------------------------------------------------------------------
-            | Información
+            | Información del producto
             |--------------------------------------------------------------------------
             */
 
-            $table->unsignedInteger('quantity')->default(1);
+            $table->unsignedInteger('quantity')
+                ->default(1);
 
-            // Precio al momento de agregar al carrito
-            $table->decimal('price', 10, 2);
+            /*
+            |--------------------------------------------------------------------------
+            | Precio del producto al momento de agregarlo al carrito
+            |--------------------------------------------------------------------------
+            */
 
-            $table->decimal('sub_total', 10, 2);
+            $table->decimal('unit_price', 10, 2);
+
+            $table->decimal('subtotal', 10, 2);
 
             $table->timestamps();
 
             /*
             |--------------------------------------------------------------------------
-            | Evita productos repetidos
+            | Evitar productos duplicados en el carrito
             |--------------------------------------------------------------------------
             */
 
             $table->unique([
                 'cart_id',
-                'product_id'
+                'product_id',
             ]);
 
+            /*
+            |--------------------------------------------------------------------------
+            | Índices
+            |--------------------------------------------------------------------------
+            */
+
+            $table->index('product_id');
         });
     }
 
+    /**
+     * Revertir la migración.
+     */
     public function down(): void
     {
         Schema::dropIfExists('cart_items');

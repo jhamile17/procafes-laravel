@@ -96,6 +96,12 @@ class Product extends Model
 
         'stock_badge',
 
+        'can_add_to_cart',
+
+        'cart_button_text',
+
+        'cart_button_icon',
+
     ];
 
     /*
@@ -282,12 +288,33 @@ class Product extends Model
     | Accesores y Mutadores
     |--------------------------------------------------------------------------
     */
+    public function getCanAddToCartAttribute(): bool
+    {
+        return $this->isAvailable();
+    }
 
+    public function getCartButtonTextAttribute(): string
+    {
+        return $this->isAvailable()
+            ? 'Agregar al carrito'
+            : 'Sin stock';
+    }
+
+    public function getCartButtonIconAttribute(): string
+    {
+        return $this->isAvailable()
+            ? 'bi-cart-plus'
+            : 'bi-x-circle';
+    }
     public function getImageUrlAttribute(): string
     {
-        if (filled($this->image)) {
-        return Storage::url($this->image);
-    }
+        if (
+            filled($this->image)
+            && Storage::disk('public')->exists($this->image)
+        ) {
+            return Storage::url($this->image);
+        }
+
         return asset('images/no-image.png');
     }
 

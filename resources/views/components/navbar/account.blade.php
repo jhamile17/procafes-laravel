@@ -1,7 +1,5 @@
 {{--==========================================================================
     NAVBAR ACCOUNT
-    --------------------------------------------------------------------------
-    Muestra las acciones de autenticación del usuario.
 ==========================================================================--}}
 
 <div class="navbar-account">
@@ -12,7 +10,8 @@
 
             <a
                 href="{{ route('login') }}"
-                class="btn btn-login">
+                wire:navigate
+                class="navbar-login">
 
                 Iniciar sesión
 
@@ -20,7 +19,8 @@
 
             <a
                 href="{{ route('register') }}"
-                class="btn btn-register">
+                wire:navigate
+                class="navbar-register">
 
                 Registrarse
 
@@ -46,8 +46,8 @@
                     @if($user->foto_perfil)
 
                         <img
-                            src="{{ asset($user->foto_perfil) }}"
-                            alt="Foto de {{ $user->name }}">
+                            src="{{ asset('storage/' . $user->foto_perfil) }}"
+                            alt="{{ $user->name }}">
 
                     @else
 

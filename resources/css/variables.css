@@ -69,6 +69,10 @@
     --space-lg:2rem;
     --space-xl:3rem;
     --space-2xl:5rem;
+    /* Estados suaves */
+    --color-info-soft:#EFF6FF;
+    --color-warning-soft:#FFF8E8;
+    --color-danger-soft:#FDECEC;
     /*Tipo de letra*/
     --font-heading: "Playfair Display", serif;
     --font-body: "Poppins", sans-serif;

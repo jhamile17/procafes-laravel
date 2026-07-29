@@ -1,115 +1,84 @@
-<div class="row justify-content-center">
+<x-auth.card image="login.jpg">
 
-    <div class="col-md-6">
+    <div class="text-center mb-4">
 
-        <div class="card shadow-sm border-0">
+        <h1 class="auth-title">
 
-            <div class="card-body p-4">
+            Restablecer contraseña
 
-                <h1 class="h3 text-center mb-3">
+        </h1>
 
-                    Nueva contraseña
+        <p class="auth-subtitle">
 
-                </h1>
+            Ingresa una nueva contraseña para acceder nuevamente a tu cuenta.
 
-                <p class="text-muted text-center mb-4">
-
-                    Ingresa una nueva contraseña para tu cuenta.
-
-                </p>
-
-                <form wire:submit="resetPassword">
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Correo electrónico
-
-                        </label>
-
-                        <input
-                            type="email"
-                            class="form-control @error('form.email') is-invalid @enderror"
-                            wire:model="form.email">
-
-                        @error('form.email')
-
-                            <div class="invalid-feedback">
-
-                                {{ $message }}
-
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Nueva contraseña
-
-                        </label>
-
-                        <input
-                            type="password"
-                            class="form-control @error('form.password') is-invalid @enderror"
-                            wire:model="form.password">
-
-                        @error('form.password')
-
-                            <div class="invalid-feedback">
-
-                                {{ $message }}
-
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-                    <div class="mb-4">
-
-                        <label class="form-label">
-
-                            Confirmar contraseña
-
-                        </label>
-
-                        <input
-                            type="password"
-                            class="form-control"
-                            wire:model="form.password_confirmation">
-
-                    </div>
-
-                    <button
-                        class="btn btn-dark w-100"
-                        type="submit"
-                        wire:loading.attr="disabled">
-
-                        <span wire:loading.remove>
-
-                            Cambiar contraseña
-
-                        </span>
-
-                        <span wire:loading>
-
-                            Actualizando...
-
-                        </span>
-
-                    </button>
-
-                </form>
-
-            </div>
-
-        </div>
+        </p>
 
     </div>
 
-</div>
+    <form wire:submit="resetPassword">
+
+        <x-auth.input
+            label="Correo electrónico"
+            name="email"
+            type="email"
+            icon="bi-envelope"
+            wire:model="form.email"
+            readonly
+            autocomplete="email" />
+
+        <x-auth.input
+            label="Nueva contraseña"
+            name="password"
+            type="password"
+            placeholder="Ingrese una nueva contraseña"
+            icon="bi-lock"
+            wire:model.live.debounce.300ms="form.password"
+            autocomplete="new-password"
+            maxlength="100" />
+
+        <x-auth.input
+            label="Confirmar contraseña"
+            name="password_confirmation"
+            type="password"
+            placeholder="Confirme la contraseña"
+            icon="bi-shield-lock"
+            wire:model.live.debounce.300ms="form.password_confirmation"
+            autocomplete="new-password"
+            maxlength="100" />
+
+        <button
+            type="submit"
+            class="auth-submit"
+            wire:loading.attr="disabled">
+
+            <span wire:loading.remove>
+
+                Restablecer contraseña
+
+            </span>
+
+            <span wire:loading>
+
+                Actualizando contraseña...
+
+            </span>
+
+        </button>
+
+    </form>
+
+    <div class="text-center mt-4">
+
+        <a
+            href="{{ route('login') }}"
+            wire:navigate
+            class="auth-link">
+
+            ← Volver al inicio de sesión
+
+        </a>
+
+    </div>
+
+</x-auth.card>

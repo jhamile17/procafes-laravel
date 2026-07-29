@@ -1,28 +1,32 @@
 @props([
     'product',
-    'image'
+    'quantity' => 1,
 ])
 
+@php
+    $available = $product->isAvailable();
+@endphp
+
 <button
-
     type="button"
+    {{ $attributes->class([
+        'btn',
+        'btn-cart',
+        'btn-add-to-cart',
+        'w-100',
+    ]) }}
+    data-product-id="{{ $product->id }}"
+    data-quantity="{{ $quantity }}"
+    @disabled(! $available)
+    aria-label="{{ $available ? 'Agregar al carrito' : 'Producto sin stock' }}">
 
-    class="btn btn-primary w-100 btn-add-to-cart"
+    <i
+        class="bi {{ $available ? 'bi-cart-plus' : 'bi-x-circle' }}"
+        aria-hidden="true">
+    </i>
 
-    data-id="{{ $product->id }}"
-
-    data-name="{{ $product->name }}"
-
-    data-price="{{ $product->price }}"
-
-    data-image="{{ $image }}"
-
-    data-url="{{ route('products') }}"
-
-    {{ $product->stock <= 0 ? 'disabled' : '' }}>
-
-    <i class="bi bi-cart-plus me-2"></i>
-
-    Agregar al carrito
+    <span class="btn-cart-text">
+        {{ $available ? 'Agregar al carrito' : 'Sin stock' }}
+    </span>
 
 </button>

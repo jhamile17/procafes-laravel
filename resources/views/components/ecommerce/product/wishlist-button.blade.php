@@ -4,7 +4,8 @@
     type="button"
     class="product-wishlist btn-wishlist"
     data-product-id="{{ $product->id }}"
-    aria-label="Agregar a favoritos">
+    aria-label="Agregar a favoritos"
+    aria-pressed="false">
 
     <i class="bi bi-heart"></i>
 

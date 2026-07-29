@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Auth\CompleteRegistrationController;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Brand;
@@ -10,6 +9,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Notifications\UsuarioReactivacion;
 
+use App\Livewire\Pages\Auth\CheckEmail;
 // Público
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\ProductController;
@@ -21,24 +21,23 @@ use App\Http\Controllers\Public\UbicanosController;
 
 // Auth
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\CompleteRegistrationController;
 use App\Http\Controllers\Auth\ResendRegistrationController;
-use App\Http\Controllers\Auth\WelcomeController;
-use App\Http\Controllers\Auth\CheckEmailController;
 // Cliente
-use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\BoletaController as CustomerBoletaController;
-
-
-
+use App\Http\Controllers\Customer\PedidoController;
+use App\Http\Controllers\Customer\PerfilController;
+use App\Http\Controllers\Customer\AddressController;
 // Admin
 use App\Http\Controllers\Admin\CategoryController as CategoryController;
 use App\Http\Controllers\Admin\BrandController as BrandController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\UserController as UserController;
-use App\Http\Controllers\Admin\DashboardController as DashboardController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ConfiguracionEmpresaController;
 
 // Checkout / pagos
 use App\Http\Controllers\PaymentDemoController;
@@ -46,11 +45,7 @@ use App\Http\Controllers\PaymentDemoController;
 use App\Http\Controllers\Payment\MercadoPagoController;
 use App\Http\Controllers\Payment\MercadoPagoWebhookController;
 
-/*
-|--------------------------------------------------------------------------
-| RUTAS PÚBLICAS
-|--------------------------------------------------------------------------
-*/
+/*RUTAS PÚBLICAS*/
 Route::get('/', [HomeController::class, 'index'])
     ->name('home');
 Route::view('/nosotros', 'nosotros')
@@ -60,50 +55,55 @@ Route::get('/ubicanos', [UbicanosController::class, 'index'])
 //productos
 Route::get('/products', [ProductController::class, 'index'])
     ->name('products');
-/*
-|--------------------------------------------------------------------------
-CHATBOT
-|--------------------------------------------------------------------------
-*/
+/*CHATBOT*/
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
-
 //wishlist favoritos
 Route::prefix('wishlist')
     ->name('wishlist.')
     ->group(function () {
-
-        Route::get('/', [WishlistController::class, 'index'])
-            ->middleware('auth')
-            ->name('index');
-
+        Route::get(
+            '/',
+            [WishlistController::class, 'index']
+        )->name('index');
         Route::post('/toggle', [WishlistController::class, 'toggle'])
             ->name('toggle');
-
-        Route::post('/sync', [WishlistController::class, 'sync'])
-            ->middleware('auth')
-            ->name('sync');
+        Route::get(
+            '/count',
+            [WishlistController::class, 'count']
+        )->name('count');
+        Route::delete(
+            '/',
+            [WishlistController::class, 'clear']
+        )->name('clear');
 
     });
 /*
- CARRITO
+|--------------------------------------------------------------------------
+| CARRITO
+|--------------------------------------------------------------------------
 */
+
 Route::prefix('cart')->group(function () {
 
     Route::get('/', [CartController::class, 'index'])
         ->name('cart.index');
 
+    Route::get('/data', [CartController::class, 'data'])
+        ->name('cart.data');
+
     Route::post('/', [CartController::class, 'add'])
         ->name('cart.add');
 
-    Route::patch('/{productId}', [CartController::class, 'update']);
+    Route::patch('/{product}', [CartController::class, 'update'])
+        ->name('cart.update');
 
-    Route::delete('/{productId}', [CartController::class, 'remove']);
+    Route::delete('/{product}', [CartController::class, 'remove'])
+        ->name('cart.remove');
 
     Route::delete('/', [CartController::class, 'clear'])
         ->name('cart.clear');
 
 });
-
 /*
 |--------------------------------------------------------------------------
 | GOOGLE AUTH
@@ -122,29 +122,21 @@ Route::prefix('auth/google')->name('auth.google.')->group(function () {
         ->name('callback');
 
     });
+/*Registro de usuarios */
     Route::get(
         '/register/verify/{token}',
         CompleteRegistrationController::class
     )->name('register.complete');
+
     Route::get(
-    '/register/check-email',
-    CheckEmailController::class
+    '/register/check-email',CheckEmail::class
     )->name('register.check-email');
 
-  Route::get(
-    '/register/welcome',
-    WelcomeController::class
-    )->middleware('auth')
-    ->name('register.welcome');
     Route::post(
         '/register/resend',
         ResendRegistrationController::class
     )->name('register.resend');
-/*
-|--------------------------------------------------------------------------
-| LOGOUT
-|--------------------------------------------------------------------------
-*/
+/*LOGOUT*/
 
 Route::post('/logout', function (Request $request) {
 
@@ -185,24 +177,32 @@ Route::get('/reactivar-test', function () {
 | CLIENTE (VERIFICADO)
 |--------------------------------------------------------------------------
 */
+    Route::prefix('cliente')
+    ->middleware(['auth', 'verified'])
+    ->name('customer.')
+    ->group(function () {
 
-Route::middleware(['auth', 'verified'])->group(function () {
-
-    Route::get('/cliente', [CustomerDashboardController::class, 'index'])
-        ->name('customer.dashboard');
-
-    Route::post('/cliente/foto', [CustomerDashboardController::class, 'updatePhoto'])
-        ->name('customer.photo.update');
-
-    Route::get('/cliente/pedidos/{order}/boleta', [CustomerBoletaController::class, 'download'])
-        ->name('customer.boleta.download');
-
-    Route::view('/profile', 'profile')->name('profile');
-
-    Route::view('/mis-productos', 'customer.products')
-        ->name('customer.products');
-
-});
+        Route::get('/', [PerfilController::class, 'index'])
+            ->name('profile');
+        Route::put('/mi-perfil/foto', [PerfilController::class, 'updatePhoto'])
+            ->name('profile.photo');
+        Route::get('/mi-perfil/editar', [PerfilController::class, 'edit'])
+            ->name('profile.edit');
+        Route::put('/editar', [PerfilController::class, 'update'])
+            ->name('profile.update');
+        Route::get('/mi-perfil/configuracion',[PerfilController::class, 'settings']
+            )->name('profile.settings');
+        Route::put('/mi-perfil/contrasena', [PerfilController::class, 'updatePassword'])
+            ->name('profile.password.update');
+            
+        Route::get('/pedidos', [PedidoController::class, 'index'])
+            ->name('orders');
+        Route::get('/pedidos/{order}', [PedidoController::class, 'show'])
+            ->name('orders.show');
+        /*Route::get('/direccion/busqueda',[AddressController::class, 'search'])->name('address.search');*/
+        Route::get('/favoritos', [WishlistController::class, 'index'])
+            ->name('wishlist');
+    });
 
 /*
 |--------------------------------------------------------------------------
@@ -231,6 +231,16 @@ Route::prefix('admin')
 
         Route::get('/billing', [BillingController::class, 'index'])
             ->name('billing.index');
+
+         Route::get(
+            '/configuracion-empresa',
+            [ConfiguracionEmpresaController::class, 'index']
+        )->name('configuracion.index');
+
+        Route::put(
+            '/configuracion-empresa',
+            [ConfiguracionEmpresaController::class, 'update']
+        )->name('configuracion.update');
     });
 
 /*

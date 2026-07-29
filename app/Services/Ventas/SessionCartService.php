@@ -6,10 +6,12 @@ namespace App\Services\Ventas;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use RuntimeException;
 
 class SessionCartService
 {
     private const SESSION_KEY = 'cart';
+
     private const MAX_CANTIDAD = 8;
 
     /*
@@ -31,75 +33,125 @@ class SessionCartService
     | Agregar producto
     |--------------------------------------------------------------------------
     */
-   public function agregar(
-    Request $request,
-    Product $product,
-    int $cantidad = 1
-        ): array {
 
-            if ($cantidad <= 0) {
+    public function agregar(
+        Request $request,
+        Product $product,
+        int $cantidad = 1
+    ): array {
 
-                $cantidad = 1;
+        if ($cantidad <= 0) {
+            $cantidad = 1;
+        }
 
-            }
+        if ($cantidad > self::MAX_CANTIDAD) {
+            throw new RuntimeException(
+                'Solo puedes comprar hasta 8 unidades de este producto.'
+            );
+        }
 
-            if ($cantidad > self::MAX_CANTIDAD) {
+        $cart = $this->obtener($request);
+
+        $id = $product->id;
+
+        if (isset($cart[$id])) {
+
+            $nuevaCantidad = $cart[$id]['quantity'] + $cantidad;
+
+            if ($nuevaCantidad > self::MAX_CANTIDAD) {
                 throw new RuntimeException(
-                'Solo puedes comprar hasta 8 unidades de este producto.');
+                    'Solo puedes comprar hasta 8 unidades de este producto.'
+                );
             }
 
-            $cart = $this->obtener($request);
+            $cart[$id]['quantity'] = $nuevaCantidad;
 
-            $id = $product->id;
-
-            if (isset($cart[$id])) {
-
-                $nuevaCantidad = $cart[$id]['quantity'] + $cantidad;
-
-                if ($nuevaCantidad > self::MAX_CANTIDAD) {
-                    throw new RuntimeException(
-                        'Solo puedes comprar hasta 8 unidades de este producto.'
-                    );
-                }
-                $cart[$id]['quantity'] = $nuevaCantidad;
-            } else {
-
-                $cart[$id] = [
-
-                    'product_id' => $product->id,
-
-                    'name' => $product->name,
-
-                    'price' => $product->sale_price,
-
-                    'image' => $product->image_url,
-
-                    'quantity' => min(
-                        $cantidad,
-                        self::MAX_CANTIDAD
-                    ),
-
-                ];
-
-            }
-
-            $request->session()->put(
-                self::SESSION_KEY,
-                $cart
+            $cart[$id]['subtotal'] = bcmul(
+                (string) $cart[$id]['unit_price'],
+                (string) $nuevaCantidad,
+                2
             );
 
-            return $cart;
+        } else {
+
+            $cart[$id] = [
+
+                'product_id' => $product->id,
+
+                'name' => $product->name,
+
+                'unit_price' => $product->sale_price,
+
+                'image' => $product->image_url,
+
+                'quantity' => $cantidad,
+
+                'subtotal' => bcmul(
+                    (string) $product->sale_price,
+                    (string) $cantidad,
+                    2
+                ),
+
+            ];
+
         }
+
+        $request->session()->put(
+            self::SESSION_KEY,
+            $cart
+        );
+
+        return $cart;
+    }
 
     /*
     |--------------------------------------------------------------------------
-    | Eliminar
+    | Actualizar cantidad
     |--------------------------------------------------------------------------
     */
 
-   public function eliminar(
-    Request $request,
-    int $productId
+    public function actualizar(
+        Request $request,
+        int $productId,
+        int $cantidad
+    ): array {
+
+        $cart = $this->obtener($request);
+
+        if (! isset($cart[$productId])) {
+            return $cart;
+        }
+
+        $cantidad = max(
+            1,
+            min($cantidad, self::MAX_CANTIDAD)
+        );
+
+        $cart[$productId]['quantity'] = $cantidad;
+
+        $cart[$productId]['subtotal'] = bcmul(
+            (string) $cart[$productId]['unit_price'],
+            (string) $cantidad,
+            2
+        );
+
+        $request->session()->put(
+            self::SESSION_KEY,
+            $cart
+        );
+
+        return $cart;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Eliminar producto
+    |--------------------------------------------------------------------------
+    */
+
+    public function eliminar(
+        Request $request,
+        int $productId
     ): array {
 
         $cart = $this->obtener($request);
@@ -116,7 +168,7 @@ class SessionCartService
 
     /*
     |--------------------------------------------------------------------------
-    | Vaciar
+    | Vaciar carrito
     |--------------------------------------------------------------------------
     */
 
@@ -129,38 +181,35 @@ class SessionCartService
 
     /*
     |--------------------------------------------------------------------------
-    | Total
+    | Calcular total
     |--------------------------------------------------------------------------
     */
 
     public function total(Request $request): float
     {
-        return collect(
+        return (float) collect(
             $this->obtener($request)
-        )->sum(function ($item) {
-
-            return $item['price'] * $item['quantity'];
-
-        });
+        )->sum('subtotal');
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Cantidad
+    | Cantidad total de productos
     |--------------------------------------------------------------------------
     */
 
     public function cantidad(Request $request): int
     {
-        return collect(
+        return (int) collect(
             $this->obtener($request)
         )->sum('quantity');
     }
+
     /*
-|--------------------------------------------------------------------------
-| Sincronizar carrito de sesión con la base de datos
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Sincronizar carrito de sesión con la base de datos
+    |--------------------------------------------------------------------------
+    */
 
     public function sincronizar(
         Request $request,
@@ -177,51 +226,13 @@ class SessionCartService
         foreach ($cart as $item) {
 
             $cartService->agregarProducto(
-
                 $userId,
-
                 (int) $item['product_id'],
-
                 (int) $item['quantity']
-
             );
 
         }
 
         $this->vaciar($request);
     }
-    /*
-|--------------------------------------------------------------------------
-| Actualizar cantidad
-|--------------------------------------------------------------------------
-*/
-
-    public function actualizar(
-    Request $request,
-    int $productId,
-    int $cantidad
-        ): array {
-
-            $cart = $this->obtener($request);
-
-            if (! isset($cart[$productId])) {
-
-                return $cart;
-
-            }
-
-            $cantidad = max(
-                1,
-                min($cantidad, self::MAX_CANTIDAD)
-            );
-
-            $cart[$productId]['quantity'] = $cantidad;
-
-            $request->session()->put(
-                self::SESSION_KEY,
-                $cart
-            );
-
-            return $cart;
-        }
 }

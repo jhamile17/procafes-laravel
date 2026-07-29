@@ -1,99 +1,220 @@
+@php
+    $primary = '#D62828';
+    $coffee = '#3D2C2E';
+    $background = '#F7F2EC';
+    $surface = '#FFFFFF';
+    $border = '#ECE7E2';
+    $text = '#6B5E57';
+@endphp
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restablece tu contraseña | PROCAFES</title>
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+    <title>Restablece tu contraseña | PROCÁFES</title>
+
 </head>
 
-<body style="margin:0; padding:0; background-color:#f6f3f0; font-family:Arial, Helvetica, sans-serif; color:#342727;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; background-color:#f6f3f0; padding:28px 12px;">
-        <tr>
-            <td align="center">
+<body
+    style="
+        margin:0;
+        padding:0;
+        background:{{ $background }};
+        font-family:Arial,Helvetica,sans-serif;">
 
-                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; max-width:540px;">
+<table
+    role="presentation"
+    width="100%"
+    cellpadding="0"
+    cellspacing="0"
+    border="0"
+    style="padding:40px 16px;">
 
-                    {{-- Cabecera --}}
-                    <tr>
-                        <td style="background-color:#3b2a2a; border-radius:10px 10px 0 0; padding:16px 24px; text-align:center;">
-                            <img
-                                src="{{ $message->embed(public_path('images/logo.jpg')) }}"
-                                alt="PROCAFES"
-                                width="52"
-                                style="display:block; width:52px; height:auto; margin:0 auto 8px; border:0;"
-                            >
+<tr>
 
-                            <p style="margin:0; color:#ffffff; font-size:16px; font-weight:bold; letter-spacing:0.4px;">
-                                PROCAFES
-                            </p>
-                        </td>
-                    </tr>
+<td align="center">
 
-                    {{-- Contenido --}}
-                    <tr>
-                        <td style="background-color:#ffffff; border:1px solid #e5dddd; border-top:0; border-radius:0 0 10px 10px; padding:26px 24px;">
+<table
+    role="presentation"
+    width="100%"
+    cellpadding="0"
+    cellspacing="0"
+    border="0"
+    style="
+        max-width:520px;
+        background:{{ $surface }};
+        border-radius:16px;
+        overflow:hidden;
+        border:1px solid {{ $border }};">
 
-                            <h1 style="margin:0 0 12px; font-size:22px; line-height:1.3; color:#342727;">
-                                Restablece tu contraseña
-                            </h1>
+    <!-- Header -->
 
-                            <p style="margin:0 0 12px; font-size:15px; line-height:1.55; color:#665a5a;">
-                                Hola {{ $user->name }},
-                            </p>
+    <tr>
 
-                            <p style="margin:0 0 20px; font-size:15px; line-height:1.55; color:#665a5a;">
-                                Recibimos una solicitud para restablecer la contraseña de tu cuenta de PROCAFES.
-                            </p>
+        <td
+            align="center"
+            style="
+                background:{{ $coffee }};
+                padding:24px;">
 
-                            {{-- Botón centrado --}}
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; margin:0 0 20px;">
-                                <tr>
-                                    <td align="center">
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                                            <tr>
-                                                <td style="background-color:#c9282d; border-radius:7px;">
-                                                    <a
-                                                        href="{{ $url }}"
-                                                        style="display:inline-block; padding:12px 18px; color:#ffffff; text-decoration:none; font-size:14px; font-weight:bold; line-height:1;"
-                                                    >
-                                                        Restablecer contraseña
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
+            <img
+                src="{{ $message->embed(public_path('images/logo.jpg')) }}"
+                alt="PROCÁFES"
+                width="58"
+                style="
+                display:block;
+                width:64px;
+                height:64px;
+                margin:0 auto 12px;
+                border-radius:50%;
+                border:3px solid #FFFFFF;
+                object-fit:cover;
+                background:#FFFFFF;">
 
-                            <p style="margin:0 0 10px; font-size:13px; line-height:1.5; color:#665a5a;">
-                                Por seguridad, este enlace vence en 60 minutos.
-                            </p>
+            <h1
+                style="
+                    margin:0;
+                    color:#ffffff;
+                    font-size:24px;
+                    font-weight:bold;
+                    letter-spacing:.5px;">
 
-                            <p style="margin:0 0 18px; font-size:13px; line-height:1.5; color:#665a5a;">
-                                Si no solicitaste este cambio, puedes ignorar este correo. Tu contraseña seguirá siendo la misma.
-                            </p>
+                PROCÁFES
 
-                            <p style="margin:0; font-size:14px; line-height:1.5; color:#665a5a;">
-                                Saludos,<br>
-                                <strong style="color:#342727;">Equipo PROCAFES</strong>
-                            </p>
+            </h1>
 
-                        </td>
-                    </tr>
+        </td>
 
-                    {{-- Pie --}}
-                    <tr>
-                        <td align="center" style="padding:14px 8px 0;">
-                            <p style="margin:0; font-size:11px; line-height:1.5; color:#8a7d7d;">
-                                © {{ date('Y') }} PROCAFES. Todos los derechos reservados.
-                            </p>
-                        </td>
-                    </tr>
+    </tr>
 
-                </table>
+    <!-- Body -->
 
-            </td>
-        </tr>
-    </table>
+    <tr>
+
+        <td
+            align="center"
+            style="
+                padding:32px 32px 24px;">
+
+            <h2
+                style="
+                    margin:0 0 18px;
+                    color:{{ $coffee }};
+                    font-size:28px;">
+
+                Restablece tu contraseña
+
+            </h2>
+
+            <p
+                style="
+                    margin:0 0 12px;
+                    color:{{ $text }};
+                    font-size:16px;">
+
+                Hola{{ filled($user->name) ? ', '.$user->name : '' }}.
+
+            </p>
+
+            <p
+                style="
+                    margin:0 0 28px;
+                    color:{{ $text }};
+                    font-size:15px;
+                    line-height:1.6;">
+
+                Recibimos una solicitud para restablecer la contraseña de tu cuenta.
+
+            </p>
+
+            <table
+                role="presentation"
+                cellpadding="0"
+                cellspacing="0"
+                border="0"
+                align="center">
+
+                <tr>
+
+                    <td
+                        bgcolor="{{ $primary }}"
+                        style="border-radius:999px;">
+
+                        <a
+                            href="{{ $url }}"
+                            style="
+                                display:inline-block;
+                                padding:14px 34px;
+                                color:#ffffff;
+                                text-decoration:none;
+                                font-size:15px;
+                                font-weight:bold;">
+
+                            Restablecer contraseña
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+            <p
+                style="
+                    margin:24px 0 8px;
+                    color:{{ $text }};
+                    font-size:13px;">
+
+                Válido durante <strong>60 minutos</strong>.
+
+            </p>
+
+            <p
+                style="
+                    margin:0;
+                    color:#8A7D7D;
+                    font-size:13px;">
+
+                Si no solicitaste este cambio, puedes ignorar este correo.
+
+            </p>
+
+        </td>
+
+    </tr>
+
+    <!-- Footer -->
+
+    <tr>
+
+        <td
+            align="center"
+            style="
+                border-top:1px solid {{ $border }};
+                padding:18px;
+                color:#9B8D85;
+                font-size:12px;">
+
+            © {{ date('Y') }} PROCÁFES
+
+        </td>
+
+    </tr>
+
+</table>
+
+</td>
+
+</tr>
+
+</table>
+
 </body>
+
 </html>

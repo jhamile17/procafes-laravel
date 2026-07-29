@@ -36,8 +36,6 @@ class UserSeeder extends Seeder
                 'provider_id' => null,
 
                 'celular' => '999999999',
-                'direccion' => 'Oficina Principal',
-
                 'estado' => true,
 
                 'email_verified_at' => now(),
@@ -66,7 +64,6 @@ class UserSeeder extends Seeder
                 'provider_id' => null,
 
                 'celular' => '988888888',
-                'direccion' => 'Lima',
 
                 'estado' => true,
 

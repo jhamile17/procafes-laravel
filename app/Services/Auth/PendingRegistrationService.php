@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Crypt;
 use App\Notifications\VerifyPendingRegistration;
 use Illuminate\Support\Facades\DB;
 
-
 class PendingRegistrationService
 {
     /*

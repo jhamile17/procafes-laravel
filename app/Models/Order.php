@@ -72,6 +72,11 @@ class Order extends Model
         return $this->hasOne(Payment::class);
     }
 
+    public function electronicDocument(): HasOne
+    {
+        return $this->hasOne(ElectronicDocument::class);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Métodos auxiliares

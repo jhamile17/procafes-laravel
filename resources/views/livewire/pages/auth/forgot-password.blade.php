@@ -1,95 +1,84 @@
-<div class="row justify-content-center">
+<x-auth.card image="password.jpg">
 
-    <div class="col-md-6">
+    {{-- Encabezado --}}
+    <div class="text-center mb-4">
 
-        <div class="card shadow-sm border-0">
+        <h1 class="auth-title">
+            Recuperar contraseña
+        </h1>
 
-            <div class="card-body p-4">
-
-                <h1 class="h3 text-center mb-3">
-
-                    Recuperar contraseña
-
-                </h1>
-
-                <p class="text-muted text-center mb-4">
-
-                    Ingresa tu correo y te enviaremos un enlace para crear una nueva contraseña.
-
-                </p>
-
-                @if(session('status'))
-
-                    <div class="alert alert-success">
-
-                        {{ session('status') }}
-
-                    </div>
-
-                @endif
-
-                <form wire:submit="sendResetLink">
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Correo electrónico
-
-                        </label>
-
-                        <input
-                            type="email"
-                            class="form-control @error('form.email') is-invalid @enderror"
-                            wire:model.blur="form.email">
-
-                        @error('form.email')
-
-                            <div class="invalid-feedback">
-
-                                {{ $message }}
-
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-                    <button
-                        class="btn btn-dark w-100"
-                        type="submit"
-                        wire:loading.attr="disabled">
-
-                        <span wire:loading.remove>
-
-                            Enviar enlace
-
-                        </span>
-
-                        <span wire:loading>
-
-                            Enviando...
-
-                        </span>
-
-                    </button>
-
-                </form>
-
-                <div class="text-center mt-4">
-
-                    <a href="{{ route('login') }}">
-
-                        Volver al inicio de sesión
-
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
+        <p class="auth-subtitle">
+            Ingresa el correo electrónico asociado a tu cuenta.
+            Te enviaremos un enlace para restablecer tu contraseña.
+        </p>
 
     </div>
 
-</div>
+    {{-- Mensaje de éxito --}}
+    @if(session('status'))
+
+        <x-auth.status
+            type="success"
+            :message="session('status')" />
+
+    @endif
+
+    {{-- Formulario --}}
+    <form
+        wire:submit="sendResetLink"
+        class="auth-form">
+
+        <x-auth.input
+            label="Correo electrónico"
+            name="email"
+            type="email"
+            placeholder="correo@ejemplo.com"
+            icon="bi-envelope"
+            maxlength="255"
+            autocomplete="email"
+            autocapitalize="off"
+            spellcheck="false"
+            wire:model.blur="form.email" />
+
+        <button
+            type="submit"
+            class="auth-submit"
+            wire:loading.attr="disabled"
+            wire:target="sendResetLink">
+
+            <span
+                wire:loading.remove
+                wire:target="sendResetLink">
+
+                Enviar enlace de recuperación
+
+            </span>
+
+            <span
+                wire:loading
+                wire:target="sendResetLink">
+
+                <span class="spinner-border spinner-border-sm me-2"></span>
+
+                Enviando enlace...
+
+            </span>
+
+        </button>
+
+    </form>
+
+    {{-- Volver al login --}}
+    <div class="auth-footer">
+
+        <a
+            href="{{ route('login') }}"
+            wire:navigate>
+
+            ← Volver al inicio de sesión
+
+        </a>
+
+    </div>
+
+</x-auth.card>

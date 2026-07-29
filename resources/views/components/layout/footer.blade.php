@@ -2,36 +2,42 @@
 
     <div class="container">
 
-        <div class="row gy-3 align-items-start">
+        <div class="row gy-4 justify-content-between">
 
-            {{-- Marca --}}
-            <div class="col-lg-4">
+            {{-- =====================================================
+                EMPRESA
+            ====================================================== --}}
+
+            <div class="col-12 col-md-6 col-lg-4">
 
                 <div class="footer-brand">
 
                     <img
                         src="{{ asset('images/logo.jpg') }}"
-                        alt="Procafes"
+                        alt="{{ $configuracion?->nombre_empresa ?? 'PROCÁFES' }}"
                         class="footer-logo">
 
                     <h4 class="footer-title">
-                        PROCAFES
+                        {{ $configuracion?->nombre_empresa ?? 'PROCÁFES' }}
                     </h4>
 
                     <p class="footer-description">
-                        Pasion por el café, compromiso con la calidad y
-                        la sostenibilidad.
+                        Descubre el auténtico sabor del café peruano con productos
+                        seleccionados para disfrutar cada momento.
                     </p>
 
                 </div>
 
             </div>
 
-            {{-- Navegación --}}
-            <div class="col-lg-2 col-md-6">
+            {{-- =====================================================
+                NAVEGACIÓN
+            ====================================================== --}}
+
+            <div class="col-6 col-md-3 col-lg-2">
 
                 <h5 class="footer-heading">
-                    Explorar
+                    Navegación
                 </h5>
 
                 <ul class="footer-links">
@@ -64,80 +70,125 @@
 
             </div>
 
-            {{-- Contacto --}}
-            <div class="col-lg-3 col-md-6">
+            {{-- =====================================================
+                CONTACTO
+            ====================================================== --}}
+
+            <div class="col-6 col-md-3 col-lg-4">
 
                 <h5 class="footer-heading">
                     Contáctanos
                 </h5>
 
-                <ul class="footer-contact">
+                <address class="footer-contact">
 
-                    <li>
+                    <div class="footer-contact-item">
 
                         <i class="bi bi-geo-alt-fill"></i>
 
                         <span>
-                            Chimbote, Perú
+
+                            {{ $configuracion?->direccion ?? 'Dirección no registrada' }}
+
                         </span>
 
-                    </li>
+                    </div>
 
-                    <li>
+                    <div class="footer-contact-item">
 
                         <i class="bi bi-telephone-fill"></i>
 
                         <span>
-                            +51 999 999 999
+
+                            {{ $configuracion?->telefono ?? 'Sin teléfono' }}
+
                         </span>
 
-                    </li>
+                    </div>
 
-                    <li>
+                    <div class="footer-contact-item">
 
                         <i class="bi bi-envelope-fill"></i>
 
                         <span>
-                            contacto@procafes.pe
+
+                            {{ $configuracion?->correo ?? 'Sin correo electrónico' }}
+
                         </span>
 
-                    </li>
+                    </div>
 
-                </ul>
+                </address>
 
-            </div>
+                @if(
+                    $configuracion?->facebook ||
+                    $configuracion?->instagram ||
+                    $configuracion?->tiktok ||
+                    $configuracion?->whatsapp
+                )
 
-            {{-- Redes Sociales --}}
-            <div class="col-lg-3">
+                    <div class="footer-social">
 
-                <h5 class="footer-heading">
-                    Síguenos
-                </h5>
+                        @if($configuracion?->facebook)
 
-                <p class="footer-description mb-3">
-                    Mantente conectado con nosotros y conoce nuestras
-                    promociones y novedades.
-                </p>
+                            <a
+                                href="{{ $configuracion->facebook }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Facebook">
 
-                <div class="footer-social">
+                                <i class="bi bi-facebook"></i>
 
-                    <a href="#" aria-label="Facebook">
-                        <i class="bi bi-facebook"></i>
-                    </a>
+                            </a>
 
-                    <a href="#" aria-label="Instagram">
-                        <i class="bi bi-instagram"></i>
-                    </a>
+                        @endif
 
-                    <a href="#" aria-label="TikTok">
-                        <i class="bi bi-tiktok"></i>
-                    </a>
+                        @if($configuracion?->instagram)
 
-                    <a href="#" aria-label="WhatsApp">
-                        <i class="bi bi-whatsapp"></i>
-                    </a>
+                            <a
+                                href="{{ $configuracion->instagram }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Instagram">
 
-                </div>
+                                <i class="bi bi-instagram"></i>
+
+                            </a>
+
+                        @endif
+
+                        @if($configuracion?->tiktok)
+
+                            <a
+                                href="{{ $configuracion->tiktok }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="TikTok">
+
+                                <i class="bi bi-tiktok"></i>
+
+                            </a>
+
+                        @endif
+
+                        @if($configuracion?->whatsapp)
+
+                            <a
+                                href="https://wa.me/{{ preg_replace('/\D/', '', $configuracion->whatsapp) }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="WhatsApp"
+                                class="social-whatsapp">
+
+                                <i class="bi bi-whatsapp"></i>
+
+                            </a>
+
+                        @endif
+
+                    </div>
+
+                @endif
 
             </div>
 
@@ -149,23 +200,31 @@
 
             <p class="footer-copy">
 
-                © {{ date('Y') }} PROCAFES.
-
+                © {{ date('Y') }}
+                {{ $configuracion?->nombre_empresa ?? 'PROCÁFES' }}.
                 Todos los derechos reservados.
 
             </p>
 
+            {{-- Descomentar cuando existan las páginas --}}
+
+            {{--
             <div class="footer-bottom-links">
 
-                <a href="#">
-                    Política de privacidad
+                <a href="{{ route('politica-privacidad') }}">
+                    Política de Privacidad
                 </a>
 
-                <a href="#">
-                    Términos y condiciones
+                <a href="{{ route('terminos-condiciones') }}">
+                    Términos y Condiciones
+                </a>
+
+                <a href="{{ route('libro-reclamaciones') }}">
+                    Libro de Reclamaciones
                 </a>
 
             </div>
+            --}}
 
         </div>
 

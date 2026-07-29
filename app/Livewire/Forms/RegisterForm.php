@@ -2,29 +2,27 @@
 
 namespace App\Livewire\Forms;
 
-use App\Models\User;
 use App\Services\Auth\PendingRegistrationService;
 use Illuminate\Validation\Rules\Password;
-use Livewire\Attributes\Validate;
 use Livewire\Form;
 
 class RegisterForm extends Form
 {
-    #[Validate('required|string|max:20')]
+    /*
+    |--------------------------------------------------------------------------
+    | Información personal
+    |--------------------------------------------------------------------------
+    */
+
     public string $tipo_documento = 'DNI';
 
-    #[Validate('required|max:20|unique:users,numero_documento')]
     public string $numero_documento = '';
 
-    #[Validate('required|string|max:100')]
     public string $nombres = '';
 
-    #[Validate('required|string|max:100')]
     public string $apellido_paterno = '';
 
-    #[Validate('nullable|string|max:100')]
     public string $apellido_materno = '';
-
 
     /*
     |--------------------------------------------------------------------------
@@ -32,10 +30,8 @@ class RegisterForm extends Form
     |--------------------------------------------------------------------------
     */
 
-    #[Validate('required|email|max:255|unique:users,email')]
     public string $email = '';
 
-    #[Validate('nullable|string|max:20')]
     public string $celular = '';
 
     /*
@@ -44,7 +40,6 @@ class RegisterForm extends Form
     |--------------------------------------------------------------------------
     */
 
-    #[Validate]
     public string $password = '';
 
     public string $password_confirmation = '';
@@ -67,7 +62,7 @@ class RegisterForm extends Form
 
     /*
     |--------------------------------------------------------------------------
-    | Estado interfaz
+    | Estado de la interfaz
     |--------------------------------------------------------------------------
     */
 
@@ -77,39 +72,229 @@ class RegisterForm extends Form
 
     /*
     |--------------------------------------------------------------------------
-    | Reglas
+    | Reglas de validación
     |--------------------------------------------------------------------------
     */
 
     protected function rules(): array
     {
-    $numeroDocumento = match ($this->tipo_documento) {
+        return [
 
-        'DNI'        => 'required|digits:8|unique:users,numero_documento',
+            /*
+            |--------------------------------------------------------------------------
+            | Documento
+            |--------------------------------------------------------------------------
+            */
 
-        'RUC'        => 'required|digits:11|unique:users,numero_documento',
+            'tipo_documento' => [
+                'required',
+                'string',
+                'max:20',
+            ],
 
-        'CE'         => 'required|string|max:20|unique:users,numero_documento',
+            'numero_documento' => match ($this->tipo_documento) {
 
-        'PASAPORTE'  => 'required|string|max:20|unique:users,numero_documento',
+                'DNI' => [
+                    'required',
+                    'digits:8',
+                    'unique:users,numero_documento',
+                ],
 
-        default      => 'required|string|max:20',
+                'RUC' => [
+                    'required',
+                    'digits:11',
+                    'unique:users,numero_documento',
+                ],
 
-    };
+                'CE' => [
+                    'required',
+                    'string',
+                    'max:20',
+                    'unique:users,numero_documento',
+                ],
 
-    return [
+                'PASAPORTE' => [
+                    'required',
+                    'string',
+                    'max:20',
+                    'unique:users,numero_documento',
+                ],
 
-        'numero_documento' => $numeroDocumento,
+                default => [
+                    'required',
+                    'string',
+                    'max:20',
+                ],
 
-        'password' => [
-            'required',
-            'confirmed',
-            Password::defaults(),
-        ],
+            },
 
-    ];
-}
-        
+            /*
+            |--------------------------------------------------------------------------
+            | Datos personales
+            |--------------------------------------------------------------------------
+            */
+
+            'nombres' => [
+                'required',
+                'string',
+                'max:100',
+            ],
+
+            'apellido_paterno' => [
+                'required',
+                'string',
+                'max:100',
+            ],
+
+            'apellido_materno' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Contacto
+            |--------------------------------------------------------------------------
+            */
+
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                'unique:users,email',
+            ],
+
+            'celular' => [
+                'nullable',
+                'digits:9',
+                'regex:/^9\d{8}$/',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Seguridad
+            |--------------------------------------------------------------------------
+            */
+
+            'password' => [
+
+                'required',
+
+                'confirmed',
+
+                Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers(),
+
+            ],
+
+            'password_confirmation' => [
+
+                'required',
+
+            ],
+
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mensajes personalizados
+    |--------------------------------------------------------------------------
+    */
+
+    protected function messages(): array
+    {
+        return [
+
+            /*
+            |--------------------------------------------------------------------------
+            | Documento
+            |--------------------------------------------------------------------------
+            */
+
+            'tipo_documento.required' => 'Seleccione un tipo de documento.',
+
+            'numero_documento.required' => 'Ingrese el número de documento.',
+
+            'numero_documento.digits' => 'El número de documento no tiene el formato correcto.',
+
+            'numero_documento.unique' => 'Este número de documento ya está registrado.',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Datos personales
+            |--------------------------------------------------------------------------
+            */
+
+            'nombres.required' => 'Ingrese sus nombres.',
+
+            'apellido_paterno.required' => 'Ingrese su apellido paterno.',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Contacto
+            |--------------------------------------------------------------------------
+            */
+
+            'email.required' => 'Ingrese un correo electrónico.',
+
+            'email.email' => 'Ingrese un correo electrónico válido.',
+
+            'email.unique' => 'Este correo electrónico ya está registrado.',
+
+            'celular.regex' => 'Ingrese un numero valido.El celular debe tener 9 dígitos y comenzar con 9',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Seguridad
+            |--------------------------------------------------------------------------
+            */
+
+            'password.required' => 'Ingrese una contraseña.',
+
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+
+            'password_confirmation.required' => 'Confirme su contraseña.',
+            'password.letters' => 'La contraseña debe contener al menos una letra.',
+
+            'password.mixed' => 'La contraseña debe contener al menos una letra mayúscula y una letra minúscula.',
+
+            'password.numbers' => 'La contraseña debe contener al menos un número.',
+
+            'password.symbols' => 'La contraseña debe contener al menos un símbolo.',
+
+            'password.uncompromised' => 'La contraseña no es segura. Elija otra diferente.',
+
+            'password_confirmation.required' => 'Confirme su contraseña.',
+
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Nombres amigables para los atributos
+    |--------------------------------------------------------------------------
+    */
+
+    protected function validationAttributes(): array
+    {
+        return [
+
+            'tipo_documento' => 'tipo de documento',
+
+            'numero_documento' => 'número de documento',
+
+            'apellido_paterno' => 'apellido paterno',
+
+            'apellido_materno' => 'apellido materno',
+
+            'password_confirmation' => 'confirmación de contraseña',
+
+        ];
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -152,7 +337,7 @@ class RegisterForm extends Form
     |--------------------------------------------------------------------------
     */
 
-    public function normalizarDatos(): void
+    protected function normalizarDatos(): void
     {
         $this->nombres = trim($this->nombres);
 

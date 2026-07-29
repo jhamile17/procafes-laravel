@@ -53,7 +53,8 @@ class UserRegistrationService
 
                     'password' => $data['password']
                         ?? Str::random(60),
-
+                    'has_local_password' => $data['has_local_password']
+                        ?? true,
                     'provider' => $data['provider']
                         ?? User::PROVIDER_LOCAL,
 
@@ -61,9 +62,6 @@ class UserRegistrationService
                         ?? null,
 
                     'celular' => $data['celular']
-                        ?? null,
-
-                    'direccion' => $data['direccion']
                         ?? null,
 
                     'foto_perfil' => $data['foto_perfil']

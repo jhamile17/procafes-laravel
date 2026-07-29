@@ -1,18 +1,21 @@
-﻿<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-<head>
-    <x-layout.head />
-    @livewireStyles
-</head>
-<body class="bg-light">
-    <main class="min-vh-100 d-flex align-items-center py-4">
-        <div class="container">
-            @yield('content')
-            {{ $slot ?? '' }}
-        </div>
-    </main>
 
+<head>
+
+    <x-layout.head />
+
+    @livewireStyles
+
+    @stack('styles')
+
+</head>
+
+<body class="auth-layout">
+    <x-navbar.navbar />
+    {{ $slot }}
     @livewireScripts
+    <script src="{{ asset('js/auth/auth.js') }}"></script>
     @stack('scripts')
 </body>
 </html>

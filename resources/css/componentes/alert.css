@@ -1,0 +1,142 @@
+/*=========================================================
+    APP ALERT
+=========================================================*/
+
+.app-alert-overlay{
+    position:fixed;
+    inset:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:rgba(0,0,0,.25);
+    backdrop-filter:blur(4px);
+
+    opacity:0;
+    visibility:hidden;
+
+    transition:var(--transition);
+
+    z-index:9999;
+}
+
+.app-alert-overlay.show{
+    opacity:1;
+    visibility:visible;
+}
+
+/*=========================================================
+    CARD
+=========================================================*/
+
+.app-alert{
+
+    width:300px;
+    max-width:90%;
+
+    padding:var(--space-md);
+
+    background:var(--color-surface);
+
+    border-radius:var(--radius-lg);
+
+    box-shadow:var(--shadow-md);
+
+    text-align:center;
+
+    transform:scale(.92);
+    opacity:0;
+
+    transition:var(--transition);
+}
+
+.app-alert-overlay.show .app-alert{
+
+    transform:scale(1);
+    opacity:1;
+
+}
+
+/*=========================================================
+    ICONO
+=========================================================*/
+
+.app-alert-icon{
+
+    width:56px;
+    height:56px;
+
+    margin:0 auto var(--space-sm);
+
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:var(--color-white);
+
+    font-size:1.45rem;
+
+}
+
+/* Estados */
+
+.app-alert-success .app-alert-icon{
+
+    background:var(--color-success);
+
+}
+
+.app-alert-error .app-alert-icon{
+
+    background:var(--color-danger);
+
+}
+
+.app-alert-warning .app-alert-icon{
+
+    background:var(--color-warning);
+
+}
+
+.app-alert-info .app-alert-icon{
+
+    background:var(--color-info);
+
+}
+
+/*=========================================================
+    TEXTO
+=========================================================*/
+
+.app-alert-title{
+
+    margin:0;
+
+    font-family:var(--font-body);
+
+    font-size:1rem;
+
+    font-weight:600;
+
+    color:var(--color-coffee-dark);
+
+}
+
+.app-alert-message{
+
+    margin-top:var(--space-xs);
+
+    margin-bottom:0;
+
+    font-family:var(--font-body);
+
+    font-size:.9rem;
+
+    line-height:1.6;
+
+    color:var(--color-text-light);
+
+}

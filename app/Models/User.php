@@ -5,11 +5,12 @@ use App\Notifications\ResetPasswordProcafes;
 use App\Notifications\WelcomeVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
+use Illuminate\Support\Facades\Storage;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -28,10 +29,10 @@ class User extends Authenticatable
         'numero_documento',
         'email',
         'password',
+        'has_local_password',
         'provider',
         'provider_id',
         'celular',
-        'direccion',
         'foto_perfil',
         'estado',
         'ultimo_acceso',
@@ -48,6 +49,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'ultimo_acceso' => 'datetime',
             'estado' => 'boolean',
+            'has_local_password'=>'boolean',
             'password' => 'hashed',
         ];
     }
@@ -63,6 +65,11 @@ class User extends Authenticatable
     public function shippingAddresses(): HasMany
     {
         return $this->hasMany(ShippingAddress::class);
+    }
+        public function primaryShippingAddress(): HasOne
+    {
+        return $this->hasOne(ShippingAddress::class)
+            ->where('es_principal', true);
     }
     public function carts(): HasMany
     {
@@ -133,6 +140,16 @@ class User extends Authenticatable
             $this->apellido_materno
         );
     }
-    
+    /**
+     * Obtiene la URL de la foto de perfil.
+     */
+    public function getFotoPerfilUrlAttribute(): string
+    {
+        if (empty($this->foto_perfil)) {
+            return asset('images/default-avatar.png');
+        }
+
+        return asset('storage/' . $this->foto_perfil);
+    }
 
 }

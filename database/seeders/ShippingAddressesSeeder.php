@@ -12,7 +12,7 @@ class ShippingAddressesSeeder extends Seeder
     {
         $cliente = User::where('email', 'cliente@procafes.com')->first();
 
-        if (!$cliente) {
+        if (! $cliente) {
             return;
         }
 
@@ -22,11 +22,35 @@ class ShippingAddressesSeeder extends Seeder
                 'direccion' => 'Av. Principal 123',
             ],
             [
-                'city'          => 'Lima',
-                'state'         => 'Lima',
-                'zip_code'      => '15001',
-                'country'       => 'Perú',
-                'es_principal'  => true,
+                'alias'          => 'Casa',
+
+                'direccion'      => 'Av. Principal 123',
+
+                'departamento'   => 'Lima',
+
+                'provincia'      => 'Lima',
+
+                'distrito'       => 'Lima',
+
+                'referencia'     => 'Frente al parque',
+
+                /*
+                |--------------------------------------------------------------------------
+                | Coordenadas (LocationIQ)
+                |--------------------------------------------------------------------------
+                */
+
+                'latitude'       => -12.046374,
+
+                'longitude'      => -77.042793,
+
+                /*
+                |--------------------------------------------------------------------------
+                | Configuración
+                |--------------------------------------------------------------------------
+                */
+
+                'es_principal'   => true,
             ]
         );
     }

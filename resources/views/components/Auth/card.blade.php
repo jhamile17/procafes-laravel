@@ -1,16 +1,23 @@
-<div class="container py-5">
+@props([
+    'image' => 'login.jpg',
+])
 
-    <div class="row justify-content-center">
+<div class="auth-wrapper">
 
-        <div class="col-lg-6 col-md-8">
+    <div {{ $attributes->merge(['class' => 'auth-card']) }}>
 
-            <div {{ $attributes->class('auth-card') }}>
+        <aside class="auth-card-image">
 
-                {{ $slot }}
+            <x-auth.image
+                :image="$image" />
 
-            </div>
+        </aside>
 
-        </div>
+        <section class="auth-card-content">
+
+            {{ $slot }}
+
+        </section>
 
     </div>
 

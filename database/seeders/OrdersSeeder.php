@@ -14,19 +14,21 @@ class OrdersSeeder extends Seeder
     {
         $user = User::where('email', 'cliente@procafes.com')->first();
 
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
-        $direccion = ShippingAddress::where('user_id', $user->id)->first();
+        $direccion = ShippingAddress::where('user_id', $user->id)
+            ->where('es_principal', true)
+            ->first();
 
-        if (!$direccion) {
+        if (! $direccion) {
             return;
         }
 
         $estado = EstadoPedido::where('codigo', 'PENDING')->first();
 
-        if (!$estado) {
+        if (! $estado) {
             return;
         }
 
@@ -41,9 +43,28 @@ class OrdersSeeder extends Seeder
 
                 'estado_pedido_id' => $estado->id,
 
+                /*
+                |--------------------------------------------------------------------------
+                | Snapshot de la dirección
+                |--------------------------------------------------------------------------
+                */
+
+                'delivery_alias'         => $direccion->alias,
+                'delivery_direccion'     => $direccion->direccion,
+                'delivery_departamento'  => $direccion->departamento,
+                'delivery_provincia'     => $direccion->provincia,
+                'delivery_distrito'      => $direccion->distrito,
+                'delivery_referencia'    => $direccion->referencia,
+
+                /*
+                |--------------------------------------------------------------------------
+                | Pedido
+                |--------------------------------------------------------------------------
+                */
+
                 'total_price' => 0.00,
 
-                'delivery_type' => 'DELIVERY',
+                'delivery_type' => 'delivery',
 
                 'observaciones' => 'Pedido de prueba.',
             ]

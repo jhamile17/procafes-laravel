@@ -14,6 +14,17 @@ class EstadoPedido extends Model
 
     /*
     |--------------------------------------------------------------------------
+    | Constantes
+    |--------------------------------------------------------------------------
+    */
+
+    public const PENDIENTE  = 'PENDIENTE';
+    public const CONFIRMADO = 'CONFIRMADO';
+    public const CANCELADO  = 'CANCELADO';
+    public const ENTREGADO  = 'ENTREGADO';
+
+    /*
+    |--------------------------------------------------------------------------
     | Asignación masiva
     |--------------------------------------------------------------------------
     */
@@ -71,7 +82,7 @@ class EstadoPedido extends Model
         return $this->status;
     }
 
-        /*
+    /*
     |--------------------------------------------------------------------------
     | Helpers de estado
     |--------------------------------------------------------------------------
@@ -79,21 +90,34 @@ class EstadoPedido extends Model
 
     public function esPendiente(): bool
     {
-        return strtoupper($this->codigo) === 'PENDIENTE';
+        return $this->codigo === self::PENDIENTE;
     }
 
     public function esConfirmado(): bool
     {
-        return strtoupper($this->codigo) === 'CONFIRMADO';
+        return $this->codigo === self::CONFIRMADO;
     }
 
     public function esCancelado(): bool
     {
-        return strtoupper($this->codigo) === 'CANCELADO';
+        return $this->codigo === self::CANCELADO;
     }
 
     public function esEntregado(): bool
     {
-        return strtoupper($this->codigo) === 'ENTREGADO';
+        return $this->codigo === self::ENTREGADO;
+    }
+        /**
+     * Obtener la clase CSS del estado.
+     */
+    public function getBadgeClass(): string
+    {
+        return match ($this->codigo) {
+            self::PENDIENTE  => 'pending',
+            self::CONFIRMADO => 'processing',
+            self::ENTREGADO  => 'completed',
+            self::CANCELADO  => 'cancelled',
+            default          => 'default',
+        };
     }
 }

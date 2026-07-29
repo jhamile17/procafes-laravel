@@ -1,235 +1,151 @@
-<div class="row justify-content-center">
-
-    <div class="col-12 col-md-7 col-lg-5">
-
-        <div class="card shadow-sm border-0">
-
-            <div class="card-body p-4 p-md-5">
-
-                <h1 class="h3 text-center mb-2">
-                    Iniciar sesión
-                </h1>
-
-                <p class="text-muted text-center mb-4">
-                    Accede a tu cuenta para continuar.
-                </p>
-
-                @if(session('status'))
-
-                    <div class="alert alert-success">
-
-                        {{ session('status') }}
-
-                    </div>
-
-                @endif
-
-                <a
-                    href="{{ route('auth.google.login') }}"
-                    class="btn btn-outline-dark w-100 mb-3">
-
-                    <i class="bi bi-google me-2"></i>
-
-                    Continuar con Google
-
-                </a>
-
-                <div class="position-relative text-center my-4">
-
-                    <hr>
-
-                    <span class="position-absolute top-50 start-50 translate-middle bg-white px-2 text-muted small">
-
-                        o continúa con correo
-
-                    </span>
-
-                </div>
-
-                <form wire:submit="login">
-
-                    {{-- Correo --}}
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Correo electrónico
-
-                        </label>
-
-                        <input
-                            type="email"
-                            class="form-control @error('form.email') is-invalid @enderror"
-                            wire:model.blur="form.email"
-                            autocomplete="email"
-                            autofocus>
-
-                        @error('form.email')
-
-                            <div class="invalid-feedback">
-
-                                {{ $message }}
-
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-                    {{-- Contraseña --}}
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Contraseña
-
-                        </label>
-
-                        <div class="input-group">
-
-                            <input
-                                id="password"
-                                type="password"
-                                class="form-control @error('form.password') is-invalid @enderror"
-                                wire:model="form.password"
-                                autocomplete="current-password">
-
-                            <button
-                                class="btn btn-outline-secondary"
-                                type="button"
-                                id="togglePassword">
-
-                                <i
-                                    class="bi bi-eye"
-                                    id="togglePasswordIcon">
-                                </i>
-
-                            </button>
-
-                        </div>
-
-                        @error('form.password')
-
-                            <div class="text-danger small mt-1">
-
-                                {{ $message }}
-
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-                    {{-- Recordarme --}}
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-
-                        <div class="form-check">
-
-                            <input
-                                class="form-check-input"
-                                type="checkbox"
-                                wire:model="form.remember"
-                                id="remember">
-
-                            <label
-                                class="form-check-label"
-                                for="remember">
-
-                                Recordarme
-
-                            </label>
-
-                        </div>
-
-                        <a
-                            href="{{ route('password.request') }}"
-                            class="small">
-
-                            ¿Olvidaste tu contraseña?
-
-                        </a>
-
-                    </div>
-
-                    <button
-                        type="submit"
-                        class="btn btn-dark w-100"
-                        wire:loading.attr="disabled">
-
-                        <span wire:loading.remove>
-
-                            Iniciar sesión
-
-                        </span>
-
-                        <span wire:loading>
-
-                            <span
-                                class="spinner-border spinner-border-sm me-2">
-                            </span>
-
-                            Ingresando...
-
-                        </span>
-
-                    </button>
-
-                </form>
-
-                <p class="text-center mt-4 mb-0">
-
-                    ¿No tienes una cuenta?
-
-                    <a href="{{ route('register') }}">
-
-                        Regístrate
-
-                    </a>
-
-                </p>
-
-            </div>
-
-        </div>
+<x-auth.card>
+    {{-- Encabezado --}}
+    <div class="auth-header">
+
+        <span class="auth-badge">
+            Bienvenido
+        </span>
+
+        <h1 class="auth-title">
+            Iniciar sesión
+        </h1>
+
+        <p class="auth-subtitle">
+            Accede a tu cuenta para continuar en PROCÁFES.
+        </p>
 
     </div>
 
-</div>
+    {{-- Mensaje de sesión --}}
+    @if(session('status'))
 
-@push('scripts')
+        <div class="auth-alert auth-alert-success">
 
-<script>
+            {{ session('status') }}
 
-document.addEventListener('DOMContentLoaded', () => {
+        </div>
 
-    const password = document.getElementById('password');
+    @endif
 
-    const button = document.getElementById('togglePassword');
+    {{-- Google --}}
+    <a
+        href="{{ route('auth.google.login') }}"
+        class="auth-google-btn">
 
-    const icon = document.getElementById('togglePasswordIcon');
+        <i class="bi bi-google"></i>
 
-    if (!password || !button || !icon) {
+        <span>
 
-        return;
+            Continuar con Google
 
-    }
+        </span>
 
-    button.addEventListener('click', () => {
+    </a>
 
-        const visible = password.type === 'password';
+    {{-- Separador --}}
+    <div class="auth-divider">
 
-        password.type = visible
-            ? 'text'
-            : 'password';
+        <span>
 
-        icon.className = visible
-            ? 'bi bi-eye-slash'
-            : 'bi bi-eye';
+            o continúa con correo
 
-    });
+        </span>
 
-});
+    </div>
 
-</script>
+    {{-- Formulario --}}
+    <form
+        wire:submit="login"
+        class="auth-form">
 
-@endpush
+        <x-auth.input
+            label="Correo electrónico"
+            name="email"
+            type="email"
+            placeholder="correo@ejemplo.com"
+            icon="bi-envelope"
+            wire:model.blur="form.email"
+            autocomplete="email"
+            autofocus
+            :error="$errors->first('form.email')" />
+
+        <x-auth.input
+            label="Contraseña"
+            name="password"
+            type="password"
+            placeholder="Ingresa tu contraseña"
+            icon="bi-lock"
+            wire:model.blur="form.password"
+            autocomplete="current-password"
+            :error="$errors->first('form.password')" />
+
+        <div class="auth-options">
+
+            <label class="auth-remember">
+
+                <input
+                    type="checkbox"
+                    wire:model="form.remember">
+
+                <span>
+
+                    Recordarme
+
+                </span>
+
+            </label>
+
+            <a
+                href="{{ route('password.request') }}"
+                class="auth-forgot">
+
+                ¿Olvidaste tu contraseña?
+
+            </a>
+
+        </div>
+
+        <button
+            type="submit"
+            class="auth-submit"
+            wire:loading.attr="disabled"
+            wire:target="login">
+
+            <span wire:loading.remove
+            wire:target="login">
+
+                Iniciar sesión
+
+            </span>
+
+            <span wire:loading
+            wire:target="login">
+
+                <span class="spinner-border spinner-border-sm me-2"></span>
+
+                Ingresando...
+
+            </span>
+
+        </button>
+
+    </form>
+
+    {{-- Footer --}}
+    <div class="auth-footer">
+
+        <span>
+
+            ¿No tienes una cuenta?
+
+        </span>
+
+        <a href="{{ route('register') }}">
+
+            Regístrate
+
+        </a>
+
+    </div>
+
+</x-auth.card>

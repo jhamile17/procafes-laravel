@@ -11,6 +11,8 @@ class ShippingAddress extends Model
 {
     use HasFactory;
 
+    protected $table = 'shipping_addresses';
+
     /*
     |--------------------------------------------------------------------------
     | Asignación masiva
@@ -19,11 +21,12 @@ class ShippingAddress extends Model
 
     protected $fillable = [
         'user_id',
+        'alias',
         'direccion',
-        'city',
-        'state',
-        'zip_code',
-        'country',
+        'departamento',
+        'provincia',
+        'distrito',
+        'referencia',
         'es_principal',
     ];
 
@@ -76,5 +79,28 @@ class ShippingAddress extends Model
     public function isPrincipal(): bool
     {
         return $this->es_principal;
+    }
+
+    /**
+     * Obtiene la dirección completa.
+     */
+    public function direccionCompleta(): string
+    {
+        return collect([
+            $this->direccion,
+            $this->distrito,
+            $this->provincia,
+            $this->departamento,
+        ])
+        ->filter()
+        ->implode(', ');
+    }
+
+    /**
+     * Obtiene el alias o un valor por defecto.
+     */
+    public function nombre(): string
+    {
+        return $this->alias ?: 'Mi dirección';
     }
 }

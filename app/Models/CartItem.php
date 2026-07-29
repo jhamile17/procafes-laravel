@@ -22,8 +22,8 @@ class CartItem extends Model
         'cart_id',
         'product_id',
         'quantity',
-        'price',
-        'sub_total',
+        'unit_price',
+        'subtotal',
     ];
 
     /*
@@ -35,9 +35,9 @@ class CartItem extends Model
     protected function casts(): array
     {
         return [
-            'quantity' => 'integer',
-            'price' => 'decimal:2',
-            'sub_total' => 'decimal:2',
+            'quantity'   => 'integer',
+            'unit_price' => 'decimal:2',
+            'subtotal'   => 'decimal:2',
         ];
     }
 
@@ -63,10 +63,10 @@ class CartItem extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function actualizarSubtotal(): void
+    public function recalcularSubtotal(): void
     {
-        $this->sub_total = bcmul(
-            (string) $this->price,
+        $this->subtotal = bcmul(
+            (string) $this->unit_price,
             (string) $this->quantity,
             2
         );

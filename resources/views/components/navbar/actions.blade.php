@@ -1,40 +1,40 @@
 {{--==========================================================================
     NAVBAR ACTIONS
-    --------------------------------------------------------------------------
-    Acciones rápidas disponibles desde la barra de navegación.
 ==========================================================================--}}
 
 <div class="navbar-actions">
 
     {{-- Favoritos --}}
     <a
-        href="{{ route('wishlist.index') }}"
+        href="{{ route('customer.wishlist') }}"
+        wire:navigate
         class="navbar-action"
         aria-label="Lista de favoritos">
 
         <i class="bi bi-heart" aria-hidden="true"></i>
 
-        @if(($wishlistCount ?? 0) > 0)
-            <span
-                class="navbar-badge"
-                aria-label="{{ $wishlistCount }} favoritos">
+        <span
+            id="wishlistBadge"
+            class="navbar-badge"
+            style="display:none;">
 
-                {{ $wishlistCount }}
+            0
 
-            </span>
-        @endif
+        </span>
 
     </a>
 
     {{-- Carrito --}}
     <a
         href="{{ route('cart.index') }}"
+        wire:navigate
         class="navbar-action"
         aria-label="Carrito de compras">
 
         <i class="bi bi-cart3" aria-hidden="true"></i>
 
         @if(($cartCount ?? 0) > 0)
+
             <span
                 class="navbar-badge"
                 aria-label="{{ $cartCount }} productos en el carrito">
@@ -42,6 +42,7 @@
                 {{ $cartCount }}
 
             </span>
+
         @endif
 
     </a>

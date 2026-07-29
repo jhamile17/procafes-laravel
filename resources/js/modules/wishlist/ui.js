@@ -1,17 +1,13 @@
-import { getFavorites } from './storage';
+import {
+    getWishlistButtons
+} from './dom';
 
-import { getWishlistButtons } from './dom';
+/*==========================================================================
+    Inicializar iconos
+==========================================================================*/
 
-/*
-|--------------------------------------------------------------------------
-| Inicializar iconos
-|--------------------------------------------------------------------------
-*/
-
-export function initializeIcons() {
-
-    const favorites = getFavorites();
-
+export function initializeIcons(favorites = [])
+{
     getWishlistButtons().forEach(button => {
 
         const productId = Number(
@@ -24,16 +20,16 @@ export function initializeIcons() {
         );
 
     });
-
 }
 
-/*
-|--------------------------------------------------------------------------
-| Actualizar icono
-|--------------------------------------------------------------------------
-*/
+/*==========================================================================
+    Actualizar icono
+==========================================================================*/
 
-export function updateIcon(button, active) {
+export function updateIcon(
+    button,
+    active
+) {
 
     const icon = button.querySelector('i');
 
@@ -58,7 +54,7 @@ export function updateIcon(button, active) {
 
     button.setAttribute(
         'aria-pressed',
-        active
+        String(active)
     );
 
 }

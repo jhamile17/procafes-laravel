@@ -1,6 +1,8 @@
-<nav class="navbar navbar-expand-xl">
+<nav class="navbar navbar-expand-lg">
 
-    <div class="container">
+    <div class="container-fluid px-4">
+
+        <x-navbar.brand />
 
         <button
             class="navbar-toggler"
@@ -9,33 +11,37 @@
             data-bs-target="#navbarContent"
             aria-controls="navbarContent"
             aria-expanded="false"
-            aria-label="Toggle navigation">
+            aria-label="Abrir navegación">
 
-            <span class="navbar-toggler-icon"></span>
+            <i class="bi bi-list"></i>
 
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarContent">
+        <div
+            class="collapse navbar-collapse"
+            id="navbarContent">
 
-            <div class="navbar-content w-100">
+            <div class="navbar-layout">
 
-                <div class="navbar-left">
-
-                    <x-navbar.brand />
+                <div class="navbar-navigation">
 
                     <x-navbar.navigation />
 
                 </div>
 
-                <div class="navbar-search-wrapper">
+                <div class="navbar-search-area">
 
                     <x-navbar.search />
 
                 </div>
 
-                <div class="navbar-right">
+                <div class="navbar-actions-area">
 
                     <x-navbar.actions />
+
+                </div>
+
+                <div class="navbar-account-area">
 
                     <x-navbar.account />
 

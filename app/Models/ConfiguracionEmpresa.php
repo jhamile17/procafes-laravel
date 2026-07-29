@@ -21,6 +21,7 @@ class ConfiguracionEmpresa extends Model
         'facebook',
         'instagram',
         'tiktok',
+        'whatsapp',
     ];
 
     /**

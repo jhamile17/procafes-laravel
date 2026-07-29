@@ -132,9 +132,8 @@ class GoogleController extends Controller
                     'tipo_documento' => 'PENDIENTE',
                     'numero_documento' => 'PENDIENTE',
                     'email' => $email,
-                    'password' => bin2hex(
-                        random_bytes(32)
-                    ),
+                    'password' => bin2hex(random_bytes(32)),
+                    'has_local_password'=> false,
                     'provider' => User::PROVIDER_GOOGLE,
                     'provider_id' => $googleUser->getId(),
                     'celular' => '',
@@ -205,28 +204,6 @@ class GoogleController extends Controller
             $registrationService->updateLastAccess(
                 $user
             );
-
-            /*
-            |--------------------------------------------------------------------------
-            | Actualizar foto de perfil
-            |--------------------------------------------------------------------------
-            */
-
-            if (
-
-                $googleUser->getAvatar()
-
-                && $user->foto_perfil !== $googleUser->getAvatar()
-
-            ) {
-
-                $user->update([
-
-                    'foto_perfil' => $googleUser->getAvatar(),
-
-                ]);
-
-            }
 
             /*
             |--------------------------------------------------------------------------

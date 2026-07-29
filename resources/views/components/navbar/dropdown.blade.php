@@ -7,32 +7,39 @@
 <ul class="dropdown-menu dropdown-menu-end navbar-dropdown">
 
     <li>
-        <a
-            href="{{ route('home') }}"
-            class="dropdown-item">
 
-            <i class="bi bi-person" aria-hidden="true"></i>
+        <a
+            href="{{ route('customer.profile') }}"
+            class="dropdown-item navbar-dropdown-item">
+
+            <i
+                class="bi bi-person"
+                aria-hidden="true">
+            </i>
 
             <span>Mi perfil</span>
 
         </a>
+
     </li>
 
     <li>
-        <a
-            href="{{ route('home') }}"
-            class="dropdown-item">
 
-            <i class="bi bi-bag" aria-hidden="true"></i>
+        <a
+            href="{{ route('customer.orders') }}"
+            class="dropdown-item navbar-dropdown-item">
+
+            <i
+                class="bi bi-bag"
+                aria-hidden="true">
+            </i>
 
             <span>Mis pedidos</span>
 
         </a>
-    </li>
-    <li>
-        <hr class="dropdown-divider">
-    </li>
 
+    </li>
+    <li class="navbar-dropdown-divider"></li>
     <li>
 
         <form
@@ -43,7 +50,7 @@
 
             <button
                 type="submit"
-                class="dropdown-item">
+                class="dropdown-item navbar-dropdown-item">
 
                 <i
                     class="bi bi-box-arrow-right"

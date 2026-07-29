@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Ejecutar la migración.
+     */
     public function up(): void
     {
         Schema::create('shipping_addresses', function (Blueprint $table) {
@@ -17,23 +20,58 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
 
-            $table->text('direccion');
+            /*
+            |--------------------------------------------------------------------------
+            | Información de la dirección
+            |--------------------------------------------------------------------------
+            */
 
-            $table->string('city',100);
+            $table->string('alias', 100)
+                ->nullable()
+                ->comment('Casa, Trabajo, Oficina, etc.');
 
-            $table->string('state',100);
+            $table->string('direccion');
 
-            $table->string('zip_code',20);
+            $table->string('departamento', 100);
 
-            $table->string('country',100);
+            $table->string('provincia', 100);
 
-            $table->boolean('es_principal')->default(false);
+            $table->string('distrito', 100);
+
+            $table->string('referencia', 255)
+                ->nullable();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Coordenadas (LocationIQ)
+            |--------------------------------------------------------------------------
+            */
+
+            $table->decimal('latitude', 10, 7)
+                ->nullable()
+                ->comment('Latitud obtenida desde LocationIQ');
+
+            $table->decimal('longitude', 10, 7)
+                ->nullable()
+                ->comment('Longitud obtenida desde LocationIQ');
+
+            /*
+            |--------------------------------------------------------------------------
+            | Configuración
+            |--------------------------------------------------------------------------
+            */
+
+            $table->boolean('es_principal')
+                ->default(false);
 
             $table->timestamps();
 
         });
     }
 
+    /**
+     * Revertir la migración.
+     */
     public function down(): void
     {
         Schema::dropIfExists('shipping_addresses');

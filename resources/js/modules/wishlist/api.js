@@ -1,3 +1,32 @@
+/*==========================================================================
+    Obtener favoritos
+==========================================================================*/
+
+export async function getWishlist() {
+
+    const response = await fetch(
+        window.App.routes.wishlist.index,
+        {
+            headers: {
+                'Accept': 'application/json',
+            },
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw data;
+    }
+
+    return data;
+
+}
+
+/*==========================================================================
+    Agregar / Eliminar favorito
+==========================================================================*/
+
 export async function toggleWishlist(productId) {
 
     const response = await fetch(
@@ -12,34 +41,70 @@ export async function toggleWishlist(productId) {
             },
 
             body: JSON.stringify({
-                product_id: productId,
+                product_id: Number(productId),
             }),
         }
     );
 
-    return response.json();
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw data;
+    }
+
+    return data;
 
 }
 
-export async function syncWishlist(favorites) {
+/*==========================================================================
+    Obtener contador
+==========================================================================*/
+
+export async function getWishlistCount() {
 
     const response = await fetch(
-        window.App.routes.wishlist.sync,
+        window.App.routes.wishlist.count,
         {
-            method: 'POST',
-
             headers: {
-                'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'X-CSRF-TOKEN': window.Laravel.csrfToken,
             },
-
-            body: JSON.stringify({
-                favorites,
-            }),
         }
     );
 
-    return response.json();
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw data;
+    }
+
+    return data;
+
+}
+
+/*==========================================================================
+    Vaciar favoritos
+==========================================================================*/
+
+export async function clearWishlist() {
+
+    const response = await fetch(
+        window.App.routes.wishlist.clear,
+        {
+            method: 'DELETE',
+
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': window.Laravel.csrfToken,
+            },
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw data;
+    }
+
+    return data;
 
 }

@@ -1,230 +1,117 @@
 import {
-    getFavorites,
-    toggleFavorite,
-    clearFavorites
-} from './storage';
-
-import {
-    toggleWishlist,
-    syncWishlist
+    getWishlist,
+    getWishlistCount,
+    toggleWishlist
 } from './api';
 
-/*
-|--------------------------------------------------------------------------
-| Inicializar
-|--------------------------------------------------------------------------
-*/
+import {
+    initializeIcons,
+    updateIcon
+} from './ui';
+
+import {
+    getWishlistBadge,
+    getWishlistMessage
+} from './dom';
+
+/*==========================================================================
+    Inicializar
+==========================================================================*/
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Sincronizar favoritos al iniciar sesión
-    |--------------------------------------------------------------------------
-    */
+    try {
 
-    if (window.App.isAuth) {
+        const response = await getWishlist();
 
-        const favorites = getFavorites();
+        initializeIcons(response.items);
 
-        if (favorites.length > 0) {
+        updateBadge(response.count);
 
-            try {
+    } catch (error) {
 
-                const response = await syncWishlist(favorites);
-
-                if (response.ok) {
-
-                    clearFavorites();
-
-                }
-
-            } catch (error) {
-
-                console.error(error);
-
-            }
-
-        }
+        console.error('Wishlist:', error);
 
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Pintar corazones guardados
-    |--------------------------------------------------------------------------
-    */
-
-    document
-        .querySelectorAll('.product-wishlist')
-        .forEach(button => {
-
-            const productId = Number(
-                button.dataset.productId
-            );
-
-            if (getFavorites().includes(productId)) {
-
-                activate(button);
-
-            }
-
-        });
-
-    updateBadge();
-
-    /*
-    |--------------------------------------------------------------------------
-    | Eventos
-    |--------------------------------------------------------------------------
-    */
-
-    document.addEventListener('click', async event => {
-
-        const button = event.target.closest('.product-wishlist');
-
-        if (!button) {
-            return;
-        }
-
-        event.preventDefault();
-
-        const productId = Number(
-            button.dataset.productId
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Usuario invitado
-        |--------------------------------------------------------------------------
-        */
-
-        if (!window.App.isAuth) {
-
-            const active = toggleFavorite(productId);
-
-            update(button, active);
-
-            updateBadge();
-
-            animateBadge('wishlistBadge');
-           showWishlistMessage(
-            active
-        );
-
-
-            return;
-
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Usuario autenticado
-        |--------------------------------------------------------------------------
-        */
-
-        try {
-
-            const response = await toggleWishlist(productId);
-
-            if (!response.ok) {
-                return;
-            }
-
-            update(
-                button,
-                response.added
-            );
-
-            updateBadge();
-
-            animateBadge('wishlistBadge');
-            showWishlistMessage(
-                response.added
-            );
-
-        } catch (error) {
-
-            console.error(error);
-
-        }
-
-    });
 
 });
 
-/*
-|--------------------------------------------------------------------------
-| Helpers
-|--------------------------------------------------------------------------
-*/
+/*==========================================================================
+    Toggle favorito
+==========================================================================*/
 
-function activate(button) {
+document.addEventListener('click', async event => {
 
-    update(button, true);
+    const button = event.target.closest('.product-wishlist');
 
-}
-
-function update(button, active) {
-
-    const icon = button.querySelector('i');
-
-    if (!icon) {
+    if (!button) {
         return;
     }
 
-    button.classList.toggle(
-        'active',
-        active
+    event.preventDefault();
+
+    const productId = Number(
+        button.dataset.productId
     );
 
-    icon.classList.toggle(
-        'bi-heart',
-        !active
-    );
+    try {
 
-    icon.classList.toggle(
-        'bi-heart-fill',
-        active
-    );
+        const response = await toggleWishlist(productId);
 
-}
+        if (!response.ok) {
+            return;
+        }
 
-/*
-|--------------------------------------------------------------------------
-| Badge
-|--------------------------------------------------------------------------
-*/
+        updateIcon(
+            button,
+            response.added
+        );
 
-function updateBadge() {
+        updateBadge(
+            response.count
+        );
 
-    const badge = document.getElementById(
-        'wishlistBadge'
-    );
+        animateBadge();
+
+        showWishlistMessage(
+            response.added
+        );
+
+    } catch (error) {
+
+        console.error('Wishlist:', error);
+
+    }
+
+});
+
+/*==========================================================================
+    Badge
+==========================================================================*/
+
+function updateBadge(total)
+{
+    const badge = getWishlistBadge();
 
     if (!badge) {
         return;
     }
 
-    const total = getFavorites().length;
-
     badge.textContent = total;
 
-    badge.style.display = total > 0
-        ? 'inline-flex'
-        : 'none';
-
+    badge.style.display =
+        total > 0
+            ? 'inline-flex'
+            : 'none';
 }
 
-/*
-|--------------------------------------------------------------------------
-| Animación Badge
-|--------------------------------------------------------------------------
-*/
+/*==========================================================================
+    Animación Badge
+==========================================================================*/
 
-function animateBadge(id) {
-
-    const badge = document.getElementById(id);
+function animateBadge()
+{
+    const badge = getWishlistBadge();
 
     if (!badge) {
         return;
@@ -235,11 +122,15 @@ function animateBadge(id) {
     void badge.offsetWidth;
 
     badge.classList.add('badge-pop');
-
 }
-function showWishlistMessage(added) {
 
-    const message = document.getElementById('wishlistMessage');
+/*==========================================================================
+    Mensaje
+==========================================================================*/
+
+function showWishlistMessage(added)
+{
+    const message = getWishlistMessage();
 
     if (!message) {
         return;
@@ -254,5 +145,4 @@ function showWishlistMessage(added) {
     void message.offsetWidth;
 
     message.classList.add('show');
-
 }

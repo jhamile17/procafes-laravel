@@ -1,7 +1,5 @@
 {{--==========================================================================
     NAVBAR SEARCH
-    --------------------------------------------------------------------------
-    Buscador principal de productos.
 ==========================================================================--}}
 
 <form
@@ -25,7 +23,7 @@
 
         <button
             type="submit"
-            class="btn btn-primary navbar-search-btn"
+            class="btn navbar-search-btn"
             aria-label="Buscar productos">
 
             <i

@@ -1,81 +1,110 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
+
 <head>
+
     <x-layout.head />
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
     @livewireStyles
+
+    @stack('styles')
+
 </head>
+
 <body>
 
-    <x-navbar.navbar/>
+    {{-- ===========================
+        NAVBAR
+    ============================ --}}
 
-    <main>
+    <x-navbar.navbar />
+
+    {{-- ===========================
+        CONTENIDO
+    ============================ --}}
+
+    <main id="app">
+
         @yield('content')
+
         {{ $slot ?? '' }}
+
     </main>
 
+    {{-- ===========================
+        FOOTER
+    ============================ --}}
+
     <x-layout.footer />
+
+    {{-- ===========================
+        COMPONENTES GLOBALES
+    ============================ --}}
 
     <x-ecommerce.whatsapp />
 
     <x-chat.button />
 
     <x-ecommerce.cart-offcanvas />
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
 
-    <div
-        id="appToast"
-        class="toast border-0 shadow"
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true">
+    <x-ui.alert />
 
-        <div class="toast-body fw-medium"></div>
+    {{-- ===========================
+        CONFIGURACIÓN JAVASCRIPT
+    ============================ --}}
 
-    </div>
-
-</div>
     <script>
 
         window.Laravel = {
 
-            csrfToken: '{{ csrf_token() }}',
+            csrfToken: "{{ csrf_token() }}",
 
             routes: {
 
-                index: '{{ route('cart.index') }}',
+                cart: {
 
-                add: '{{ route('cart.add') }}',
+                    index: "{{ route('cart.index') }}",
+                    data: "{{ route('cart.data') }}",
+                    add: "{{ route('cart.add') }}",
+                    clear: "{{ route('cart.clear') }}",
+                    base: "{{ url('/cart') }}"
 
-                base: '{{ url('/cart') }}',
+                },
 
-                clear: '{{ route('cart.clear') }}',
-
-            }
-
-        };
-
-        window.App = {
-
-            isAuth: @json(auth()->check()),
-
-            routes: {
-
-                login: '{{ route('login') }}',
-
-                checkout: '{{ route('checkout') }}',
                 wishlist: {
-                     toggle: '{{ route('wishlist.toggle') }}',
-                    sync: '{{ route('wishlist.sync') }}',
-                }
 
-            }
+                    index: "{{ route('wishlist.index') }}",
+
+                    toggle: "{{ route('wishlist.toggle') }}",
+
+                    count: "{{ route('wishlist.count') }}",
+
+                    clear: "{{ route('wishlist.clear') }}"
+
+                },
+
+                login: "{{ route('login') }}",
+
+                checkout: "{{ route('checkout') }}"
+
+            },
+
+            auth: @json(auth()->check())
 
         };
 
     </script>
 
+    {{-- ===========================
+        SCRIPTS
+    ============================ --}}
+
     @stack('scripts')
 
+    @livewireScripts
+
 </body>
+
 </html>

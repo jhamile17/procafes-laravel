@@ -6,18 +6,21 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Services\Catalogo\ProductService;
 use App\Services\Inventario\InventoryService;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 class CartService
 {
+    private const MAX_CANTIDAD = 8;
+    private const ERROR_MAX_CANTIDAD =
+    'Solo puedes comprar hasta 8 unidades de este producto.';
     public function __construct(
         protected ProductService $productService,
-        protected InventoryService $inventoryService
+        protected InventoryService $inventoryService,
     ) {
     }
-        private const MAX_CANTIDAD = 8;
+
     /*
     |--------------------------------------------------------------------------
     | Obtener o crear carrito
@@ -31,8 +34,8 @@ class CartService
                 'user_id' => $userId,
             ],
             [
-                'estado' => true,
-                'ultima_actividad' => now(),
+                'estado'             => true,
+                'ultima_actividad'   => now(),
             ]
         );
     }
@@ -48,16 +51,7 @@ class CartService
         int $productId,
         int $cantidad = 1
     ): CartItem {
-        if ($cantidad <= 0) {
-            throw new RuntimeException(
-                'La cantidad debe ser mayor que cero.'
-            );
-        }
-       if ($cantidad > self::MAX_CANTIDAD) {
-            throw new RuntimeException(
-                'Solo puedes comprar hasta 8 unidades de este producto.'
-            );
-        }
+         $this->validarCantidad($cantidad);
         return DB::transaction(function () use (
             $userId,
             $productId,
@@ -68,18 +62,21 @@ class CartService
 
             $product = $this->productService->obtener($productId);
 
-            $item = $cart
-                ->items()
+            $item = $cart->items()
+                ->with('product')
                 ->where('product_id', $product->id)
                 ->first();
 
-          if ($item) {
-            $this->actualizarCantidad(
-                $item,
-                $item->quantity + $cantidad
-            );
-        } else {
-            $this->inventoryService->validarStock(
+            if ($item) {
+
+                $this->actualizarCantidad(
+                    $item,
+                    $item->quantity + $cantidad
+                );
+
+            } else {
+
+                $this->inventoryService->validarStock(
                     $product,
                     $cantidad
                 );
@@ -88,15 +85,18 @@ class CartService
                     'cart_id'    => $cart->id,
                     'product_id' => $product->id,
                     'quantity'   => $cantidad,
-                    'price'      => $product->sale_price,
-                    'sub_total'  => $cantidad * $product->sale_price,
+                    'unit_price' => $product->sale_price,
+                    'subtotal'   => bcmul(
+                        (string) $product->sale_price,
+                        (string) $cantidad,
+                        2
+                    ),
                 ]);
             }
 
             $this->actualizarActividad($cart);
 
             return $item->fresh('product');
-
         });
     }
 
@@ -110,23 +110,7 @@ class CartService
         CartItem $item,
         int $cantidad
     ): CartItem {
-
-        if ($cantidad <= 0) {
-
-            throw new RuntimeException(
-                'La cantidad debe ser mayor que cero.'
-            );
-
-        }
-
-        if ($cantidad > self::MAX_CANTIDAD) {
-
-            throw new RuntimeException(
-                'Solo puedes comprar hasta 8 unidades de este producto.'
-            );
-
-        }
-
+        $this->validarCantidad($cantidad);
         $this->inventoryService->validarStock(
             $item->product,
             $cantidad
@@ -134,9 +118,9 @@ class CartService
 
         $item->quantity = $cantidad;
 
-        $item->price = $item->product->sale_price;
+        $item->unit_price = $item->product->sale_price;
 
-        $item->actualizarSubtotal();
+        $item->recalcularSubtotal();
 
         $item->save();
 
@@ -188,40 +172,56 @@ class CartService
     public function obtenerItems(Cart $cart): Collection
     {
         return $cart
-            ->items()
-            ->with('product')
-            ->get();
+            ->loadMissing('items.product')
+            ->items
+            ->map(function (CartItem $item) {
+
+                return [
+
+                    'product_id' => $item->product_id,
+
+                    'name' => $item->product->name,
+
+                    'unit_price' => $item->unit_price,
+
+                    'image' => $item->product->image_url,
+
+                    'quantity' => $item->quantity,
+
+                    'subtotal' => $item->subtotal,
+
+                ];
+
+            });
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Calcular total
+    | Calcular total del carrito
     |--------------------------------------------------------------------------
     */
 
     public function calcularTotal(Cart $cart): float
     {
-        return (float) $cart
-            ->items()
-            ->sum('sub_total');
+        return (float) $cart->items()
+            ->sum('subtotal');
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Contar productos
+    | Contar cantidad total de productos
     |--------------------------------------------------------------------------
     */
 
     public function contarProductos(Cart $cart): int
     {
-        return (int) $cart
-            ->items()
+        return (int) $cart->items()
             ->sum('quantity');
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Verificar si existe un producto
+    | Verificar si un producto existe en el carrito
     |--------------------------------------------------------------------------
     */
 
@@ -230,20 +230,33 @@ class CartService
         int $productId
     ): bool {
 
-        return $cart
-            ->items()
+        return $cart->items()
             ->where('product_id', $productId)
             ->exists();
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Actualizar actividad del carrito
+    | Actualizar última actividad del carrito
     |--------------------------------------------------------------------------
     */
 
     private function actualizarActividad(Cart $cart): void
     {
         $cart->actualizarActividad();
+    }
+    private function validarCantidad(int $cantidad): void
+        {
+        if ($cantidad <= 0) {
+            throw new RuntimeException(
+                'La cantidad debe ser mayor que cero.'
+            );
+        }
+
+        if ($cantidad > self::MAX_CANTIDAD) {
+            throw new RuntimeException(
+                self::ERROR_MAX_CANTIDAD
+            );
+        }
     }
 }

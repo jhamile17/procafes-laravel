@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Ventas;
 
+use App\Models\Product;
 use App\Models\Wishlist;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -13,132 +14,66 @@ class WishlistService
 {
     /*
     |--------------------------------------------------------------------------
-    | Agregar producto a favoritos
-    |--------------------------------------------------------------------------
-    */
-
-    public function agregar(
-        int $userId,
-        int $productId
-    ): Wishlist {
-
-        if ($this->existe($userId, $productId)) {
-
-            throw new RuntimeException(
-                'El producto ya se encuentra en la lista de favoritos.'
-            );
-
-        }
-
-        return DB::transaction(function () use (
-            $userId,
-            $productId
-        ) {
-
-            return Wishlist::create([
-                'user_id'    => $userId,
-                'product_id' => $productId,
-            ]);
-
-        });
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Eliminar producto de favoritos
-    |--------------------------------------------------------------------------
-    */
-
-    public function eliminar(
-        int $userId,
-        int $productId
-    ): bool {
-
-        $wishlist = Wishlist::query()
-            ->where('user_id', $userId)
-            ->where('product_id', $productId)
-            ->first();
-
-        if (! $wishlist) {
-
-            throw new RuntimeException(
-                'El producto no existe en la lista de favoritos.'
-            );
-
-        }
-
-        return (bool) $wishlist->delete();
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Alternar favorito (Agregar / Eliminar)
-    |--------------------------------------------------------------------------
-    */
-
-    public function toggle(
-        int $userId,
-        int $productId
-    ): bool {
-
-        if ($this->existe($userId, $productId)) {
-
-            $this->eliminar(
-                $userId,
-                $productId
-            );
-
-            return false;
-
-        }
-
-        $this->agregar(
-            $userId,
-            $productId
-        );
-
-        return true;
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Verificar existencia
-    |--------------------------------------------------------------------------
-    */
-
-    public function existe(
-        int $userId,
-        int $productId
-    ): bool {
-
-        return Wishlist::query()
-            ->where('user_id', $userId)
-            ->where('product_id', $productId)
-            ->exists();
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
     | Obtener favoritos
     |--------------------------------------------------------------------------
     */
 
-    public function obtenerFavoritos(
-        int $userId
-    ): Collection {
-
-        return Wishlist::query()
+    public function obtenerFavoritos(int $userId): Collection
+    {
+        $products = Wishlist::query()
             ->with([
                 'product.category',
                 'product.brand',
             ])
             ->where('user_id', $userId)
             ->latest()
-            ->get();
+            ->get()
+            ->pluck('product');
+
+        return $this->formatearProductos($products);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Formatear productos
+    |--------------------------------------------------------------------------
+    */
+
+    public function formatearProductos(
+        Collection $products
+    ): Collection {
+
+        return $products->map(function (Product $product): object {
+
+            return (object) [
+
+                'product_id' => $product->id,
+
+                'name' => $product->name,
+
+                'description' => $product->description,
+
+                'price' => $product->sale_price,
+
+                'formatted_price' => $product->precio_formateado,
+
+                'image' => $product->image_url,
+
+                'stock' => $product->stock,
+
+                'stock_status' => $product->stock_status,
+
+                'stock_badge' => $product->stock_badge,
+
+                'brand' => $product->brand?->name,
+
+                'category' => $product->category?->name,
+
+                'status' => $product->status,
+
+            ];
+
+        });
 
     }
 
@@ -160,38 +95,120 @@ class WishlistService
 
     /*
     |--------------------------------------------------------------------------
-    | Sincronizar favoritos desde LocalStorage
+    | Verificar favorito
     |--------------------------------------------------------------------------
-    |
-    | Inserta únicamente los productos que todavía no existen
-    | en la lista del usuario.
-    |
     */
 
-    public function sincronizar(
+    public function esFavorito(
         int $userId,
-        array $favorites
-    ): void {
+        int $productId
+    ): bool {
 
-        DB::transaction(function () use (
+        return Wishlist::query()
+            ->where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->exists();
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Agregar favorito
+    |--------------------------------------------------------------------------
+    */
+
+    public function agregarFavorito(
+        int $userId,
+        int $productId
+    ): Wishlist {
+
+        if ($this->esFavorito($userId, $productId)) {
+
+            throw new RuntimeException(
+                'El producto ya se encuentra en la lista de favoritos.'
+            );
+
+        }
+
+        return DB::transaction(function () use (
             $userId,
-            $favorites
+            $productId
         ) {
 
-            foreach ($favorites as $productId) {
+            return Wishlist::create([
 
-                if (! $this->existe($userId, (int) $productId)) {
+                'user_id' => $userId,
 
-                    Wishlist::create([
-                        'user_id'    => $userId,
-                        'product_id' => (int) $productId,
-                    ]);
+                'product_id' => $productId,
 
-                }
-
-            }
+            ]);
 
         });
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Eliminar favorito
+    |--------------------------------------------------------------------------
+    */
+
+    public function eliminarFavorito(
+        int $userId,
+        int $productId
+    ): void {
+
+        Wishlist::query()
+            ->where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->delete();
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Alternar favorito
+    |--------------------------------------------------------------------------
+    */
+
+    public function toggle(
+        int $userId,
+        int $productId
+    ): bool {
+
+        if ($this->esFavorito($userId, $productId)) {
+
+            $this->eliminarFavorito(
+                $userId,
+                $productId
+            );
+
+            return false;
+
+        }
+
+        $this->agregarFavorito(
+            $userId,
+            $productId
+        );
+
+        return true;
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Vaciar favoritos
+    |--------------------------------------------------------------------------
+    */
+
+    public function vaciarFavoritos(
+        int $userId
+    ): void {
+
+        Wishlist::query()
+            ->where('user_id', $userId)
+            ->delete();
 
     }
 }
