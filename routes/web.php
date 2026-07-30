@@ -33,7 +33,7 @@ use App\Http\Controllers\Admin\CategoryController as CategoryController;
 use App\Http\Controllers\Admin\BrandController as BrandController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\UserController as UserController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\DashboardController as DashboardController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\OrderController;

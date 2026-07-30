@@ -4,27 +4,38 @@
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
     <title>
-        @yield('title', 'Panel Administrativo | PROCÁFES')
+
+        @yield('title','Panel Administrativo | PROCÁFES')
+
     </title>
 
     {{-- Bootstrap --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
 
     {{-- Bootstrap Icons --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet">
 
     {{-- Google Fonts --}}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect"
+        href="https://fonts.googleapis.com">
 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
-    {{-- CSS del administrador --}}
-    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    {{-- CSS --}}
+    <link rel="stylesheet"
+        href="{{ asset('css/admin.css') }}">
 
     @stack('styles')
 
@@ -34,194 +45,294 @@
 
 <div class="admin-layout">
 
-    {{-- =========================
+    {{-- =====================================================
         SIDEBAR
-    ========================== --}}
+    ====================================================== --}}
 
     <aside class="sidebar">
 
-        <div class="sidebar-logo">
+        {{-- =============================
+            LOGO
+        ============================== --}}
 
-            <img src="{{ asset('images/logo.png') }}" alt="PROCÁFES">
+        <div class="sidebar-brand">
 
-            <div>
+            <img
+                src="{{ asset('images/logo.jpg') }}"
+                alt="PROCÁFES"
+                class="brand-logo">
 
-                <h4>PROCÁFES</h4>
+            <h2>
 
-                <span>Administrador</span>
+                PROCÁFES
+
+            </h2>
+
+            <span>
+
+                Pasión por el buen café
+
+            </span>
+
+        </div>
+
+        <div class="sidebar-separator"></div>
+
+        {{-- =============================
+            PERFIL
+        ============================== --}}
+
+        <div class="sidebar-profile">
+
+            <div class="profile-avatar">
+
+                @if(auth()->user()->foto_perfil)
+
+                    <img
+                        src="{{ asset(auth()->user()->foto_perfil) }}"
+                        alt="Administrador">
+
+                @else
+
+                    <i class="bi bi-person-fill"></i>
+
+                @endif
+
+            </div>
+
+            <div class="profile-content">
+
+                <h5>
+
+                    {{ auth()->user()->nombre_completo ?? auth()->user()->name }}
+
+                </h5>
+
+                <p>
+
+                    {{ auth()->user()->email }}
+
+                </p>
+
+                <span>
+
+                    Administrador
+
+                </span>
 
             </div>
 
         </div>
 
+        <div class="sidebar-separator"></div>
+
+        {{-- =============================
+            MENÚ
+        ============================== --}}
+
         <nav class="sidebar-menu">
 
             <a href="{{ route('admin.dashboard') }}"
-               class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
 
-                <i class="bi bi-grid"></i>
+                <i class="bi bi-house-door-fill"></i>
 
-                Dashboard
+                <span>Dashboard</span>
 
             </a>
 
             <a href="{{ route('admin.products.index') }}"
-               class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
+                class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
 
-                <i class="bi bi-box-seam"></i>
+                <i class="bi bi-cup-hot-fill"></i>
 
-                Productos
+                <span>Productos</span>
 
             </a>
 
             <a href="{{ route('admin.categories.index') }}"
-               class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
 
-                <i class="bi bi-tags"></i>
+                <i class="bi bi-grid-fill"></i>
 
-                Categorías
+                <span>Categorías</span>
 
             </a>
 
             <a href="{{ route('admin.brands.index') }}"
-               class="{{ request()->routeIs('admin.brands.*') ? 'active' : '' }}">
+                class="{{ request()->routeIs('admin.brands.*') ? 'active' : '' }}">
 
-                <i class="bi bi-award"></i>
+                <i class="bi bi-award-fill"></i>
 
-                Marcas
+                <span>Marcas</span>
 
             </a>
 
             <a href="{{ route('admin.users.index') }}"
-               class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
 
-                <i class="bi bi-people"></i>
+                <i class="bi bi-people-fill"></i>
 
-                Usuarios
+                <span>Usuarios</span>
 
             </a>
 
             <a href="{{ route('admin.orders.index') }}"
-               class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
 
-                <i class="bi bi-cart-check"></i>
+                <i class="bi bi-cart-check-fill"></i>
 
-                Pedidos
+                <span>Pedidos</span>
 
             </a>
 
             <a href="{{ route('admin.billing.index') }}"
-               class="{{ request()->routeIs('admin.billing.*') ? 'active' : '' }}">
+                class="{{ request()->routeIs('admin.billing.*') ? 'active' : '' }}">
 
-                <i class="bi bi-receipt"></i>
+                <i class="bi bi-receipt-cutoff"></i>
 
-                Facturación
+                <span>Facturación</span>
+
+            </a>
+
+            <a href="#">
+
+                <i class="bi bi-bar-chart-fill"></i>
+
+                <span>Reportes</span>
 
             </a>
 
         </nav>
 
-    </aside>
+        <div class="sidebar-footer">
 
-    {{-- =========================
-        CONTENIDO
-    ========================== --}}
+            <form
+                action="{{ route('logout') }}"
+                method="POST">
 
-    <main class="main-content">
+                @csrf
 
-        {{-- ======================================
-    TOPBAR
-======================================= --}}
+                <button
+                    class="logout-button"
+                    type="submit">
 
-<header class="topbar">
+                    <i class="bi bi-box-arrow-right"></i>
 
-    <div class="topbar-left">
+                    <span>
 
-        <div>
+                        Cerrar sesión
 
-            <h2 class="page-title">
-                @yield('title', 'Dashboard')
-            </h2>
+                    </span>
 
-            <p class="page-subtitle">
-                Bienvenido nuevamente,
-                <strong>{{ auth()->user()->nombre_completo ?? auth()->user()->name }}</strong>
-            </p>
+                </button>
 
-        </div>
+            </form>
 
-    </div>
+            <div class="coffee-image">
 
-    <div class="topbar-right">
-
-        <button class="icon-button">
-
-            <i class="bi bi-bell"></i>
-
-        </button>
-
-        <button class="icon-button">
-
-            <i class="bi bi-envelope"></i>
-
-        </button>
-
-        <div class="admin-profile">
-
-            <img
-                src="{{ asset('images/avatar_admin.png') }}"
-                alt="Administrador">
-
-            <div>
-
-                <strong>
-
-                    {{ auth()->user()->nombre_completo ?? auth()->user()->name }}
-
-                </strong>
-
-                <small>
-
-                    Administrador
-
-                </small>
+                <img
+                    src="{{ asset('images/sidebar-coffee.png') }}"
+                    alt="Coffee">
 
             </div>
 
         </div>
 
-    </div>
+    </aside>
 
-</header>
+    {{-- =====================================================
+        CONTENIDO PRINCIPAL
+    ====================================================== --}}
 
-{{-- ======================================
-    CONTENIDO
-======================================= --}}
+    <main class="main-content">
+            {{-- =====================================================
+        HEADER
+    ====================================================== --}}
 
-<section class="dashboard-container">
+    <header class="topbar">
 
-    @yield('content')
+        <div class="topbar-right">
 
-</section>
+            <div class="topbar-right">
 
-{{-- ======================================
-    FOOTER
-======================================= --}}
+                <a href="{{ url('/') }}" target="_blank" class="btn-admin">
+                    <i class="bi bi-shop-window"></i>
+                    <span>Ver tienda</span>
+                </a>
 
-<footer class="admin-footer">
+                <div class="top-profile">
 
-    © {{ date('Y') }}
+                    <div class="top-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
 
-    <strong>PROCÁFES</strong>
+                    <div>
+                        <strong>{{ auth()->user()->name }}</strong>
+                        <small>Administrador</small>
+                    </div>
 
-    Todos los derechos reservados.
+                </div>
+                
+            </div>
 
-</footer>
+        </div>
 
-</main>
+    </header>
+
+    {{-- =====================================================
+        CONTENIDO
+    ====================================================== --}}
+
+    <section class="dashboard-container">
+
+        @yield('content')
+
+    </section>
+
+    {{-- =====================================================
+        FOOTER
+    ====================================================== --}}
+
+    <footer class="admin-footer">
+
+        <div class="footer-left">
+
+            © {{ date('Y') }}
+
+            <strong>
+
+                PROCÁFES
+
+            </strong>
+
+            · Todos los derechos reservados.
+
+        </div>
+
+        <div class="footer-right">
+
+            <span>
+
+                Sistema Administrativo
+
+            </span>
+
+            <span class="version">
+
+                v1.0
+
+            </span>
+
+        </div>
+
+    </footer>
+
+    </main>
 
 </div>
 
+{{-- Bootstrap --}}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 @stack('scripts')
