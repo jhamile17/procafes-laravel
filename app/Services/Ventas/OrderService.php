@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Models\ShippingAddress;
 use RuntimeException;
 
 class OrderService
@@ -32,7 +33,7 @@ class OrderService
 
     public function crearPedido(
         Cart $cart,
-        int $shippingAddressId,
+        ShippingAddress $shippingAddress,
         string $deliveryType,
         ?string $observaciones = null
     ): Order {
@@ -41,7 +42,7 @@ class OrderService
 
         return DB::transaction(function () use (
             $cart,
-            $shippingAddressId,
+            $shippingAddress,
             $deliveryType,
             $observaciones
         ) {
@@ -54,11 +55,23 @@ class OrderService
 
                 'user_id' => $cart->user_id,
 
-                'shipping_address_id' => $shippingAddressId,
+                'shipping_address_id' => $shippingAddress->id,
 
                 'estado_pedido_id' => $estadoPendiente->id,
 
                 'numero_pedido' => $this->generarNumeroPedido(),
+
+                'delivery_alias' => $shippingAddress->alias,
+
+                'delivery_direccion' => $shippingAddress->direccion,
+
+                'delivery_departamento' => $shippingAddress->departamento,
+
+                'delivery_provincia' => $shippingAddress->provincia,
+
+                'delivery_distrito' => $shippingAddress->distrito,
+
+                'delivery_referencia' => $shippingAddress->referencia,
 
                 'total_price' => 0,
 
@@ -334,7 +347,7 @@ class OrderService
 
                 'unit_price' => $item->unit_price,
 
-                'subtotal' => $item->sub_total,
+                'subtotal' => $item->subtotal,
 
             ]);
 

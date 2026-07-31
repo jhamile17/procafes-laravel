@@ -151,7 +151,7 @@ class CheckoutService
             $order = $this->orderService
                 ->crearPedido(
                     $cart,
-                    $shippingAddress->id,
+                    $shippingAddress,
                     $deliveryType,
                     $observaciones
                 );
