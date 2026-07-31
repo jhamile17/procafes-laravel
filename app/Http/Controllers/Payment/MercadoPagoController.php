@@ -19,7 +19,7 @@ class MercadoPagoController extends Controller
     public function success(Request $request): RedirectResponse
     {
         return redirect()
-            ->route('customer.dashboard')
+            ->route('customer.profile')
             ->with(
                 'success',
                 'Tu pago fue realizado correctamente. Estamos verificando la operación.'
@@ -35,7 +35,7 @@ class MercadoPagoController extends Controller
     public function pending(Request $request): RedirectResponse
     {
         return redirect()
-            ->route('customer.dashboard')
+            ->route('customer.profile')
             ->with(
                 'warning',
                 'Tu pago quedó pendiente de confirmación.'
@@ -51,7 +51,7 @@ class MercadoPagoController extends Controller
     public function failure(Request $request): RedirectResponse
     {
         return redirect()
-            ->route('customer.dashboard')
+            ->route('customer.profile')
             ->with(
                 'error',
                 'El pago fue rechazado o cancelado.'
