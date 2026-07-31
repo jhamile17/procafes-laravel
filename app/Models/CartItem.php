@@ -23,7 +23,7 @@ class CartItem extends Model
         'product_id',
         'quantity',
         'unit_price',
-        'sub_total',
+        'subtotal',
     ];
 
     /*
@@ -37,7 +37,7 @@ class CartItem extends Model
         return [
             'quantity'   => 'integer',
             'unit_price' => 'decimal:2',
-            'sub_total'   => 'decimal:2',
+            'subtotal'   => 'decimal:2',
         ];
     }
 
@@ -65,7 +65,7 @@ class CartItem extends Model
 
     public function recalcularSubtotal(): void
     {
-        $this->sub_total = bcmul(
+        $this->subtotal = bcmul(
             (string) $this->unit_price,
             (string) $this->quantity,
             2
