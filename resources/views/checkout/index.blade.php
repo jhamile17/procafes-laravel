@@ -595,7 +595,7 @@ hr{
 
                                 <strong>
 
-                                    S/ {{ $money($item['sub_total']) }}
+                                    S/ {{ $money($item['subtotal']) }}
 
                                 </strong>
 
