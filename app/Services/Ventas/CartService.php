@@ -204,7 +204,7 @@ class CartService
     public function calcularTotal(Cart $cart): float
     {
         return (float) $cart->items()
-            ->sum('sub_total');
+            ->sum('subtotal');
     }
 
     /*
