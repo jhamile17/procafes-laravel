@@ -42,8 +42,8 @@ use App\Http\Controllers\Admin\ConfiguracionEmpresaController;
 // Checkout / pagos
 use App\Http\Controllers\PaymentDemoController;
 // Mercado Pago
-use App\Http\Controllers\Public\MercadoPagoController;
-use App\Http\Controllers\Public\MercadoPagoWebhookController;
+use App\Http\Controllers\Payment\MercadoPagoController;
+use App\Http\Controllers\Payment\MercadoPagoWebhookController;
 
 /*RUTAS PÚBLICAS*/
 Route::get('/', [HomeController::class, 'index'])
