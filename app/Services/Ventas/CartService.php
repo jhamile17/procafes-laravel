@@ -171,28 +171,27 @@ class CartService
 
     public function obtenerItems(Cart $cart): Collection
     {
-        return $cart
-            ->loadMissing('items.product')
-            ->items
-            ->map(function (CartItem $item) {
+        $cart->load('items.product');
 
-                return [
+        return $cart->items->map(function (CartItem $item) {
 
-                    'product_id' => $item->product_id,
+            return [
 
-                    'name' => $item->product->name,
+                'product_id' => $item->product_id,
 
-                    'unit_price' => $item->unit_price,
+                'name' => $item->product->name,
 
-                    'image' => $item->product->image_url,
+                'unit_price' => $item->unit_price,
 
-                    'quantity' => $item->quantity,
+                'image' => $item->product->image_url,
 
-                    'subtotal' => $item->subtotal,
+                'quantity' => $item->quantity,
 
-                ];
+                'subtotal' => $item->subtotal,
 
-            });
+            ];
+
+        });
     }
 
     /*
