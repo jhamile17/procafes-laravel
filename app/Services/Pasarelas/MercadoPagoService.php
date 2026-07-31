@@ -94,7 +94,6 @@ class MercadoPagoService
                     'sandbox_init_point' => $preference->sandbox_init_point,
                 ],
             ]);
-            dd($request);
 
             return $preference;
 
