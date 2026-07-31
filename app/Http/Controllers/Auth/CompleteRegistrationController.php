@@ -101,9 +101,7 @@ class CompleteRegistrationController extends Controller
 
         request()->session()->regenerate();
     
-        return redirect()->route(
-            'register.welcome'
-        );
+        return redirect()->route('customer.profile');
           
     }
 }
