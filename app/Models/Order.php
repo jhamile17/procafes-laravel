@@ -23,6 +23,14 @@ class Order extends Model
         'shipping_address_id',
         'estado_pedido_id',
         'numero_pedido',
+
+        'delivery_alias',
+        'delivery_direccion',
+        'delivery_departamento',
+        'delivery_provincia',
+        'delivery_distrito',
+        'delivery_referencia',
+
         'total_price',
         'delivery_type',
         'observaciones',
