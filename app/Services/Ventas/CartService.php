@@ -86,7 +86,7 @@ class CartService
                     'product_id' => $product->id,
                     'quantity'   => $cantidad,
                     'unit_price' => $product->sale_price,
-                    'sub_total'   => bcmul(
+                    'subtotal'   => bcmul(
                         (string) $product->sale_price,
                         (string) $cantidad,
                         2
@@ -188,7 +188,7 @@ class CartService
 
                     'quantity' => $item->quantity,
 
-                    'sub_total' => $item->sub_total,
+                    'subtotal' => $item->subtotal,
 
                 ];
 
