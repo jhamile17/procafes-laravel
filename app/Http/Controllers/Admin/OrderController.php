@@ -7,6 +7,7 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use App\Models\EstadoPedido;
 
 class OrderController extends Controller
 {
@@ -16,22 +17,51 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $q = trim($request->get('q', ''));
+        $status = $request->get('status');
 
-        $orders = Order::with(['user', 'estadoPedido'])
+        $orders = Order::with([
+                'user',
+                'estadoPedido',
+            ])
             ->when($q, function ($query) use ($q) {
 
                 $query->where('numero_pedido', 'like', "%{$q}%")
                     ->orWhereHas('user', function ($q2) use ($q) {
+
                         $q2->where('name', 'like', "%{$q}%")
-                        ->orWhere('email', 'like', "%{$q}%");
+                            ->orWhere('email', 'like', "%{$q}%");
+
                     });
+
+            })
+            ->when($status, function ($query) use ($status) {
+
+                $query->whereHas('estadoPedido', function ($q) use ($status) {
+
+                    $q->where('codigo', $status);
+
+                });
 
             })
             ->latest()
             ->paginate(12)
             ->withQueryString();
 
-        return view('admin.orders.index', compact('orders', 'q'));
+        $statuses = EstadoPedido::where('status', true)
+            ->orderBy('id')
+            ->pluck('codigo');
+
+        $statusLabel = EstadoPedido::where('status', true)
+            ->pluck('nombre', 'codigo')
+            ->toArray();
+
+        return view('admin.orders.index', compact(
+            'orders',
+            'q',
+            'status',
+            'statuses',
+            'statusLabel'
+        ));
     }
     /**
      * Detalle de orden

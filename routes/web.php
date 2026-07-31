@@ -226,11 +226,29 @@ Route::prefix('admin')
         Route::get('/reports', [ReportController::class, 'index'])
             ->name('reports.index');
 
-        Route::get('/orders', [OrderController::class, 'index'])
-            ->name('orders.index');
-
         Route::get('/billing', [BillingController::class, 'index'])
             ->name('billing.index');
+
+        /*
+        |--------------------------------------------------------------------------
+        | ÓRDENES
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('orders')
+            ->name('orders.')
+            ->group(function () {
+
+                Route::get('/', [OrderController::class, 'index'])
+                    ->name('index');
+
+                Route::get('/{order}', [OrderController::class, 'show'])
+                    ->name('show');
+
+                Route::patch('/{order}/status', [OrderController::class, 'updateStatus'])
+                    ->name('status');
+
+            });
 
          Route::get(
             '/configuracion-empresa',
