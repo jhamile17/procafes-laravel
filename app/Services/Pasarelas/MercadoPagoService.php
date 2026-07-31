@@ -78,7 +78,7 @@ class MercadoPagoService
                 'failure' => route('mp.failure'),
                 'pending' => route('mp.pending'),
             ],
-
+            'notification_url' => 'https://pro-cafes.com/webhooks/mercadopago'
             // Vamos a quitar temporalmente esta línea
             // 'auto_return' => 'approved',
         ];
