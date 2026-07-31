@@ -332,7 +332,7 @@ class OrderService
 
                 'quantity' => $item->quantity,
 
-                'unit_price' => $item->price,
+                'unit_price' => $item->unit_price,
 
                 'subtotal' => $item->sub_total,
 
@@ -352,17 +352,10 @@ class OrderService
         string $codigo
     ): EstadoPedido {
 
-        return EstadoPedido::query()
-
-            ->activos()
-
-            ->whereRaw(
-                'UPPER(codigo) = ?',
-                [strtoupper($codigo)]
-            )
-
-            ->firstOrFail();
-
+        return EstadoPedido::whereRaw(
+            'UPPER(codigo) = ?',
+            [strtoupper($codigo)]
+        )->first();
     }
 
     /*

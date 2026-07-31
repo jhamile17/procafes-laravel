@@ -66,7 +66,7 @@ class SessionCartService
 
             $cart[$id]['quantity'] = $nuevaCantidad;
 
-            $cart[$id]['subtotal'] = bcmul(
+            $cart[$id]['sub_total'] = bcmul(
                 (string) $cart[$id]['unit_price'],
                 (string) $nuevaCantidad,
                 2
@@ -86,7 +86,7 @@ class SessionCartService
 
                 'quantity' => $cantidad,
 
-                'subtotal' => bcmul(
+                'sub_total' => bcmul(
                     (string) $product->sale_price,
                     (string) $cantidad,
                     2
@@ -129,7 +129,7 @@ class SessionCartService
 
         $cart[$productId]['quantity'] = $cantidad;
 
-        $cart[$productId]['subtotal'] = bcmul(
+        $cart[$productId]['sub_total'] = bcmul(
             (string) $cart[$productId]['unit_price'],
             (string) $cantidad,
             2
@@ -189,7 +189,7 @@ class SessionCartService
     {
         return (float) collect(
             $this->obtener($request)
-        )->sum('subtotal');
+        )->sum('sub_total');
     }
 
     /*

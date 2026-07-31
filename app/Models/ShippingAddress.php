@@ -27,6 +27,8 @@ class ShippingAddress extends Model
         'provincia',
         'distrito',
         'referencia',
+        'latitude',
+        'longitude',
         'es_principal',
     ];
 
@@ -39,6 +41,8 @@ class ShippingAddress extends Model
     protected function casts(): array
     {
         return [
+            'latitude' => 'float',
+            'longitude' => 'float',
             'es_principal' => 'boolean',
         ];
     }

@@ -48,7 +48,7 @@ class PaymentService
         ) {
 
             $estadoPendiente = $this->obtenerEstadoPago(
-                'PENDIENTE'
+                'PENDING'
             );
 
             $payment = Payment::create([
@@ -62,6 +62,8 @@ class PaymentService
                 'amount' => $order->total_price,
 
                 'reference' => $this->generarReferencia(),
+
+                'transaction_data' => [],
 
             ]);
 
@@ -151,6 +153,23 @@ class PaymentService
         ->first();
 
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Obtener pago por referencia
+    |--------------------------------------------------------------------------
+    */
+
+    public function obtenerPorReferencia(string $reference): ?Payment
+    {
+        return Payment::with([
+            'order',
+            'paymentMethod',
+            'estadoPago',
+        ])
+        ->where('reference', $reference)
+        ->first();
+    }
         /*
     |--------------------------------------------------------------------------
     | Cambiar estado del pago
@@ -171,6 +190,8 @@ class PaymentService
         );
 
         return $payment->fresh([
+            'order',
+            'paymentMethod',
             'estadoPago',
         ]);
 
@@ -181,7 +202,6 @@ class PaymentService
     | Confirmar pago
     |--------------------------------------------------------------------------
     */
-
     public function confirmarPago(
         Payment $payment,
         ?string $transactionId = null,
@@ -189,56 +209,72 @@ class PaymentService
     ): Payment {
 
         return DB::transaction(function () use (
+
             $payment,
             $transactionId,
             $transactionData
+
         ) {
 
-            if ($transactionId) {
-
-                $payment->transaction_id = $transactionId;
-
+            if ($payment->isPagado()) {
+                return $payment->fresh([
+                    'order',
+                    'paymentMethod',
+                    'estadoPago',
+                ]);
             }
 
-            if ($transactionData) {
+            $payment->update([
+                'transaction_id' => $transactionId,
+                'transaction_data' => array_merge(
+                    $payment->transaction_data ?? [],
+                    $transactionData ?? []
+                ),
+            ]);
 
-                $payment->transaction_data = $transactionData;
-
-            }
-
-            $payment->save();
-
-            return $this->cambiarEstado(
+            $this->cambiarEstado(
                 $payment,
-                'PAGADO'
+                'APPROVED'
             );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Aquí posteriormente integraremos NubeFact
+            |--------------------------------------------------------------------------
+            */
+
+            // $this->facturacionService->emitirComprobante($payment->order);
+
+            return $payment;
 
         });
 
     }
-
     /*
     |--------------------------------------------------------------------------
     | Rechazar pago
     |--------------------------------------------------------------------------
     */
-
     public function rechazarPago(
         Payment $payment,
         ?array $transactionData = null
     ): Payment {
 
-        if ($transactionData) {
+        if ($payment->isRechazado()) {
+            return $payment;
+        }
 
-            $payment->transaction_data = $transactionData;
+        if (!empty($transactionData)) {
 
-            $payment->save();
+            $payment->update([
+                'transaction_data' => $transactionData,
+            ]);
 
         }
 
         return $this->cambiarEstado(
             $payment,
-            'RECHAZADO'
+            'REJECTED'
         );
 
     }
@@ -248,10 +284,14 @@ class PaymentService
     | Cancelar pago
     |--------------------------------------------------------------------------
     */
-
     public function cancelarPago(
-        Payment $payment
+        Payment $payment,
+        ?array $transactionData = null
     ): Payment {
+
+        if ($payment->isCancelado()) {
+            return $payment;
+        }
 
         if ($payment->isPagado()) {
 
@@ -261,9 +301,17 @@ class PaymentService
 
         }
 
+        if (!empty($transactionData)) {
+
+            $payment->update([
+                'transaction_data' => $transactionData,
+            ]);
+
+        }
+
         return $this->cambiarEstado(
             $payment,
-            'CANCELADO'
+            'REFUNDED'
         );
 
     }

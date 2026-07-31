@@ -7,6 +7,7 @@ use App\Services\Checkout\CheckoutService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Throwable;
 
 class CheckoutController extends Controller
 {
@@ -53,11 +54,47 @@ class CheckoutController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if (! $request->user()) {
+
+            return redirect()
+                ->route('login')
+                ->with(
+                    'info',
+                    'Debe iniciar sesión para continuar con la compra.'
+                );
+
+        }
+
         $data = $request->validate([
 
-            'shipping_address_id' => [
+            'address' => [
                 'required',
-                'integer',
+                'string',
+                'max:255',
+            ],
+
+            'city' => [
+                'required',
+                'string',
+                'max:100',
+            ],
+
+            'state' => [
+                'required',
+                'string',
+                'max:100',
+            ],
+
+            'zip_code' => [
+                'nullable',
+                'string',
+                'max:20',
+            ],
+
+            'country' => [
+                'required',
+                'string',
+                'max:100',
             ],
 
             'delivery_type' => [
@@ -70,7 +107,7 @@ class CheckoutController extends Controller
                 'integer',
             ],
 
-            'observaciones' => [
+            'reference' => [
                 'nullable',
                 'string',
                 'max:1000',
@@ -78,25 +115,53 @@ class CheckoutController extends Controller
 
         ]);
 
-        $order = $this->checkoutService->procesar(
+        try {
 
-            $request->user()->id,
+            // Este bloque lo cambiaremos en el siguiente paso
+            // cuando modifiquemos CheckoutService.
 
-            (int) $data['shipping_address_id'],
+            $order = $this->checkoutService->procesar(
 
-            $data['delivery_type'],
+                $request->user()->id,
 
-            (int) $data['payment_method_id'],
+                [
+                    'address' => $data['address'],
+                    'city' => $data['city'],
+                    'state' => $data['state'],
+                    'zip_code' => $data['zip_code'] ?? null,
+                    'country' => $data['country'],
+                    'reference' => $data['reference'] ?? null,
+                ],
 
-            $data['observaciones'] ?? null,
+                $data['delivery_type'],
 
-        );
+                (int) $data['payment_method_id'],
 
-        return redirect()
-            ->route('customer.dashboard')
-            ->with(
-                'success',
-                "Pedido {$order->numero_pedido} creado correctamente."
+                $data['observaciones'] ?? null,
+
             );
+
+            if (empty($order->checkout_url)) {
+
+                return back()->with(
+                    'error',
+                    'No fue posible generar el enlace de pago.'
+                );
+
+            }
+
+            return redirect()->away(
+                $order->checkout_url
+            );
+
+        } catch (\Throwable $e) {
+
+            dd([
+                'mensaje' => $e->getMessage(),
+                'archivo' => $e->getFile(),
+                'linea' => $e->getLine(),
+            ]);
+
+        }
     }
 }

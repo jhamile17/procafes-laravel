@@ -1,150 +1,187 @@
 <?php
 
-namespace App\Http\Controllers\Payment;
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order;
-use App\Models\Payment;
+use App\Services\Pagos\PaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use MercadoPago\Client\Payment\PaymentClient;
+use MercadoPago\MercadoPagoConfig;
+use Throwable;
 
 class MercadoPagoWebhookController extends Controller
 {
+    public function __construct(
+        protected PaymentService $paymentService
+    ) {
+        MercadoPagoConfig::setAccessToken(
+            config('mercadopago.access_token')
+        );
+    }
+
+    /**
+     * Procesa las notificaciones enviadas por Mercado Pago.
+     */
     public function handle(Request $request): JsonResponse
     {
-        $type = $request->input('type');
-        $paymentId = data_get($request->all(), 'data.id');
-
-        Log::info('Mercado Pago webhook recibido.', [
-            'type' => $type,
-            'payment_id' => $paymentId,
-        ]);
-
-        if ($type !== 'payment' || blank($paymentId)) {
-            return response()->json(['ok' => true]);
-        }
-
-        $accessToken = config('services.mercadopago.token');
-
-        if (blank($accessToken)) {
-            Log::error('Mercado Pago webhook sin token configurado.');
-
-            return response()->json(['ok' => false], 500);
-        }
-
         try {
-            $response = Http::withToken($accessToken)
-                ->acceptJson()
-                ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
 
-            if ($response->failed()) {
-                Log::error('No se pudo consultar el pago en Mercado Pago.', [
-                    'payment_id' => $paymentId,
-                    'response' => $response->body(),
+            /*
+            |--------------------------------------------------------------------------
+            | Solo procesamos eventos de tipo payment
+            |--------------------------------------------------------------------------
+            */
+
+            if ($request->input('type') !== 'payment') {
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Evento ignorado',
                 ]);
 
-                return response()->json(['ok' => false], 500);
             }
 
-            $paymentData = $response->json();
-            $orderId = $paymentData['external_reference'] ?? null;
+            /*
+            |--------------------------------------------------------------------------
+            | Obtener ID del pago
+            |--------------------------------------------------------------------------
+            */
 
-            if (! ctype_digit((string) $orderId)) {
-                Log::warning('Pago sin external_reference válido.', [
-                    'payment_id' => $paymentId,
-                    'external_reference' => $orderId,
-                ]);
+            $paymentId = $request->input('data.id');
 
-                return response()->json(['ok' => true]);
+            if (empty($paymentId)) {
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payment ID no recibido.',
+                ], 400);
+
             }
 
-            DB::transaction(function () use ($orderId, $paymentId, $paymentData) {
-                $order = Order::query()
-                    ->with(['items.product', 'payment'])
-                    ->lockForUpdate()
-                    ->find($orderId);
+            /*
+            |--------------------------------------------------------------------------
+            | Consultar el pago en Mercado Pago
+            |--------------------------------------------------------------------------
+            */
 
-                if (! $order || ! $order->payment) {
-                    Log::warning('Orden o pago local no encontrado.', [
-                        'order_id' => $orderId,
-                        'payment_id' => $paymentId,
-                    ]);
+            $client = new PaymentClient();
 
-                    return;
-                }
+            $mpPayment = $client->get($paymentId);
 
-                if ($order->payment->payment_method !== 'mercadopago') {
-                    Log::warning('El método de pago local no es Mercado Pago.', [
-                        'order_id' => $order->id,
-                    ]);
+            /*
+            |--------------------------------------------------------------------------
+            | Buscar el pago en nuestra base de datos
+            |--------------------------------------------------------------------------
+            */
 
-                    return;
-                }
+            $payment = $this->paymentService->obtenerPorReferencia(
+                $mpPayment->external_reference
+            );
 
-                $mpStatus = (string) ($paymentData['status'] ?? '');
-                $receivedAmount = round((float) ($paymentData['transaction_amount'] ?? 0), 2);
-                $expectedAmount = round((float) $order->total_price, 2);
+            if (!$payment) {
 
-                $paymentStatus = match ($mpStatus) {
-                    'approved' => Payment::STATUS_COMPLETED,
-                    'rejected', 'cancelled' => Payment::STATUS_FAILED,
-                    default => Payment::STATUS_PENDING,
-                };
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pago no encontrado.',
+                ], 404);
 
-                $orderStatus = match ($paymentStatus) {
-                    Payment::STATUS_COMPLETED => Order::STATUS_PAID,
-                    Payment::STATUS_FAILED => Order::STATUS_CANCELLED,
-                    default => Order::STATUS_PENDING,
-                };
+            }
 
-                if (
-                    $paymentStatus === Payment::STATUS_COMPLETED
-                    && abs($receivedAmount - $expectedAmount) > 0.01
-                ) {
-                    Log::error('Monto de Mercado Pago no coincide con la orden.', [
-                        'order_id' => $order->id,
-                        'expected_amount' => $expectedAmount,
-                        'received_amount' => $receivedAmount,
-                        'payment_id' => $paymentId,
-                    ]);
+            /*
+            |--------------------------------------------------------------------------
+            | Información de la transacción
+            |--------------------------------------------------------------------------
+            */
 
-                    $paymentStatus = Payment::STATUS_FAILED;
-                    $orderStatus = Order::STATUS_CANCELLED;
-                }
+            $transactionData = [
 
-                $payment = $order->payment;
+                'status' => $mpPayment->status,
 
-                // Un pago ya confirmado no debe retroceder por un webhook repetido.
-                if ($payment->isCompleted()) {
-                    return;
-                }
+                'status_detail' => $mpPayment->status_detail,
 
-                $payment->update([
-                    'transaction_id' => (string) $paymentId,
-                    'transaction_json' => $paymentData,
-                    'amount' => $receivedAmount > 0 ? $receivedAmount : $expectedAmount,
-                    'status' => $paymentStatus,
-                ]);
+                'payment_method' => $mpPayment->payment_method_id,
 
-                $order->update([
-                    'status' => $orderStatus,
-                ]);
+                'payment_type' => $mpPayment->payment_type_id,
 
-                // El descuento de stock se hará aquí, una sola vez, cuando validemos
-                // que Product y el flujo de inventario estén listos.
-            });
-        } catch (\Throwable $exception) {
-            Log::error('Error procesando webhook de Mercado Pago.', [
-                'payment_id' => $paymentId,
-                'message' => $exception->getMessage(),
+                'external_reference' => $mpPayment->external_reference,
+
+            ];
+
+            /*
+            |--------------------------------------------------------------------------
+            | Procesar según el estado recibido
+            |--------------------------------------------------------------------------
+            */
+
+            switch ($mpPayment->status) {
+
+                case 'approved':
+
+                    $this->paymentService->confirmarPago(
+
+                        payment: $payment,
+
+                        transactionId: (string) $mpPayment->id,
+
+                        transactionData: $transactionData
+
+                    );
+
+                    break;
+
+                case 'rejected':
+
+                    $this->paymentService->rechazarPago(
+
+                        payment: $payment,
+
+                        transactionData: $transactionData
+
+                    );
+
+                    break;
+
+                case 'cancelled':
+
+                    $this->paymentService->cancelarPago(
+
+                        payment: $payment,
+
+                        transactionData: $transactionData
+
+                    );
+
+                    break;
+
+                case 'pending':
+
+                case 'in_process':
+
+                case 'authorized':
+
+                default:
+
+                    // No se realiza ninguna acción.
+                    break;
+
+            }
+
+            return response()->json([
+                'success' => true,
             ]);
 
-            return response()->json(['ok' => false], 500);
-        }
+        } catch (Throwable $e) {
 
-        return response()->json(['ok' => true]);
+            report($e);
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+
+        }
     }
 }

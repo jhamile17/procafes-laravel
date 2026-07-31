@@ -42,8 +42,8 @@ use App\Http\Controllers\Admin\ConfiguracionEmpresaController;
 // Checkout / pagos
 use App\Http\Controllers\PaymentDemoController;
 // Mercado Pago
-use App\Http\Controllers\Payment\MercadoPagoController;
-use App\Http\Controllers\Payment\MercadoPagoWebhookController;
+use App\Http\Controllers\Public\MercadoPagoController;
+use App\Http\Controllers\Public\MercadoPagoWebhookController;
 
 /*RUTAS PÚBLICAS*/
 Route::get('/', [HomeController::class, 'index'])
@@ -255,30 +255,52 @@ Route::get('/checkout', [CheckoutController::class, 'index'])
 Route::post('/checkout', [CheckoutController::class, 'store'])
     ->middleware('auth', 'verified')
     ->name('checkout.store');
+
 /*
 |--------------------------------------------------------------------------
 | MERCADO PAGO
 |--------------------------------------------------------------------------
 */
+
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Retornos de Mercado Pago
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/pagos/exito', [
+        MercadoPagoController::class,
+        'success'
+    ])->name('mp.success');
+
+    Route::get('/pagos/pendiente', [
+        MercadoPagoController::class,
+        'pending'
+    ])->name('mp.pending');
+
+    Route::get('/pagos/error', [
+        MercadoPagoController::class,
+        'failure'
+    ])->name('mp.failure');
+
+});
+
 /*
-Route::get('/pagos/mercadopago', [MercadoPagoController::class, 'index'])
-    ->middleware('auth', 'verified')
-    ->name('mp.checkout');
-Route::post('/pagos/crear-preferencia', [MercadoPagoController::class, 'createPreference'])
-    ->middleware('auth', 'verified')
-    ->name('mp.preference');
-Route::get('/pagos/exito', [MercadoPagoController::class, 'success'])
-    ->name('mp.success');
-
-Route::get('/pagos/pendiente', [MercadoPagoController::class, 'pending'])
-    ->name('mp.pending');
-
-Route::get('/pagos/error', [MercadoPagoController::class, 'failure'])
-    ->name('mp.failure');
-
-Route::post('/webhooks/mercadopago', [MercadoPagoWebhookController::class, 'handle'])
-    ->name('mp.webhook');
+|--------------------------------------------------------------------------
+| Webhook Mercado Pago
+|--------------------------------------------------------------------------
+|
+| Esta ruta NO debe tener middleware auth.
+| Mercado Pago la invoca directamente.
+|
 */
+
+Route::post('/webhooks/mercadopago', [
+    MercadoPagoWebhookController::class,
+    'handle'
+])->name('mp.webhook');
 /*
 |--------------------------------------------------------------------------
 | AUTH SYSTEM

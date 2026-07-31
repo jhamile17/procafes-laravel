@@ -86,7 +86,7 @@ class CartService
                     'product_id' => $product->id,
                     'quantity'   => $cantidad,
                     'unit_price' => $product->sale_price,
-                    'subtotal'   => bcmul(
+                    'sub_total'   => bcmul(
                         (string) $product->sale_price,
                         (string) $cantidad,
                         2
@@ -188,7 +188,7 @@ class CartService
 
                     'quantity' => $item->quantity,
 
-                    'subtotal' => $item->subtotal,
+                    'sub_total' => $item->sub_total,
 
                 ];
 
@@ -204,7 +204,7 @@ class CartService
     public function calcularTotal(Cart $cart): float
     {
         return (float) $cart->items()
-            ->sum('subtotal');
+            ->sum('sub_total');
     }
 
     /*

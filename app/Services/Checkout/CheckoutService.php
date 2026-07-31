@@ -6,10 +6,11 @@ namespace App\Services\Checkout;
 
 use App\Models\Order;
 use App\Services\Pagos\PaymentService;
-use App\Services\Pasarelas\IzipayService;
+use App\Services\Pasarelas\MercadoPagoService;
 use App\Services\Ventas\CartService;
 use App\Services\Ventas\OrderService;
 use Illuminate\Support\Facades\DB;
+use App\Services\Cliente\AddressService;
 use RuntimeException;
 
 class CheckoutService
@@ -18,7 +19,8 @@ class CheckoutService
         protected CartService $cartService,
         protected OrderService $orderService,
         protected PaymentService $paymentService,
-        protected IzipayService $izipayService,
+        protected MercadoPagoService $mercadoPagoService,
+        protected AddressService $addressService,
     ) {
     }
 
@@ -32,32 +34,40 @@ class CheckoutService
     {
         $cart = $this->cartService->obtenerCarrito($userId);
 
+        $items = $this->cartService->obtenerItems($cart);
+
+        $subTotal = $this->cartService->calcularTotal($cart);
+
+        $igv = round($subTotal * 0.18, 2);
+
+        $total = round($subTotal + $igv, 2);
+
         return [
 
             'cart' => $cart,
 
-            'items' => $this->cartService
-                ->obtenerItems($cart),
+            'items' => $items,
 
-            'total' => $this->cartService
-                ->calcularTotal($cart),
+            'cantidad' => $this->cartService->contarProductos($cart),
 
-            'cantidad' => $this->cartService
-                ->contarProductos($cart),
+            'sub_total' => $subTotal,
+
+            'igv' => $igv,
+
+            'total' => $total,
 
         ];
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Validar Checkout
+    | Validar checkout
     |--------------------------------------------------------------------------
     */
 
     public function validar(int $userId): void
     {
-        $cart = $this->cartService
-            ->obtenerCarrito($userId);
+        $cart = $this->cartService->obtenerCarrito($userId);
 
         if ($cart->items()->doesntExist()) {
 
@@ -70,13 +80,13 @@ class CheckoutService
 
     /*
     |--------------------------------------------------------------------------
-    | Procesar Checkout
+    | Procesar checkout
     |--------------------------------------------------------------------------
     */
 
     public function procesar(
         int $userId,
-        int $shippingAddressId,
+        array $addressData,
         string $deliveryType,
         int $paymentMethodId,
         ?string $observaciones = null,
@@ -85,51 +95,113 @@ class CheckoutService
         return DB::transaction(function () use (
 
             $userId,
-            $shippingAddressId,
+            $addressData,
             $deliveryType,
             $paymentMethodId,
             $observaciones
 
         ) {
 
+            /*
+            |--------------------------------------------------------------------------
+            | Validar carrito
+            |--------------------------------------------------------------------------
+            */
+
             $this->validar($userId);
+            /*
+            |--------------------------------------------------------------------------
+            | Obtener carrito
+            |--------------------------------------------------------------------------
+            */
 
             $cart = $this->cartService
                 ->obtenerCarrito($userId);
+            /*
+            |--------------------------------------------------------------------------
+            | Crear dirección de envío
+            |--------------------------------------------------------------------------
+            */
+
+            $shippingAddress = $this->addressService
+                ->crearDireccion(
+                    $userId,
+                    [
+                        'alias' => 'Dirección de entrega',
+
+                        'direccion' => $addressData['address'],
+
+                        'departamento' => $addressData['state'],
+
+                        'provincia' => $addressData['city'],
+
+                        // Temporalmente utilizaremos la ciudad también como distrito
+                        // hasta implementar un selector de Ubigeo.
+                        'distrito' => $addressData['city'],
+
+                        'referencia' => $addressData['reference'] ?? null,
+                    ]
+                );
+            /*
+            |--------------------------------------------------------------------------
+            | Crear pedido
+            |--------------------------------------------------------------------------
+            */
 
             $order = $this->orderService
                 ->crearPedido(
                     $cart,
-                    $shippingAddressId,
+                    $shippingAddress->id,
                     $deliveryType,
                     $observaciones
                 );
+            /*
+            |--------------------------------------------------------------------------
+            | Crear pago
+            |--------------------------------------------------------------------------
+            */
 
             $payment = $this->paymentService
                 ->crearPago(
                     $order,
                     $paymentMethodId
                 );
+            /*
+            |--------------------------------------------------------------------------
+            | Crear preferencia de Mercado Pago
+            |--------------------------------------------------------------------------
+            */
+
+            $preference = $this->mercadoPagoService
+                ->crearPreferencia($payment);
 
             /*
             |--------------------------------------------------------------------------
-            | Pasarela Izipay
+            | Recargar relaciones
             |--------------------------------------------------------------------------
-            |
-            | Cuando se integre la API aquí se generará
-            | el token, la URL de pago o la transacción.
-            |
             */
 
-            $this->izipayService
-                ->crearTransaccion($payment);
+            $order = $order->fresh([
 
-            return $order->fresh([
                 'items.product',
+
                 'payment.paymentMethod',
+
                 'payment.estadoPago',
+
             ]);
 
+            /*
+            |--------------------------------------------------------------------------
+            | URL de Checkout Pro
+            |--------------------------------------------------------------------------
+            */
+
+            $order->checkout_url = $preference->init_point;
+
+            return $order;
+
         });
+
     }
 }
