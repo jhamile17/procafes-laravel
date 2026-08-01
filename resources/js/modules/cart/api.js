@@ -12,7 +12,8 @@ import { csrfToken } from './helpers';
 async function request(
     url,
     method = 'GET',
-    data = null
+    data = null,
+    responseType = 'json'
 ) {
 
     const response = await fetch(url, {
@@ -21,7 +22,9 @@ async function request(
 
         headers: {
 
-            Accept: 'application/json',
+            Accept: responseType === 'text'
+                ? 'text/html'
+                : 'application/json',
 
             'X-CSRF-TOKEN': csrfToken(),
 
@@ -55,10 +58,25 @@ async function request(
 
     }
 
-    return response.json();
+    return responseType === 'text'
+        ? response.text()
+        : response.json();
 
 }
+/*==========================================================================
+    Obtener recomendaciones
+==========================================================================*/
 
+export function getRecommendations() {
+
+    return request(
+        ROUTES.recommendations,
+        'GET',
+        null,
+        'text'
+    );
+
+}
 /*
 |--------------------------------------------------------------------------
 | API del carrito

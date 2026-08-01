@@ -2,8 +2,10 @@
 
 @section('title', 'Mi carrito')
 
-@section('content')
 @section('body-class', 'cart-page')
+
+@section('content')
+
 <section class="customer-dashboard py-5">
 
     <div class="container">
@@ -33,6 +35,9 @@
                         </div>
 
                     </div>
+
+                    {{-- Recomendaciones --}}
+                    <div id="cart-recommendations" class="mt-5"></div>
 
                 </div>
 

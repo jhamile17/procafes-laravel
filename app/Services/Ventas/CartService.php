@@ -5,6 +5,7 @@ namespace App\Services\Ventas;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Services\Catalogo\ProductService;
+use App\Services\Catalogo\RecommendationService;
 use App\Services\Inventario\InventoryService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;

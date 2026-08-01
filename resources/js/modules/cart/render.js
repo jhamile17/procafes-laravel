@@ -254,7 +254,19 @@ function render(cart = {}) {
     renderItems(items);
 
 }
+function renderRecommendations(html) {
 
+    const container = document.querySelector(
+        '#cart-recommendations'
+    );
+
+    if (!container) {
+        return;
+    }
+
+    container.innerHTML = html;
+
+}
 export {
 
     render,
@@ -262,6 +274,7 @@ export {
     renderTotal,
     renderEmpty,
     renderItem,
-    renderItems
+    renderItems,
+    renderRecommendations
 
 };

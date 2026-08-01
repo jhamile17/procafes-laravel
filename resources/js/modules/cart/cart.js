@@ -1,9 +1,14 @@
 // resources/js/cart/cart.js
 
-import { getCart } from './api';
+import {
+    getCart,
+    getRecommendations
+} from './api';
 
-import { render } from './render';
-
+import {
+    render,
+    renderRecommendations
+} from './render';
 import {
     bindAddToCart,
     bindCartActions,
@@ -21,7 +26,7 @@ class Cart {
 
             const cart = await getCart();
 
-            this.update(cart);
+            await this.update(cart);
 
         } catch (error) {
 
@@ -34,9 +39,24 @@ class Cart {
     /**
      * Actualizar la interfaz
      */
-    update(cart) {
+        async update(cart) {
 
         render(cart);
+
+        try {
+
+            const html = await getRecommendations();
+
+            renderRecommendations(html);
+
+        } catch (error) {
+
+            console.error(
+                '[RECOMMENDATIONS]',
+                error
+            );
+
+        }
 
     }
 
@@ -47,7 +67,9 @@ class Cart {
 
         this.refresh();
 
-        const update = this.update.bind(this);
+        const update = async (cart) => {
+            await this.update(cart);
+        };
 
         bindAddToCart(update);
 

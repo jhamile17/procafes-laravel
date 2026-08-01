@@ -102,6 +102,8 @@ Route::prefix('cart')->group(function () {
 
     Route::delete('/', [CartController::class, 'clear'])
         ->name('cart.clear');
+    Route::get('/recommendations', [CartController::class, 'recommendations'])
+        ->name('cart.recommendations');
 
 });
 /*

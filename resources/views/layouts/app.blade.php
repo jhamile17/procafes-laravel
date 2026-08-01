@@ -13,7 +13,7 @@
 
 </head>
 
-<body>
+<body class="@yield('body-class')">
 
     {{-- ===========================
         NAVBAR
@@ -67,6 +67,7 @@
 
                     index: "{{ route('cart.index') }}",
                     data: "{{ route('cart.data') }}",
+                    recommendations: "{{ route('cart.recommendations') }}",
                     add: "{{ route('cart.add') }}",
                     clear: "{{ route('cart.clear') }}",
                     base: "{{ url('/cart') }}"

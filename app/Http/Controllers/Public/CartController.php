@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cart\AddToCartRequest;
 use App\Http\Requests\Cart\UpdateCartItemRequest;
+use App\Services\Catalogo\RecommendationService;
 use App\Models\Product;
 use App\Models\Cart;
 use App\Services\Ventas\CartService;
@@ -17,6 +18,7 @@ class CartController extends Controller
     public function __construct(
         protected CartService $cartService,
         protected SessionCartService $sessionCartService,
+        protected RecommendationService $recommendationService,
     ) {
     }
 
@@ -29,6 +31,7 @@ class CartController extends Controller
     public function index()
     {
         return view('cart.index');
+
     }
     public function data(Request $request): JsonResponse
     {
@@ -157,7 +160,29 @@ class CartController extends Controller
 
         return $this->response($request);
     }
+    public function recommendations(Request $request)
+    {
+        if ($request->user()) {
 
+            $cart = $this->cart($request);
+
+            $items = $this->cartService->obtenerItems($cart);
+
+        } else {
+
+            $items = collect(
+                $this->sessionCartService->obtener($request)
+            );
+        }
+
+        $products = $this->recommendationService
+            ->obtenerParaCarrito($items);
+
+        return view(
+            'components.cart.recommendations',
+            compact('products')
+        );
+    }
     /*
     |--------------------------------------------------------------------------
     | Construir respuesta del carrito
@@ -186,7 +211,6 @@ class CartController extends Controller
 
             $total = $this->sessionCartService->total($request);
         }
-
         return response()->json([
             'success'=> true,
             'items' => $items,
@@ -207,5 +231,6 @@ class CartController extends Controller
             $request->user()->id
         );
     }
+    
     
 }
