@@ -60,7 +60,7 @@
         window.Laravel = {
 
             csrfToken: "{{ csrf_token() }}",
-
+            currentRoute: "{{ request()->route()?->getName() }}",
             routes: {
 
                 cart: {

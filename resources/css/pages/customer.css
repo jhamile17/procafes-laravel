@@ -954,6 +954,19 @@
     color:var(--color-primary);
 
 }
+.cart-summary-column{
+
+    align-self:flex-start;
+
+}
+
+.cart-summary{
+
+    position:sticky;
+
+    top:calc(var(--navbar-height) + 1.5rem);
+
+}
 /*==========================================================================
     ANIMATION
 ==========================================================================*/

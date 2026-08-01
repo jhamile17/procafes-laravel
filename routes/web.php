@@ -33,7 +33,7 @@ use App\Http\Controllers\Admin\CategoryController as CategoryController;
 use App\Http\Controllers\Admin\BrandController as BrandController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\UserController as UserController;
-use App\Http\Controllers\Admin\DashboardController as DashboardController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\OrderController;
@@ -102,6 +102,7 @@ Route::prefix('cart')->group(function () {
 
     Route::delete('/', [CartController::class, 'clear'])
         ->name('cart.clear');
+        
     Route::get('/recommendations', [CartController::class, 'recommendations'])
         ->name('cart.recommendations');
 
@@ -228,29 +229,11 @@ Route::prefix('admin')
         Route::get('/reports', [ReportController::class, 'index'])
             ->name('reports.index');
 
+        Route::get('/orders', [OrderController::class, 'index'])
+            ->name('orders.index');
+
         Route::get('/billing', [BillingController::class, 'index'])
             ->name('billing.index');
-
-        /*
-        |--------------------------------------------------------------------------
-        | ÓRDENES
-        |--------------------------------------------------------------------------
-        */
-
-        Route::prefix('orders')
-            ->name('orders.')
-            ->group(function () {
-
-                Route::get('/', [OrderController::class, 'index'])
-                    ->name('index');
-
-                Route::get('/{order}', [OrderController::class, 'show'])
-                    ->name('show');
-
-                Route::patch('/{order}/status', [OrderController::class, 'updateStatus'])
-                    ->name('status');
-
-            });
 
          Route::get(
             '/configuracion-empresa',
@@ -275,52 +258,30 @@ Route::get('/checkout', [CheckoutController::class, 'index'])
 Route::post('/checkout', [CheckoutController::class, 'store'])
     ->middleware('auth', 'verified')
     ->name('checkout.store');
-
 /*
 |--------------------------------------------------------------------------
 | MERCADO PAGO
 |--------------------------------------------------------------------------
 */
-
-Route::middleware(['auth', 'verified'])->group(function () {
-
-    /*
-    |--------------------------------------------------------------------------
-    | Retornos de Mercado Pago
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/pagos/exito', [
-        MercadoPagoController::class,
-        'success'
-    ])->name('mp.success');
-
-    Route::get('/pagos/pendiente', [
-        MercadoPagoController::class,
-        'pending'
-    ])->name('mp.pending');
-
-    Route::get('/pagos/error', [
-        MercadoPagoController::class,
-        'failure'
-    ])->name('mp.failure');
-
-});
-
 /*
-|--------------------------------------------------------------------------
-| Webhook Mercado Pago
-|--------------------------------------------------------------------------
-|
-| Esta ruta NO debe tener middleware auth.
-| Mercado Pago la invoca directamente.
-|
-*/
+Route::get('/pagos/mercadopago', [MercadoPagoController::class, 'index'])
+    ->middleware('auth', 'verified')
+    ->name('mp.checkout');
+Route::post('/pagos/crear-preferencia', [MercadoPagoController::class, 'createPreference'])
+    ->middleware('auth', 'verified')
+    ->name('mp.preference');
+Route::get('/pagos/exito', [MercadoPagoController::class, 'success'])
+    ->name('mp.success');
 
-Route::post('/webhooks/mercadopago', [
-    MercadoPagoWebhookController::class,
-    'handle'
-])->name('mp.webhook');
+Route::get('/pagos/pendiente', [MercadoPagoController::class, 'pending'])
+    ->name('mp.pending');
+
+Route::get('/pagos/error', [MercadoPagoController::class, 'failure'])
+    ->name('mp.failure');
+
+Route::post('/webhooks/mercadopago', [MercadoPagoWebhookController::class, 'handle'])
+    ->name('mp.webhook');
+*/
 /*
 |--------------------------------------------------------------------------
 | AUTH SYSTEM

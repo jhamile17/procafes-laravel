@@ -28,7 +28,7 @@
 
                         </div>
 
-                        <div class="col-lg-4">
+                        <div class="col-lg-4 cart-summary-column">
 
                             <x-cart.summary />
 

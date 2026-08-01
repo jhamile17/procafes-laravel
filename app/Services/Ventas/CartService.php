@@ -19,6 +19,7 @@ class CartService
     public function __construct(
         protected ProductService $productService,
         protected InventoryService $inventoryService,
+        protected RecommendationService $recommendationService,
     ) {
     }
 
@@ -172,27 +173,28 @@ class CartService
 
     public function obtenerItems(Cart $cart): Collection
     {
-        $cart->load('items.product');
+        return $cart
+            ->loadMissing('items.product')
+            ->items
+            ->map(function (CartItem $item) {
 
-        return $cart->items->map(function (CartItem $item) {
+                return [
 
-            return [
+                    'product_id' => $item->product_id,
 
-                'product_id' => $item->product_id,
+                    'name' => $item->product->name,
 
-                'name' => $item->product->name,
+                    'unit_price' => $item->unit_price,
 
-                'unit_price' => $item->unit_price,
+                    'image' => $item->product->image_url,
 
-                'image' => $item->product->image_url,
+                    'quantity' => $item->quantity,
 
-                'quantity' => $item->quantity,
+                    'subtotal' => $item->subtotal,
 
-                'subtotal' => $item->subtotal,
+                ];
 
-            ];
-
-        });
+            });
     }
 
     /*

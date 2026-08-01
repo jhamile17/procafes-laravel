@@ -1,13 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\Public;
-
 use App\Http\Controllers\Controller;
 use App\Services\Checkout\CheckoutService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Throwable;
 
 class CheckoutController extends Controller
 {
@@ -16,11 +13,7 @@ class CheckoutController extends Controller
     ) {
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Mostrar Checkout
-    |--------------------------------------------------------------------------
-    */
+    /*Mostrar Checkout*/
 
     public function index(Request $request): View|RedirectResponse
     {
@@ -34,104 +27,49 @@ class CheckoutController extends Controller
                 );
 
         }
+        try {
 
-        $resumen = $this->checkoutService
-            ->obtenerResumen(
-                $request->user()->id
-            );
+            $resumen = $this->checkoutService
+                ->obtenerResumen(
+                    $request->user()->id
+                );
 
+        } catch (RuntimeException $e) {
+
+            return redirect()
+                ->route('cart.index')
+                ->with(
+                    'warning',
+                    $e->getMessage()
+                );
+        }
         return view(
             'checkout.index',
             $resumen
         );
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Procesar Checkout
-    |--------------------------------------------------------------------------
-    */
-
+    /*Procesar Checkout*/
     public function store(Request $request): RedirectResponse
     {
-        if (! $request->user()) {
-
-            return redirect()
-                ->route('login')
-                ->with(
-                    'info',
-                    'Debe iniciar sesión para continuar con la compra.'
-                );
-
-        }
-
         $data = $request->validate([
 
-            'address' => [
-                'required',
-                'string',
-                'max:255',
-            ],
+            'shipping_address_id' => ['required', 'integer'],
 
-            'city' => [
-                'required',
-                'string',
-                'max:100',
-            ],
+            'delivery_type' => ['required', 'string'],
 
-            'state' => [
-                'required',
-                'string',
-                'max:100',
-            ],
+            'payment_method_id' => ['required', 'integer'],
 
-            'zip_code' => [
-                'nullable',
-                'string',
-                'max:20',
-            ],
-
-            'country' => [
-                'required',
-                'string',
-                'max:100',
-            ],
-
-            'delivery_type' => [
-                'required',
-                'string',
-            ],
-
-            'payment_method_id' => [
-                'required',
-                'integer',
-            ],
-
-            'reference' => [
-                'nullable',
-                'string',
-                'max:1000',
-            ],
+            'observaciones' => ['nullable', 'string', 'max:1000'],
 
         ]);
 
         try {
 
-            // Este bloque lo cambiaremos en el siguiente paso
-            // cuando modifiquemos CheckoutService.
-
             $order = $this->checkoutService->procesar(
 
                 $request->user()->id,
 
-                [
-                    'address' => $data['address'],
-                    'city' => $data['city'],
-                    'state' => $data['state'],
-                    'zip_code' => $data['zip_code'] ?? null,
-                    'country' => $data['country'],
-                    'reference' => $data['reference'] ?? null,
-                ],
+                (int) $data['shipping_address_id'],
 
                 $data['delivery_type'],
 
@@ -141,27 +79,22 @@ class CheckoutController extends Controller
 
             );
 
-            if (empty($order->checkout_url)) {
+        } catch (RuntimeException $e) {
 
-                return back()->with(
-                    'error',
-                    'No fue posible generar el enlace de pago.'
+            return redirect()
+                ->route('cart.index')
+                ->with(
+                    'warning',
+                    $e->getMessage()
                 );
 
-            }
-
-            return redirect()->away(
-                $order->checkout_url
-            );
-
-        } catch (\Throwable $e) {
-
-            dd([
-                'mensaje' => $e->getMessage(),
-                'archivo' => $e->getFile(),
-                'linea' => $e->getLine(),
-            ]);
-
         }
+
+        return redirect()
+            ->route('customer.dashboard')
+            ->with(
+                'success',
+                "Pedido {$order->numero_pedido} creado correctamente."
+            );
     }
 }
