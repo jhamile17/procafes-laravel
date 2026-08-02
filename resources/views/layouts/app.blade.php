@@ -60,19 +60,40 @@
         window.Laravel = {
 
             csrfToken: "{{ csrf_token() }}",
+
             currentRoute: "{{ request()->route()?->getName() }}",
+
+            auth: @json(auth()->check()),
+
             routes: {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Carrito
+                |--------------------------------------------------------------------------
+                */
 
                 cart: {
 
                     index: "{{ route('cart.index') }}",
+
                     data: "{{ route('cart.data') }}",
+
                     recommendations: "{{ route('cart.recommendations') }}",
+
                     add: "{{ route('cart.add') }}",
+
                     clear: "{{ route('cart.clear') }}",
-                    base: "{{ url('/cart') }}"
+
+                    base: "{{ url('/cart') }}",
 
                 },
+
+                /*
+                |--------------------------------------------------------------------------
+                | Favoritos
+                |--------------------------------------------------------------------------
+                */
 
                 wishlist: {
 
@@ -82,17 +103,49 @@
 
                     count: "{{ route('wishlist.count') }}",
 
-                    clear: "{{ route('wishlist.clear') }}"
+                    clear: "{{ route('wishlist.clear') }}",
 
                 },
 
-                login: "{{ route('login') }}",
+                /*
+                |--------------------------------------------------------------------------
+                | Checkout
+                |--------------------------------------------------------------------------
+                */
 
-                checkout: "{{ route('checkout') }}"
+                checkout: {
 
-            },
+                    index: "{{ route('checkout.index') }}",
 
-            auth: @json(auth()->check())
+                    store: "{{ route('checkout.store') }}",
+
+                },
+
+                /*
+                |--------------------------------------------------------------------------
+                | Direcciones (LocationIQ)
+                |--------------------------------------------------------------------------
+                */
+
+                address: {
+
+                    search: "{{ route('customer.addresses.search') }}",
+
+                },
+
+                /*
+                |--------------------------------------------------------------------------
+                | Autenticación
+                |--------------------------------------------------------------------------
+                */
+
+                auth: {
+
+                    login: "{{ route('login') }}",
+
+                },
+
+            }
 
         };
 

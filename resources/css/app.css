@@ -34,5 +34,6 @@
 @import "./pages/ubicanos.css";
 @import "./pages/auth.css";
 @import "./pages/customer.css";
+@import "./pages/checkout.css";
 
 @import './componentes/alert.css';

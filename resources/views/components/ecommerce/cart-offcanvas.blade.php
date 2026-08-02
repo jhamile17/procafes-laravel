@@ -93,7 +93,7 @@
                 @auth
 
                     <a
-                        href="{{ route('checkout') }}"
+                        href="{{ route('checkout.index') }}"
                         class="btn btn-dark">
 
                         Finalizar compra

@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class MercadoPagoController extends Controller
 {
@@ -16,13 +15,13 @@ class MercadoPagoController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function success(Request $request): RedirectResponse
+    public function success(): RedirectResponse
     {
         return redirect()
             ->route('customer.profile')
             ->with(
                 'success',
-                'Tu pago fue realizado correctamente. Estamos verificando la operación.'
+                'Tu pago fue registrado correctamente. Estamos verificando la confirmación con Mercado Pago.'
             );
     }
 
@@ -32,13 +31,13 @@ class MercadoPagoController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function pending(Request $request): RedirectResponse
+    public function pending(): RedirectResponse
     {
         return redirect()
             ->route('customer.profile')
             ->with(
                 'warning',
-                'Tu pago quedó pendiente de confirmación.'
+                'Tu pago se encuentra pendiente. Te notificaremos cuando Mercado Pago confirme la operación.'
             );
     }
 
@@ -48,13 +47,13 @@ class MercadoPagoController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function failure(Request $request): RedirectResponse
+    public function failure(): RedirectResponse
     {
         return redirect()
             ->route('customer.profile')
             ->with(
                 'error',
-                'El pago fue rechazado o cancelado.'
+                'El pago fue rechazado o cancelado. Puedes intentarlo nuevamente con el mismo pedido.'
             );
     }
 }

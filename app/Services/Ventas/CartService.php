@@ -171,30 +171,14 @@ class CartService
     |--------------------------------------------------------------------------
     */
 
-    public function obtenerItems(Cart $cart): Collection
-    {
+    public function obtenerItems(
+    Cart $cart
+    ): Collection {
+
         return $cart
             ->loadMissing('items.product')
-            ->items
-            ->map(function (CartItem $item) {
+            ->items;
 
-                return [
-
-                    'product_id' => $item->product_id,
-
-                    'name' => $item->product->name,
-
-                    'unit_price' => $item->unit_price,
-
-                    'image' => $item->product->image_url,
-
-                    'quantity' => $item->quantity,
-
-                    'subtotal' => $item->subtotal,
-
-                ];
-
-            });
     }
 
     /*

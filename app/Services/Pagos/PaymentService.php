@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Pagos;
 
 use App\Models\EstadoPago;
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\PaymentMethod;
+use App\Services\Pasarelas\MercadoPagoService;
 use App\Services\Ventas\OrderService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -14,432 +16,527 @@ use RuntimeException;
 
 class PaymentService
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Constructor
-    |--------------------------------------------------------------------------
-    */
+    /*Constructor*/
 
     public function __construct(
-        protected OrderService $orderService
+        protected OrderService $orderService,
+        protected PaymentMethodService $paymentMethodService,
+        protected MercadoPagoService $mercadoPagoService,
     ) {
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Crear pago
-    |--------------------------------------------------------------------------
-    */
-
+    /*Crear pago*/
     public function crearPago(
         Order $order,
         int $paymentMethodId
     ): Payment {
-
         $this->validarPedido($order);
-
-        $paymentMethod = $this->validarMetodoPago(
-            $paymentMethodId
-        );
-
+        $paymentMethod = $this->paymentMethodService
+            ->obtener($paymentMethodId);
         return DB::transaction(function () use (
             $order,
             $paymentMethod
         ) {
-
-            $estadoPendiente = $this->obtenerEstadoPago(
+            $estadoPendiente = $this->obtenerEstado(
                 'PENDING'
             );
-
-            $payment = Payment::create([
-
+            return Payment::create([
                 'order_id' => $order->id,
-
                 'payment_method_id' => $paymentMethod->id,
-
                 'estado_pago_id' => $estadoPendiente->id,
-
                 'amount' => $order->total_price,
-
                 'reference' => $this->generarReferencia(),
-
                 'transaction_data' => [],
-
-            ]);
-
-            return $payment->fresh([
-
+            ])->fresh([
                 'order',
-
                 'paymentMethod',
-
                 'estadoPago',
-
             ]);
-
         });
-
     }
+public function iniciarPago(
+    Payment $payment
+): Payment {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener pago
-    |--------------------------------------------------------------------------
-    */
+    $payment->load([
 
-    public function obtener(
-        int $paymentId
-    ): Payment {
+        'paymentMethod',
 
-        return Payment::with([
+        'order.user',
 
-            'order',
+        'order.items.product',
 
-            'paymentMethod',
+    ]);
 
-            'estadoPago',
+    /*Mercado Pago*/
+    if (
+        $this->paymentMethodService
+            ->esMercadoPago(
+                $payment->paymentMethod
+            )
+    ) {
 
-        ])
-
-        ->findOrFail($paymentId);
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener todos los pagos
-    |--------------------------------------------------------------------------
-    */
-
-    public function obtenerTodos(): Collection
-    {
-
-        return Payment::with([
-
-            'order',
-
-            'paymentMethod',
-
-            'estadoPago',
-
-        ])
-
-        ->latest()
-
-        ->get();
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener pago por pedido
-    |--------------------------------------------------------------------------
-    */
-
-    public function obtenerPorPedido(
-        int $orderId
-    ): ?Payment {
-
-        return Payment::with([
-
-            'paymentMethod',
-
-            'estadoPago',
-
-        ])
-
-        ->where('order_id', $orderId)
-
-        ->first();
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener pago por referencia
-    |--------------------------------------------------------------------------
-    */
-
-    public function obtenerPorReferencia(string $reference): ?Payment
-    {
-        return Payment::with([
-            'order',
-            'paymentMethod',
-            'estadoPago',
-        ])
-        ->where('reference', $reference)
-        ->first();
-    }
-        /*
-    |--------------------------------------------------------------------------
-    | Cambiar estado del pago
-    |--------------------------------------------------------------------------
-    */
-
-    public function cambiarEstado(
-        Payment $payment,
-        string $codigoEstado
-    ): Payment {
-
-        $estado = $this->obtenerEstadoPago(
-            $codigoEstado
-        );
-
-        $payment->actualizarEstado(
-            $estado
-        );
-
-        return $payment->fresh([
-            'order',
-            'paymentMethod',
-            'estadoPago',
-        ]);
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Confirmar pago
-    |--------------------------------------------------------------------------
-    */
-    public function confirmarPago(
-        Payment $payment,
-        ?string $transactionId = null,
-        ?array $transactionData = null
-    ): Payment {
-
-        return DB::transaction(function () use (
-
+        $this->cambiarEstado(
             $payment,
-            $transactionId,
-            $transactionData
+            'PROCESSING'
+        );
 
-        ) {
-
-            if ($payment->isPagado()) {
-                return $payment->fresh([
-                    'order',
-                    'paymentMethod',
-                    'estadoPago',
-                ]);
-            }
-
-            $payment->update([
-                'transaction_id' => $transactionId,
-                'transaction_data' => array_merge(
-                    $payment->transaction_data ?? [],
-                    $transactionData ?? []
-                ),
-            ]);
-
-            $this->cambiarEstado(
-                $payment,
-                'APPROVED'
+        $preference = $this->mercadoPagoService
+            ->crearPreferencia(
+                $payment
             );
 
-            /*
-            |--------------------------------------------------------------------------
-            | Aquí posteriormente integraremos NubeFact
-            |--------------------------------------------------------------------------
-            */
+        if (empty($preference['preference_id'])) {
 
-            // $this->facturacionService->emitirComprobante($payment->order);
-
-            return $payment;
-
-        });
-
+            throw new RuntimeException(
+                'No fue posible crear la preferencia de Mercado Pago.'
+            );
+        }
+        $payment = $this->actualizarTransaccion(
+            payment: $payment,
+            transactionData: $preference
+        );
     }
+    /*Retornar pago actualizado*/
+    return $payment->fresh([
+        'order',
+        'paymentMethod',
+        'estadoPago',
+    ]);
+}
+/*
+|--------------------------------------------------------------------------
+| Obtener pago
+|--------------------------------------------------------------------------
+*/
+
+public function obtener(
+    int $paymentId
+): Payment {
+
+    return Payment::with([
+
+        'order',
+
+        'paymentMethod',
+
+        'estadoPago',
+
+    ])->findOrFail(
+        $paymentId
+    );
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Obtener todos los pagos
+|--------------------------------------------------------------------------
+*/
+
+public function obtenerTodos(): Collection
+{
+
+    return Payment::with([
+
+        'order',
+
+        'paymentMethod',
+
+        'estadoPago',
+
+    ])
+        ->latest()
+        ->get();
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Obtener pago por pedido
+|--------------------------------------------------------------------------
+*/
+
+public function obtenerPorPedido(
+    Order $order
+): ?Payment {
+
+    return Payment::with([
+
+        'order',
+
+        'paymentMethod',
+
+        'estadoPago',
+
+    ])
+        ->where(
+            'order_id',
+            $order->id
+        )
+        ->first();
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Obtener pago por referencia
+|--------------------------------------------------------------------------
+*/
+
+public function obtenerPorReferencia(
+    string $reference
+): ?Payment {
+
+    return Payment::with([
+
+        'order',
+
+        'paymentMethod',
+
+        'estadoPago',
+
+    ])
+        ->where(
+            'reference',
+            $reference
+        )
+        ->first();
+
+}
+/*
+|--------------------------------------------------------------------------
+| Actualizar transacción
+|--------------------------------------------------------------------------
+*/
+
+public function actualizarTransaccion(
+    Payment $payment,
+    ?string $transactionId = null,
+    array $transactionData = []
+): Payment {
+
+    $data = [];
+
     /*
     |--------------------------------------------------------------------------
-    | Rechazar pago
+    | ID de transacción
     |--------------------------------------------------------------------------
     */
-    public function rechazarPago(
-        Payment $payment,
-        ?array $transactionData = null
-    ): Payment {
 
-        if ($payment->isRechazado()) {
-            return $payment;
-        }
+    if (! empty($transactionId)) {
 
-        if (!empty($transactionData)) {
+        $data['transaction_id'] = $transactionId;
 
-            $payment->update([
-                'transaction_data' => $transactionData,
-            ]);
+    }
 
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | Datos de la transacción
+    |--------------------------------------------------------------------------
+    */
 
-        return $this->cambiarEstado(
+    if (! empty($transactionData)) {
+
+        $data['transaction_data'] = $transactionData;
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Actualizar únicamente si existen cambios
+    |--------------------------------------------------------------------------
+    */
+
+    if (! empty($data)) {
+
+        $payment->update($data);
+
+    }
+
+    return $payment->fresh([
+
+        'order',
+
+        'paymentMethod',
+
+        'estadoPago',
+
+    ]);
+
+}
+/*
+|--------------------------------------------------------------------------
+| Confirmar pago
+|--------------------------------------------------------------------------
+*/
+
+public function confirmarPago(
+    Payment $payment,
+    ?string $transactionId = null,
+    array $transactionData = []
+): Payment {
+
+    return DB::transaction(function () use (
+        $payment,
+        $transactionId,
+        $transactionData
+    ) {
+
+        $payment = $this->actualizarTransaccion(
+
+            payment: $payment,
+
+            transactionId: $transactionId,
+
+            transactionData: $transactionData,
+
+        );
+
+        $this->cambiarEstado(
+            $payment,
+            'APPROVED'
+        );
+
+        $this->orderService
+            ->confirmarPedido(
+                $payment->order
+            );
+
+        return $payment->fresh([
+
+            'order',
+
+            'paymentMethod',
+
+            'estadoPago',
+
+        ]);
+
+    });
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Rechazar pago
+|--------------------------------------------------------------------------
+*/
+
+public function rechazarPago(
+    Payment $payment,
+    ?string $transactionId = null,
+    array $transactionData = []
+): Payment {
+
+    return DB::transaction(function () use (
+        $payment,
+        $transactionId,
+        $transactionData
+    ) {
+
+        $payment = $this->actualizarTransaccion(
+
+            payment: $payment,
+
+            transactionId: $transactionId,
+
+            transactionData: $transactionData,
+
+        );
+
+        $this->cambiarEstado(
             $payment,
             'REJECTED'
         );
 
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cancelar pago
-    |--------------------------------------------------------------------------
-    */
-    public function cancelarPago(
-        Payment $payment,
-        ?array $transactionData = null
-    ): Payment {
-
-        if ($payment->isCancelado()) {
-            return $payment;
-        }
-
-        if ($payment->isPagado()) {
-
-            throw new RuntimeException(
-                'No es posible cancelar un pago ya confirmado.'
+        $this->orderService
+            ->cancelarPedido(
+                $payment->order
             );
 
-        }
+        return $payment->fresh([
 
-        if (!empty($transactionData)) {
+            'order',
 
-            $payment->update([
-                'transaction_data' => $transactionData,
-            ]);
+            'paymentMethod',
 
-        }
+            'estadoPago',
 
-        return $this->cambiarEstado(
-            $payment,
-            'REFUNDED'
+        ]);
+
+    });
+
+}
+/*
+|--------------------------------------------------------------------------
+| Eliminar pago
+|--------------------------------------------------------------------------
+*/
+
+public function eliminarPago(
+    Payment $payment
+): bool {
+
+    if (! $payment->isPendiente()) {
+
+        throw new RuntimeException(
+            'Solo se pueden eliminar pagos pendientes.'
         );
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Eliminar pago
-    |--------------------------------------------------------------------------
-    */
+    return $payment->delete();
 
-    public function eliminarPago(
-        Payment $payment
-    ): bool {
+}
+/*
+|--------------------------------------------------------------------------
+| Validar pedido
+|--------------------------------------------------------------------------
+*/
 
-        if (!$payment->isPendiente()) {
+private function validarPedido(
+    Order $order
+): void {
 
-            throw new RuntimeException(
-                'Solo se pueden eliminar pagos pendientes.'
-            );
+    if (! $order->exists) {
 
-        }
-
-        return $payment->delete();
-
-    }
-        /*
-    |--------------------------------------------------------------------------
-    | Validar pedido
-    |--------------------------------------------------------------------------
-    */
-
-    private function validarPedido(
-        Order $order
-    ): void {
-
-        if (!$order->exists) {
-
-            throw new RuntimeException(
-                'El pedido no existe.'
-            );
-
-        }
-
-        if ($order->items()->doesntExist()) {
-
-            throw new RuntimeException(
-                'El pedido no contiene productos.'
-            );
-
-        }
-
-        if ($order->payment()->exists()) {
-
-            throw new RuntimeException(
-                'El pedido ya tiene un pago registrado.'
-            );
-
-        }
+        throw new RuntimeException(
+            'El pedido no existe.'
+        );
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Validar método de pago
-    |--------------------------------------------------------------------------
-    */
+    if ($order->payment()->exists()) {
 
-    private function validarMetodoPago(
-        int $paymentMethodId
-    ): PaymentMethod {
-
-        return PaymentMethod::query()
-
-            ->activos()
-
-            ->findOrFail($paymentMethodId);
+        throw new RuntimeException(
+            'El pedido ya tiene un pago registrado.'
+        );
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener estado del pago
-    |--------------------------------------------------------------------------
-    */
+}
 
-    private function obtenerEstadoPago(
-        string $codigo
-    ): EstadoPago {
+/*
+|--------------------------------------------------------------------------
+| Cambiar estado del pago
+|--------------------------------------------------------------------------
+*/
 
-        return EstadoPago::query()
+private function cambiarEstado(
+    Payment $payment,
+    string $codigoEstado
+): void {
 
-            ->activos()
+    $estado = $this->obtenerEstado(
+        $codigoEstado
+    );
 
-            ->whereRaw(
-                'UPPER(codigo) = ?',
-                [strtoupper($codigo)]
+    $payment->actualizarEstado(
+        $estado
+    );
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Obtener estado
+|--------------------------------------------------------------------------
+*/
+
+private function obtenerEstado(
+    string $codigo
+): EstadoPago {
+
+    return EstadoPago::query()
+
+        ->activos()
+
+        ->whereRaw(
+            'UPPER(codigo) = ?',
+            [
+                strtoupper($codigo)
+            ]
+        )
+
+        ->firstOrFail();
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Generar referencia
+|--------------------------------------------------------------------------
+*/
+
+private function generarReferencia(): string
+{
+
+    do {
+
+        $reference = sprintf(
+
+            'PAY-%s-%s',
+
+            now()->format('YmdHis'),
+
+            strtoupper(
+                Str::random(6)
             )
 
-            ->firstOrFail();
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Generar referencia
-    |--------------------------------------------------------------------------
-    */
-
-    private function generarReferencia(): string
-    {
-
-        do {
-
-            $referencia = 'PAY-' .
-                now()->format('YmdHis') .
-                '-' .
-                strtoupper(Str::random(6));
-
-        } while (
-
-            Payment::where(
-                'reference',
-                $referencia
-            )->exists()
-
         );
 
-        return $referencia;
+    } while (
 
-    }
+        Payment::where(
+            'reference',
+            $reference
+        )->exists()
+
+    );
+
+    return $reference;
+
+}
+/*
+|--------------------------------------------------------------------------
+| Verificar Mercado Pago
+|--------------------------------------------------------------------------
+*/
+
+public function esMercadoPago(
+    Payment $payment
+): bool {
+
+    $payment->loadMissing(
+        'paymentMethod'
+    );
+
+    return $this->paymentMethodService
+        ->esMercadoPago(
+            $payment->paymentMethod
+        );
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Verificar Pago en tienda
+|--------------------------------------------------------------------------
+*/
+
+public function esPagoEnTienda(
+    Payment $payment
+): bool {
+
+    $payment->loadMissing(
+        'paymentMethod'
+    );
+
+    return $this->paymentMethodService
+        ->esPagoEnTienda(
+            $payment->paymentMethod
+        );
+
+}
 }

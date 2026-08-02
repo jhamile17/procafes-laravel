@@ -18,47 +18,6 @@ class PaymentMethodsSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-
-            [
-                'nombre' => 'Transferencia Bancaria',
-                'descripcion' => 'Transferencia bancaria.',
-                'estado' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-
-            [
-                'nombre' => 'Yape',
-                'descripcion' => 'Pago mediante Yape.',
-                'estado' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-
-            [
-                'nombre' => 'Plin',
-                'descripcion' => 'Pago mediante Plin.',
-                'estado' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-
-            [
-                'nombre' => 'Culqi',
-                'descripcion' => 'Pasarela Culqi.',
-                'estado' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-
-            [
-                'nombre' => 'Stripe',
-                'descripcion' => 'Pasarela Stripe.',
-                'estado' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-
             [
                 'nombre' => 'Mercado Pago',
                 'descripcion' => 'Pasarela Mercado Pago.',

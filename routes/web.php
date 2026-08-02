@@ -206,7 +206,58 @@ Route::get('/reactivar-test', function () {
         Route::get('/favoritos', [WishlistController::class, 'index'])
             ->name('wishlist');
     });
+// Checkout
+Route::middleware('auth')->group(function () {
 
+    Route::get('/checkout', [CheckoutController::class, 'index'])
+        ->name('checkout.index');
+
+    Route::post('/checkout', [CheckoutController::class, 'store'])
+        ->name('checkout.store');
+
+    Route::get('/checkout/success/{order}', function (Order $order) {
+        return view('checkout.success', compact('order'));
+    })->name('checkout.success');
+
+});
+/*
+|--------------------------------------------------------------------------
+| LocationIQ
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+
+    Route::prefix('customer/addresses')
+        ->name('customer.addresses.')
+        ->group(function () {
+
+            Route::get(
+                '/search',
+                [AddressController::class, 'search']
+            )->name('search');
+
+        });
+
+});
+
+Route::prefix('mercado-pago')
+    ->name('mp.')
+    ->group(function () {
+
+        Route::get('/success', [MercadoPagoController::class, 'success'])
+            ->name('success');
+
+        Route::get('/failure', [MercadoPagoController::class, 'failure'])
+            ->name('failure');
+
+        Route::get('/pending', [MercadoPagoController::class, 'pending'])
+            ->name('pending');
+
+        Route::post('/webhook', [MercadoPagoWebhookController::class, 'handle'])
+            ->name('webhook');
+
+    });
 /*
 |--------------------------------------------------------------------------
 | ADMIN
@@ -246,18 +297,7 @@ Route::prefix('admin')
         )->name('configuracion.update');
     });
 
-/*
-|--------------------------------------------------------------------------
-| CHECKOUT (PUENTE PARA FRONTEND)
-|--------------------------------------------------------------------------
-*/
-Route::get('/checkout', [CheckoutController::class, 'index'])
-    ->middleware('auth', 'verified')
-    ->name('checkout');
 
-Route::post('/checkout', [CheckoutController::class, 'store'])
-    ->middleware('auth', 'verified')
-    ->name('checkout.store');
 /*
 |--------------------------------------------------------------------------
 | MERCADO PAGO

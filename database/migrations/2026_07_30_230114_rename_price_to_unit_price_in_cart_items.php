@@ -6,23 +6,53 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Ejecutar migración
+    |--------------------------------------------------------------------------
+    */
+
     public function up(): void
     {
-        Schema::table('cart_items', function (Blueprint $table) {
-            $table->renameColumn('price', 'unit_price');
-        });
+        if (
+            Schema::hasColumn('cart_items', 'price') &&
+            ! Schema::hasColumn('cart_items', 'unit_price')
+        ) {
+
+            Schema::table('cart_items', function (Blueprint $table) {
+
+                $table->renameColumn(
+                    'price',
+                    'unit_price'
+                );
+
+            });
+
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Revertir migración
+    |--------------------------------------------------------------------------
+    */
+
     public function down(): void
     {
-        Schema::table('cart_items', function (Blueprint $table) {
-            $table->renameColumn('unit_price', 'price');
-        });
+        if (
+            Schema::hasColumn('cart_items', 'unit_price') &&
+            ! Schema::hasColumn('cart_items', 'price')
+        ) {
+
+            Schema::table('cart_items', function (Blueprint $table) {
+
+                $table->renameColumn(
+                    'unit_price',
+                    'price'
+                );
+
+            });
+
+        }
     }
 };

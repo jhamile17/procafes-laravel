@@ -1,30 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\Ventas;
 
 use App\Models\Cart;
 use App\Models\EstadoPedido;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\ShippingAddress;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use App\Models\ShippingAddress;
 use RuntimeException;
 
 class OrderService
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Constructor
-    |--------------------------------------------------------------------------
-    */
-
-    public function __construct(
-        protected CartService $cartService
-    ) {
-    }
-
     /*
     |--------------------------------------------------------------------------
     | Crear pedido
@@ -34,52 +25,24 @@ class OrderService
     public function crearPedido(
         Cart $cart,
         ShippingAddress $shippingAddress,
-        string $deliveryType,
-        ?string $observaciones = null
     ): Order {
 
         $this->validarCarrito($cart);
 
         return DB::transaction(function () use (
             $cart,
-            $shippingAddress,
-            $deliveryType,
-            $observaciones
+            $shippingAddress
         ) {
 
             $estadoPendiente = $this->obtenerEstadoPedido(
                 'PENDIENTE'
             );
 
-            $order = Order::create([
-
-                'user_id' => $cart->user_id,
-
-                'shipping_address_id' => $shippingAddress->id,
-
-                'estado_pedido_id' => $estadoPendiente->id,
-
-                'numero_pedido' => $this->generarNumeroPedido(),
-
-                'delivery_alias' => $shippingAddress->alias,
-
-                'delivery_direccion' => $shippingAddress->direccion,
-
-                'delivery_departamento' => $shippingAddress->departamento,
-
-                'delivery_provincia' => $shippingAddress->provincia,
-
-                'delivery_distrito' => $shippingAddress->distrito,
-
-                'delivery_referencia' => $shippingAddress->referencia,
-
-                'total_price' => 0,
-
-                'delivery_type' => $deliveryType,
-
-                'observaciones' => $observaciones,
-
-            ]);
+            $order = $this->crearRegistroPedido(
+                $cart,
+                $shippingAddress,
+                $estadoPendiente
+            );
 
             $this->crearItems(
                 $order,
@@ -91,13 +54,19 @@ class OrderService
             );
 
             return $order->fresh([
+
                 'user',
+
                 'shippingAddress',
+
                 'estadoPedido',
+
                 'items.product',
+
             ]);
 
         });
+
     }
 
     /*
@@ -122,20 +91,19 @@ class OrderService
 
             'payment',
 
-        ])
-
-        ->findOrFail($orderId);
+        ])->findOrFail($orderId);
 
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener todos los pedidos
+    | Obtener todos
     |--------------------------------------------------------------------------
     */
 
     public function obtenerTodos(): Collection
     {
+
         return Order::with([
 
             'user',
@@ -151,10 +119,12 @@ class OrderService
         ->latest()
 
         ->get();
+
     }
-        /*
+
+    /*
     |--------------------------------------------------------------------------
-    | Obtener pedidos por usuario
+    | Obtener pedidos del usuario
     |--------------------------------------------------------------------------
     */
 
@@ -179,33 +149,6 @@ class OrderService
         ->latest()
 
         ->get();
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cambiar estado del pedido
-    |--------------------------------------------------------------------------
-    */
-
-    public function cambiarEstado(
-        Order $order,
-        string $codigoEstado
-    ): Order {
-
-        $estado = $this->obtenerEstadoPedido(
-            $codigoEstado
-        );
-
-        $order->update([
-
-            'estado_pedido_id' => $estado->id,
-
-        ]);
-
-        return $order->fresh([
-            'estadoPedido',
-        ]);
 
     }
 
@@ -261,7 +204,7 @@ class OrderService
         Order $order
     ): bool {
 
-        if (!$order->estadoPedido->esPendiente()) {
+        if (! $order->estadoPedido->esPendiente()) {
 
             throw new RuntimeException(
                 'Solo se pueden eliminar pedidos pendientes.'
@@ -278,55 +221,137 @@ class OrderService
         });
 
     }
-        /*
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cambiar estado
+    |--------------------------------------------------------------------------
+    */
+
+    private function cambiarEstado(
+        Order $order,
+        string $codigoEstado
+    ): Order {
+
+        $estado = $this->obtenerEstadoPedido(
+            $codigoEstado
+        );
+
+        $order->update([
+
+            'estado_pedido_id' => $estado->id,
+
+        ]);
+
+        return $order->fresh([
+            'estadoPedido',
+        ]);
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Crear registro del pedido
+    |--------------------------------------------------------------------------
+    */
+
+    private function crearRegistroPedido(
+        Cart $cart,
+        ShippingAddress $shippingAddress,
+        EstadoPedido $estado
+    ): Order {
+
+        return Order::create([
+
+            'user_id' => $cart->user_id,
+
+            'shipping_address_id' => $shippingAddress->id,
+
+            'estado_pedido_id' => $estado->id,
+
+            'numero_pedido' => $this->generarNumeroPedido(),
+
+            /*
+            |--------------------------------------------------------------------------
+            | Snapshot de la dirección
+            |--------------------------------------------------------------------------
+            */
+
+            'delivery_direccion' => $shippingAddress->direccion,
+
+            'delivery_departamento' => $shippingAddress->departamento,
+
+            'delivery_provincia' => $shippingAddress->provincia,
+
+            'delivery_distrito' => $shippingAddress->distrito,
+
+            'total_price' => 0,
+
+        ]);
+
+    }
+
+    /*
     |--------------------------------------------------------------------------
     | Validar carrito
     |--------------------------------------------------------------------------
     */
 
-    private function validarCarrito(Cart $cart): void
-    {
+    private function validarCarrito(
+        Cart $cart
+    ): void {
+
         $cart->loadMissing('items.product');
 
-        if (!$cart->estado) {
+        if (! $cart->estado) {
+
             throw new RuntimeException(
                 'El carrito se encuentra inactivo.'
             );
+
         }
 
         if ($cart->items->isEmpty()) {
+
             throw new RuntimeException(
                 'El carrito no contiene productos.'
             );
+
         }
 
         foreach ($cart->items as $item) {
 
-            if (!$item->product) {
+            if (! $item->product) {
+
                 throw new RuntimeException(
                     'Existe un producto inválido dentro del carrito.'
                 );
+
             }
 
-            if (!$item->product->status) {
+            if (! $item->product->status) {
+
                 throw new RuntimeException(
                     "El producto {$item->product->name} se encuentra inactivo."
                 );
+
             }
 
-            if (
-                !$item->product->isAvailable($item->quantity)
-            ) {
+            if (! $item->product->isAvailable($item->quantity)) {
+
                 throw new RuntimeException(
                     "Stock insuficiente para {$item->product->name}."
                 );
+
             }
+
         }
+
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Crear items del pedido
+    | Crear items
     |--------------------------------------------------------------------------
     */
 
@@ -357,7 +382,7 @@ class OrderService
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener estado del pedido
+    | Obtener estado
     |--------------------------------------------------------------------------
     */
 
@@ -365,15 +390,20 @@ class OrderService
         string $codigo
     ): EstadoPedido {
 
-        return EstadoPedido::whereRaw(
-            'UPPER(codigo) = ?',
-            [strtoupper($codigo)]
-        )->first();
+        return EstadoPedido::query()
+
+            ->whereRaw(
+                'UPPER(codigo) = ?',
+                [strtoupper($codigo)]
+            )
+
+            ->firstOrFail();
+
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Actualizar total del pedido
+    | Actualizar total
     |--------------------------------------------------------------------------
     */
 
@@ -387,18 +417,19 @@ class OrderService
 
     /*
     |--------------------------------------------------------------------------
-    | Generar número de pedido
+    | Generar número
     |--------------------------------------------------------------------------
     */
 
     private function generarNumeroPedido(): string
     {
+
         do {
 
-            $numero = 'PED-' .
-                now()->format('Ymd') .
-                '-' .
-                strtoupper(Str::random(6));
+            $numero = 'PED-'
+                . now()->format('Ymd')
+                . '-'
+                . strtoupper(Str::random(6));
 
         } while (
 
@@ -410,5 +441,6 @@ class OrderService
         );
 
         return $numero;
+
     }
 }

@@ -22,16 +22,21 @@ class MercadoPagoWebhookController extends Controller
         );
     }
 
-    /**
-     * Procesa las notificaciones enviadas por Mercado Pago.
-     */
-    public function handle(Request $request): JsonResponse
-    {
+    /*
+    |--------------------------------------------------------------------------
+    | Webhook Mercado Pago
+    |--------------------------------------------------------------------------
+    */
+
+    public function handle(
+        Request $request
+    ): JsonResponse {
+
         try {
 
             /*
             |--------------------------------------------------------------------------
-            | Solo procesamos eventos de tipo payment
+            | Solo procesar eventos de pago
             |--------------------------------------------------------------------------
             */
 
@@ -39,49 +44,52 @@ class MercadoPagoWebhookController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Evento ignorado',
+                    'message' => 'Evento ignorado.',
                 ]);
 
             }
 
             /*
             |--------------------------------------------------------------------------
-            | Obtener ID del pago
+            | ID del pago
             |--------------------------------------------------------------------------
             */
 
             $paymentId = $request->input('data.id');
 
-            if (empty($paymentId)) {
+            if (blank($paymentId)) {
 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Payment ID no recibido.',
+                    'message' => 'No se recibió el ID del pago.',
                 ], 400);
 
             }
 
             /*
             |--------------------------------------------------------------------------
-            | Consultar el pago en Mercado Pago
+            | Consultar Mercado Pago
             |--------------------------------------------------------------------------
             */
 
             $client = new PaymentClient();
 
-            $mpPayment = $client->get($paymentId);
+            $mpPayment = $client->get(
+                (string) $paymentId
+            );
 
             /*
             |--------------------------------------------------------------------------
-            | Buscar el pago en nuestra base de datos
+            | Buscar pago interno
             |--------------------------------------------------------------------------
             */
 
-            $payment = $this->paymentService->obtenerPorReferencia(
-                $mpPayment->external_reference
-            );
+            $payment = $this->paymentService
+                ->obtenerPorReferencia(
+                    $mpPayment->external_reference
+                );
 
-            if (!$payment) {
+            if (! $payment) {
 
                 return response()->json([
                     'success' => false,
@@ -92,7 +100,7 @@ class MercadoPagoWebhookController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Información de la transacción
+            | Datos de la transacción
             |--------------------------------------------------------------------------
             */
 
@@ -112,7 +120,7 @@ class MercadoPagoWebhookController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Procesar según el estado recibido
+            | Procesar estado
             |--------------------------------------------------------------------------
             */
 
@@ -120,39 +128,33 @@ class MercadoPagoWebhookController extends Controller
 
                 case 'approved':
 
-                    $this->paymentService->confirmarPago(
+                    $this->paymentService
+                        ->confirmarPago(
 
-                        payment: $payment,
+                            payment: $payment,
 
-                        transactionId: (string) $mpPayment->id,
+                            transactionId: (string) $mpPayment->id,
 
-                        transactionData: $transactionData
+                            transactionData: $transactionData
 
-                    );
+                        );
 
                     break;
 
                 case 'rejected':
 
-                    $this->paymentService->rechazarPago(
-
-                        payment: $payment,
-
-                        transactionData: $transactionData
-
-                    );
-
-                    break;
-
                 case 'cancelled':
 
-                    $this->paymentService->cancelarPago(
+                    $this->paymentService
+                        ->rechazarPago(
 
-                        payment: $payment,
+                            payment: $payment,
 
-                        transactionData: $transactionData
+                            transactionId: (string) $mpPayment->id,
 
-                    );
+                            transactionData: $transactionData
+
+                        );
 
                     break;
 
@@ -162,9 +164,8 @@ class MercadoPagoWebhookController extends Controller
 
                 case 'authorized':
 
-                default:
+                    // El pago continúa en proceso.
 
-                    // No se realiza ninguna acción.
                     break;
 
             }
@@ -183,5 +184,6 @@ class MercadoPagoWebhookController extends Controller
             ], 500);
 
         }
+
     }
 }

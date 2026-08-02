@@ -35,7 +35,7 @@
         <div class="d-grid gap-2 mt-4">
 
             <a
-                href="{{ route('checkout') }}"
+                href="{{ route('checkout.index') }}"
                 class="btn btn-primary">
 
                 <i class="bi bi-credit-card me-2"></i>

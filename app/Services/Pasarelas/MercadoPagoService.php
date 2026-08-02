@@ -10,114 +10,223 @@ use Illuminate\Support\Facades\Log;
 use MercadoPago\Client\Preference\PreferenceClient;
 use MercadoPago\Exceptions\MPApiException;
 use MercadoPago\MercadoPagoConfig;
-use MercadoPago\Resources\Preference;
+use RuntimeException;
 
 class MercadoPagoService
 {
+    private const CURRENCY = 'PEN';
+
+    private const STATEMENT_DESCRIPTOR = 'PROCAFES';
+
     public function __construct()
     {
         $accessToken = config('mercadopago.access_token');
 
-        if (empty($accessToken)) {
+        if (blank($accessToken)) {
+
             throw new Exception(
                 'No se ha configurado el Access Token de Mercado Pago.'
             );
+
         }
 
-        MercadoPagoConfig::setAccessToken($accessToken);
+        MercadoPagoConfig::setAccessToken(
+            $accessToken
+        );
     }
+    /*
+|--------------------------------------------------------------------------
+| Crear preferencia
+|--------------------------------------------------------------------------
+*/
 
-    /**
-     * Crear preferencia de pago.
-     */
-    public function crearPreferencia(Payment $payment): Preference
-    {
-        $payment->load([
-            'order.user',
-            'order.items.product',
-        ]);
+public function crearPreferencia(
+    Payment $payment
+): array {
 
-        $items = [];
+    $payment->load([
 
-        foreach ($payment->order->items as $item) {
+        'order.user',
 
-            $items[] = [
-                'id' => (string) $item->product->id,
-                'title' => $item->product->name,
-                'description' => $item->product->description ?? '',
-                'quantity' => (int) $item->quantity,
-                'currency_id' => 'PEN',
-                'unit_price' => (float) $item->unit_price,
-            ];
-        }
+        'order.items.product',
 
-        $client = new PreferenceClient();
+    ]);
 
-        $request = [
+    $request = $this->construirRequest(
+        $payment
+    );
 
-            'items' => $items,
+    try {
 
-            'payer' => [
-                'name' => $payment->order->user->name,
-                'email' => $payment->order->user->email,
-            ],
+        $preference = $this->preferenceClient()
+            ->create($request);
 
-            'external_reference' => $payment->reference,
+        return [
 
-            'statement_descriptor' => 'PROCAFES',
+            'preference_id' => $preference->id,
 
-            'binary_mode' => false,
+            'init_point' => $preference->init_point,
 
-            'metadata' => [
-                'payment_id' => $payment->id,
-                'order_id' => $payment->order->id,
-            ],
+            'sandbox_init_point' => $preference->sandbox_init_point,
 
-            'back_urls' => [
-                'success' => route('mp.success'),
-                'failure' => route('mp.failure'),
-                'pending' => route('mp.pending'),
-            ],
-            'notification_url' => 'https://pro-cafes.com/webhooks/mercadopago'
-            // Vamos a quitar temporalmente esta línea
-            // 'auto_return' => 'approved',
         ];
 
-        try {
+    } catch (MPApiException $e) {
 
-            $preference = $client->create($request);
+        Log::error(
+            'Mercado Pago API',
+            [
 
-            $payment->update([
-                'transaction_data' => [
-                    'preference_id'      => $preference->id,
-                    'init_point'         => $preference->init_point,
-                    'sandbox_init_point' => $preference->sandbox_init_point,
-                ],
-            ]);
+                'status' => $e->getApiResponse()->getStatusCode(),
 
-            return $preference;
+                'content' => $e->getApiResponse()->getContent(),
 
-        } catch (MPApiException $e) {
-
-            $response = $e->getApiResponse();
-
-            Log::error('Mercado Pago', [
-                'status' => $response->getStatusCode(),
-                'content' => $response->getContent(),
                 'request' => $request,
-            ]);
 
-            dd($response->getContent());
+            ]
+        );
 
-        } catch (\Throwable $e) {
+        throw new RuntimeException(
+            'No fue posible crear la preferencia de Mercado Pago.'
+        );
 
-            Log::error('Mercado Pago Throwable', [
-                'mensaje' => $e->getMessage(),
-                'archivo' => $e->getFile(),
-                'linea' => $e->getLine(),
-            ]);
+    } catch (\Throwable $e) {
 
-            throw $e;
-        }
+        Log::error(
+            'Mercado Pago',
+            [
+
+                'message' => $e->getMessage(),
+
+                'file' => $e->getFile(),
+
+                'line' => $e->getLine(),
+
+            ]
+        );
+
+        throw $e;
+
     }
+
+}
+/*
+|--------------------------------------------------------------------------
+| Construir Request
+|--------------------------------------------------------------------------
+*/
+
+private function construirRequest(
+    Payment $payment
+): array {
+
+    return [
+
+        'items' => $this->construirItems(
+            $payment
+        ),
+
+        'payer' => $this->construirPayer(
+            $payment
+        ),
+
+        'external_reference' => $payment->reference,
+
+        'statement_descriptor' => self::STATEMENT_DESCRIPTOR,
+
+        'binary_mode' => false,
+
+        'metadata' => [
+
+            'payment_id' => $payment->id,
+
+            'order_id' => $payment->order->id,
+
+        ],
+
+        'back_urls' => [
+
+            'success' => route('mp.success'),
+
+            'failure' => route('mp.failure'),
+
+            'pending' => route('mp.pending'),
+
+        ],
+
+        'notification_url' => route('mp.webhook'),
+
+        'auto_return' => 'approved',
+
+    ];
+
+}
+/*
+|--------------------------------------------------------------------------
+| Construir Items
+|--------------------------------------------------------------------------
+*/
+
+private function construirItems(
+    Payment $payment
+): array {
+
+    return $payment->order->items
+
+        ->map(function ($item) {
+
+            return [
+
+                'id' => (string) $item->product->id,
+
+                'title' => $item->product->name,
+
+                'description' => $item->product->description ?? '',
+
+                'quantity' => (int) $item->quantity,
+
+                'currency_id' => self::CURRENCY,
+
+                'unit_price' => (float) $item->unit_price,
+
+            ];
+
+        })
+
+        ->values()
+
+        ->toArray();
+
+}
+/*
+|--------------------------------------------------------------------------
+| Construir Pagador
+|--------------------------------------------------------------------------
+*/
+
+private function construirPayer(
+    Payment $payment
+): array {
+
+    return [
+
+        'name' => $payment->order->user->name,
+
+        'email' => $payment->order->user->email,
+
+    ];
+
+}
+/*
+|--------------------------------------------------------------------------
+| Cliente Mercado Pago
+|--------------------------------------------------------------------------
+*/
+
+private function preferenceClient(): PreferenceClient
+{
+
+    return new PreferenceClient();
+
+}
 }

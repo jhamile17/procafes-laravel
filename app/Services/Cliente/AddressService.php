@@ -1,76 +1,67 @@
 <?php
-
 declare(strict_types=1);
-
 namespace App\Services\Cliente;
-
 use App\Models\ShippingAddress;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class AddressService
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener todas las direcciones del usuario
-    |--------------------------------------------------------------------------
-    */
+    /*Obtener dirección del usuario*/
 
-    public function obtenerDirecciones(int $userId): Collection
-    {
+    public function obtenerDireccion(
+        int $userId
+    ): ?ShippingAddress {
         return ShippingAddress::query()
             ->where('user_id', $userId)
-            ->orderByDesc('es_principal')
-            ->orderByDesc('id')
-            ->get();
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener dirección principal
-    |--------------------------------------------------------------------------
-    */
-
-    public function obtenerPrincipal(int $userId): ?ShippingAddress
-    {
-        return ShippingAddress::query()
-            ->where('user_id', $userId)
-            ->principal()
             ->first();
+
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Crear dirección
+    | Crear o actualizar dirección
     |--------------------------------------------------------------------------
     */
 
-    public function crearDireccion(
+    public function guardar(
         int $userId,
         array $data
     ): ShippingAddress {
 
-        return DB::transaction(function () use ($userId, $data) {
+        return DB::transaction(function () use (
+            $userId,
+            $data
+        ) {
 
-            $esPrincipal = ! ShippingAddress::query()
+            $address = ShippingAddress::query()
+
                 ->where('user_id', $userId)
-                ->exists();
 
-            if ($esPrincipal) {
+                ->first();
 
-                ShippingAddress::query()
-                    ->where('user_id', $userId)
-                    ->update([
-                        'es_principal' => false,
-                    ]);
+            if (! $address) {
+
+                return ShippingAddress::create([
+
+                    'user_id' => $userId,
+
+                    'direccion' => $data['direccion'],
+
+                    'departamento' => $data['departamento'],
+
+                    'provincia' => $data['provincia'],
+
+                    'distrito' => $data['distrito'],
+
+                    'latitude' => $data['latitude'],
+
+                    'longitude' => $data['longitude'],
+
+                ]);
 
             }
 
-            return ShippingAddress::create([
-
-                'user_id' => $userId,
-
-                'alias' => $data['alias'] ?? 'Mi dirección',
+            $address->update([
 
                 'direccion' => $data['direccion'],
 
@@ -80,74 +71,29 @@ class AddressService
 
                 'distrito' => $data['distrito'],
 
-                'referencia' => $data['referencia'] ?? null,
+                'latitude' => $data['latitude'],
 
-                'latitude' => $data['latitude'] ?? null,
-
-                'longitude' => $data['longitude'] ?? null,
-
-                'es_principal' => $esPrincipal,
+                'longitude' => $data['longitude'],
 
             ]);
-        });
-    }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Marcar dirección principal
-    |--------------------------------------------------------------------------
-    */
-
-    public function establecerPrincipal(
-        ShippingAddress $address
-    ): ShippingAddress {
-
-        DB::transaction(function () use ($address) {
-
-            ShippingAddress::query()
-                ->where('user_id', $address->user_id)
-                ->update([
-                    'es_principal' => false,
-                ]);
-
-            $address->update([
-                'es_principal' => true,
-            ]);
+            return $address->fresh();
 
         });
 
-        return $address->fresh();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Eliminar dirección
-    |--------------------------------------------------------------------------
-    */
+    /*Eliminar dirección*/
 
     public function eliminar(
-        ShippingAddress $address
+        int $userId
     ): void {
 
-        $eraPrincipal = $address->es_principal;
+        ShippingAddress::query()
 
-        $userId = $address->user_id;
+            ->where('user_id', $userId)
 
-        $address->delete();
+            ->delete();
 
-        if ($eraPrincipal) {
-
-            $nuevaPrincipal = ShippingAddress::query()
-                ->where('user_id', $userId)
-                ->first();
-
-            if ($nuevaPrincipal) {
-
-                $nuevaPrincipal->update([
-                    'es_principal' => true,
-                ]);
-
-            }
-        }
     }
 }
