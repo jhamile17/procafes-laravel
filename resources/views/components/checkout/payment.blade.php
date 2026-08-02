@@ -5,21 +5,15 @@
         <div>
 
             <span class="customer-card-badge">
-
                 Pago
-
             </span>
 
             <h2 class="customer-card-title">
-
                 Método de pago
-
             </h2>
 
             <p class="customer-card-subtitle">
-
                 Selecciona cómo deseas realizar el pago de tu pedido.
-
             </p>
 
         </div>
@@ -40,6 +34,7 @@
                     type="radio"
                     name="payment_method_id"
                     value="{{ $method->id }}"
+                    data-payment="{{ \Illuminate\Support\Str::slug($method->nombre) }}"
                     class="checkout-payment-radio"
                     {{ $loop->first ? 'checked' : '' }}>
 
@@ -79,11 +74,33 @@
 
                         @if(!empty($method->descripcion))
 
-                            <small class="checkout-payment-description">
+                            <p class="checkout-payment-description">
 
                                 {{ $method->descripcion }}
 
-                            </small>
+                            </p>
+
+                        @endif
+
+                        @if($nombre === 'mercado pago')
+
+                            <span class="customer-badge customer-badge-info">
+
+                                <i class="bi bi-shield-lock-fill"></i>
+
+                                Pago seguro
+
+                            </span>
+
+                        @elseif($nombre === 'pago en tienda')
+
+                            <span class="customer-badge customer-badge-warning">
+
+                                <i class="bi bi-shop"></i>
+
+                                Pago presencial
+
+                            </span>
 
                         @endif
 
@@ -95,11 +112,29 @@
 
         @empty
 
-            <div class="alert alert-warning mb-0">
+            <div class="customer-notice customer-notice-warning">
 
-                <i class="bi bi-exclamation-triangle me-2"></i>
+                <div class="customer-notice-icon">
 
-                No existen métodos de pago disponibles.
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+
+                </div>
+
+                <div class="customer-notice-content">
+
+                    <h6>
+
+                        Métodos de pago no disponibles
+
+                    </h6>
+
+                    <p>
+
+                        En este momento no existen métodos de pago habilitados para completar la compra.
+
+                    </p>
+
+                </div>
 
             </div>
 
@@ -108,3 +143,4 @@
     </div>
 
 </div>
+

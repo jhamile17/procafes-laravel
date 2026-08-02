@@ -1,3 +1,4 @@
+
 /*
 |--------------------------------------------------------------------------
 | BUTTON BASE
@@ -14,9 +15,17 @@
 
     gap:.5rem;
 
-    min-height:44px;
+    height:42px;
 
-    padding:.75rem 1.25rem;
+    padding:0 1.5rem;
+
+    border:none;
+
+    border-radius:var(--radius-pill);
+
+    background:transparent;
+
+    color:var(--color-text);
 
     font-family:var(--font-body);
 
@@ -26,22 +35,29 @@
 
     line-height:1;
 
-    border:none;
+    text-decoration:none;
 
-    border-radius:var(--radius-pill);
+    white-space:nowrap;
 
-    transition:
-        background-color var(--transition),
-        color var(--transition),
-        border-color var(--transition),
-        box-shadow var(--transition),
-        transform var(--transition);
+    cursor:pointer;
+
+    user-select:none;
+
+    transition:all var(--transition);
 
 }
 
 .btn:hover{
 
-    transform:translateY(-2px);
+    text-decoration:none;
+
+    transform:translateY(-1px);
+
+}
+
+.btn:active{
+
+    transform:translateY(0);
 
 }
 
@@ -50,145 +66,184 @@
     outline:none;
 
 }
+
 /*
 |--------------------------------------------------------------------------
-| PRIMARY
+| BRAND
 |--------------------------------------------------------------------------
 */
 
-.btn-primary{
+.btn-brand{
 
-    background-color:var(--color-primary);
-
-    border:1px solid var(--color-primary);
+    background:var(--color-primary);
 
     color:var(--color-white);
 
 }
 
-.btn-primary:hover{
+.btn-brand:hover{
 
-    background-color:var(--color-primary-hover);
+    background:var(--color-primary-hover);
 
-    border-color:var(--color-primary-hover);
+    color:var(--color-white);
 
 }
 
-.btn-primary:focus-visible{
+.btn-brand:focus-visible{
 
     box-shadow:0 0 0 .2rem var(--color-primary-focus);
 
 }
 
-.btn-primary:active{
-
-    transform:translateY(0);
-
-    background-color:var(--color-primary-hover);
-
-    border-color:var(--color-primary-hover);
-
-}
 /*
 |--------------------------------------------------------------------------
-| CART BUTTON
+| GHOST
 |--------------------------------------------------------------------------
 */
 
+.btn-ghost{
+
+    color:var(--color-text);
+
+}
+
+.btn-ghost:hover{
+
+    background:var(--color-primary-soft);
+
+    color:var(--color-primary);
+
+}
+
 /*
 |--------------------------------------------------------------------------
-| CART BUTTON
+| OUTLINE
 |--------------------------------------------------------------------------
 */
 
-.btn-cart{
+.btn-outline{
 
-    display:flex;
+    border:1px solid var(--color-border);
 
-    align-items:center;
+    background:transparent;
 
-    justify-content:center;
-
-    gap:.6rem;
-
-    width:100%;
-
-    height:42px;
-
-    padding:0 1.5rem;
-
-    border:1px solid transparent;
-
-    border-radius:var(--radius-pill);
-
-    background-color:var(--color-primary);
-
-    color:var(--color-white);
-
-    font-weight:600;
-
-    transition:
-        background-color var(--transition),
-        border-color var(--transition),
-        color var(--transition),
-        transform var(--transition),
-        box-shadow var(--transition);
+    color:var(--color-text);
 
 }
 
-.btn-cart:hover{
+.btn-outline:hover{
 
-    background-color:var(--color-primary-hover);
+    border-color:var(--color-primary);
 
-    border-color:var(--color-primary-hover);
+    background:var(--color-primary-soft);
 
-    color:var(--color-white);
+    color:var(--color-primary);
 
 }
 
-.btn-cart:focus-visible{
-
-    outline:none;
+.btn-outline:focus-visible{
 
     box-shadow:0 0 0 .2rem var(--color-primary-focus);
 
 }
 
-.btn-cart:active{
+/*
+|--------------------------------------------------------------------------
+| SUCCESS
+|--------------------------------------------------------------------------
+*/
 
-    transform:translateY(0);
+.btn-success{
 
-    background-color:var(--color-primary-hover);
+    background:var(--color-success);
 
-    border-color:var(--color-primary-hover);
-
-}
-
-.btn-cart:disabled{
-
-    background-color:var(--color-disabled);
-
-    border-color:var(--color-border);
-
-    color:var(--color-text-disabled);
-
-    cursor:not-allowed;
-
-    transform:none;
+    color:var(--color-white);
 
 }
 
-.btn-cart i{
+.btn-success:hover{
+
+    opacity:.92;
+
+    color:var(--color-white);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| DANGER
+|--------------------------------------------------------------------------
+*/
+
+.btn-danger{
+
+    background:var(--color-danger);
+
+    color:var(--color-white);
+
+}
+
+.btn-danger:hover{
+
+    opacity:.92;
+
+    color:var(--color-white);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| SIZES
+|--------------------------------------------------------------------------
+*/
+
+.btn-sm{
+
+    height:36px;
+
+    padding:0 1rem;
+
+    font-size:.85rem;
+
+}
+
+.btn-lg{
+
+    height:50px;
+
+    padding:0 2rem;
 
     font-size:1rem;
 
-    line-height:1;
+}
+
+/*
+|--------------------------------------------------------------------------
+| WIDTH
+|--------------------------------------------------------------------------
+*/
+
+.btn-block{
+
+    width:100%;
 
 }
 
-.btn-cart-text{
+/*
+|--------------------------------------------------------------------------
+| DISABLED
+|--------------------------------------------------------------------------
+*/
 
-    line-height:1;
+.btn:disabled{
+
+    opacity:.6;
+
+    cursor:not-allowed;
+
+    pointer-events:none;
+
+    transform:none;
 
 }
 
@@ -198,22 +253,23 @@
 |--------------------------------------------------------------------------
 */
 
-.btn-cart.loading{
+.btn.loading{
 
     pointer-events:none;
 
 }
 
-.btn-cart.loading i{
+.btn.loading i{
 
-    animation:cartSpin .8s linear infinite;
+    animation:buttonSpin .8s linear infinite;
 
 }
-@keyframes cartSpin{
+
+@keyframes buttonSpin{
 
     from{
 
-        transform:rotate(0);
+        transform:rotate(0deg);
 
     }
 

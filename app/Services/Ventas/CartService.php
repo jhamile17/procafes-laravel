@@ -220,7 +220,15 @@ class CartService
             ->where('product_id', $productId)
             ->exists();
     }
+    public function vaciarPorUsuario(
+        int $userId
+        ): void {
 
+            $cart = $this->obtenerCarrito($userId);
+
+            $this->vaciarCarrito($cart);
+
+        }
     /*
     |--------------------------------------------------------------------------
     | Actualizar última actividad del carrito

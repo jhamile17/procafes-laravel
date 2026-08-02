@@ -5,21 +5,15 @@
         <div>
 
             <span class="customer-card-badge">
-
                 Resumen
-
             </span>
 
             <h2 class="customer-card-title">
-
                 Tu pedido
-
             </h2>
 
             <p class="customer-card-subtitle">
-
-                Revisa el detalle antes de confirmar la compra.
-
+                Revisa el detalle antes de confirmar tu compra.
             </p>
 
         </div>
@@ -28,9 +22,9 @@
 
     <div class="customer-card-body">
 
-        {{-- ===========================
+        {{-- ==========================================================
             Productos
-        ============================ --}}
+        =========================================================== --}}
 
         <div class="checkout-summary-products">
 
@@ -80,16 +74,14 @@
 
         <hr>
 
-        {{-- ===========================
+        {{-- ==========================================================
             Totales
-        ============================ --}}
+        =========================================================== --}}
 
         <div class="checkout-summary-row">
 
             <span>
-
                 Productos
-
             </span>
 
             <strong>
@@ -103,9 +95,7 @@
         <div class="checkout-summary-row">
 
             <span>
-
                 Subtotal
-
             </span>
 
             <strong>
@@ -120,9 +110,7 @@
         <div class="checkout-summary-row">
 
             <span>
-
                 IGV (18%)
-
             </span>
 
             <strong>
@@ -153,17 +141,56 @@
 
         </div>
 
-        {{-- ===========================
-            Botón
-        ============================ --}}
+        {{-- ==========================================================
+            Información
+        =========================================================== --}}
+
+        <div class="customer-notice customer-notice-info mt-4">
+
+            <div class="customer-notice-icon">
+
+                <i class="bi bi-shield-check"></i>
+
+            </div>
+
+            <div class="customer-notice-content">
+
+                <h6>
+
+                    Compra protegida
+
+                </h6>
+
+                <p>
+
+                    Tu información personal y el proceso de pago están protegidos durante toda la compra.
+
+                </p>
+
+            </div>
+
+        </div>
+
+        {{-- ==========================================================
+            Acción
+        =========================================================== --}}
 
         <button
+            id="checkoutSubmitButton"
             type="submit"
-            class="btn btn-primary btn-lg w-100 mt-4">
+            class="btn btn-brand btn-block btn-lg">
 
-            <i class="bi bi-bag-check-fill me-2"></i>
+            <span class="checkout-button-icon">
 
-            Confirmar compra
+                <i class="bi bi-bag-check-fill"></i>
+
+            </span>
+
+            <span class="checkout-button-text">
+
+                Confirmar pedido
+
+            </span>
 
         </button>
 

@@ -22,9 +22,52 @@
 
     <div class="customer-card-body">
 
-        {{-- ===========================
+        {{-- ==========================================================
+            Sin dirección registrada
+        =========================================================== --}}
+
+        @unless($address)
+
+            <div
+                id="addressEmpty"
+                class="checkout-address-empty">
+
+                <div class="checkout-address-empty-icon">
+
+                    <i class="bi bi-geo-alt-fill"></i>
+
+                </div>
+
+                <h3 class="checkout-address-empty-title">
+
+                    No tienes una dirección registrada
+
+                </h3>
+
+                <p class="checkout-address-empty-description">
+
+                    Para continuar con tu compra primero debes seleccionar una dirección de entrega.
+
+                </p>
+
+                <button
+                    type="button"
+                    id="btnNuevaDireccion"
+                    class="btn btn-brand">
+
+                    <i class="bi bi-search"></i>
+
+                    <span>Buscar dirección</span>
+
+                </button>
+
+            </div>
+
+        @endunless
+
+        {{-- ==========================================================
             Dirección registrada
-        ============================ --}}
+        =========================================================== --}}
 
         <div
             id="addressView"
@@ -63,32 +106,36 @@
 
             </div>
 
-            <button
-                type="button"
-                id="btnEditAddress"
-                class="btn btn-outline-primary mt-3">
+            <div class="checkout-address-actions">
 
-                <i class="bi bi-pencil-square me-2"></i>
+                <button
+                    type="button"
+                    id="btnEditAddress"
+                    class="customer-btn customer-btn-outline">
 
-                Editar dirección
+                    <i class="bi bi-pencil-square me-2"></i>
 
-            </button>
+                    Editar dirección
+
+                </button>
+
+            </div>
 
         </div>
 
-        {{-- ===========================
-            Formulario LocationIQ
-        ============================ --}}
+        {{-- ==========================================================
+            Buscar dirección
+        =========================================================== --}}
 
         <div
             id="addressForm"
-            class="{{ $address ? 'd-none' : '' }}">
+            class="checkout-address-form d-none">
 
-            <div class="mb-3">
+            <div class="customer-form-group">
 
                 <label
                     for="addressSearch"
-                    class="form-label">
+                    class="customer-label">
 
                     Buscar dirección
 
@@ -97,7 +144,7 @@
                 <input
                     type="text"
                     id="addressSearch"
-                    class="form-control"
+                    class="customer-input"
                     placeholder="Ej. Av. Perú 123, Pichanaqui">
 
             </div>
@@ -108,12 +155,14 @@
 
             </div>
 
-            <div class="mt-3">
+            <div class="checkout-address-actions mt-3">
 
                 <button
                     type="button"
                     id="btnCancelAddress"
-                    class="btn btn-outline-secondary">
+                    class="customer-btn customer-btn-outline">
+
+                    <i class="bi bi-arrow-left me-2"></i>
 
                     Cancelar
 
@@ -123,9 +172,9 @@
 
         </div>
 
-        {{-- ===========================
+        {{-- ==========================================================
             Campos ocultos
-        ============================ --}}
+        =========================================================== --}}
 
         <input
             type="hidden"

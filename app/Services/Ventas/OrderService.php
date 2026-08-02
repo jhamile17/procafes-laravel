@@ -9,6 +9,7 @@ use App\Models\EstadoPedido;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ShippingAddress;
+use App\Services\Inventario\InventoryService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -16,6 +17,9 @@ use RuntimeException;
 
 class OrderService
 {
+    public function __construct(
+    protected InventoryService $inventoryService
+) {}
     /*
     |--------------------------------------------------------------------------
     | Crear pedido
@@ -35,7 +39,7 @@ class OrderService
         ) {
 
             $estadoPendiente = $this->obtenerEstadoPedido(
-                'PENDIENTE'
+                'PENDING'
             );
 
             $order = $this->crearRegistroPedido(
@@ -222,12 +226,48 @@ class OrderService
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Cambiar estado
-    |--------------------------------------------------------------------------
-    */
+    public function completarPedido(
+     Order $order
+        ): Order {
 
+            return DB::transaction(function () use ($order) {
+
+                $order->loadMissing(
+                    'items.product'
+                );
+
+                $this->confirmarPedido(
+                    $order
+                );
+
+                $this->descontarStock(
+                    $order
+                );
+
+                return $order->fresh([
+
+                    'estadoPedido',
+
+                    'items.product',
+
+                ]);
+
+            });
+
+}
+    private function descontarStock(Order $order): void
+        {
+            $order->loadMissing('items.product');
+            foreach ($order->items as $item) {
+
+                $item->inventoryService->salida(
+                    $item->product,
+                    $item->quantity
+                );
+
+            }
+        }
+        
     private function cambiarEstado(
         Order $order,
         string $codigoEstado
@@ -414,7 +454,7 @@ class OrderService
         $order->actualizarTotal();
 
     }
-
+    
     /*
     |--------------------------------------------------------------------------
     | Generar número

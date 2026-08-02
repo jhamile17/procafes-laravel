@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Services\Pasarelas\MercadoPagoService;
 use App\Services\Ventas\OrderService;
+use App\Services\Ventas\CartService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -22,6 +23,7 @@ class PaymentService
         protected OrderService $orderService,
         protected PaymentMethodService $paymentMethodService,
         protected MercadoPagoService $mercadoPagoService,
+        protected CartService $cartService,
     ) {
     }
 
@@ -302,7 +304,10 @@ public function confirmarPago(
             ->confirmarPedido(
                 $payment->order
             );
-
+        $this->cartService
+            ->vaciarPorUsuario(
+                $payment->order->user_id
+            );
         return $payment->fresh([
 
             'order',

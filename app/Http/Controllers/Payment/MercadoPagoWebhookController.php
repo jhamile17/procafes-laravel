@@ -123,7 +123,14 @@ class MercadoPagoWebhookController extends Controller
             | Procesar estado
             |--------------------------------------------------------------------------
             */
+            if ($payment->estadoPago === 'APPROVED') {
 
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Pago ya confirmado.',
+                ]);
+
+            }
             switch ($mpPayment->status) {
 
                 case 'approved':
