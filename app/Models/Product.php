@@ -29,6 +29,15 @@ class Product extends Model
     public const INACTIVO = false;
 
     public const STOCK_MINIMO_DEFAULT = 5;
+        /*
+    |--------------------------------------------------------------------------
+    | Tipos de entrega
+    |--------------------------------------------------------------------------
+    */
+
+    public const ENTREGA_AMBOS = 'AMBOS';
+
+    public const ENTREGA_RECOJO = 'RECOJO';
 
     /*
     |--------------------------------------------------------------------------
@@ -51,32 +60,20 @@ class Product extends Model
     protected $fillable = [
 
         'categories_id',
-
         'brand_id',
-
         'tipo_consumo_id',
-
         'sku',
-
         'barcode',
-
         'name',
-
         'slug',
-
         'description',
-
         'cost_price',
-
         'sale_price',
-
         'stock',
-
         'stock_minimo',
-
         'image',
-
         'status',
+        'delivery_type',
 
     ];
 
@@ -115,20 +112,14 @@ class Product extends Model
         return [
 
             'cost_price' => 'decimal:2',
-
             'sale_price' => 'decimal:2',
-
             'stock' => 'integer',
-
             'stock_minimo' => 'integer',
-
             'status' => 'boolean',
-
             'categories_id' => 'integer',
-
             'brand_id' => 'integer',
-
             'tipo_consumo_id' => 'integer',
+            'delivery_type' => 'string',
 
         ];
     }
@@ -282,7 +273,16 @@ class Product extends Model
     {
         $this->decrement('stock', $cantidad);
     }
+    /*tipos de entrega */
+    public function soloRecojo(): bool
+    {
+        return $this->delivery_type === self::ENTREGA_RECOJO;
+    }
 
+    public function permiteEnvio(): bool
+    {
+        return $this->delivery_type === self::ENTREGA_AMBOS;
+    }
     /*
     |--------------------------------------------------------------------------
     | Accesores y Mutadores
@@ -344,5 +344,5 @@ class Product extends Model
 
         return 'success';
     }
-    
+
 }

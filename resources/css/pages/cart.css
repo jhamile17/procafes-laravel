@@ -1,0 +1,65 @@
+/*==========================================================================
+    CART
+==========================================================================*/
+
+.cart-summary{
+
+    position:sticky;
+    top:110px;
+
+}
+
+.cart-summary-total{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:1rem 0;
+    margin-top:1rem;
+    border-top:1px solid var(--color-border);
+    border-bottom:1px solid var(--color-border);
+
+}
+
+.cart-summary-total strong{
+
+    font-size:1.4rem;
+    color:var(--color-primary);
+
+}
+.cart-summary-column{
+
+    align-self:flex-start;
+
+}
+
+.cart-summary{
+
+    position:sticky;
+
+    top:calc(var(--navbar-height) + 1.5rem);
+
+}
+/*==========================================================================
+    ANIMATION
+==========================================================================*/
+
+@keyframes customerMessage{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(-10px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}

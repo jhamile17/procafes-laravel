@@ -1,350 +1,677 @@
-/*==============================================================================
+/*==========================================================================
     CHECKOUT
-==============================================================================*/
+==========================================================================*/
 
 .checkout-section{
-    padding:40px 0 80px;
+
+    padding:3rem 0 5rem;
+
     background:var(--color-background);
+
 }
 
-/*==============================================================================
+.checkout-container{
+
+    max-width:1320px;
+
+}
+
+.checkout-content{
+
+    align-items:flex-start;
+
+    gap:2rem;
+
+}
+/*==========================================================================
     HEADER
-==============================================================================*/
+==========================================================================*/
 
 .checkout-header{
-    margin-bottom:2rem;
-}
 
-.checkout-badge{
-    display:inline-flex;
-    align-items:center;
-    gap:.45rem;
-    padding:.45rem .9rem;
-    border-radius:999px;
-    background:rgba(var(--color-primary-rgb),.12);
-    color:var(--color-primary);
-    font-size:.78rem;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:.08em;
+    margin-bottom:2.5rem;
+
 }
 
 .checkout-title{
-    margin:.8rem 0 .6rem;
-    font-size:2rem;
-    font-weight:700;
-    color:var(--color-dark);
+
+    margin:0;
+
+    font-family:var(--font-heading);
+
+    font-size:clamp(2.2rem,4vw,3rem);
+
+    color:var(--color-coffee);
+
 }
 
 .checkout-subtitle{
-    max-width:700px;
-    margin:0;
-    color:var(--color-muted);
-    line-height:1.7;
-}
 
-/*==============================================================================
+    margin-top:.75rem;
+
+    max-width:650px;
+
+    color:var(--color-text-light);
+
+    line-height:1.8;
+
+}
+/*==========================================================================
     CARD
-==============================================================================*/
+==========================================================================*/
 
 .checkout-card{
+    background:var(--color-white);
+    border:1px solid var(--color-border);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-xs);
     overflow:hidden;
-    border:0;
-    border-radius:20px;
-    background:#fff;
-    box-shadow:0 12px 30px rgba(15,23,42,.05);
 }
 
 .checkout-card + .checkout-card{
     margin-top:1.5rem;
 }
 
+.checkout-card-header{
+    padding:1.5rem;
+
+    border-bottom:1px solid var(--color-border);
+
+}
+
+.checkout-card-body{
+
+    padding:1.5rem;
+
+}
+
+.checkout-card-badge{
+    display:inline-flex;
+    padding:.35rem .8rem;
+    margin-bottom:.8rem;
+    border-radius:999px;
+    background:var(--color-primary-soft);
+    color:var(--color-primary);
+    font-size:.75rem;
+    font-weight:600;
+    text-transform:uppercase;
+}
+
+.checkout-card-title{
+
+    margin:0;
+
+    font-family:var(--font-heading);
+
+    font-size:1.9rem;
+
+    color:var(--color-coffee);
+
+}
+
+.checkout-card-subtitle{
+
+    margin-top:.55rem;
+
+    color:var(--color-text-light);
+
+}
+
+.checkout-delivery-options{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:1rem;
+
+    margin-bottom:1.75rem;
+
+}
+
+.checkout-delivery-card{
+
+    display:block;
+
+    cursor:pointer;
+
+}
+
+.checkout-delivery-card input{
+
+    display:none;
+
+}
+
+/*==============================================================================
+    DELIVERY CARD
+==============================================================================*/
+
+.checkout-delivery-content{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:1rem;
+
+    min-height:82px;
+
+    padding:1rem 1.25rem;
+
+    background:var(--color-white);
+
+    border:1px solid var(--color-border);
+
+    border-radius:var(--radius-lg);
+
+    transition:all var(--transition);
+
+    box-shadow:var(--shadow-xs);
+
+}
+
+.checkout-delivery-card:hover .checkout-delivery-content{
+
+    border-color:var(--color-primary);
+
+    box-shadow:var(--shadow-sm);
+
+    transform:translateY(-2px);
+
+}
+
+.checkout-delivery-card input:checked + .checkout-delivery-content{
+
+    border-color:var(--color-primary);
+
+    background:var(--color-primary-soft);
+
+}
+
+/*==============================================================================
+    ICONO
+==============================================================================*/
+
+.checkout-delivery-icon{
+
+    width:46px;
+
+    height:46px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-shrink:0;
+
+    border-radius:50%;
+
+    background:rgba(214,40,40,.08);
+
+    color:var(--color-primary);
+
+    transition:all var(--transition);
+
+}
+
+.checkout-delivery-icon i{
+
+    font-size:1.2rem;
+
+}
+
+.checkout-delivery-card input:checked
++ .checkout-delivery-content
+.checkout-delivery-icon{
+
+    background:var(--color-primary);
+
+    color:var(--color-white);
+
+}
+
+/*==============================================================================
+    INFO
+==============================================================================*/
+
+.checkout-delivery-info{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    flex:1;
+
+}
+
+.checkout-delivery-info h5{
+
+    margin:0;
+
+    font-size:1rem;
+
+    font-weight:600;
+
+    color:var(--color-coffee);
+
+    line-height:1.3;
+
+}
+
+.checkout-delivery-info span{
+
+    margin-top:.2rem;
+
+    font-size:.82rem;
+
+    color:var(--color-text-light);
+
+}
+
+/*==============================================================================
+    PANEL
+==============================================================================*/
+
+.checkout-panel{
+
+    margin-top:1rem;
+
+}
+
+/*==============================================================================
+    STORE
+==============================================================================*/
+
+.checkout-store{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:1.25rem;
+
+    padding:1.5rem;
+
+    border:1px solid var(--color-border);
+
+    border-radius:var(--radius-lg);
+
+    background:linear-gradient(
+        135deg,
+        var(--color-background-start),
+        var(--color-background-end)
+    );
+
+    box-shadow:var(--shadow-xs);
+
+}
+
+.checkout-store-icon{
+
+    width:56px;
+
+    height:56px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-shrink:0;
+
+    border-radius:50%;
+
+    background:var(--color-primary-soft);
+
+    color:var(--color-primary);
+
+}
+
+.checkout-store-icon i{
+
+    font-size:1.4rem;
+
+}
+
+.checkout-store-info{
+
+    flex:1;
+
+}
+
+.checkout-store-badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    padding:.3rem .75rem;
+
+    margin-bottom:.9rem;
+
+    border-radius:var(--radius-pill);
+
+    background:var(--color-primary-soft);
+
+    color:var(--color-primary);
+
+    font-size:.72rem;
+
+    font-weight:600;
+
+    text-transform:uppercase;
+
+    letter-spacing:.5px;
+
+}
+
+.checkout-store-info h4{
+
+    margin:0;
+
+    font-family:var(--font-heading);
+
+    font-size:1.8rem;
+
+    color:var(--color-coffee);
+
+}
+
+.checkout-store-description{
+
+    margin:.85rem 0 1.35rem;
+
+    color:var(--color-text-light);
+
+    line-height:1.7;
+
+}
+
+/*==============================================================================
+    STORE DETAILS
+==============================================================================*/
+
+.checkout-store-details{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:1rem;
+
+}
+
+.checkout-store-item{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:.9rem;
+
+}
+
+.checkout-store-item i{
+
+    width:18px;
+
+    margin-top:.15rem;
+
+    color:var(--color-primary);
+
+    font-size:1rem;
+
+}
+
+.checkout-store-item div{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.checkout-store-item strong{
+
+    margin-bottom:.2rem;
+
+    font-size:.9rem;
+
+    font-weight:600;
+
+    color:var(--color-coffee);
+
+}
+
+.checkout-store-item span{
+
+    font-size:.9rem;
+
+    color:var(--color-text-light);
+
+    line-height:1.5;
+
+}
 /*==============================================================================
     ADDRESS
 ==============================================================================*/
 
-.checkout-address-preview{
+.checkout-address{
+ margin-top:1.5rem;
+
+    border:1px solid var(--color-border);
+
+    border-radius:var(--radius-lg);
+
+    background:linear-gradient(
+        135deg,
+        var(--color-background-start),
+        var(--color-background-end)
+    );
+
+    box-shadow:var(--shadow-xs);
+
+    overflow:hidden;
+
+}
+.checkout-address-header{
+
     display:flex;
+
     align-items:flex-start;
+
     gap:1rem;
-}
 
+    padding:1.5rem;
+
+}
 .checkout-address-icon{
-    width:54px;
-    height:54px;
-    flex-shrink:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:16px;
-    background:rgba(var(--color-primary-rgb),.12);
+
+    width:56px;
+
+    height:56px;
+
+    border-radius:50%;
+
+    background:var(--color-primary-soft);
+
     color:var(--color-primary);
-    font-size:1.25rem;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-shrink:0;
+
 }
 
-.checkout-address-content h6{
+.checkout-address-icon i{
+
+    font-size:1.35rem;
+
+}
+
+.checkout-address-content{
+
+    flex:1;
+
+}
+
+.checkout-address-badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    padding:.3rem .8rem;
+
+    margin-bottom:.75rem;
+
+    border-radius:999px;
+
+    background:var(--color-primary-soft);
+
+    color:var(--color-primary);
+
+    font-size:.72rem;
+
+    font-weight:600;
+
+    text-transform:uppercase;
+
+}
+
+.checkout-address-content h4{
+
     margin:0;
-    font-weight:700;
-    color:var(--color-dark);
+
+    font-size:1.15rem;
+
+    color:var(--color-coffee);
+
 }
 
 .checkout-address-content p{
-    margin:.35rem 0;
-    color:var(--color-dark);
+
+    margin:.55rem 0 .2rem;
+
+    color:var(--color-text);
+
+    font-weight:500;
+
 }
 
 .checkout-address-content small{
-    color:var(--color-muted);
+
+    color:var(--color-text-light);
+
 }
 
-/*==============================================================================
-    ADDRESS EMPTY
-==============================================================================*/
+.checkout-delivery-note{
 
-.checkout-address-empty-card{
-    padding:2.5rem;
-    text-align:center;
-    border:2px dashed #dbe4ee;
-    border-radius:18px;
-    background:#f8fafc;
-}
-
-.checkout-address-empty-icon{
-    width:72px;
-    height:72px;
-    margin:0 auto 1.5rem;
     display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:50%;
-    background:#eef5ff;
-    color:var(--color-primary);
-    font-size:1.8rem;
-}
 
-.checkout-address-empty-card h5{
-    margin-bottom:.75rem;
-    font-weight:700;
-    color:var(--color-dark);
-}
-
-.checkout-address-empty-card p{
-    max-width:380px;
-    margin:0 auto 1.5rem;
-    color:#64748b;
-}
-
-/*==============================================================================
-    ADDRESS SEARCH
-==============================================================================*/
-
-.checkout-address-results{
-    display:flex;
-    flex-direction:column;
-    gap:.6rem;
-    margin-top:1rem;
-}
-
-.checkout-address-item{
-    width:100%;
-    padding:.85rem 1rem;
-    display:flex;
-    align-items:center;
-    border:none;
-    border-radius:12px;
-    background:#f8fafc;
-    text-align:left;
-    transition:.25s;
-}
-
-.checkout-address-item:hover{
-    background:rgba(var(--color-primary-rgb),.08);
-}
-
-.checkout-address-empty{
-    padding:1rem;
-    text-align:center;
-    color:var(--color-muted);
-}
-
-/*==============================================================================
-    PAYMENT
-==============================================================================*/
-
-.checkout-payment-option{
-    display:block;
-    margin-bottom:1rem;
-    cursor:pointer;
-}
-
-.checkout-payment-option:last-child{
-    margin-bottom:0;
-}
-
-.checkout-payment-radio{
-    display:none;
-}
-
-.checkout-payment-content{
-    display:flex;
     align-items:flex-start;
-    gap:1rem;
-    padding:1.25rem;
-    border:2px solid #e5e7eb;
-    border-radius:16px;
-    background:#fff;
-    transition:.25s;
-}
-
-.checkout-payment-option:hover .checkout-payment-content{
-    border-color:var(--color-primary);
-    transform:translateY(-2px);
-    box-shadow:0 8px 20px rgba(0,0,0,.05);
-}
-
-.checkout-payment-radio:checked + .checkout-payment-content{
-    border-color:var(--color-primary);
-    background:#f8fbff;
-    box-shadow:0 0 0 4px rgba(13,110,253,.08);
-}
-
-.checkout-payment-icon{
-    width:52px;
-    height:52px;
-    flex-shrink:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:14px;
-    background:#eef5ff;
-    color:var(--color-primary);
-    font-size:1.3rem;
-}
-
-.checkout-payment-title{
-    margin-bottom:.35rem;
-    font-weight:700;
-}
-
-.checkout-payment-description{
-    display:block;
-    margin-bottom:.6rem;
-    color:#6b7280;
-}
-
-.checkout-payment-extra{
-    display:inline-flex;
-    align-items:center;
-    gap:.35rem;
-    padding:.35rem .75rem;
-    border-radius:999px;
-    background:#eef7ff;
-    color:#2563eb;
-    font-size:.82rem;
-    font-weight:600;
-}
-
-/*==============================================================================
-    SUMMARY
-==============================================================================*/
-
-.checkout-summary{
-    position:sticky;
-    top:100px;
-}
-
-.checkout-summary-products{
-    display:flex;
-    flex-direction:column;
-    gap:1rem;
-}
-
-.checkout-summary-item{
-    display:flex;
-    align-items:center;
-    gap:.85rem;
-}
-
-.checkout-summary-image{
-    width:60px;
-    height:60px;
-    flex-shrink:0;
-    overflow:hidden;
-    border-radius:14px;
-    background:#f5f5f5;
-}
-
-.checkout-summary-image img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-}
-
-.checkout-summary-info{
-    flex:1;
-}
-
-.checkout-summary-info h6{
-    margin:0;
-    font-size:.95rem;
-    font-weight:600;
-}
-
-.checkout-summary-info small{
-    color:var(--color-muted);
-}
-
-.checkout-summary-row,
-.checkout-summary-total{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:.9rem;
-}
-
-.checkout-summary-total{
-    margin-top:.4rem;
-    font-size:1.15rem;
-    font-weight:700;
-    color:var(--color-dark);
-}
-
-.checkout-summary .btn{
-    padding:.9rem 1rem;
-    border-radius:14px;
-    font-weight:600;
-}
-/*==============================================================================
-    SUMMARY SECURITY
-==============================================================================*/
-
-.checkout-summary-security{
-
-    display:flex;
-
-    align-items:center;
 
     gap:.75rem;
 
-    margin-top:1.25rem;
+    padding:1rem 1.5rem;
 
-    padding:1rem;
+    border-top:1px solid var(--color-border);
 
-    border-radius:14px;
-
-    background:#f8fafc;
-
-    color:#475569;
-
-    font-size:.9rem;
+    background:rgba(37,211,102,.06);
 
 }
 
-.checkout-summary-security i{
+.checkout-delivery-note i{
 
-    color:#16a34a;
+    color:var(--color-whatsapp);
 
-    font-size:1.1rem;
+    font-size:1.2rem;
+
+}
+
+.checkout-delivery-note span{
+
+    color:var(--color-text-light);
+
+    line-height:1.6;
+
+}
+
+/*==============================================================================
+    EMPTY
+==============================================================================*/
+
+.checkout-empty{
+
+    margin-top:1.5rem;
+
+    padding:3rem;
+
+    border:2px dashed var(--color-border);
+
+    border-radius:var(--radius-lg);
+
+    background:var(--color-white);
+
+    text-align:center;
+
+}
+
+.checkout-empty-icon{
+
+    width:70px;
+
+    height:70px;
+
+    margin:0 auto 1.25rem;
+
+    border-radius:50%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:var(--color-primary-soft);
+
+    color:var(--color-primary);
+
+}
+
+.checkout-empty-icon i{
+
+    font-size:2rem;
+
+}
+
+.checkout-empty h4{
+
+    margin-bottom:.75rem;
+
+    color:var(--color-coffee);
+
+}
+
+.checkout-empty p{
+
+    max-width:420px;
+
+    margin:0 auto 1.5rem;
+
+    color:var(--color-text-light);
+
+    line-height:1.7;
 
 }
 
@@ -352,28 +679,12 @@
     RESPONSIVE
 ==============================================================================*/
 
-@media (max-width:991.98px){
+@media (max-width:768px){
 
-    .checkout-summary{
-        position:static;
-        margin-top:1rem;
-    }
+    .checkout-delivery-options{
 
-}
+        grid-template-columns:1fr;
 
-@media (max-width:767.98px){
-
-    .checkout-title{
-        font-size:1.7rem;
-    }
-
-    .checkout-address-preview{
-        flex-direction:column;
-    }
-
-    .checkout-payment-content,
-    .checkout-summary-item{
-        align-items:flex-start;
     }
 
 }

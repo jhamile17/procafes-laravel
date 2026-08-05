@@ -10,25 +10,29 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class ShippingAddress extends Model
+class BillingProfile extends Model
 {
     use HasFactory;
 
     /*
     |--------------------------------------------------------------------------
-    | Constantes
+    | Estados
     |--------------------------------------------------------------------------
     */
 
-    public const PRINCIPAL = true;
+    public const ACTIVO = true;
+
+    public const INACTIVO = false;
 
     /*
     |--------------------------------------------------------------------------
-    | Tabla
+    | Predeterminado
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'shipping_addresses';
+    public const PREDETERMINADO = true;
+
+    public const NO_PREDETERMINADO = false;
 
     /*
     |--------------------------------------------------------------------------
@@ -42,35 +46,15 @@ class ShippingAddress extends Model
 
         'alias',
 
-        'direccion',
+        'ruc',
 
-        'departamento',
+        'razon_social',
 
-        'provincia',
+        'direccion_fiscal',
 
-        'distrito',
+        'predeterminado',
 
-        'referencia',
-
-        'latitude',
-
-        'longitude',
-
-        'es_principal',
-
-    ];
-
-    /*
-    |--------------------------------------------------------------------------
-    | Atributos calculados
-    |--------------------------------------------------------------------------
-    */
-
-    protected $appends = [
-
-        'direccion_completa',
-
-        'nombre',
+        'estado',
 
     ];
 
@@ -84,11 +68,11 @@ class ShippingAddress extends Model
     {
         return [
 
-            'latitude' => 'float',
+            'user_id' => 'integer',
 
-            'longitude' => 'float',
+            'predeterminado' => 'boolean',
 
-            'es_principal' => 'boolean',
+            'estado' => 'boolean',
 
         ];
     }
@@ -104,9 +88,9 @@ class ShippingAddress extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function orders(): HasMany
+    public function electronicDocuments(): HasMany
     {
-        return $this->hasMany(Order::class);
+        return $this->hasMany(ElectronicDocument::class);
     }
 
     /*
@@ -115,15 +99,33 @@ class ShippingAddress extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function scopePrincipal(
+    public function scopeActivos(Builder $query): Builder
+    {
+        return $query->where(
+            'estado',
+            self::ACTIVO
+        );
+    }
+
+    public function scopeDelUsuario(
+        Builder $query,
+        int $userId
+    ): Builder {
+
+        return $query->where(
+            'user_id',
+            $userId
+        );
+    }
+
+    public function scopePredeterminados(
         Builder $query
     ): Builder {
 
         return $query->where(
-            'es_principal',
-            self::PRINCIPAL
+            'predeterminado',
+            self::PREDETERMINADO
         );
-
     }
 
     /*
@@ -132,42 +134,41 @@ class ShippingAddress extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function isPrincipal(): bool
+    public function activar(): void
     {
-        return $this->es_principal;
+        $this->update([
+            'estado' => self::ACTIVO,
+        ]);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Accesores
-    |--------------------------------------------------------------------------
-    */
-
-    public function getDireccionCompletaAttribute(): string
+    public function desactivar(): void
     {
-        return collect([
-
-            $this->direccion,
-
-            $this->distrito,
-
-            $this->provincia,
-
-            $this->departamento,
-
-        ])
-
-        ->filter()
-
-        ->implode(', ');
+        $this->update([
+            'estado' => self::INACTIVO,
+        ]);
     }
 
-    public function getNombreAttribute(): string
+    public function marcarComoPredeterminado(): void
     {
-        return filled($this->alias)
+        static::where(
+            'user_id',
+            $this->user_id
+        )->update([
+            'predeterminado' => self::NO_PREDETERMINADO,
+        ]);
 
-            ? $this->alias
+        $this->update([
+            'predeterminado' => self::PREDETERMINADO,
+        ]);
+    }
 
-            : 'Mi dirección';
+    public function esPredeterminado(): bool
+    {
+        return $this->predeterminado;
+    }
+
+    public function estaActivo(): bool
+    {
+        return $this->estado;
     }
 }

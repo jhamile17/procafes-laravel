@@ -19,8 +19,6 @@
 @import "./cards.css";
 @import "./navbar.css";
 @import "./footer.css";
-
-
 @import "./chatbot.css";
 
 /*home*/
@@ -35,5 +33,8 @@
 @import "./pages/auth.css";
 @import "./pages/customer.css";
 @import "./pages/checkout.css";
+@import "./pages/orders.css";
+@import "./pages/cart.css";
 
 @import './componentes/alert.css';
+@import './componentes/messages.css';

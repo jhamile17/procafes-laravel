@@ -1,11 +1,8 @@
+/*==============================================================================
+    CUSTOMER BUTTON
+==============================================================================*/
 
-/*
-|--------------------------------------------------------------------------
-| BUTTON BASE
-|--------------------------------------------------------------------------
-*/
-
-.btn{
+.customer-btn{
 
     display:inline-flex;
 
@@ -13,19 +10,17 @@
 
     justify-content:center;
 
-    gap:.5rem;
+    gap:.6rem;
 
-    height:42px;
-
-    padding:0 1.5rem;
+    padding:.85rem 1.4rem;
 
     border:none;
 
-    border-radius:var(--radius-pill);
+    border-radius:var(--radius-md);
 
-    background:transparent;
+    background:var(--color-primary);
 
-    color:var(--color-text);
+    color:var(--color-white);
 
     font-family:var(--font-body);
 
@@ -33,249 +28,166 @@
 
     font-weight:600;
 
-    line-height:1;
-
     text-decoration:none;
-
-    white-space:nowrap;
 
     cursor:pointer;
 
-    user-select:none;
-
-    transition:all var(--transition);
+    transition:var(--transition);
 
 }
 
-.btn:hover{
-
-    text-decoration:none;
-
-    transform:translateY(-1px);
-
-}
-
-.btn:active{
-
-    transform:translateY(0);
-
-}
-
-.btn:focus-visible{
-
-    outline:none;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| BRAND
-|--------------------------------------------------------------------------
-*/
-
-.btn-brand{
-
-    background:var(--color-primary);
-
-    color:var(--color-white);
-
-}
-
-.btn-brand:hover{
+.customer-btn:hover{
 
     background:var(--color-primary-hover);
 
     color:var(--color-white);
 
-}
-
-.btn-brand:focus-visible{
-
-    box-shadow:0 0 0 .2rem var(--color-primary-focus);
+    transform:translateY(-2px);
 
 }
 
-/*
-|--------------------------------------------------------------------------
-| GHOST
-|--------------------------------------------------------------------------
-*/
+.customer-btn:disabled{
 
-.btn-ghost{
-
-    color:var(--color-text);
-
-}
-
-.btn-ghost:hover{
-
-    background:var(--color-primary-soft);
-
-    color:var(--color-primary);
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| OUTLINE
-|--------------------------------------------------------------------------
-*/
-
-.btn-outline{
-
-    border:1px solid var(--color-border);
-
-    background:transparent;
-
-    color:var(--color-text);
-
-}
-
-.btn-outline:hover{
-
-    border-color:var(--color-primary);
-
-    background:var(--color-primary-soft);
-
-    color:var(--color-primary);
-
-}
-
-.btn-outline:focus-visible{
-
-    box-shadow:0 0 0 .2rem var(--color-primary-focus);
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| SUCCESS
-|--------------------------------------------------------------------------
-*/
-
-.btn-success{
-
-    background:var(--color-success);
-
-    color:var(--color-white);
-
-}
-
-.btn-success:hover{
-
-    opacity:.92;
-
-    color:var(--color-white);
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| DANGER
-|--------------------------------------------------------------------------
-*/
-
-.btn-danger{
-
-    background:var(--color-danger);
-
-    color:var(--color-white);
-
-}
-
-.btn-danger:hover{
-
-    opacity:.92;
-
-    color:var(--color-white);
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| SIZES
-|--------------------------------------------------------------------------
-*/
-
-.btn-sm{
-
-    height:36px;
-
-    padding:0 1rem;
-
-    font-size:.85rem;
-
-}
-
-.btn-lg{
-
-    height:50px;
-
-    padding:0 2rem;
-
-    font-size:1rem;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| WIDTH
-|--------------------------------------------------------------------------
-*/
-
-.btn-block{
-
-    width:100%;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| DISABLED
-|--------------------------------------------------------------------------
-*/
-
-.btn:disabled{
-
-    opacity:.6;
+    opacity:.65;
 
     cursor:not-allowed;
-
-    pointer-events:none;
 
     transform:none;
 
 }
 
-/*
-|--------------------------------------------------------------------------
-| LOADING
-|--------------------------------------------------------------------------
-*/
+/*==============================================================================
+    OUTLINE
+==============================================================================*/
 
-.btn.loading{
+.customer-btn-outline{
 
-    pointer-events:none;
+    background:transparent;
 
-}
+    border:1px solid var(--color-border);
 
-.btn.loading i{
-
-    animation:buttonSpin .8s linear infinite;
+    color:var(--color-coffee);
 
 }
 
-@keyframes buttonSpin{
+.customer-btn-outline:hover{
 
-    from{
+    background:var(--color-primary-soft);
 
-        transform:rotate(0deg);
+    border-color:var(--color-primary);
 
-    }
+    color:var(--color-primary);
 
-    to{
+}
 
-        transform:rotate(360deg);
+/*==============================================================================
+    SUCCESS
+==============================================================================*/
+
+.customer-btn-success{
+
+    background:var(--color-success);
+
+}
+
+.customer-btn-success:hover{
+
+    filter:brightness(.95);
+
+}
+
+/*==============================================================================
+    DANGER
+==============================================================================*/
+
+.customer-btn-danger{
+
+    background:var(--color-danger);
+
+}
+
+.customer-btn-danger:hover{
+
+    filter:brightness(.95);
+
+}
+
+/*==============================================================================
+    BLOCK
+==============================================================================*/
+
+.customer-btn-block{
+
+    width:100%;
+
+}
+
+/*==============================================================================
+    SMALL
+==============================================================================*/
+
+.customer-btn-sm{
+
+    padding:.65rem 1rem;
+
+    font-size:.85rem;
+
+}
+
+/*==============================================================================
+    LARGE
+==============================================================================*/
+
+.customer-btn-lg{
+
+    padding:1rem 1.75rem;
+
+    font-size:1rem;
+
+}
+
+/*==============================================================================
+    SECONDARY
+==============================================================================*/
+
+.customer-btn-secondary{
+
+    background:var(--color-surface);
+
+    border:1px solid var(--color-border);
+
+    color:var(--color-coffee);
+
+}
+
+.customer-btn-secondary:hover{
+
+    background:var(--color-surface-alt);
+
+    border-color:var(--color-coffee);
+
+    color:var(--color-coffee);
+
+    transform:translateY(-2px);
+
+}
+
+.customer-btn-secondary:focus{
+
+    outline:none;
+
+    box-shadow:0 0 0 4px rgba(61,44,46,.12);
+
+}
+/*==============================================================================
+    RESPONSIVE
+==============================================================================*/
+
+@media (max-width:575.98px){
+
+    .customer-btn{
+
+        width:100%;
 
     }
 

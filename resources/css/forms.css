@@ -214,7 +214,354 @@ textarea.form-control{
     cursor:pointer;
 
 }
+/*==============================================================================
+    CUSTOMER FORM GROUP
+==============================================================================*/
 
+.customer-form-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:.65rem;
+
+}
+
+.customer-form-group + .customer-form-group{
+
+    margin-top:1.5rem;
+
+}
+
+/*==============================================================================
+    LABELS
+==============================================================================*/
+
+.customer-label{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.35rem;
+
+    color:var(--color-coffee);
+
+    font-size:.9rem;
+
+    font-weight:600;
+
+}
+
+/*==============================================================================
+    INPUTS
+==============================================================================*/
+
+.customer-input,
+.customer-select,
+.customer-textarea{
+
+    width:100%;
+
+    padding:.9rem 1rem;
+
+    border:1px solid var(--color-border);
+
+    border-radius:var(--radius-md);
+
+    background:var(--color-white);
+
+    color:var(--color-text);
+
+    font-family:var(--font-body);
+
+    font-size:.95rem;
+
+    transition:var(--transition);
+
+}
+
+.customer-textarea{
+
+    min-height:140px;
+
+    resize:vertical;
+
+}
+
+.customer-input::placeholder,
+.customer-textarea::placeholder{
+
+    color:var(--color-placeholder);
+
+}
+
+.customer-input:hover,
+.customer-select:hover,
+.customer-textarea:hover{
+
+    border-color:var(--color-border-hover);
+
+}
+
+.customer-input:focus,
+.customer-select:focus,
+.customer-textarea:focus{
+
+    outline:none;
+
+    border-color:var(--color-primary);
+
+    box-shadow:0 0 0 4px var(--color-primary-soft);
+
+}
+
+/*==============================================================================
+    INPUTS DISABLED
+==============================================================================*/
+
+.customer-input:disabled,
+.customer-select:disabled,
+.customer-textarea:disabled,
+.customer-input[readonly],
+.customer-textarea[readonly]{
+
+    background:var(--color-disabled);
+
+    color:var(--color-text-light);
+
+    cursor:not-allowed;
+
+}
+
+/*==============================================================================
+    HELP TEXT
+==============================================================================*/
+
+.customer-help{
+
+    margin-top:.35rem;
+
+    color:var(--color-text-light);
+
+    font-size:.82rem;
+
+}
+
+/*==============================================================================
+    INPUT ERROR
+==============================================================================*/
+
+.customer-input-error{
+
+    border-color:var(--color-danger) !important;
+
+}
+
+.customer-error{
+
+    margin-top:.35rem;
+
+    color:var(--color-danger);
+
+    font-size:.82rem;
+
+}
+
+/*==============================================================================
+    PASSWORD
+==============================================================================*/
+
+.customer-password{
+
+    position:relative;
+
+}
+
+.customer-password-toggle{
+
+    position:absolute;
+
+    top:50%;
+
+    right:1rem;
+
+    transform:translateY(-50%);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border:none;
+
+    background:none;
+
+    color:var(--color-text-light);
+
+    cursor:pointer;
+
+    transition:var(--transition);
+
+}
+
+.customer-password-toggle:hover{
+
+    color:var(--color-primary);
+
+}
+/*==============================================================================
+    ADDRESS FORM
+==============================================================================*/
+
+.checkout-address-form{
+
+    margin-top:1.5rem;
+
+    padding:1.75rem;
+
+    border:1px solid var(--color-border);
+
+    border-radius:var(--radius-lg);
+
+    background:var(--color-white);
+
+    box-shadow:var(--shadow-xs);
+
+}
+
+.checkout-form-header{
+
+    margin-bottom:1.5rem;
+
+}
+
+.checkout-form-header h4{
+
+    margin:0;
+
+    font-size:1.25rem;
+
+    color:var(--color-coffee);
+
+}
+
+.checkout-form-header p{
+
+    margin-top:.45rem;
+
+    color:var(--color-text-light);
+
+}
+
+.checkout-search-box{
+
+    position:relative;
+
+}
+
+.checkout-search-box i{
+
+    position:absolute;
+
+    top:50%;
+
+    left:16px;
+
+    transform:translateY(-50%);
+
+    color:var(--color-text-light);
+
+}
+
+.checkout-search-box .customer-input{
+
+    padding-left:48px;
+
+}
+
+.checkout-search-results{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:.75rem;
+
+    margin:1rem 0 1.5rem;
+
+}
+
+.checkout-search-item{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:1rem;
+
+    padding:1rem;
+
+    border:1px solid var(--color-border);
+
+    border-radius:var(--radius-md);
+
+    cursor:pointer;
+
+    transition:var(--transition);
+
+}
+
+.checkout-search-item:hover{
+
+    border-color:var(--color-primary);
+
+    background:var(--color-primary-soft);
+
+}
+
+.checkout-search-item i{
+
+    color:var(--color-primary);
+
+    font-size:1.2rem;
+
+}
+
+.checkout-search-item div{
+
+    flex:1;
+
+}
+
+.checkout-actions{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:1rem;
+
+    margin-top:1.75rem;
+
+}
+/*==============================================================================
+    RESPONSIVE
+==============================================================================*/
+
+@media (max-width:575.98px){
+
+    .customer-input,
+    .customer-select,
+    .customer-textarea{
+
+        font-size:.9rem;
+
+    }
+
+}
 /*
 |--------------------------------------------------------------------------
 | RESPONSIVE

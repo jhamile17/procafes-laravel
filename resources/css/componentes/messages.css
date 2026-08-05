@@ -1,0 +1,80 @@
+
+/*==========================================================================
+    SUCCESS
+==========================================================================*/
+
+.customer-message-success{
+
+    color:var(--color-success);
+
+    background:var(--color-success-soft);
+
+    border-color:rgba(24,165,88,.18);
+
+}
+
+.customer-message-success i{
+
+    color:var(--color-success);
+
+}
+
+/*==========================================================================
+    INFO
+==========================================================================*/
+
+.customer-message-info{
+
+    color:var(--color-info);
+
+    background:var(--color-info-soft);
+
+    border-color:rgba(37,99,235,.18);
+
+}
+
+.customer-message-info i{
+
+    color:var(--color-info);
+
+}
+
+/*==========================================================================
+    WARNING
+==========================================================================*/
+
+.customer-message-warning{
+
+    color:var(--color-warning);
+
+    background:var(--color-warning-soft);
+
+    border-color:rgba(245,158,11,.18);
+
+}
+
+.customer-message-warning i{
+
+    color:var(--color-warning);
+
+}
+
+/*==========================================================================
+    ERROR
+==========================================================================*/
+
+.customer-message-error{
+
+    color:var(--color-danger);
+
+    background:var(--color-danger-soft);
+
+    border-color:rgba(220,53,69,.18);
+
+}
+
+.customer-message-error i{
+
+    color:var(--color-danger);
+
+}

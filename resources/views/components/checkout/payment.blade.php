@@ -1,146 +1,160 @@
-<div class="customer-card checkout-card mt-4">
+<div class="checkout-card">
 
-    <div class="customer-card-header">
+    {{-- ==========================================================
+        HEADER
+    =========================================================== --}}
 
-        <div>
+    <div class="checkout-card-header">
 
-            <span class="customer-card-badge">
-                Pago
-            </span>
+        <span class="checkout-card-badge">
 
-            <h2 class="customer-card-title">
-                Método de pago
-            </h2>
+            Paso 2
 
-            <p class="customer-card-subtitle">
-                Selecciona cómo deseas realizar el pago de tu pedido.
-            </p>
+        </span>
 
-        </div>
+
+        <h2 class="checkout-card-title">
+
+            Método de pago
+
+        </h2>
+
+
+        <p class="checkout-card-subtitle">
+
+            Selecciona cómo deseas pagar tu pedido.
+
+        </p>
 
     </div>
 
-    <div class="customer-card-body">
 
-        @forelse($paymentMethods as $method)
+    {{-- ==========================================================
+        BODY
+    =========================================================== --}}
 
-            @php
-                $nombre = strtolower(trim($method->nombre));
-            @endphp
+    <div class="checkout-card-body">
 
-            <label class="checkout-payment-option">
+
+        <div class="checkout-payment-options">
+
+
+            {{-- ==================================================
+                PAGO EN TIENDA
+            =================================================== --}}
+
+            <label class="checkout-payment-card">
+
 
                 <input
                     type="radio"
-                    name="payment_method_id"
-                    value="{{ $method->id }}"
-                    data-payment="{{ \Illuminate\Support\Str::slug($method->nombre) }}"
-                    class="checkout-payment-radio"
-                    {{ $loop->first ? 'checked' : '' }}>
+                    name="payment_method"
+                    value="store"
+                    checked>
+
 
                 <div class="checkout-payment-content">
 
+
                     <div class="checkout-payment-icon">
 
-                        @switch($nombre)
-
-                            @case('mercado pago')
-
-                                <i class="bi bi-credit-card-fill"></i>
-
-                                @break
-
-                            @case('pago en tienda')
-
-                                <i class="bi bi-shop"></i>
-
-                                @break
-
-                            @default
-
-                                <i class="bi bi-wallet2"></i>
-
-                        @endswitch
+                        <i class="bi bi-shop"></i>
 
                     </div>
 
-                    <div class="checkout-payment-info">
 
-                        <h6 class="checkout-payment-title">
+                    <div>
 
-                            {{ $method->nombre }}
+                        <h5>
 
-                        </h6>
+                            Pago en tienda
 
-                        @if(!empty($method->descripcion))
+                        </h5>
 
-                            <p class="checkout-payment-description">
 
-                                {{ $method->descripcion }}
+                        <p>
 
-                            </p>
+                            Paga cuando recojas tu pedido.
 
-                        @endif
+                        </p>
 
-                        @if($nombre === 'mercado pago')
 
-                            <span class="customer-badge customer-badge-info">
+                        <span>
 
-                                <i class="bi bi-shield-lock-fill"></i>
+                            Efectivo o tarjeta
 
-                                Pago seguro
-
-                            </span>
-
-                        @elseif($nombre === 'pago en tienda')
-
-                            <span class="customer-badge customer-badge-warning">
-
-                                <i class="bi bi-shop"></i>
-
-                                Pago presencial
-
-                            </span>
-
-                        @endif
+                        </span>
 
                     </div>
+
 
                 </div>
+
 
             </label>
 
-        @empty
 
-            <div class="customer-notice customer-notice-warning">
 
-                <div class="customer-notice-icon">
+            {{-- ==================================================
+                MERCADO PAGO
+            =================================================== --}}
 
-                    <i class="bi bi-exclamation-triangle-fill"></i>
+
+            <label class="checkout-payment-card">
+
+
+                <input
+                    type="radio"
+                    name="payment_method"
+                    value="mercadopago">
+
+
+                <div class="checkout-payment-content">
+
+
+                    <div class="checkout-payment-icon">
+
+                        <i class="bi bi-credit-card"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <h5>
+
+                            Mercado Pago
+
+                        </h5>
+
+
+                        <p>
+
+                            Paga online de forma segura.
+
+                        </p>
+
+
+                        <span>
+
+                            Tarjeta, Yape, Plin y otros medios
+
+                        </span>
+
+
+                    </div>
+
 
                 </div>
 
-                <div class="customer-notice-content">
 
-                    <h6>
+            </label>
 
-                        Métodos de pago no disponibles
 
-                    </h6>
+        </div>
 
-                    <p>
-
-                        En este momento no existen métodos de pago habilitados para completar la compra.
-
-                    </p>
-
-                </div>
-
-            </div>
-
-        @endforelse
 
     </div>
 
-</div>
 
+</div>

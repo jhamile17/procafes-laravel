@@ -8,61 +8,75 @@
 
 <section class="checkout-section">
 
-    <div class="container">
+    <div class="container checkout-container">
 
-        <div class="checkout-header">
+        {{-- ==========================================================
+            HEADER
+        =========================================================== --}}
 
-            <div>
+        <div class="customer-header">
 
-                <span class="checkout-badge">
-                    Finalizar compra
-                </span>
+            <h1 class="customer-title">
+                Finalizar compra
+            </h1>
 
-                <h1 class="checkout-title">
-                    Confirma tu pedido
-                </h1>
-
-                <p class="checkout-subtitle">
-                    Verifica tu dirección de envío, selecciona el método de pago y revisa el resumen antes de confirmar tu compra.
-                </p>
-
-            </div>
-
+            <p class="customer-subtitle">
+                Revisa tu dirección, selecciona el método de pago y confirma tu pedido.
+            </p>
         </div>
+
+        {{-- ==========================================================
+            FORMULARIO
+        =========================================================== --}}
 
         <form
             id="checkoutForm"
             method="POST"
-            action="{{ route('checkout.store') }}">
+            action="{{ route('checkout.store') }}"
+            data-billing-store="{{ route('customer.billing-profiles.store') }}"
+            data-billing-search-ruc="{{ route('customer.billing-profiles.search-ruc') }}">
 
             @csrf
 
-            <div class="row g-4">
+            <div class="row g-4 checkout-content">
 
-                {{-- Columna izquierda --}}
-                <div class="col-lg-8">
+                {{-- ==========================================================
+                    INFORMACIÓN DEL PEDIDO
+                =========================================================== --}}
 
-                    <x-checkout.address
-                        :address="$address"
-                    />
+                <div class="col-xl-8">
 
-                    <x-checkout.payment
-                        :paymentMethods="$paymentMethods"
-                    />
+                    <div class="d-flex flex-column gap-4">
+
+                        <x-checkout.delivery
+                            :permiteEnvio="$permiteEnvio"
+                            :address="$address" />
+                        <x-checkout.payment
+                            :paymentMethods="$paymentMethods" />
+                        <x-checkout.billing
+                            :billingProfiles="$billingProfiles" />
+
+                    </div>
 
                 </div>
 
-                {{-- Columna derecha --}}
-                <div class="col-lg-4">
+                {{-- ==========================================================
+                    RESUMEN
+                =========================================================== --}}
 
-                    <x-checkout.summary
-                        :cart="$cart"
-                        :items="$items"
-                        :cantidad="$cantidad"
-                        :subtotal="$subtotal"
-                        :igv="$igv"
-                        :total="$total"
-                    />
+                <div class="col-xl-4">
+
+                    <div class="checkout-sidebar">
+
+                        <x-checkout.summary
+                            :cart="$cart"
+                            :items="$items"
+                            :cantidad="$cantidad"
+                            :subtotal="$subtotal"
+                            :igv="$igv"
+                            :total="$total" />
+
+                    </div>
 
                 </div>
 
@@ -75,4 +89,3 @@
 </section>
 
 @endsection
-

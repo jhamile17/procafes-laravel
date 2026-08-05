@@ -130,6 +130,7 @@
                 address: {
 
                     search: "{{ route('customer.addresses.search') }}",
+                    update: "{{ route('customer.addresses.update') }}",
 
                 },
 

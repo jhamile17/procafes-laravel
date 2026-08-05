@@ -28,6 +28,7 @@ use App\Http\Controllers\Customer\BoletaController as CustomerBoletaController;
 use App\Http\Controllers\Customer\PedidoController;
 use App\Http\Controllers\Customer\PerfilController;
 use App\Http\Controllers\Customer\AddressController;
+use App\Http\Controllers\Customer\BillingProfileController;
 // Admin
 use App\Http\Controllers\Admin\CategoryController as CategoryController;
 use App\Http\Controllers\Admin\BrandController as BrandController;
@@ -226,20 +227,37 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth'])
+    ->prefix('customer/addresses')
+    ->name('customer.addresses.')
+    ->group(function () {
 
-    Route::prefix('customer/addresses')
-        ->name('customer.addresses.')
-        ->group(function () {
 
-            Route::get(
-                '/search',
-                [AddressController::class, 'search']
-            )->name('search');
+        /*
+        |--------------------------------------------------------------------------
+        | Buscar dirección
+        |--------------------------------------------------------------------------
+        */
 
-        });
+        Route::get(
+            '/search',
+            [AddressController::class, 'search']
+        )->name('search');
 
-});
+
+        /*
+        |--------------------------------------------------------------------------
+        | Guardar dirección
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post(
+            '/',
+            [AddressController::class, 'update']
+        )->name('update');
+
+
+    });
 
 Route::prefix('mercado-pago')
     ->name('mp.')
@@ -258,6 +276,63 @@ Route::prefix('mercado-pago')
             ->name('webhook');
 
     });
+
+Route::middleware('auth')
+    ->prefix('customer/billing-profiles')
+    ->name('customer.billing-profiles.')
+    ->controller(BillingProfileController::class)
+    ->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Perfiles de facturación
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/',
+            'index'
+        )->name('index');
+
+        Route::post(
+            '/',
+            'store'
+        )->name('store');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Consulta SUNAT
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/search-ruc',
+            'searchRuc'
+        )->name('search-ruc');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Próximamente
+        |--------------------------------------------------------------------------
+        */
+
+        // Route::put(
+        //     '/{billingProfile}',
+        //     'update'
+        // )->name('update');
+
+        // Route::delete(
+        //     '/{billingProfile}',
+        //     'destroy'
+        // )->name('destroy');
+
+        // Route::patch(
+        //     '/{billingProfile}/default',
+        //     'setDefault'
+        // )->name('default');
+
+    });
+
 /*
 |--------------------------------------------------------------------------
 | ADMIN
@@ -296,32 +371,6 @@ Route::prefix('admin')
             [ConfiguracionEmpresaController::class, 'update']
         )->name('configuracion.update');
     });
-
-
-/*
-|--------------------------------------------------------------------------
-| MERCADO PAGO
-|--------------------------------------------------------------------------
-*/
-/*
-Route::get('/pagos/mercadopago', [MercadoPagoController::class, 'index'])
-    ->middleware('auth', 'verified')
-    ->name('mp.checkout');
-Route::post('/pagos/crear-preferencia', [MercadoPagoController::class, 'createPreference'])
-    ->middleware('auth', 'verified')
-    ->name('mp.preference');
-Route::get('/pagos/exito', [MercadoPagoController::class, 'success'])
-    ->name('mp.success');
-
-Route::get('/pagos/pendiente', [MercadoPagoController::class, 'pending'])
-    ->name('mp.pending');
-
-Route::get('/pagos/error', [MercadoPagoController::class, 'failure'])
-    ->name('mp.failure');
-
-Route::post('/webhooks/mercadopago', [MercadoPagoWebhookController::class, 'handle'])
-    ->name('mp.webhook');
-*/
 /*
 |--------------------------------------------------------------------------
 | AUTH SYSTEM

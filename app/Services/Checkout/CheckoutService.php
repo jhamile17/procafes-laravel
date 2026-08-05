@@ -3,12 +3,13 @@
 declare(strict_types=1);
 
 namespace App\Services\Checkout;
-
+use App\Models\User;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Services\Cliente\AddressService;
 use App\Services\Pagos\PaymentMethodService;
 use App\Services\Pagos\PaymentService;
+use App\Services\Cliente\BillingProfileService;
 use App\Services\Ventas\CartService;
 use App\Services\Ventas\OrderService;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,7 @@ class CheckoutService
         protected PaymentService $paymentService,
         protected PaymentMethodService $paymentMethodService,
         protected AddressService $addressService,
+        protected BillingProfileService $billingProfileService,
     ) {
     }
 
@@ -39,7 +41,7 @@ class CheckoutService
 
         $total = $this->cartService
             ->calcularTotal($cart);
-
+        $permiteEnvio = $this->permiteEnvio($cart);
         return [
 
             'cart' => $cart,
@@ -67,6 +69,13 @@ class CheckoutService
 
             'paymentMethods' => $this->paymentMethodService
                 ->obtenerActivos(),
+
+            'billingProfiles' => $this->billingProfileService
+                ->list(
+                    $userId
+                ),
+
+            'permiteEnvio' => $permiteEnvio,
 
         ];
 
@@ -178,5 +187,19 @@ class CheckoutService
         });
 
     }
+    /*validar metodo de entrega */
+    protected function permiteEnvio(Cart $cart): bool
+    {
+        foreach ($cart->items as $item) {
 
+            if ($item->product->soloRecojo()) {
+
+                return false;
+
+            }
+
+        }
+
+        return true;
+    }
 }

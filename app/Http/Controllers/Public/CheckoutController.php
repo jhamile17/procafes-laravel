@@ -28,12 +28,14 @@ class CheckoutController extends Controller
 
     public function index(): View
     {
+        $data = $this->checkoutService->obtenerResumen(
+            auth()->id()
+        );
         return view(
             'checkout.index',
-            $this->checkoutService->obtenerResumen(
-                auth()->id()
-            )
+            $data
         );
+        
     }
 
     /*

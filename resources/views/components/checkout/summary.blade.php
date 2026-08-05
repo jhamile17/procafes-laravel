@@ -1,13 +1,9 @@
 <div class="customer-card checkout-summary sticky-top">
-
     <div class="customer-card-header">
-
         <div>
-
             <span class="customer-card-badge">
                 Resumen
             </span>
-
             <h2 class="customer-card-title">
                 Tu pedido
             </h2>
