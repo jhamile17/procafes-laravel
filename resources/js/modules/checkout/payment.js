@@ -1,119 +1,46 @@
-/**
- * ==========================================================================
- * PAYMENT
- * ==========================================================================
- */
-
 const Payment = {
-
-    /*
-    |--------------------------------------------------------------------------
-    | Inicializar
-    |--------------------------------------------------------------------------
-    */
-
     init() {
-
         this.cache();
-
         if (!this.storeRadio) {
-
             return;
-
         }
-
         this.bindEvents();
-
-        this.update();
-
+        this.updatePanels();
     },
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cache
-    |--------------------------------------------------------------------------
-    */
 
     cache() {
 
-        this.storeRadio = document.querySelector(
-            '#paymentStore'
-        );
-
-        this.mercadoPagoRadio = document.querySelector(
-            '#paymentMercadoPago'
-        );
-
-        this.storePanel = document.querySelector(
-            '#paymentStorePanel'
-        );
-
-        this.mercadoPagoPanel = document.querySelector(
-            '#paymentMercadoPagoPanel'
-        );
-
+        this.storeRadio = document.getElementById('paymentStore');
+        this.mercadoPagoRadio = document.getElementById('paymentMercadoPago');
+        this.storePanel = document.getElementById('paymentStorePanel');
+        this.mercadoPagoPanel = document.getElementById('paymentMercadoPagoPanel');
     },
-
-    /*
-    |--------------------------------------------------------------------------
-    | Eventos
-    |--------------------------------------------------------------------------
-    */
-
     bindEvents() {
-
-        this.storeRadio?.addEventListener(
-
+        this.storeRadio.addEventListener(
             'change',
-
-            () => this.update()
-
+            () => this.updatePanels()
         );
-
-        this.mercadoPagoRadio?.addEventListener(
-
+        this.mercadoPagoRadio.addEventListener(
             'change',
-
-            () => this.update()
-
+            () => this.updatePanels()
         );
-
     },
 
-    /*
-    |--------------------------------------------------------------------------
-    | Actualizar paneles
-    |--------------------------------------------------------------------------
-    */
-
-    update() {
-
+    /*Actualizar paneles*/
+    updatePanels() {
         const store = this.storeRadio?.checked;
-
         this.storePanel?.classList.toggle(
-
             'd-none',
-
             !store
-
         );
-
         this.mercadoPagoPanel?.classList.toggle(
-
             'd-none',
-
             store
-
         );
-
     }
-
 };
 
 document.addEventListener(
-
     'DOMContentLoaded',
-
     () => Payment.init()
-
 );

@@ -1,21 +1,13 @@
 <div class="checkout-delivery-options">
-
-    {{-- ==========================================================
-        RECOJO EN TIENDA
-    =========================================================== --}}
     <label class="checkout-delivery-card">
-
         <input
             type="radio"
             id="deliveryPickup"
             name="delivery_type"
             value="pickup"
             checked>
-
         <div class="checkout-delivery-content">
-
             <div class="checkout-delivery-icon">
-
                 <i class="bi bi-shop"></i>
 
             </div>

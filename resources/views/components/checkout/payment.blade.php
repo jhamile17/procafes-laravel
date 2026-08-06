@@ -32,6 +32,10 @@
 
     <div class="checkout-card-body">
 
+        {{-- ==========================================================
+            OPCIONES DE PAGO
+        =========================================================== --}}
+
         <div class="checkout-payment-options">
 
             {{-- ==================================================
@@ -55,7 +59,7 @@
 
                     </div>
 
-                    <div>
+                    <div class="checkout-payment-info">
 
                         <h5>
 
@@ -101,7 +105,7 @@
 
                     </div>
 
-                    <div>
+                    <div class="checkout-payment-info">
 
                         <h5>
 
@@ -111,13 +115,13 @@
 
                         <p>
 
-                            Paga online de forma segura.
+                            Paga de forma rápida y segura.
 
                         </p>
 
                         <span>
 
-                            Tarjetas, Yape, Plin y otros medios
+                            Tarjetas y medios compatibles
 
                         </span>
 
@@ -130,7 +134,7 @@
         </div>
 
         {{-- ==========================================================
-            PANEL PAGO EN TIENDA
+            INFORMACIÓN PAGO EN TIENDA
         =========================================================== --}}
 
         <div
@@ -139,30 +143,20 @@
 
             <div class="checkout-alert">
 
-                <i class="bi bi-info-circle-fill"></i>
+                <i class="bi bi-shop"></i>
 
-                <div>
+                <span>
 
-                    <strong>
+                    Pagarás al momento de recoger tu pedido.
 
-                        Pago en tienda
-
-                    </strong>
-
-                    <span>
-
-                        Podrás pagar en efectivo o con tarjeta cuando recojas tu pedido.
-
-                    </span>
-
-                </div>
+                </span>
 
             </div>
 
         </div>
 
         {{-- ==========================================================
-            PANEL MERCADO PAGO
+            INFORMACIÓN MERCADO PAGO
         =========================================================== --}}
 
         <div
@@ -173,21 +167,11 @@
 
                 <i class="bi bi-shield-check"></i>
 
-                <div>
+                <span>
 
-                    <strong>
+                    Serás redirigido a Mercado Pago para completar el pago de forma segura.
 
-                        Pago seguro con Mercado Pago
-
-                    </strong>
-
-                    <span>
-
-                        Después de confirmar el pedido serás redirigido a Mercado Pago para completar el pago.
-
-                    </span>
-
-                </div>
+                </span>
 
             </div>
 

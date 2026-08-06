@@ -60,17 +60,12 @@
         <div
             id="addressResults"
             class="checkout-search-results">
-
         </div>
-
         <div class="customer-form-group">
-
         <label
             for="numero"
             class="customer-label">
-
             Número / Interior
-
         </label>
 
         <input

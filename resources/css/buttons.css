@@ -1,5 +1,5 @@
 /*==============================================================================
-    CUSTOMER BUTTON
+    BOTÓN PRINCIPAL
 ==============================================================================*/
 
 .customer-btn{
@@ -10,11 +10,11 @@
 
     justify-content:center;
 
-    gap:.6rem;
+    gap:.60rem;
 
-    padding:.85rem 1.4rem;
+    padding:.85rem 1.45rem;
 
-    border:none;
+    border:2px solid var(--color-primary);
 
     border-radius:var(--radius-md);
 
@@ -32,19 +32,69 @@
 
     cursor:pointer;
 
-    transition:var(--transition);
+    transition:all .30s ease;
+
+    box-shadow:0 8px 18px rgba(111,78,55,.18);
 
 }
+
+/*==============================================================================
+    HOVER
+==============================================================================*/
 
 .customer-btn:hover{
 
-    background:var(--color-primary-hover);
+    background:var(--color-white);
 
-    color:var(--color-white);
+    color:var(--color-primary);
 
-    transform:translateY(-2px);
+    border-color:var(--color-primary);
+
+    transform:translateY(-3px);
+
+    box-shadow:0 12px 24px rgba(111,78,55,.20);
 
 }
+
+/*==============================================================================
+    ICONOS
+==============================================================================*/
+
+.customer-btn:hover i{
+
+    color:var(--color-primary);
+
+}
+
+/*==============================================================================
+    ACTIVE
+==============================================================================*/
+
+.customer-btn:active{
+
+    transform:translateY(0);
+
+    box-shadow:0 6px 12px rgba(111,78,55,.15);
+
+}
+
+/*==============================================================================
+    FOCUS
+==============================================================================*/
+
+.customer-btn:focus{
+
+    outline:none;
+
+    box-shadow:
+        0 0 0 4px rgba(111,78,55,.15),
+        0 10px 22px rgba(111,78,55,.18);
+
+}
+
+/*==============================================================================
+    DESHABILITADO
+==============================================================================*/
 
 .customer-btn:disabled{
 
@@ -54,19 +104,41 @@
 
     transform:none;
 
-}
+    box-shadow:none;
 
+}
 /*==============================================================================
-    OUTLINE
+    BOTÓN OUTLINE
 ==============================================================================*/
 
 .customer-btn-outline{
 
-    background:transparent;
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:.60rem;
+
+    padding:.85rem 1.40rem;
 
     border:1px solid var(--color-border);
 
+    border-radius:var(--radius-md);
+
+    background:#fff;
+
     color:var(--color-coffee);
+
+    font-weight:600;
+
+    transition:
+        background .25s ease,
+        color .25s ease,
+        border-color .25s ease,
+        transform .25s ease,
+        box-shadow .25s ease;
 
 }
 
@@ -78,8 +150,19 @@
 
     color:var(--color-primary);
 
+    transform:translateY(-2px);
+
+    box-shadow:0 10px 20px rgba(111,78,55,.10);
+
 }
 
+.customer-btn-outline:active{
+
+    transform:translateY(0);
+
+    box-shadow:none;
+
+}
 /*==============================================================================
     SUCCESS
 ==============================================================================*/
@@ -145,38 +228,113 @@
     font-size:1rem;
 
 }
-
 /*==============================================================================
-    SECONDARY
+    BOTÓN SECUNDARIO
 ==============================================================================*/
 
 .customer-btn-secondary{
 
-    background:var(--color-surface);
+    display:inline-flex;
 
-    border:1px solid var(--color-border);
+    align-items:center;
 
-    color:var(--color-coffee);
+    justify-content:center;
+
+    gap:.55rem;
+
+    padding:.75rem 1.35rem;
+
+    border:2px solid #d1d5db;
+
+    border-radius:var(--radius-md);
+
+    background:#e5e7eb;
+
+    color:#4b5563;
+
+    font-family:var(--font-body);
+
+    font-size:.95rem;
+
+    font-weight:600;
+
+    text-decoration:none;
+
+    cursor:pointer;
+
+    transition:all .30s ease;
+
+    box-shadow:0 8px 18px rgba(0,0,0,.06);
 
 }
+
+/*==============================================================================
+    HOVER
+==============================================================================*/
 
 .customer-btn-secondary:hover{
 
-    background:var(--color-surface-alt);
+    background:#d1d5db;
 
-    border-color:var(--color-coffee);
+    border-color:#9ca3af;
 
-    color:var(--color-coffee);
+    color:#374151;
 
-    transform:translateY(-2px);
+    transform:translateY(-3px);
+
+    box-shadow:0 12px 24px rgba(0,0,0,.10);
 
 }
+
+.customer-btn-secondary:hover i{
+
+    color:#374151;
+
+}
+
+/*==============================================================================
+    ACTIVE
+==============================================================================*/
+
+.customer-btn-secondary:active{
+
+    background:#c7ccd3;
+
+    transform:translateY(0);
+
+    box-shadow:0 6px 12px rgba(0,0,0,.08);
+
+}
+
+/*==============================================================================
+    FOCUS
+==============================================================================*/
 
 .customer-btn-secondary:focus{
 
     outline:none;
 
-    box-shadow:0 0 0 4px rgba(61,44,46,.12);
+    border-color:#9ca3af;
+
+    box-shadow:
+        0 0 0 4px rgba(156,163,175,.18),
+        0 10px 20px rgba(0,0,0,.08);
+
+}
+
+/*==============================================================================
+    DISABLED
+==============================================================================*/
+
+.customer-btn-secondary:disabled{
+
+    opacity:.65;
+
+    cursor:not-allowed;
+
+    transform:none;
+
+    box-shadow:none;
 
 }
 /*==============================================================================
