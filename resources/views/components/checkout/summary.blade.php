@@ -64,10 +64,8 @@
 
                         <small>
 
+                            Cantidad:
                             {{ $item->quantity }}
-                            ×
-                            S/
-                            {{ number_format($item->unit_price,2) }}
 
                         </small>
 
@@ -116,7 +114,7 @@
 
             </span>
 
-            <strong>
+            <strong id="summarySubtotal">
 
                 S/
                 {{ number_format($subtotal,2) }}
@@ -135,7 +133,7 @@
 
             </span>
 
-            <strong>
+            <strong id="summaryTotal">
 
                 S/
                 {{ number_format($total,2) }}
@@ -145,14 +143,21 @@
         </div>
 
         {{-- ==========================================================
-            IGV
+            NOTA
         =========================================================== --}}
+
         <div class="checkout-summary-note">
+
             <i class="bi bi-check-circle-fill"></i>
+
             <span>
-                Incluyen IGV.
+
+                Todos los precios incluyen IGV.
+
             </span>
+
         </div>
+
         {{-- ==========================================================
             ACCIÓN
         =========================================================== --}}
