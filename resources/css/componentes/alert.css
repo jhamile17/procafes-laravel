@@ -140,3 +140,60 @@
     color:var(--color-text-light);
 
 }
+/*==============================================================================
+TOAST
+==============================================================================*/
+
+.app-toast{
+
+    position:fixed;
+
+    top:20px;
+
+    right:20px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.75rem;
+
+    padding:.90rem 1.1rem;
+
+    background:#16a34a;
+
+    color:#fff;
+
+    border-radius:12px;
+
+    box-shadow:0 12px 30px rgba(0,0,0,.18);
+
+    font-size:.90rem;
+
+    font-weight:500;
+
+    opacity:0;
+
+    transform:translateY(-20px);
+
+    transition:.25s;
+
+    z-index:99999;
+
+    pointer-events:none;
+
+}
+
+.app-toast.show{
+
+    opacity:1;
+
+    transform:translateY(0);
+
+}
+
+.app-toast i{
+
+    font-size:1rem;
+
+}

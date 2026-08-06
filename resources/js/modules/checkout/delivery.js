@@ -1,687 +1,356 @@
-/**
- * ==========================================================================
- * DELIVERY
- * ==========================================================================
- */
-
 const Delivery = {
-
-    /*
-    |--------------------------------------------------------------------------
-    | Inicializar
-    |--------------------------------------------------------------------------
-    */
-
-    init() {
-
-        this.timer = null;
-
+    init(){
         this.cache();
-
-        if (!this.pickupRadio) {
+        if(!this.pickupRadio){
             return;
         }
-
         this.bindEvents();
-
         this.updatePanels();
-
     },
 
-    /*
-    |--------------------------------------------------------------------------
-    | Cache DOM
-    |--------------------------------------------------------------------------
-    */
+    /*Cache DOM*/
 
-    cache() {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Tipo de entrega
-        |--------------------------------------------------------------------------
-        */
+    cache(){
         this.routes = window.Laravel.routes;
-        this.csrfToken =
-        document.querySelector('meta[name="csrf-token"]').content;
-    
-        this.pickupRadio = document.querySelector('#deliveryPickup');
+        this.csrfToken = window.Laravel.csrfToken;
+        this.toast = document.getElementById('toast');
+        this.toastMessage = document.getElementById('toastMessage');
+        
+        /*delivery */
+        this.pickupRadio = document.getElementById('deliveryPickup');
+        this.deliveryRadio = document.getElementById('deliveryShipping');
+        this.pickupPanel = document.getElementById('pickupPanel');
+        this.deliveryPanel = document.getElementById('deliveryPanel');
+        /*direccion */
+        this.addressView = document.getElementById('addressView');
+        this.addressEmpty = document.getElementById('addressEmpty');
+        this.addressForm = document.getElementById('addressForm');
+        this.addressTitle = document.getElementById('addressTitle');
+        this.addressLocation = document.getElementById('addressLocation');
+        this.addressReference = document.getElementById('addressReference');
 
-        this.shippingRadio = document.querySelector('#deliveryShipping');
 
-        this.pickupPanel = document.querySelector('#pickupPanel');
-
-        this.deliveryPanel = document.querySelector('#deliveryPanel');
-
-        /*
-        |--------------------------------------------------------------------------
-        | Dirección
-        |--------------------------------------------------------------------------
-        */
-
-        this.addressView = document.querySelector('#addressView');
-
-        this.addressForm = document.querySelector('#addressForm');
-
-        /*
-        |--------------------------------------------------------------------------
-        | Botones
-        |--------------------------------------------------------------------------
-        */
-
-        this.btnEdit = document.querySelector('#btnEditAddress');
-
-        this.btnAdd = document.querySelector('#btnAddAddress');
-
-        this.btnCancel = document.querySelector('#btnCancelAddress');
-
-        this.btnSave = document.querySelector('#btnSaveAddress');
-
-        /*
-        |--------------------------------------------------------------------------
-        | Buscador
-        |--------------------------------------------------------------------------
-        */
-
-        this.searchInput = document.querySelector('#addressSearch');
-
-        this.results = document.querySelector('#addressResults');
-
-        this.loading = document.querySelector('#addressLoading');
-
-        this.message = document.querySelector('#addressMessage');
-
-        /*
-        |--------------------------------------------------------------------------
-        | Campos
-        |--------------------------------------------------------------------------
-        */
-
-        this.addressId = document.querySelector('#addressId');
-
-        this.direccion = document.querySelector('#direccion');
-
-        this.departamento = document.querySelector('#departamento');
-
-        this.provincia = document.querySelector('#provincia');
-
-        this.distrito = document.querySelector('#distrito');
-
-        this.referencia = document.querySelector('#referencia');
-
-        this.latitude = document.querySelector('#latitude');
-
-        this.longitude = document.querySelector('#longitude');
-
+        /*Botones */
+        this.btnAdd = document.getElementById('btnAddAddress');
+        this.btnEdit = document.getElementById('btnEditAddress');
+        this.btnCancel = document.getElementById('btnCancelAddress');
+        this.btnSave = document.getElementById('btnSaveAddress');
+        /* buscador */
+        this.searchInput = document.getElementById('addressSearch');
+        this.results = document.getElementById('addressResults');
+        /*campos a rellenar */
+        this.direccion = document.getElementById('direccion');
+        this.numero = document.getElementById('numero')
+        this.departamento = document.getElementById('departamento');
+        this.provincia = document.getElementById('provincia');
+        this.distrito = document.getElementById('distrito');
+        this.referencia = document.getElementById('referencia');
+        this.latitude = document.getElementById('latitude');
+        this.longitude = document.getElementById('longitude');
+        /*timer */
+        this.searchTimer = null;
     },
-        /*
-    |--------------------------------------------------------------------------
-    | Eventos
-    |--------------------------------------------------------------------------
-    */
-
-    bindEvents() {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Tipo de entrega
-        |--------------------------------------------------------------------------
-        */
-
+    /*Eventos*/
+    bindEvents(){
         this.pickupRadio?.addEventListener(
             'change',
             () => this.updatePanels()
         );
-
-        this.shippingRadio?.addEventListener(
+        this.deliveryRadio?.addEventListener(
             'change',
             () => this.updatePanels()
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Dirección
-        |--------------------------------------------------------------------------
-        */
-
+        this.btnAdd?.addEventListener(
+            'click',
+            ()=> this.showForm()
+        );
         this.btnEdit?.addEventListener(
             'click',
             () => this.showForm()
         );
-
-        this.btnAdd?.addEventListener(
-            'click',
-            () => this.showForm()
-        );
-
         this.btnCancel?.addEventListener(
             'click',
             () => this.hideForm()
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Buscador
-        |--------------------------------------------------------------------------
-        */
-
         this.searchInput?.addEventListener(
             'input',
-            () => this.debounceSearch()
+            () => this.debounce()
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Guardar
-        |--------------------------------------------------------------------------
-        */
-
         this.btnSave?.addEventListener(
             'click',
             () => this.saveAddress()
         );
-
     },
+    /*Actualizar Paneles*/
 
-    /*
-    |--------------------------------------------------------------------------
-    | Mostrar paneles
-    |--------------------------------------------------------------------------
-    */
-
-    updatePanels() {
-
-        const pickupSelected = this.pickupRadio?.checked;
-
+    updatePanels(){
+        const pickup = this.pickupRadio.checked;
         this.pickupPanel?.classList.toggle(
             'd-none',
-            !pickupSelected
+            !pickup
         );
-
         this.deliveryPanel?.classList.toggle(
             'd-none',
-            pickupSelected
+            pickup
         );
-
     },
-        /*
-    |--------------------------------------------------------------------------
-    | Mostrar formulario
-    |--------------------------------------------------------------------------
-    */
 
-    showForm() {
-
+    showForm(){
         this.addressView?.classList.add('d-none');
-
-        this.btnAdd?.classList.add('d-none');
-
+        this.addressEmpty?.classList.add('d-none');
         this.addressForm?.classList.remove('d-none');
-
         this.searchInput?.focus();
-
     },
-
-    /*
-    |--------------------------------------------------------------------------
-    | Ocultar formulario
-    |--------------------------------------------------------------------------
-    */
-
-    hideForm() {
-
+    /*ocultar formulario */
+    hideForm(){
         this.addressForm?.classList.add('d-none');
-
-        this.addressView?.classList.remove('d-none');
-
-        this.btnAdd?.classList.remove('d-none');
-
-        this.results && (this.results.innerHTML = '');
-
-        this.message && (this.message.innerHTML = '');
-
-        if(this.searchInput){
-
-            this.searchInput.value = '';
-
-        }
-
-    },
-        /*
-    |--------------------------------------------------------------------------
-    | Buscar dirección (Debounce)
-    |--------------------------------------------------------------------------
-    */
-
-    debounceSearch() {
-
-        clearTimeout(this.timer);
-
-        const query = this.searchInput.value.trim();
-
-        if (query.length < 2) {
-
-            this.results.innerHTML = '';
-
-            this.loading?.classList.add('d-none');
-
-            return;
-
-        }
-
-        this.timer = setTimeout(() => {
-
-            this.searchAddress(query);
-
-        }, 400);
-
-    },
-
-    /*
-    |--------------------------------------------------------------------------
-    | Buscar dirección
-    |--------------------------------------------------------------------------
-    */
-
-    async searchAddress(query) {
-
-        this.loading?.classList.remove('d-none');
-
-        this.results.innerHTML = '';
-
-        try {
-
-            const response = await fetch(
-
-                `${this.routes.address.search}?q=${encodeURIComponent(query)}`,
-                {
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                }
-
-            );
-
-            if (!response.ok) {
-
-                throw new Error('No fue posible consultar las direcciones.');
-
-            }
-
-            const json = await response.json();
-
-            this.renderResults(json.data ?? []);
-
-        }
-
-        catch (error) {
-
-            console.error(error);
-
-            this.showMessage(
-
-                'Ocurrió un error al buscar direcciones.',
-
-                'error'
-
-            );
-
-        }
-
-        finally {
-
-            this.loading?.classList.add('d-none');
-
-        }
-
-    },
-        /*
-    |--------------------------------------------------------------------------
-    | Mostrar resultados
-    |--------------------------------------------------------------------------
-    */
-
-    renderResults(results) {
-
-        this.results.innerHTML = '';
-
-        if (!results.length) {
-
-            this.results.innerHTML = `
-
-                <div class="checkout-empty-results">
-
-                    <i class="bi bi-geo-alt"></i>
-
-                    <span>
-
-                        No se encontraron direcciones.
-
-                    </span>
-
-                </div>
-
-            `;
-
-            return;
-
-        }
-
-        results.forEach(address => {
-
-            const item = document.createElement('button');
-
-            item.type = 'button';
-
-            item.className = 'checkout-search-item';
-
-            item.innerHTML = `
-
-                <div class="checkout-search-icon">
-
-                    <i class="bi bi-geo-alt-fill"></i>
-
-                </div>
-
-                <div class="checkout-search-content">
-
-                    <strong>
-
-                        ${address.direccion}
-
-                    </strong>
-
-                    <small>
-
-                        ${address.label}
-
-                    </small>
-
-                </div>
-
-            `;
-
-            item.addEventListener(
-
-                'click',
-
-                () => this.selectAddress(address)
-
-            );
-
-            this.results.appendChild(item);
-
-        });
-
-    },
-
-    /*
-    |--------------------------------------------------------------------------
-    | Seleccionar dirección
-    |--------------------------------------------------------------------------
-    */
-
-    selectAddress(address) {
-
-        this.searchInput.value = address.label;
-
-        this.direccion.value = address.direccion;
-
-        this.departamento.value = address.departamento;
-
-        this.provincia.value = address.provincia;
-
-        this.distrito.value = address.distrito;
-
-        this.latitude.value = address.latitude;
-
-        this.longitude.value = address.longitude;
-
-        this.results.innerHTML = '';
-
-        this.showMessage(
-
-            'Dirección seleccionada correctamente.',
-
-            'success'
-
+        const hasAddress = this.direccion.value.trim() !=='';
+        this.addressView?.classList.toggle(
+            'd-none',
+            !hasAddress
         );
-
+        this.addressEmpty?.classList.toggle(
+            'd-none',
+            hasAddress
+        );
     },
-        /*
+
+    /*
     |--------------------------------------------------------------------------
-    | Guardar dirección
+    | LocationIQ
     |--------------------------------------------------------------------------
     */
 
-    async saveAddress() {
+    debounce(){
+        clearTimeout(this.searchTimer);
+        this.searchTimer = setTimeout(() =>{
+            this.searchAddress();
+        },400);
+    },
 
-        if (!this.direccion.value) {
-
-            this.showMessage(
-
-                'Selecciona una dirección antes de guardar.',
-
-                'error'
-
-            );
-
+    async searchAddress(){
+        const query = this.searchInput.value.trim();
+        if (query.length < 2){
+            this.clearResults();
             return;
-
         }
-
-        this.setLoading(true);
-
-        try {
-
+        try{
             const response = await fetch(
-
-                this.routes.address.update,
-
-                {
-
-                    method: 'POST',
-
-                    headers: {
-
-                        'Content-Type': 'application/json',
-
-                        'Accept': 'application/json',
-
-                        'X-CSRF-TOKEN': this.csrfToken,
-
-                    },
-
-                    body: JSON.stringify({
-
-                        direccion: this.direccion.value,
-
-                        referencia: this.referencia.value,
-
-                        departamento: this.departamento.value,
-
-                        provincia: this.provincia.value,
-
-                        distrito: this.distrito.value,
-
-                        latitude: this.latitude.value,
-
-                        longitude: this.longitude.value,
-
-                    })
-
+            `${this.routes.address.search}?q=${encodeURIComponent(query)}`,
+            {
+                headers:{
+                    'Accept':'application/json',
                 }
-
-            );
-
-            const json = await response.json();
-
-            if (!response.ok || !json.success) {
-
-                throw new Error(
-
-                    json.message ??
-
-                    'No fue posible guardar la dirección.'
-
-                );
-
             }
-
-            this.updateAddressCard(
-
-                json.data
-
+        );
+        const json = await response.json();
+        if(!response.ok || !json.success){
+            throw new Error(
+                'No fue posible obtener las direcciones'
             );
-
-            this.hideForm();
-
-            this.showMessage(
-
-                json.message,
-
-                'success'
-
-            );
-
         }
-
-        catch (error) {
-
+        this.renderResults(json.data);
+        }
+        catch(error){
             console.error(error);
-
+            this.clearResults();
             this.showMessage(
-
-                error.message,
-
+                'No fue posible buscar direcciones',
                 'error'
-
             );
-
         }
-
-        finally {
-
-            this.setLoading(false);
-
-        }
-
     },
-        /*
-    |--------------------------------------------------------------------------
-    | Estado de carga
-    |--------------------------------------------------------------------------
-    */
 
-    setLoading(status) {
-
-        if (this.btnSave) {
-
-            this.btnSave.disabled = status;
-
-            this.btnSave.innerHTML = status
-
-                ? `
-                    <i class="bi bi-arrow-repeat spinner-border spinner-border-sm"></i>
-                    <span>Guardando...</span>
-                `
-
-                : `
-                    <i class="bi bi-check-circle"></i>
-                    <span>Guardar dirección</span>
-                `;
-
+    renderResults(addresses){
+        this.clearResults();
+        if(!addresses.length){
+            this.results.innerHTML = `
+            <div class="checkout-search-empty">
+                <i class="bi bi-search"></i>
+                <span>No encontramos direcciones</span>
+            </div>`;
+            return;
         }
+        addresses.forEach(address => {
+            const item = document.createElement('div');
+            item.className = 'checkout-search-item';
+            item.innerHTML =`
+                <i class="bi bi-geo-alt-fill"></i>
+                <span>${address.label}</span>
+            `;
+            item.addEventListener(
+                'click',
+                () => this.selectAddress(address));
+            this.results.appendChild(item);
+        });
+    },
 
-        if (this.searchInput) {
+    selectAddress(address){
+        this.searchInput.value = address.direccion;
+        /*campos ocultos */
+        this.direccion.value = address.direccion;
+        this.departamento.value = address.departamento;
+        this.provincia.value = address.provincia;
+        this.distrito.value = address.distrito;
+        this.latitude.value = address.latitude;
+        this.longitude.value = address.longitude;
+        this.clearResults();
+    },
 
-            this.searchInput.disabled = status;
-
+    clearResults(){
+        if (this.results){
+            this.results.innerHTML = '';
         }
-
     },
 
     /*
     |--------------------------------------------------------------------------
-    | Actualizar tarjeta
+    | Guardar
     |--------------------------------------------------------------------------
     */
 
-    updateAddressCard(address) {
-
-        if (!this.addressView) {
+    async saveAddress(){
+        if (!this.direccion.value.trim()){
+            this.showMessage(
+                'Selecciona una direccion antes de guardar',
+                'error'
+            );
             return;
         }
-
-        const title = this.addressView.querySelector('h4');
-
-        const city = this.addressView.querySelector('p');
-
-        const department = this.addressView.querySelector('small');
-
-        if (title) {
-
-            title.textContent = address.direccion;
-
-        }
-
-        if (city) {
-
-            city.textContent = `${address.distrito}, ${address.provincia}`;
-
-        }
-
-        if (department) {
-
-            department.textContent = address.departamento;
-
-        }
-
-    },
-
-    /*
-    |--------------------------------------------------------------------------
-    | Mensajes
-    |--------------------------------------------------------------------------
-    */
-
-    showMessage(message, type = 'success') {
-
-        if (!this.message) {
-            return;
-        }
-
-        this.message.className = `checkout-message checkout-message-${type}`;
-
-        this.message.innerHTML = `
-
-            <i class="bi ${type === 'success'
-                ? 'bi-check-circle-fill'
-                : 'bi-exclamation-circle-fill'}"></i>
-
-            <span>${message}</span>
-
-        `;
-
-        setTimeout(() => {
-
-            this.message.innerHTML = '';
-
-            this.message.className = 'checkout-message';
-
-        }, 4000);
-
+        this.setLoading(true);
+        try{
+            const response = await fetch(
+                this.routes.address.update,
+                {
+                    method:'POST',
+                    credentials: 'same-origin',
+                    headers : {
+                        'Content-Type':'application/json',
+                        'Accept':'application/json',
+                        'X-CSRF-TOKEN': this.csrfToken,
+                    },
+                    body: JSON.stringify({
+                        direccion: this.direccion.value,
+                        numero: this.numero.value,
+                        referencia:this.referencia.value,
+                        departamento:this.departamento.value,
+                        provincia:this.provincia.value,
+                        distrito:this.distrito.value,
+                        latitude:this.latitude.value,
+                        longitude:this.longitude.value,
+                    })
+                }
+            );
+            const json = await response.json();
+            if (!response.ok || !json.success){
+                throw new Error(
+                    json.message ||
+                    'No fue posible guardar la direccion'
+                );
+            }
+        
+        this.updateAddressCard(
+            json.data
+        );
+        this.hideForm();
+        this.showMessage(
+            json.message,
+            'success'
+        );
     }
+    catch (error){
+        console.error(error);
+        this.showMessage(
+            error.message,
+            'error'
+        );
+    }
+    finally{
+        this.setLoading(false);
+    }
+    },
+
+    updateAddressCard(address){
+        this.addressTitle.textContent = [
+            address.direccion,
+            address.numero,
+        ] 
+        .filter(Boolean)
+        .join(' ');
+        this.addressLocation.textContent =[
+            address.distrito,
+            address.provincia,
+            address.departamento,
+        ]
+        .filter(Boolean)
+        .join(', ');
+        
+        if(address.referencia){
+            this.addressReference.textContent = 
+            `Referencia: ${address.referencia}`;
+            this.addressReference.classList.remove(
+                'd-none'
+            );
+        }
+        else{
+            this.addressReference.classList.add(
+                'd-none'
+            );
+        }
+        this.addressView.classList.remove(
+            'd-none'
+        );
+        this.addressEmpty.classList.add(
+            'd-none'
+        );
+    },
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helpers
+    |--------------------------------------------------------------------------
+    */
+
+    setLoading(status){
+        this.btnSave.disabled=status;
+        this.searchInput.disabled = status;
+        if(status){
+            this.btnSave.innerHTML = `
+            <i class="bi bi-arrow-repeat spinner-border spinner-border-sm"></i>"
+            Guardando...`;
+        }
+        else {
+            this.btnSave.innerHTML =`
+            <i class="bi bi-check-circle"></i>
+            <span>Guardar direccion </span>`;
+        }
+    },
+
+    showMessage(message, type = 'success'){
+        const toast = this.toast;
+        const text = this.toastMessage;
+        if (!toast || !text){
+            console.log(message);
+            return;
+        }
+        text.textContent = message;
+        toast.classList.remove('show');
+        toast.style.background = type === 'success'
+            ? '#16a34a'
+            : '#dc2626';
+        setTimeout(() => {
+        toast.classList.add('show');
+        }, 50);
+        clearTimeout(this.toastTimer);
+        this.toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+
+    }, 3000);
+}
 };
+document.addEventListener(
+    'DOMContentLoaded',
+    () => Delivery.init()
+);
 
-/*
-|--------------------------------------------------------------------------
-| Inicializar
-|--------------------------------------------------------------------------
-*/
-
-document.addEventListener('DOMContentLoaded', () => {
-
-    Delivery.init();
-
-});
+    

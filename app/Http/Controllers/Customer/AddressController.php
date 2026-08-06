@@ -42,7 +42,7 @@ class AddressController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Guardar dirección
+    | Guardar o actualizar la dirección de envío
     |--------------------------------------------------------------------------
     */
 
@@ -50,41 +50,22 @@ class AddressController extends Controller
     {
         $data = $request->validate([
 
-            'direccion'     => ['required', 'string', 'max:255'],
-            'referencia'    => ['nullable', 'string', 'max:255'],
-
-            'departamento'  => ['required', 'string', 'max:100'],
-            'provincia'     => ['required', 'string', 'max:100'],
-            'distrito'      => ['required', 'string', 'max:100'],
-
-            'latitude'      => ['nullable', 'numeric'],
-            'longitude'     => ['nullable', 'numeric'],
-
+            'direccion' => ['required', 'string', 'max:255'],
+            'numero' => ['nullable','string', 'max:60'],
+            'referencia' => ['nullable', 'string', 'max:255'],
+            'departamento' => ['required', 'string', 'max:100'],
+            'provincia' => ['required', 'string', 'max:100'],
+            'distrito' => ['required', 'string', 'max:100'],
+            'latitude' => ['nullable', 'numeric'],
+            'longitude' => ['nullable', 'numeric'],
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Solo una dirección principal
-        |--------------------------------------------------------------------------
-        */
-
-        ShippingAddress::where(
-            'user_id',
-            Auth::id()
-        )->update([
-            'es_principal' => false,
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Crear o actualizar
-        |--------------------------------------------------------------------------
-        */
+        $user = Auth::user();
 
         $address = ShippingAddress::updateOrCreate(
 
             [
-                'user_id' => Auth::id(),
+                'user_id' => $user->id,
             ],
 
             [
@@ -92,6 +73,13 @@ class AddressController extends Controller
                 ...$data,
 
                 'alias' => 'Mi dirección',
+
+                /*
+                |--------------------------------------------------------------------------
+                | Se mantiene por compatibilidad aunque exista
+                | una sola dirección por usuario.
+                |--------------------------------------------------------------------------
+                */
 
                 'es_principal' => true,
 
@@ -103,24 +91,21 @@ class AddressController extends Controller
 
             'success' => true,
 
-            'message' => 'Dirección guardada correctamente.',
+            'message' => 'Dirección de envío guardada correctamente.',
 
             'data' => [
 
                 'id' => $address->id,
 
                 'direccion' => $address->direccion,
-
+                'numero' => $address->numero,
                 'referencia' => $address->referencia,
-
                 'departamento' => $address->departamento,
-
                 'provincia' => $address->provincia,
-
                 'distrito' => $address->distrito,
-
+                'latitude' => $address->latitude,
+                'longitude' => $address->longitude,
                 'direccion_completa' => $address->direccion_completa,
-
             ],
 
         ]);

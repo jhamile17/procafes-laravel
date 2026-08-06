@@ -1,53 +1,52 @@
 {{-- ==========================================================
-    PANEL ENVÍO
+    DIRECCIÓN DE ENVÍO
 ========================================================== --}}
 
 <div
     id="deliveryPanel"
-    class="checkout-panel d-none">
+    class="checkout-shipping d-none">
 
     {{-- ==========================================================
         DIRECCIÓN REGISTRADA
     =========================================================== --}}
 
-    @if($address)
+    <div
+        id="addressView"
+        class="{{ $address ? '' : 'd-none' }}">
 
-        <div
-            id="addressView"
-            class="checkout-address">
+        <div class="checkout-shipping-card">
 
-            <div class="checkout-address-header">
+            <div class="checkout-shipping-header">
 
-                <div class="checkout-address-icon">
+                <div class="checkout-shipping-content">
 
-                    <i class="bi bi-geo-alt-fill"></i>
-
-                </div>
-
-                <div class="checkout-address-content">
-
-                    <span class="checkout-address-badge">
+                    <span class="checkout-shipping-badge">
 
                         Dirección de envío
 
                     </span>
 
-                    <h4>
+                    <div
+                        id="addressTitle"
+                        class="checkout-shipping-title">
 
-                        {{ $address->direccion }}
+                        {{ $address?->direccion }}
 
-                    </h4>
+                    </div>
 
-                    <p>
+                    <p id="addressLocation">
 
-                        {{ $address->distrito }},
-                        {{ $address->provincia }}
+                        {{ $address?->distrito }},
+                        {{ $address?->provincia }}
 
                     </p>
 
-                    <small>
+                    <small
+                        id="addressReference"
+                        class="{{ empty($address?->referencia) ? 'd-none' : '' }}">
 
-                        {{ $address->departamento }}
+                        Referencia:
+                        {{ $address?->referencia }}
 
                     </small>
 
@@ -56,9 +55,9 @@
                 <button
                     type="button"
                     id="btnEditAddress"
-                    class="customer-btn customer-btn-sm">
+                    class="customer-btn">
 
-                    <i class="bi bi-pencil-square"></i>
+                    <i class="bi bi-pencil"></i>
 
                     Editar
 
@@ -66,62 +65,47 @@
 
             </div>
 
-            <div class="checkout-delivery-note">
-
-                <i class="bi bi-whatsapp"></i>
-
-                <span>
-
-                    El costo del transporte será coordinado por WhatsApp
-                    después de confirmar tu compra.
-
-                </span>
-
-            </div>
-
         </div>
 
-    @else
+    </div>
 
-        {{-- ==========================================================
-            SIN DIRECCIÓN
-        =========================================================== --}}
+    {{-- ==========================================================
+        SIN DIRECCIÓN
+    =========================================================== --}}
 
-        <div
-            id="addressEmpty"
-            class="checkout-empty">
+    <div
+        id="addressEmpty"
+        class="{{ $address ? 'd-none' : '' }}">
 
-            <div class="checkout-empty-icon">
+        <div class="checkout-empty-address">
 
-                <i class="bi bi-geo-alt"></i>
-
-            </div>
+            <i class="bi bi-geo-alt"></i>
 
             <h4>
 
-                No tienes una dirección registrada
+                Dirección de envío
 
             </h4>
 
             <p>
 
-                Para realizar el envío primero debes registrar una dirección.
+                No tienes una dirección registrada.
 
             </p>
 
             <button
                 type="button"
                 id="btnAddAddress"
-                class="customer-button">
+                class="customer-btn">
 
-                <i class="bi bi-search"></i>
+                <i class="bi bi-plus-circle"></i>
 
-                Buscar dirección
+                Agregar dirección
 
             </button>
 
         </div>
 
-    @endif
+    </div>
 
 </div>

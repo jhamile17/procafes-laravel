@@ -1,84 +1,60 @@
 {{-- ==========================================================
-    PANEL RECOJO EN TIENDA
+    RECOJO EN TIENDA
 ========================================================== --}}
 
 <div
     id="pickupPanel"
-    class="checkout-panel">
+    class="checkout-pickup">
 
-    <div class="checkout-store">
+    <div class="checkout-pickup-icon">
 
-        <div class="checkout-store-icon">
+        <i class="bi bi-shop"></i>
 
-            <i class="bi bi-shop"></i>
+    </div>
 
-        </div>
+    <div class="checkout-pickup-content">
 
-        <div class="checkout-store-info">
+        <span class="checkout-pickup-badge">
 
-            <span class="checkout-store-badge">
+            Recojo en tienda
 
-                Retiro en tienda
+        </span>
 
-            </span>
+        <h4>
 
-            <h4>
+            PROCÁFES
 
-                PROCÁFES
+        </h4>
 
-            </h4>
+        <p>
 
-            <p class="checkout-store-description">
+            Tu pedido estará listo para recoger en nuestro establecimiento.
 
-                Tu pedido estará listo para ser recogido cuando recibas nuestra confirmación por WhatsApp.
+        </p>
 
-            </p>
+        <div class="checkout-pickup-meta">
 
-            <div class="checkout-store-details">
+            <div class="checkout-pickup-item">
 
-                <div class="checkout-store-item">
+                <i class="bi bi-geo-alt-fill"></i>
 
-                    <i class="bi bi-geo-alt-fill"></i>
+                <span>
 
-                    <div>
+                    Pichanaki, Junín
 
-                        <strong>
+                </span>
 
-                            Dirección
+            </div>
 
-                        </strong>
+            <div class="checkout-pickup-item">
 
-                        <span>
+                <i class="bi bi-clock-fill"></i>
 
-                            Plaza de Armas, Pichanaqui - Chanchamayo, Junín
+                <span>
 
-                        </span>
+                    Lunes a Domingo · 8:00 a.m. - 9:00 p.m.
 
-                    </div>
-
-                </div>
-
-                <div class="checkout-store-item">
-
-                    <i class="bi bi-clock-fill"></i>
-
-                    <div>
-
-                        <strong>
-
-                            Horario de atención
-
-                        </strong>
-
-                        <span>
-
-                            Lunes a Domingo · 8:00 a.m. - 9:00 p.m.
-
-                        </span>
-
-                    </div>
-
-                </div>
+                </span>
 
             </div>
 

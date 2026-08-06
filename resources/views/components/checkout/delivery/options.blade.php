@@ -1,20 +1,15 @@
-{{-- ==========================================================
-    OPCIONES DE ENTREGA
-========================================================== --}}
-
 <div class="checkout-delivery-options">
 
     {{-- ==========================================================
         RECOJO EN TIENDA
     =========================================================== --}}
-
     <label class="checkout-delivery-card">
 
         <input
             type="radio"
+            id="deliveryPickup"
             name="delivery_type"
             value="pickup"
-            id="deliveryPickup"
             checked>
 
         <div class="checkout-delivery-content">
@@ -33,11 +28,11 @@
 
                 </h5>
 
-                <span>
+                <p>
 
-                    Sin costo
+                    Retira tu pedido directamente en nuestro local.
 
-                </span>
+                </p>
 
             </div>
 
@@ -46,47 +41,43 @@
     </label>
 
     {{-- ==========================================================
-        ENVÍO
+        DELIVERY LOCAL
     =========================================================== --}}
 
-    @if($permiteEnvio)
+    <label class="checkout-delivery-card">
 
-        <label class="checkout-delivery-card">
+        <input
+            type="radio"
+            id="deliveryShipping"
+            name="delivery_type"
+            value="delivery">
 
-            <input
-                type="radio"
-                name="delivery_type"
-                value="delivery"
-                id="deliveryShipping">
+        <div class="checkout-delivery-content">
 
-            <div class="checkout-delivery-content">
+            <div class="checkout-delivery-icon">
 
-                <div class="checkout-delivery-icon">
-
-                    <i class="bi bi-truck"></i>
-
-                </div>
-
-                <div class="checkout-delivery-info">
-
-                    <h5>
-
-                        Envío
-
-                    </h5>
-
-                    <span>
-
-                        Transporte coordinado
-
-                    </span>
-
-                </div>
+                <i class="bi bi-truck"></i>
 
             </div>
 
-        </label>
+            <div class="checkout-delivery-info">
 
-    @endif
+                <h5>
+
+                    Delivery local
+
+                </h5>
+
+                <p>
+
+                    Recibe tu pedido en la dirección registrada.
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </label>
 
 </div>

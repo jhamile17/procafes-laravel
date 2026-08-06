@@ -39,23 +39,15 @@ class ShippingAddress extends Model
     protected $fillable = [
 
         'user_id',
-
         'alias',
-
         'direccion',
-
+        'numero',
         'departamento',
-
         'provincia',
-
         'distrito',
-
         'referencia',
-
         'latitude',
-
         'longitude',
-
         'es_principal',
 
     ];
@@ -147,7 +139,7 @@ class ShippingAddress extends Model
     {
         return collect([
 
-            $this->direccion,
+            trim($this->direccion .' '.$this->numero),
 
             $this->distrito,
 

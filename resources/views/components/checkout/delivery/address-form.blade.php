@@ -1,5 +1,5 @@
 {{-- ==========================================================
-    FORMULARIO DIRECCIÓN
+    FORMULARIO DIRECCIÓN DE ENVÍO
 ========================================================== --}}
 
 <div
@@ -14,13 +14,13 @@
 
         <h4>
 
-            Dirección de entrega
+            Dirección de envío
 
         </h4>
 
         <p>
 
-            Busca tu dirección y agrega una referencia para facilitar la entrega de tu pedido.
+            Busca tu dirección y agrega una referencia para facilitar la entrega.
 
         </p>
 
@@ -32,7 +32,9 @@
 
     <div class="customer-form-group">
 
-        <label class="customer-label">
+        <label
+            for="addressSearch"
+            class="customer-label">
 
             Buscar dirección
 
@@ -46,44 +48,38 @@
                 type="text"
                 id="addressSearch"
                 class="customer-input"
-                autocomplete="off"
-                placeholder="Ej. Av. Perú 245, Pichanaqui">
+                placeholder="Ej. Av. Perú 245">
 
         </div>
-
-        <small class="customer-helper">
-
-            Escribe al menos 2 caracteres para buscar una dirección.
-
-        </small>
-
-    </div>
-
-    {{-- ==========================================================
-        CARGANDO
-    =========================================================== --}}
-
-    <div
-        id="addressLoading"
-        class="checkout-search-loading d-none">
-
-        <i class="bi bi-arrow-repeat"></i>
-
-        <span>
-
-            Buscando direcciones...
-
-        </span>
 
     </div>
 
     {{-- ==========================================================
         RESULTADOS
     =========================================================== --}}
+        <div
+            id="addressResults"
+            class="checkout-search-results">
 
-    <div
-        id="addressResults"
-        class="checkout-search-results">
+        </div>
+
+        <div class="customer-form-group">
+
+        <label
+            for="numero"
+            class="customer-label">
+
+            Número / Interior
+
+        </label>
+
+        <input
+            type="text"
+            id="numero"
+            class="customer-input"
+            maxlength="60"
+            placeholder="Ej. 245, Mz. B Lt. 12, Interior 201"
+            value="{{ $address?->numero }}">
 
     </div>
 
@@ -93,7 +89,9 @@
 
     <div class="customer-form-group">
 
-        <label class="customer-label">
+        <label
+            for="referencia"
+            class="customer-label">
 
             Referencia
 
@@ -101,9 +99,8 @@
 
         <textarea
             id="referencia"
-            name="referencia"
-            rows="3"
             class="customer-input"
+            rows="3"
             placeholder="Ej. Frente al mercado, portón negro, segundo piso...">{{ $address?->referencia }}</textarea>
 
     </div>
@@ -114,62 +111,36 @@
 
     <input
         type="hidden"
-        id="addressId"
-        value="{{ $address?->id }}">
-
-    <input
-        type="hidden"
-        id="csrfToken"
-        value="{{ csrf_token() }}">
-
-    <input
-        type="hidden"
         id="direccion"
-        name="direccion"
         value="{{ $address?->direccion }}">
 
     <input
         type="hidden"
         id="departamento"
-        name="departamento"
         value="{{ $address?->departamento }}">
 
     <input
         type="hidden"
         id="provincia"
-        name="provincia"
         value="{{ $address?->provincia }}">
 
     <input
         type="hidden"
         id="distrito"
-        name="distrito"
         value="{{ $address?->distrito }}">
 
     <input
         type="hidden"
         id="latitude"
-        name="latitude"
         value="{{ $address?->latitude }}">
 
     <input
         type="hidden"
         id="longitude"
-        name="longitude"
         value="{{ $address?->longitude }}">
 
     {{-- ==========================================================
-        MENSAJES
-    =========================================================== --}}
-
-    <div
-        id="addressMessage"
-        class="checkout-message">
-
-    </div>
-
-    {{-- ==========================================================
-        ACCIONES
+        BOTONES
     =========================================================== --}}
 
     <div class="checkout-actions">
@@ -179,7 +150,7 @@
             id="btnCancelAddress"
             class="customer-btn customer-btn-secondary">
 
-            <i class="bi bi-x-circle"></i>
+            <i class="bi bi-arrow-left"></i>
 
             Cancelar
 
@@ -192,11 +163,7 @@
 
             <i class="bi bi-check-circle"></i>
 
-            <span>
-
-                Guardar dirección
-
-            </span>
+            Guardar dirección
 
         </button>
 

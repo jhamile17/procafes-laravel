@@ -20,7 +20,7 @@
 
         <p class="checkout-card-subtitle">
 
-            Selecciona cómo deseas recibir tu pedido.
+            Indica cómo deseas recibir tu pedido.
 
         </p>
 
@@ -32,43 +32,17 @@
 
     <div class="checkout-card-body">
 
+        {{-- Opciones de entrega --}}
         @include('components.checkout.delivery.options')
 
-        @unless($permiteEnvio)
-
-            <div class="checkout-alert">
-
-                <i class="bi bi-info-circle-fill"></i>
-
-                <div>
-
-                    <strong>
-
-                        Este pedido solo puede recogerse en tienda.
-
-                    </strong>
-
-                    <p>
-
-                        Contiene productos preparados.
-
-                    </p>
-
-                </div>
-
-            </div>
-
-        @endunless
-
+        {{-- Panel Recojo --}}
         @include('components.checkout.delivery.pickup')
 
-        @if($permiteEnvio)
+        {{-- Panel Delivery --}}
+        @include('components.checkout.delivery.shipping')
 
-            @include('components.checkout.delivery.shipping')
-
-            @include('components.checkout.delivery.address-form')
-
-        @endif
+        {{-- Formulario Dirección --}}
+        @include('components.checkout.delivery.address-form')
 
     </div>
 

@@ -9,20 +9,22 @@ use Throwable;
 
 class LocationIQService
 {
-    /**
-     * --------------------------------------------------------------------------
-     * Configuración
-     * --------------------------------------------------------------------------
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Configuración
+    |--------------------------------------------------------------------------
+    */
+
     private const COUNTRY = 'pe';
 
     private const LIMIT = 5;
 
-    /**
-     * --------------------------------------------------------------------------
-     * Buscar direcciones
-     * --------------------------------------------------------------------------
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Buscar direcciones
+    |--------------------------------------------------------------------------
+    */
+
     public function search(string $query): array
     {
         $query = trim($query);
@@ -42,11 +44,11 @@ class LocationIQService
 
                         'q' => $query,
 
+                        'countrycodes' => self::COUNTRY,
+
                         'limit' => self::LIMIT,
 
                         'format' => 'json',
-
-                        'countrycodes' => self::COUNTRY,
 
                         'accept-language' => 'es',
 
@@ -70,76 +72,47 @@ class LocationIQService
 
         return collect($response->json())
 
-            ->map(fn(array $item) => $this->normalizeResult($item))
+            ->map(fn (array $item) => $this->normalizeResult($item))
 
-            ->filter(fn(array $item) =>
+            ->filter(fn (array $item) =>
 
-                ! empty($item['direccion']) &&
-                ! empty($item['departamento']) &&
-                ! empty($item['provincia']) &&
-                ! empty($item['distrito'])
+                filled($item['direccion']) &&
+                filled($item['departamento']) &&
+                filled($item['provincia']) &&
+                filled($item['distrito'])
 
             )
+
+            /*
+            |--------------------------------------------------------------------------
+            | Priorizar resultados de la zona de trabajo
+            |--------------------------------------------------------------------------
+            */
+
+            ->sortByDesc(function (array $item) {
+
+                $text = mb_strtolower($item['label']);
+
+                return str_contains($text, 'pichanaqui')
+                    || str_contains($text, 'junín')
+                    || str_contains($text, 'chanchamayo');
+
+            })
 
             ->values()
 
             ->toArray();
     }
 
-    /**
-     * --------------------------------------------------------------------------
-     * Normalizar resultado
-     * --------------------------------------------------------------------------
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Normalizar resultado
+    |--------------------------------------------------------------------------
+    */
+
     private function normalizeResult(array $item): array
     {
         $address = $item['address'] ?? [];
-
-        /*
-        |--------------------------------------------------------------------------
-        | Texto mostrado al usuario
-        |--------------------------------------------------------------------------
-        */
-
-        $label = trim($item['display_name'] ?? '');
-
-        $label = preg_replace(
-            '/,\s*Perú$/iu',
-            '',
-            $label
-        );
-
-        $label = preg_replace(
-            '/\s+/',
-            ' ',
-            $label
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Dirección
-        |--------------------------------------------------------------------------
-        */
-
-        $direccion = collect([
-
-            $address['road'] ?? null,
-
-            $address['house_number'] ?? null,
-
-            $address['residential'] ?? null,
-
-        ])
-
-        ->filter()
-
-        ->implode(' ');
-
-        if (blank($direccion)) {
-
-            $direccion = $label;
-
-        }
 
         /*
         |--------------------------------------------------------------------------
@@ -148,11 +121,8 @@ class LocationIQService
         */
 
         $departamento =
-
             $address['state']
-
             ?? $address['region']
-
             ?? null;
 
         /*
@@ -162,11 +132,8 @@ class LocationIQService
         */
 
         $provincia =
-
             $address['county']
-
             ?? $address['state_district']
-
             ?? null;
 
         /*
@@ -176,18 +143,98 @@ class LocationIQService
         */
 
         $distrito =
-
             $address['city_district']
-
             ?? $address['suburb']
-
             ?? $address['city']
-
             ?? $address['town']
-
             ?? $address['village']
-
             ?? null;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dirección corta
+        |--------------------------------------------------------------------------
+        */
+
+        $direccion = collect([
+
+            $address['road'] ?? null,
+
+            $address['house_number'] ?? null,
+
+        ])
+
+        ->filter()
+
+        ->implode(' ');
+
+        if (blank($direccion)) {
+
+            $direccion = collect([
+
+                $address['pedestrian'] ?? null,
+
+                $address['square'] ?? null,
+
+                $address['neighbourhood'] ?? null,
+
+                $address['residential'] ?? null,
+
+                $address['amenity'] ?? null,
+
+                $address['building'] ?? null,
+
+            ])
+
+            ->filter()
+
+            ->implode(' ');
+
+        }
+
+        if (blank($direccion)) {
+
+            $direccion = collect([
+
+                $distrito,
+
+                $provincia,
+
+            ])
+
+            ->filter()
+
+            ->implode(', ');
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Texto mostrado al usuario
+        |--------------------------------------------------------------------------
+        */
+
+        $label = collect([
+
+            $direccion,
+
+            collect([
+
+                $distrito,
+
+                $provincia,
+
+            ])
+
+            ->filter()
+
+            ->implode(', '),
+
+        ])
+
+        ->filter()
+
+        ->implode(' · ');
 
         return [
 
@@ -201,7 +248,7 @@ class LocationIQService
 
             /*
             |--------------------------------------------------------------------------
-            | ShippingAddress
+            | Guardar en ShippingAddress
             |--------------------------------------------------------------------------
             */
 
