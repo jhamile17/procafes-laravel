@@ -15,9 +15,9 @@ class PaymentMethodService
     |--------------------------------------------------------------------------
     */
 
-    private const PAGO_TIENDA = 1;
+    public const STORE = 'store';
 
-    private const MERCADO_PAGO = 7;
+    public const MERCADOPAGO = 'mercadopago';
 
     /*
     |--------------------------------------------------------------------------
@@ -28,14 +28,18 @@ class PaymentMethodService
     public function obtenerActivos(): Collection
     {
         return PaymentMethod::query()
+
             ->activos()
-            ->orderBy('id')
+
+            ->orderBy('nombre')
+
             ->get();
+
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener método de pago
+    | Obtener por ID
     |--------------------------------------------------------------------------
     */
 
@@ -44,8 +48,35 @@ class PaymentMethodService
     ): PaymentMethod {
 
         return PaymentMethod::query()
+
             ->activos()
-            ->findOrFail($paymentMethodId);
+
+            ->findOrFail(
+                $paymentMethodId
+            );
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Obtener por código
+    |--------------------------------------------------------------------------
+    */
+
+    public function obtenerPorCodigo(
+        string $codigo
+    ): PaymentMethod {
+
+        return PaymentMethod::query()
+
+            ->activos()
+
+            ->where(
+                'codigo',
+                strtolower($codigo)
+            )
+
+            ->firstOrFail();
 
     }
 
@@ -57,8 +88,8 @@ class PaymentMethodService
 
     public function obtenerPagoEnTienda(): PaymentMethod
     {
-        return $this->obtener(
-            self::PAGO_TIENDA
+        return $this->obtenerPorCodigo(
+            self::STORE
         );
     }
 
@@ -70,8 +101,8 @@ class PaymentMethodService
 
     public function obtenerMercadoPago(): PaymentMethod
     {
-        return $this->obtener(
-            self::MERCADO_PAGO
+        return $this->obtenerPorCodigo(
+            self::MERCADOPAGO
         );
     }
 
@@ -85,7 +116,7 @@ class PaymentMethodService
         PaymentMethod $method
     ): bool {
 
-        return $method->id === self::PAGO_TIENDA;
+        return $method->codigo === PaymentMethod::STORE;
 
     }
 
@@ -99,7 +130,7 @@ class PaymentMethodService
         PaymentMethod $method
     ): bool {
 
-        return $method->id === self::MERCADO_PAGO;
+        return $method->codigo === PaymentMethod::MERCADOPAGO;
 
     }
 }

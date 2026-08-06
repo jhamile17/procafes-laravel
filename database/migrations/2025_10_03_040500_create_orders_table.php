@@ -84,6 +84,7 @@ return new class extends Migration
             */
 
             $table->string('delivery_type', 30);
+            $table->string('tipo_comprobante', 20);
 
             /*
             |--------------------------------------------------------------------------

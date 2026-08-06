@@ -17,12 +17,13 @@ class MercadoPagoController extends Controller
 
     public function success(): RedirectResponse
     {
-        return redirect()
-            ->route('customer.profile')
-            ->with(
-                'success',
-                'Tu pago fue registrado correctamente. Estamos verificando la confirmación con Mercado Pago.'
-            );
+        return $this->redirectToProfile(
+
+            'success',
+
+            'Tu pago fue recibido. Estamos confirmándolo con Mercado Pago.'
+
+        );
     }
 
     /*
@@ -33,12 +34,13 @@ class MercadoPagoController extends Controller
 
     public function pending(): RedirectResponse
     {
-        return redirect()
-            ->route('customer.profile')
-            ->with(
-                'warning',
-                'Tu pago se encuentra pendiente. Te notificaremos cuando Mercado Pago confirme la operación.'
-            );
+        return $this->redirectToProfile(
+
+            'warning',
+
+            'Tu pago está pendiente de confirmación por Mercado Pago.'
+
+        );
     }
 
     /*
@@ -49,11 +51,37 @@ class MercadoPagoController extends Controller
 
     public function failure(): RedirectResponse
     {
+        return $this->redirectToProfile(
+
+            'error',
+
+            'No fue posible completar el pago. Puedes intentarlo nuevamente.'
+
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redirección
+    |--------------------------------------------------------------------------
+    */
+
+    private function redirectToProfile(
+        string $type,
+        string $message
+    ): RedirectResponse {
+
         return redirect()
+
             ->route('customer.profile')
+
             ->with(
-                'error',
-                'El pago fue rechazado o cancelado. Puedes intentarlo nuevamente con el mismo pedido.'
+
+                $type,
+
+                $message
+
             );
+
     }
 }

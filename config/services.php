@@ -69,6 +69,13 @@ return [
     'locationiq' => [
         'api_key' => env('LOCATIONIQ_API_KEY'),
     ],
+    'apiperu' => [
+
+    'url' => env('APIPERU_URL'),
+
+    'token' => env('API_PERU_TOKEN'),
+
+],
 
 
 ];

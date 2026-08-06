@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ShippingAddress;
 use App\Services\Inventario\InventoryService;
+use App\Services\Ventas\CartService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -18,46 +19,54 @@ use RuntimeException;
 class OrderService
 {
     public function __construct(
-    protected InventoryService $inventoryService
-) {}
-    /*
-    |--------------------------------------------------------------------------
-    | Crear pedido
-    |--------------------------------------------------------------------------
-    */
+        protected InventoryService $inventoryService,
+        protected CartService $cartService,
+    ) {
+    }
+
+    /*Crear pedido*/
 
     public function crearPedido(
         Cart $cart,
         ShippingAddress $shippingAddress,
+        string $tipoComprobante
     ): Order {
-
-        $this->validarCarrito($cart);
-
+        $this->validarCarrito(
+            $cart
+        );
         return DB::transaction(function () use (
             $cart,
             $shippingAddress
         ) {
 
             $estadoPendiente = $this->obtenerEstadoPedido(
-                'PENDING'
+                EstadoPedido::PENDIENTE
             );
 
             $order = $this->crearRegistroPedido(
-                $cart,
-                $shippingAddress,
-                $estadoPendiente
+
+                cart: $cart,
+
+                shippingAddress: $shippingAddress,
+
+                estado: $estadoPendiente,
+
             );
 
             $this->crearItems(
-                $order,
-                $cart
+
+                order: $order,
+
+                cart: $cart,
+
             );
 
             $this->actualizarTotalPedido(
-                $order
+                order: $order,
+                cart : $cart,
             );
 
-            return $order->fresh([
+            $order->load([
 
                 'user',
 
@@ -69,94 +78,83 @@ class OrderService
 
             ]);
 
+            return $order;
+
         });
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener pedido
-    |--------------------------------------------------------------------------
-    */
+    /*Obtener pedido*/
 
     public function obtener(
         int $orderId
     ): Order {
 
-        return Order::with([
+        return Order::query()
 
-            'user',
+            ->with([
+                'user',
+                'shippingAddress',
+                'estadoPedido',
+                'items.product',
+                'payment',
+            ])
 
-            'shippingAddress',
-
-            'estadoPedido',
-
-            'items.product',
-
-            'payment',
-
-        ])->findOrFail($orderId);
+            ->findOrFail(
+                $orderId
+            );
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener todos
-    |--------------------------------------------------------------------------
-    */
-
+    /*Obtener todos los pedidos*/
     public function obtenerTodos(): Collection
     {
-
-        return Order::with([
-
-            'user',
-
-            'shippingAddress',
-
-            'estadoPedido',
-
-            'payment',
-
-        ])
-
-        ->latest()
-
-        ->get();
-
+        return Order::query()
+            ->with([
+                'user',
+                'shippingAddress',
+                'estadoPedido',
+                'payment',
+            ])
+            ->latest()
+            ->get();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener pedidos del usuario
-    |--------------------------------------------------------------------------
-    */
+    /*Obtener pedidos del usuario*/
 
     public function obtenerPorUsuario(
         int $userId
-    ): Collection {
+    ): Collection
+    {
 
-        return Order::with([
+        return Order::query()
 
-            'shippingAddress',
+            ->with([
 
-            'estadoPedido',
+                'shippingAddress',
 
-            'items.product',
+                'estadoPedido',
 
-            'payment',
+                'items.product',
 
-        ])
+                'payment',
 
-        ->where('user_id', $userId)
+            ])
 
-        ->latest()
+            ->where(
 
-        ->get();
+                'user_id',
+
+                $userId
+
+            )
+
+            ->latest()
+
+            ->get();
 
     }
-
-    /*
+        /*
     |--------------------------------------------------------------------------
     | Confirmar pedido
     |--------------------------------------------------------------------------
@@ -167,8 +165,11 @@ class OrderService
     ): Order {
 
         return $this->cambiarEstado(
-            $order,
-            'CONFIRMADO'
+
+            order: $order,
+
+            codigoEstado: EstadoPedido::CONFIRMADO,
+
         );
 
     }
@@ -183,6 +184,10 @@ class OrderService
         Order $order
     ): Order {
 
+        $order->loadMissing(
+            'estadoPedido'
+        );
+
         if ($order->estadoPedido->esCancelado()) {
 
             throw new RuntimeException(
@@ -192,8 +197,11 @@ class OrderService
         }
 
         return $this->cambiarEstado(
-            $order,
-            'CANCELADO'
+
+            order: $order,
+
+            codigoEstado: EstadoPedido::CANCELADO,
+
         );
 
     }
@@ -207,6 +215,10 @@ class OrderService
     public function eliminarPedido(
         Order $order
     ): bool {
+
+        $order->loadMissing(
+            'estadoPedido'
+        );
 
         if (! $order->estadoPedido->esPendiente()) {
 
@@ -226,48 +238,78 @@ class OrderService
 
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Completar pedido
+    |--------------------------------------------------------------------------
+    */
+
     public function completarPedido(
-     Order $order
-        ): Order {
+        Order $order
+    ): Order {
 
-            return DB::transaction(function () use ($order) {
+        return DB::transaction(function () use ($order) {
 
-                $order->loadMissing(
-                    'items.product'
-                );
+            $order->loadMissing(
+                'items.product'
+            );
 
-                $this->confirmarPedido(
-                    $order
-                );
+            $this->confirmarPedido(
+                $order
+            );
 
-                $this->descontarStock(
-                    $order
-                );
+            $this->descontarStock(
+                $order
+            );
 
-                return $order->fresh([
+            $order->loadMissing([
 
-                    'estadoPedido',
+                'estadoPedido',
 
-                    'items.product',
+                'items.product',
 
-                ]);
+            ]);
 
-            });
+            return $order;
 
-}
-    private function descontarStock(Order $order): void
-        {
-            $order->loadMissing('items.product');
-            foreach ($order->items as $item) {
+        });
 
-                $item->inventoryService->salida(
-                    $item->product,
-                    $item->quantity
-                );
+    }
 
-            }
+    /*
+    |--------------------------------------------------------------------------
+    | Descontar stock
+    |--------------------------------------------------------------------------
+    */
+
+    private function descontarStock(
+        Order $order
+    ): void {
+
+        $order->loadMissing(
+            'items.product'
+        );
+
+        foreach ($order->items as $item) {
+
+            $this->inventoryService->salida(
+
+                product: $item->product,
+
+                quantity: $item->quantity,
+
+            );
+
         }
-        
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cambiar estado
+    |--------------------------------------------------------------------------
+    */
+
     private function cambiarEstado(
         Order $order,
         string $codigoEstado
@@ -283,13 +325,14 @@ class OrderService
 
         ]);
 
-        return $order->fresh([
-            'estadoPedido',
-        ]);
+        $order->loadMissing(
+            'estadoPedido'
+        );
+
+        return $order;
 
     }
-
-    /*
+        /*
     |--------------------------------------------------------------------------
     | Crear registro del pedido
     |--------------------------------------------------------------------------
@@ -298,7 +341,8 @@ class OrderService
     private function crearRegistroPedido(
         Cart $cart,
         ShippingAddress $shippingAddress,
-        EstadoPedido $estado
+        EstadoPedido $estado,
+        string $tipoComprobante
     ): Order {
 
         return Order::create([
@@ -310,6 +354,7 @@ class OrderService
             'estado_pedido_id' => $estado->id,
 
             'numero_pedido' => $this->generarNumeroPedido(),
+            'tipo_comprobante'=> strtoupper($tipoComprobante),
 
             /*
             |--------------------------------------------------------------------------
@@ -319,11 +364,15 @@ class OrderService
 
             'delivery_direccion' => $shippingAddress->direccion,
 
+            'delivery_numero' => $shippingAddress->numero,
+
             'delivery_departamento' => $shippingAddress->departamento,
 
             'delivery_provincia' => $shippingAddress->provincia,
 
             'delivery_distrito' => $shippingAddress->distrito,
+
+            'delivery_referencia' => $shippingAddress->referencia,
 
             'total_price' => 0,
 
@@ -341,7 +390,9 @@ class OrderService
         Cart $cart
     ): void {
 
-        $cart->loadMissing('items.product');
+        $cart->loadMissing(
+            'items.product'
+        );
 
         if (! $cart->estado) {
 
@@ -372,7 +423,9 @@ class OrderService
             if (! $item->product->status) {
 
                 throw new RuntimeException(
+
                     "El producto {$item->product->name} se encuentra inactivo."
+
                 );
 
             }
@@ -380,7 +433,9 @@ class OrderService
             if (! $item->product->isAvailable($item->quantity)) {
 
                 throw new RuntimeException(
+
                     "Stock insuficiente para {$item->product->name}."
+
                 );
 
             }
@@ -391,7 +446,7 @@ class OrderService
 
     /*
     |--------------------------------------------------------------------------
-    | Crear items
+    | Crear items del pedido
     |--------------------------------------------------------------------------
     */
 
@@ -422,7 +477,7 @@ class OrderService
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener estado
+    | Obtener estado del pedido
     |--------------------------------------------------------------------------
     */
 
@@ -432,9 +487,14 @@ class OrderService
 
         return EstadoPedido::query()
 
-            ->whereRaw(
-                'UPPER(codigo) = ?',
-                [strtoupper($codigo)]
+            ->activos()
+
+            ->where(
+
+                'codigo',
+
+                strtoupper($codigo)
+
             )
 
             ->firstOrFail();
@@ -443,21 +503,25 @@ class OrderService
 
     /*
     |--------------------------------------------------------------------------
-    | Actualizar total
+    | Actualizar total del pedido
     |--------------------------------------------------------------------------
     */
 
     private function actualizarTotalPedido(
-        Order $order
+        Order $order,
+        Cart $cart
     ): void {
-
-        $order->actualizarTotal();
+        $resumen = $this->cartService
+            ->calcularResumen($cart);
+        $order->update([
+            'total_price' => $resumen['total'],
+            ]);
 
     }
-    
+
     /*
     |--------------------------------------------------------------------------
-    | Generar número
+    | Generar número de pedido
     |--------------------------------------------------------------------------
     */
 
@@ -466,16 +530,26 @@ class OrderService
 
         do {
 
-            $numero = 'PED-'
-                . now()->format('Ymd')
-                . '-'
-                . strtoupper(Str::random(6));
+            $numero = sprintf(
+
+                'PED-%s-%s',
+
+                now()->format('Ymd'),
+
+                strtoupper(
+                    Str::random(6)
+                )
+
+            );
 
         } while (
 
             Order::where(
+
                 'numero_pedido',
+
                 $numero
+
             )->exists()
 
         );
@@ -483,4 +557,5 @@ class OrderService
         return $numero;
 
     }
+
 }

@@ -33,8 +33,7 @@
             id="checkoutForm"
             method="POST"
             action="{{ route('checkout.store') }}"
-            data-billing-store="{{ route('customer.billing-profiles.store') }}"
-            data-billing-search-ruc="{{ route('customer.billing-profiles.search-ruc') }}">
+            >
 
             @csrf
 
@@ -51,11 +50,10 @@
                         <x-checkout.delivery
                             :permiteEnvio="$permiteEnvio"
                             :address="$address" />
-                        <x-checkout.payment
-                            :paymentMethods="$paymentMethods" />
-                        <x-checkout.billing
-                            :billingProfiles="$billingProfiles" />
-
+                        <x-checkout.payment />
+                        <x-checkout.invoice />
+                    
+                        
                     </div>
 
                 </div>

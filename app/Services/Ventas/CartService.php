@@ -253,4 +253,49 @@ class CartService
             );
         }
     }
+    /*
+|--------------------------------------------------------------------------
+| Calcular resumen del carrito
+|--------------------------------------------------------------------------
+*/
+
+public function calcularResumen(
+    Cart $cart
+): array {
+
+    $subtotal = round(
+
+        $this->calcularTotal($cart),
+
+        2
+
+    );
+
+    $igv = round(
+
+        $subtotal * 0.18,
+
+        2
+
+    );
+
+    $total = round(
+
+        $subtotal + $igv,
+
+        2
+
+    );
+
+    return [
+
+        'subtotal' => $subtotal,
+
+        'igv' => $igv,
+
+        'total' => $total,
+
+    ];
+
+}
 }

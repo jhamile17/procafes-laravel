@@ -12,18 +12,35 @@ class PaymentMethodsSeeder extends Seeder
         DB::table('payment_methods')->insert([
 
             [
-                'nombre' => 'Efectivo',
-                'descripcion' => 'Pago en efectivo.',
+
+                'codigo' => 'store',
+
+                'nombre' => 'Pago en tienda',
+
+                'descripcion' => 'El cliente paga al recoger su pedido.',
+
                 'estado' => true,
+
                 'created_at' => now(),
+
                 'updated_at' => now(),
+
             ],
+
             [
+
+                'codigo' => 'mercadopago',
+
                 'nombre' => 'Mercado Pago',
-                'descripcion' => 'Pasarela Mercado Pago.',
+
+                'descripcion' => 'Pago seguro mediante Mercado Pago.',
+
                 'estado' => true,
+
                 'created_at' => now(),
+
                 'updated_at' => now(),
+
             ],
 
         ]);

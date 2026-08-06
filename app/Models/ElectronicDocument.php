@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,13 +14,11 @@ class ElectronicDocument extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Estados
+    | Estados SUNAT
     |--------------------------------------------------------------------------
     */
 
     public const PENDIENTE = 'PENDIENTE';
-
-    public const ENVIADO = 'ENVIADO';
 
     public const ACEPTADO = 'ACEPTADO';
 
@@ -31,29 +28,13 @@ class ElectronicDocument extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Tipos
-    |--------------------------------------------------------------------------
-    */
-
-    public const BOLETA = 'BOLETA';
-
-    public const FACTURA = 'FACTURA';
-
-    /*
-    |--------------------------------------------------------------------------
     | Asignación masiva
     |--------------------------------------------------------------------------
     */
 
     protected $fillable = [
 
-        'order_id',
-
-        'payment_id',
-
-        'billing_profile_id',
-
-        'tipo',
+        'comprobante_id',
 
         'serie',
 
@@ -61,19 +42,15 @@ class ElectronicDocument extends Model
 
         'estado',
 
-        'codigo_hash',
-
-        'xml_url',
+        'observacion',
 
         'pdf_url',
 
+        'xml_url',
+
         'cdr_url',
 
-        'sunat_response',
-
-        'observaciones',
-
-        'fecha_emision',
+        'response',
 
     ];
 
@@ -87,13 +64,7 @@ class ElectronicDocument extends Model
     {
         return [
 
-            'order_id' => 'integer',
-
-            'payment_id' => 'integer',
-
-            'billing_profile_id' => 'integer',
-
-            'fecha_emision' => 'datetime',
+            'response' => 'array',
 
         ];
     }
@@ -104,107 +75,77 @@ class ElectronicDocument extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function order(): BelongsTo
+    public function comprobante(): BelongsTo
     {
-        return $this->belongsTo(Order::class);
-    }
-
-    public function payment(): BelongsTo
-    {
-        return $this->belongsTo(Payment::class);
-    }
-
-    public function billingProfile(): BelongsTo
-    {
-        return $this->belongsTo(BillingProfile::class);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Scopes
-    |--------------------------------------------------------------------------
-    */
-
-    public function scopePendientes(
-        Builder $query
-    ): Builder {
-
-        return $query->where(
-            'estado',
-            self::PENDIENTE
-        );
-    }
-
-    public function scopeAceptados(
-        Builder $query
-    ): Builder {
-
-        return $query->where(
-            'estado',
-            self::ACEPTADO
-        );
-    }
-
-    public function scopeFacturas(
-        Builder $query
-    ): Builder {
-
-        return $query->where(
-            'tipo',
-            self::FACTURA
-        );
-    }
-
-    public function scopeBoletas(
-        Builder $query
-    ): Builder {
-
-        return $query->where(
-            'tipo',
-            self::BOLETA
+        return $this->belongsTo(
+            Comprobante::class
         );
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Métodos auxiliares
+    | Helpers
     |--------------------------------------------------------------------------
     */
 
-    public function estaPendiente(): bool
+    public function esPendiente(): bool
     {
         return $this->estado === self::PENDIENTE;
     }
 
-    public function estaEnviado(): bool
-    {
-        return $this->estado === self::ENVIADO;
-    }
-
-    public function estaAceptado(): bool
+    public function esAceptado(): bool
     {
         return $this->estado === self::ACEPTADO;
     }
 
-    public function fueRechazado(): bool
+    public function esRechazado(): bool
     {
         return $this->estado === self::RECHAZADO;
     }
 
-    public function fueAnulado(): bool
+    public function esAnulado(): bool
     {
         return $this->estado === self::ANULADO;
     }
 
-    public function puedeEnviarse(): bool
+    public function tienePdf(): bool
     {
-        return $this->estado === self::PENDIENTE;
+        return ! empty($this->pdf_url);
     }
 
-    public function marcarComoEnviado(): void
+    public function tieneXml(): bool
     {
+        return ! empty($this->xml_url);
+    }
+
+    public function tieneCdr(): bool
+    {
+        return ! empty($this->cdr_url);
+    }
+
+    public function numeroCompleto(): string
+    {
+        return "{$this->serie}-{$this->numero}";
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Actualizar estado
+    |--------------------------------------------------------------------------
+    */
+
+    public function actualizarEstado(
+        string $estado,
+        ?string $observacion = null
+    ): void {
+
         $this->update([
-            'estado' => self::ENVIADO,
+
+            'estado' => strtoupper($estado),
+
+            'observacion' => $observacion,
+
         ]);
+
     }
 }

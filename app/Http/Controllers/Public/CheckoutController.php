@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Checkout\CheckoutRequest;
 use App\Services\Checkout\CheckoutService;
 use App\Services\Pagos\PaymentService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Throwable;
 
@@ -22,86 +22,29 @@ class CheckoutController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Mostrar Checkout
+    | Mostrar checkout
     |--------------------------------------------------------------------------
     */
 
     public function index(): View
     {
-        $data = $this->checkoutService->obtenerResumen(
-            auth()->id()
-        );
         return view(
             'checkout.index',
-            $data
+            $this->checkoutService->obtenerResumen(
+                auth()->id()
+            )
         );
-        
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Procesar Checkout
+    | Procesar checkout
     |--------------------------------------------------------------------------
     */
 
     public function store(
-        Request $request
+        CheckoutRequest $request
     ): RedirectResponse {
-        $data = $request->validate([
-
-            'payment_method_id' => [
-                'required',
-                'integer',
-                'exists:payment_methods,id',
-            ],
-
-            'alias' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
-
-            'direccion' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-
-            'departamento' => [
-                'required',
-                'string',
-                'max:100',
-            ],
-
-            'provincia' => [
-                'required',
-                'string',
-                'max:100',
-            ],
-
-            'distrito' => [
-                'required',
-                'string',
-                'max:100',
-            ],
-
-            'referencia' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-
-            'latitude' => [
-                'required',
-                'numeric',
-            ],
-
-            'longitude' => [
-                'required',
-                'numeric',
-            ],
-
-        ]);
 
         try {
 
@@ -109,19 +52,21 @@ class CheckoutController extends Controller
 
                 auth()->id(),
 
-                $data
+                $request->validated()
 
             );
 
+            /*
+            |--------------------------------------------------------------------------
+            | Iniciar pago
+            |--------------------------------------------------------------------------
+            */
+
             $payment = $this->paymentService
-                ->obtenerPorPedido(
+                ->iniciarPagoPorPedido(
                     $order
                 );
 
-            $payment = $this->paymentService
-                ->iniciarPago(
-                    $payment
-                );
             /*
             |--------------------------------------------------------------------------
             | Mercado Pago
@@ -129,14 +74,21 @@ class CheckoutController extends Controller
             */
 
             if (
+
                 $this->paymentService
                     ->esMercadoPago($payment)
+
             ) {
 
-                return redirect()->away(
-                    $payment->transaction_data['init_point']
+                $payment->transaction_data['init_point']?? null;
+                    if (!$initPoint){
+                        throw new \RuntimerException(
+                            'No fue posible iniciar el pago con Mercado Pago'
+                        );
+                    }
+                return redirect ()->away(
+                    $initPoint
                 );
-
             }
 
             /*
@@ -145,17 +97,13 @@ class CheckoutController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            return redirect()
+            return redirect()->route(
 
-                ->route(
-                    'checkout.success',
-                    $order
-                )
+                'checkout.success',
 
-                ->with(
-                    'success',
-                    'Tu pedido fue registrado correctamente. Acércate a la tienda para completar el pago.'
-                );
+                $order
+
+            );
 
         } catch (Throwable $e) {
 
@@ -166,8 +114,11 @@ class CheckoutController extends Controller
                 ->withInput()
 
                 ->with(
+
                     'error',
-                    $e->getMessage()
+
+                    'No fue posible procesar tu pedido. Inténtalo nuevamente.'
+
                 );
 
         }

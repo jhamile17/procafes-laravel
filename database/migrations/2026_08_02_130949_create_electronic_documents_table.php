@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Ejecutar la migración.
      */
     public function up(): void
     {
@@ -17,38 +17,24 @@ return new class extends Migration
 
             /*
             |--------------------------------------------------------------------------
-            | Relaciones
+            | Comprobante
             |--------------------------------------------------------------------------
             */
 
-            $table->foreignId('order_id')
-                ->constrained()
-                ->cascadeOnDelete();
-
-            $table->foreignId('payment_id')
-                ->constrained()
-                ->cascadeOnDelete();
-
-            $table->foreignId('billing_profile_id')
-                ->constrained()
+            $table->foreignId('comprobante_id')
+                ->constrained('comprobantes')
+                ->cascadeOnUpdate()
                 ->cascadeOnDelete();
 
             /*
             |--------------------------------------------------------------------------
-            | Documento
+            | Numeración SUNAT
             |--------------------------------------------------------------------------
             */
 
-            $table->enum('tipo', [
-                'BOLETA',
-                'FACTURA',
-            ]);
+            $table->string('serie', 10);
 
-            $table->string('serie')
-                ->nullable();
-
-            $table->string('numero')
-                ->nullable();
+            $table->string('numero', 20);
 
             /*
             |--------------------------------------------------------------------------
@@ -56,19 +42,17 @@ return new class extends Migration
             |--------------------------------------------------------------------------
             */
 
-            $table->enum('estado', [
+            $table->string('estado', 30)
+                ->default('PENDIENTE');
 
-                'PENDIENTE',
+            /*
+            |--------------------------------------------------------------------------
+            | Observaciones
+            |--------------------------------------------------------------------------
+            */
 
-                'ENVIADO',
-
-                'ACEPTADO',
-
-                'RECHAZADO',
-
-                'ANULADO',
-
-            ])->default('PENDIENTE');
+            $table->text('observacion')
+                ->nullable();
 
             /*
             |--------------------------------------------------------------------------
@@ -76,13 +60,10 @@ return new class extends Migration
             |--------------------------------------------------------------------------
             */
 
-            $table->string('codigo_hash')
+            $table->string('pdf_url')
                 ->nullable();
 
             $table->string('xml_url')
-                ->nullable();
-
-            $table->string('pdf_url')
                 ->nullable();
 
             $table->string('cdr_url')
@@ -90,26 +71,28 @@ return new class extends Migration
 
             /*
             |--------------------------------------------------------------------------
-            | Respuesta SUNAT
+            | Respuesta completa de NubeFact
             |--------------------------------------------------------------------------
             */
 
-            $table->text('sunat_response')
-                ->nullable();
-
-            $table->text('observaciones')
-                ->nullable();
-
-            $table->timestamp('fecha_emision')
+            $table->json('response')
                 ->nullable();
 
             $table->timestamps();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Restricciones
+            |--------------------------------------------------------------------------
+            */
+
+            $table->unique('comprobante_id');
 
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Revertir migración.
      */
     public function down(): void
     {

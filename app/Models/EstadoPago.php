@@ -14,15 +14,36 @@ class EstadoPago extends Model
 
     /*
     |--------------------------------------------------------------------------
+    | Constantes
+    |--------------------------------------------------------------------------
+    */
+
+    public const PENDING = 'PENDING';
+
+    public const PROCESSING = 'PROCESSING';
+
+    public const APPROVED = 'APPROVED';
+
+    public const REJECTED = 'REJECTED';
+
+    public const REFUNDED = 'REFUNDED';
+
+    /*
+    |--------------------------------------------------------------------------
     | Asignación masiva
     |--------------------------------------------------------------------------
     */
 
     protected $fillable = [
+
         'codigo',
+
         'nombre',
+
         'descripcion',
+
         'status',
+
     ];
 
     /*
@@ -34,7 +55,9 @@ class EstadoPago extends Model
     protected function casts(): array
     {
         return [
+
             'status' => 'boolean',
+
         ];
     }
 
@@ -57,7 +80,10 @@ class EstadoPago extends Model
 
     public function scopeActivos($query)
     {
-        return $query->where('status', true);
+        return $query->where(
+            'status',
+            true
+        );
     }
 
     /*
@@ -79,21 +105,51 @@ class EstadoPago extends Model
 
     public function esPendiente(): bool
     {
-        return strtoupper($this->codigo) === 'PENDIENTE';
+        return $this->codigo === self::PENDING;
     }
 
-    public function esPagado(): bool
+    public function esProcesando(): bool
     {
-        return strtoupper($this->codigo) === 'PAGADO';
+        return $this->codigo === self::PROCESSING;
+    }
+
+    public function esAprobado(): bool
+    {
+        return $this->codigo === self::APPROVED;
     }
 
     public function esRechazado(): bool
     {
-        return strtoupper($this->codigo) === 'RECHAZADO';
+        return $this->codigo === self::REJECTED;
     }
 
-    public function esCancelado(): bool
+    public function esReembolsado(): bool
     {
-        return strtoupper($this->codigo) === 'CANCELADO';
+        return $this->codigo === self::REFUNDED;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clase CSS para badges
+    |--------------------------------------------------------------------------
+    */
+
+    public function getBadgeClass(): string
+    {
+        return match ($this->codigo) {
+
+            self::PENDING => 'pending',
+
+            self::PROCESSING => 'processing',
+
+            self::APPROVED => 'completed',
+
+            self::REJECTED => 'cancelled',
+
+            self::REFUNDED => 'refunded',
+
+            default => 'default',
+
+        };
     }
 }

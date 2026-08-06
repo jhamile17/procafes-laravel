@@ -74,6 +74,7 @@ class DatabaseSeeder extends Seeder
             ShippingAddressesSeeder::class,
             OrdersSeeder::class,
             OrderItemsSeeder::class,
+            EstadoComprobanteSeeder::class,
 
         ]);
     }

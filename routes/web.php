@@ -28,7 +28,7 @@ use App\Http\Controllers\Customer\BoletaController as CustomerBoletaController;
 use App\Http\Controllers\Customer\PedidoController;
 use App\Http\Controllers\Customer\PerfilController;
 use App\Http\Controllers\Customer\AddressController;
-use App\Http\Controllers\Customer\BillingProfileController;
+use App\Http\Controllers\Customer\DocumentController;
 // Admin
 use App\Http\Controllers\Admin\CategoryController as CategoryController;
 use App\Http\Controllers\Admin\BrandController as BrandController;
@@ -36,7 +36,6 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\UserController as UserController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ReportController;
-use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ConfiguracionEmpresaController;
 
@@ -259,80 +258,61 @@ Route::middleware(['auth'])
 
     });
 
-Route::prefix('mercado-pago')
+Route::middleware('auth')
+
+    ->prefix('mercado-pago')
+
     ->name('mp.')
+
     ->group(function () {
 
-        Route::get('/success', [MercadoPagoController::class, 'success'])
-            ->name('success');
+        Route::get(
+            '/success',
+            [MercadoPagoController::class, 'success']
+        )->name('success');
 
-        Route::get('/failure', [MercadoPagoController::class, 'failure'])
-            ->name('failure');
+        Route::get(
+            '/failure',
+            [MercadoPagoController::class, 'failure']
+        )->name('failure');
 
-        Route::get('/pending', [MercadoPagoController::class, 'pending'])
-            ->name('pending');
-
-        Route::post('/webhook', [MercadoPagoWebhookController::class, 'handle'])
-            ->name('webhook');
+        Route::get(
+            '/pending',
+            [MercadoPagoController::class, 'pending']
+        )->name('pending');
 
     });
 
-Route::middleware('auth')
-    ->prefix('customer/billing-profiles')
-    ->name('customer.billing-profiles.')
-    ->controller(BillingProfileController::class)
+Route::prefix('mercado-pago')
+
+    ->name('mp.')
+
     ->group(function () {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Perfiles de facturación
-        |--------------------------------------------------------------------------
-        */
-
-        Route::get(
-            '/',
-            'index'
-        )->name('index');
 
         Route::post(
-            '/',
-            'store'
-        )->name('store');
+            '/webhook',
+            [MercadoPagoWebhookController::class, 'handle']
+        )
 
-        /*
-        |--------------------------------------------------------------------------
-        | Consulta SUNAT
-        |--------------------------------------------------------------------------
-        */
-
-        Route::get(
-            '/search-ruc',
-            'searchRuc'
-        )->name('search-ruc');
-
-        /*
-        |--------------------------------------------------------------------------
-        | Próximamente
-        |--------------------------------------------------------------------------
-        */
-
-        // Route::put(
-        //     '/{billingProfile}',
-        //     'update'
-        // )->name('update');
-
-        // Route::delete(
-        //     '/{billingProfile}',
-        //     'destroy'
-        // )->name('destroy');
-
-        // Route::patch(
-        //     '/{billingProfile}/default',
-        //     'setDefault'
-        // )->name('default');
+        ->name('webhook');
 
     });
+Route::middleware('auth')
+    ->prefix('customer/documentos')
+    ->name('customer.documentos.')
+    ->group(function () {
 
+        Route::post(
+            '/dni',
+            [DocumentController::class, 'dni']
+        )->name('dni');
+
+        Route::post(
+            '/ruc',
+            [DocumentController::class, 'ruc']
+        )->name('ruc');
+
+    });
 /*
 |--------------------------------------------------------------------------
 | ADMIN
@@ -357,9 +337,6 @@ Route::prefix('admin')
 
         Route::get('/orders', [OrderController::class, 'index'])
             ->name('orders.index');
-
-        Route::get('/billing', [BillingController::class, 'index'])
-            ->name('billing.index');
 
          Route::get(
             '/configuracion-empresa',

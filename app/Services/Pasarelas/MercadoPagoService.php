@@ -17,6 +17,7 @@ class MercadoPagoService
     private const CURRENCY = 'PEN';
 
     private const STATEMENT_DESCRIPTOR = 'PROCAFES';
+    private const CATEGORY = 'food';
 
     public function __construct()
     {
@@ -24,14 +25,14 @@ class MercadoPagoService
 
         if (blank($accessToken)) {
 
-            throw new Exception(
+            throw new RuntimeException(
                 'No se ha configurado el Access Token de Mercado Pago.'
             );
 
         }
 
         MercadoPagoConfig::setAccessToken(
-            $accessToken
+            $this->accessToken()
         );
     }
     /*
@@ -44,7 +45,7 @@ public function crearPreferencia(
     Payment $payment
 ): array {
 
-    $payment->load([
+    $payment->loadMissing([
 
         'order.user',
 
@@ -60,6 +61,11 @@ public function crearPreferencia(
 
         $preference = $this->preferenceClient()
             ->create($request);
+        if (empty($preference->id)) {
+            throw new RuntimeException(
+                'Mercado Pago no devolvió una preferencia válida.'
+            );
+        }
 
         return [
 
@@ -157,6 +163,7 @@ private function construirRequest(
         'notification_url' => route('mp.webhook'),
 
         'auto_return' => 'approved',
+        'purpose' => 'wallet_purchase',
 
     ];
 
@@ -182,7 +189,7 @@ private function construirItems(
                 'title' => $item->product->name,
 
                 'description' => $item->product->description ?? '',
-
+                'category_id' => self::CATEGORY,
                 'quantity' => (int) $item->quantity,
 
                 'currency_id' => self::CURRENCY,
@@ -227,6 +234,16 @@ private function preferenceClient(): PreferenceClient
 {
 
     return new PreferenceClient();
+
+}
+private function accessToken(): string
+{
+
+    return config(
+
+        'mercadopago.access_token'
+
+    );
 
 }
 }

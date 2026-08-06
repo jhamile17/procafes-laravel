@@ -6,6 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /*
+    |--------------------------------------------------------------------------
+    | Ejecutar migración
+    |--------------------------------------------------------------------------
+    */
+
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
@@ -39,20 +45,32 @@ return new class extends Migration
             |--------------------------------------------------------------------------
             */
 
+            // Monto total pagado
             $table->decimal('amount', 10, 2);
 
-            // ID devuelto por la pasarela de pago
-            $table->string('transaction_id')->nullable()->unique();
+            // Identificador devuelto por la pasarela
+            $table->string('transaction_id')
+                ->nullable()
+                ->unique();
 
-            // Número de operación visible para el usuario (Yape, Plin, transferencia, etc.)
-            $table->string('reference')->nullable();
+            // Referencia interna del sistema
+            $table->string('reference')
+                ->unique();
 
             // Respuesta completa de la pasarela
-            $table->json('transaction_data')->nullable();
+            $table->json('transaction_data')
+                ->nullable();
 
             $table->timestamps();
+
         });
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Revertir migración
+    |--------------------------------------------------------------------------
+    */
 
     public function down(): void
     {

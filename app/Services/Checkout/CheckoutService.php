@@ -3,15 +3,14 @@
 declare(strict_types=1);
 
 namespace App\Services\Checkout;
-use App\Models\User;
+
 use App\Models\Cart;
 use App\Models\Order;
 use App\Services\Cliente\AddressService;
-use App\Services\Pagos\PaymentMethodService;
 use App\Services\Pagos\PaymentService;
-use App\Services\Cliente\BillingProfileService;
 use App\Services\Ventas\CartService;
 use App\Services\Ventas\OrderService;
+use App\Services\Facturacion\ComprobanteService;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -21,9 +20,8 @@ class CheckoutService
         protected CartService $cartService,
         protected OrderService $orderService,
         protected PaymentService $paymentService,
-        protected PaymentMethodService $paymentMethodService,
         protected AddressService $addressService,
-        protected BillingProfileService $billingProfileService,
+        protected ComprobanteService $comprobanteservice
     ) {
     }
 
@@ -37,11 +35,11 @@ class CheckoutService
         int $userId
     ): array {
 
-        $cart = $this->validar($userId);
-
-        $total = $this->cartService
-            ->calcularTotal($cart);
-        $permiteEnvio = $this->permiteEnvio($cart);
+        $cart = $this->validar(
+            $userId
+        );
+        $resumen = $this->cartService
+            ->calcularResumen($cart);
         return [
 
             'cart' => $cart,
@@ -52,30 +50,16 @@ class CheckoutService
             'cantidad' => $this->cartService
                 ->contarProductos($cart),
 
-            'subtotal' => round(
-                $total / 1.18,
-                2
-            ),
+            'subtotal' => $resumen['subtotal'],
 
-            'igv' => round(
-                $total - ($total / 1.18),
-                2
-            ),
+            'igv' => $resumen['igv'],
 
-            'total' => $total,
+            'total' => $resumen['total'],
 
             'address' => $this->addressService
                 ->obtenerDireccion($userId),
 
-            'paymentMethods' => $this->paymentMethodService
-                ->obtenerActivos(),
-
-            'billingProfiles' => $this->billingProfileService
-                ->list(
-                    $userId
-                ),
-
-            'permiteEnvio' => $permiteEnvio,
+            'permiteEnvio' => $this->permiteEnvio($cart),
 
         ];
 
@@ -128,19 +112,28 @@ class CheckoutService
             |--------------------------------------------------------------------------
             */
 
-            $cart = $this->validar($userId);
+            $cart = $this->validar(
+                $userId
+            );
 
             /*
             |--------------------------------------------------------------------------
-            | Guardar dirección
+            | Obtener dirección registrada
             |--------------------------------------------------------------------------
             */
 
             $address = $this->addressService
-                ->guardar(
-                    $userId,
-                    $data
+                ->obtenerDireccion(
+                    $userId
                 );
+
+            if (! $address) {
+
+                throw new RuntimeException(
+                    'Debes registrar una dirección de envío.'
+                );
+
+            }
 
             /*
             |--------------------------------------------------------------------------
@@ -150,8 +143,33 @@ class CheckoutService
 
             $order = $this->orderService
                 ->crearPedido(
+
                     cart: $cart,
                     shippingAddress: $address,
+
+                );
+            /*crear comprobante */
+                $this->comprobanteService
+                ->crear(
+
+                    order: $order,
+
+                    data: [
+
+                        'tipo_comprobante' => $data['tipo_comprobante'],
+
+                        'tipo_documento' => $data['tipo_documento'],
+
+                        'numero_documento' => $data['numero_documento'],
+
+                        'nombre' => $data['nombre'] ?? null,
+
+                        'razon_social' => $data['razon_social'] ?? null,
+
+                        'direccion_fiscal' => $data['direccion_fiscal'],
+
+                    ],
+
                 );
 
             /*
@@ -162,17 +180,20 @@ class CheckoutService
 
             $this->paymentService
                 ->crearPago(
+
                     order: $order,
-                    paymentMethodId: (int) $data['payment_method_id'],
+
+                    paymentMethodCode: $data['payment_method'],
+
                 );
 
             /*
             |--------------------------------------------------------------------------
-            | Retornar pedido
+            | Cargar relaciones
             |--------------------------------------------------------------------------
             */
 
-            return $order->fresh([
+            $order->load([
 
                 'shippingAddress',
 
@@ -184,12 +205,22 @@ class CheckoutService
 
             ]);
 
+            return $order;
+
         });
 
     }
-    /*validar metodo de entrega */
-    protected function permiteEnvio(Cart $cart): bool
-    {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validar método de entrega
+    |--------------------------------------------------------------------------
+    */
+
+    protected function permiteEnvio(
+        Cart $cart
+    ): bool {
+
         foreach ($cart->items as $item) {
 
             if ($item->product->soloRecojo()) {
@@ -201,5 +232,6 @@ class CheckoutService
         }
 
         return true;
+
     }
 }

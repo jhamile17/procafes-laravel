@@ -145,7 +145,11 @@
                     login: "{{ route('login') }}",
 
                 },
+                documents:{
 
+                consultarDni: "{{ route('customer.documentos.dni') }}",
+                consultarRuc: "{{ route('customer.documentos.ruc') }}",
+                 }
             }
 
         };
