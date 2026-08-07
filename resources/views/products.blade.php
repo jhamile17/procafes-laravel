@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Productos - PROCAFES')
+@section('title', 'Productos | PROCAFES')
 
 @section('content')
 @php

@@ -25,7 +25,7 @@
         aria-hidden="true">
     </i>
 
-    <span class="btn-cart-text">
+    <span class="customer-btn">
         {{ $available ? 'Agregar al carrito' : 'Sin stock' }}
     </span>
 

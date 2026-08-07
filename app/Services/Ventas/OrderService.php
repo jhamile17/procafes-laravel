@@ -29,7 +29,6 @@ class OrderService
     public function crearPedido(
         Cart $cart,
         ShippingAddress $shippingAddress,
-        string $tipoComprobante
     ): Order {
         $this->validarCarrito(
             $cart
