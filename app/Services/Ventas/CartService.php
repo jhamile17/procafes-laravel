@@ -14,6 +14,7 @@ use RuntimeException;
 class CartService
 {
     private const MAX_CANTIDAD = 8;
+    private const IGV = 0.18;
     private const ERROR_MAX_CANTIDAD =
     'Solo puedes comprar hasta 8 unidades de este producto.';
     public function __construct(
@@ -42,11 +43,7 @@ class CartService
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Agregar producto al carrito
-    |--------------------------------------------------------------------------
-    */
+    /*Agregar producto al carrito*/
 
     public function agregarProducto(
         int $userId,
@@ -83,8 +80,8 @@ class CartService
                     $cantidad
                 );
 
-                $item = CartItem::create([
-                    'cart_id'    => $cart->id,
+                $item = $cart->items()->create([
+
                     'product_id' => $product->id,
                     'quantity'   => $cantidad,
                     'unit_price' => $product->sale_price,
@@ -175,9 +172,9 @@ class CartService
     Cart $cart
     ): Collection {
 
-        return $cart
-            ->loadMissing('items.product')
-            ->items;
+        return $cart->items()
+            ->with('product')
+            ->get();
 
     }
 
@@ -264,38 +261,21 @@ public function calcularResumen(
 ): array {
 
     $subtotal = round(
-
         $this->calcularTotal($cart),
-
         2
-
     );
-
     $igv = round(
-
-        $subtotal * 0.18,
-
+        $subtotal * self::IGV,
         2
-
     );
-
     $total = round(
-
         $subtotal + $igv,
-
         2
-
     );
-
     return [
-
         'subtotal' => $subtotal,
-
         'igv' => $igv,
-
         'total' => $total,
-
     ];
-
 }
 }

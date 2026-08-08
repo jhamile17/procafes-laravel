@@ -6,35 +6,25 @@
 |--------------------------------------------------------------------------
 */
 
-function csrfToken() {
-
-    return document
-        .querySelector('meta[name="csrf-token"]')
-        ?.getAttribute('content') ?? '';
-
+export function csrfToken() {
+    return (
+        document
+            .querySelector('meta[name="csrf-token"]')
+            ?.getAttribute('content') ?? ''
+    );
 }
 
 /*
 |--------------------------------------------------------------------------
-| Formato de moneda
+| Formatear moneda (Soles)
 |--------------------------------------------------------------------------
 */
 
-function currency(value) {
-
-    value = Number(value) || 0;
-
-    return new Intl.NumberFormat(
-        'es-PE',
-        {
-            style: 'currency',
-            currency: 'PEN'
-        }
-    ).format(value);
-
+export function currency(value = 0) {
+    return new Intl.NumberFormat('es-PE', {
+        style: 'currency',
+        currency: 'PEN',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(Number(value) || 0);
 }
-
-export {
-    csrfToken,
-    currency
-};

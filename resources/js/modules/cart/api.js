@@ -17,11 +17,13 @@ async function request(
 ) {
 
     const response = await fetch(url, {
-
         method,
 
-        headers: {
+        credentials: 'same-origin',
 
+        cache: 'no-store',
+
+        headers: {
             Accept: responseType === 'text'
                 ? 'text/html'
                 : 'application/json',
@@ -30,16 +32,14 @@ async function request(
 
             ...(data
                 ? {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 }
-                : {})
-
+                : {}),
         },
 
         body: data
             ? JSON.stringify(data)
-            : null
-
+            : null,
     });
 
     if (!response.ok) {
@@ -48,9 +48,9 @@ async function request(
 
         try {
 
-            const json = await response.json();
+            const error = await response.json();
 
-            message = json.message ?? message;
+            message = error.message ?? message;
 
         } catch (_) {}
 
@@ -59,13 +59,16 @@ async function request(
     }
 
     return responseType === 'text'
-        ? response.text()
-        : response.json();
+        ? await response.text()
+        : await response.json();
 
 }
-/*==========================================================================
-    Obtener recomendaciones
-==========================================================================*/
+
+/*
+|--------------------------------------------------------------------------
+| Recomendaciones
+|--------------------------------------------------------------------------
+*/
 
 export function getRecommendations() {
 
@@ -77,9 +80,10 @@ export function getRecommendations() {
     );
 
 }
+
 /*
 |--------------------------------------------------------------------------
-| API del carrito
+| Obtener carrito
 |--------------------------------------------------------------------------
 */
 
@@ -91,25 +95,33 @@ export function getCart() {
 
 }
 
+/*
+|--------------------------------------------------------------------------
+| Agregar producto
+|--------------------------------------------------------------------------
+*/
+
 export function addProduct(
     productId,
-    quantity
+    quantity = 1
 ) {
 
     return request(
-
         ROUTES.add,
-
         'POST',
-
         {
             product_id: productId,
-            cantidad:quantity
+            cantidad: quantity,
         }
-
     );
 
 }
+
+/*
+|--------------------------------------------------------------------------
+| Actualizar cantidad
+|--------------------------------------------------------------------------
+*/
 
 export function updateProduct(
     productId,
@@ -117,41 +129,43 @@ export function updateProduct(
 ) {
 
     return request(
-
         `${ROUTES.base}/${productId}`,
-
         'PATCH',
-
         {
-            cantidad:quantity
+            cantidad: quantity,
         }
-
     );
 
 }
+
+/*
+|--------------------------------------------------------------------------
+| Eliminar producto
+|--------------------------------------------------------------------------
+*/
 
 export function removeProduct(
     productId
 ) {
 
     return request(
-
         `${ROUTES.base}/${productId}`,
-
         'DELETE'
-
     );
 
 }
 
+/*
+|--------------------------------------------------------------------------
+| Vaciar carrito
+|--------------------------------------------------------------------------
+*/
+
 export function clearCart() {
 
     return request(
-
         ROUTES.clear,
-
         'DELETE'
-
     );
 
 }

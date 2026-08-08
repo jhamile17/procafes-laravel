@@ -6,29 +6,31 @@
 
 @section('content')
 
-<section class="customer-dashboard py-5">
+<div class="container">
 
-    <div class="container">
+    <div class="row">
 
-        <div class="row">
+        <div class="col-12">
 
-            <div class="col-lg-12">
+            <div class="customer-content">
 
-                <div class="customer-content">
+                <x-clienteperfil.header
+                    title="Mi carrito"
+                    subtitle="Revisa los productos seleccionados antes de finalizar tu compra." />
 
-                    <x-clienteperfil.header
-                        title="Mi carrito"
-                        subtitle="Revisa los productos seleccionados antes de finalizar tu compra." />
+                <div class="row g-4">
 
-                    <div class="row g-4">
+                    {{-- Productos --}}
+                    <div class="col-lg-8">
 
-                        <div class="col-lg-8">
+                        <x-cart.items />
 
-                            <x-cart.items />
+                    </div>
 
-                        </div>
+                    {{-- Resumen --}}
+                    <div class="col-lg-4">
 
-                        <div class="col-lg-4 cart-summary-column">
+                        <div class="cart-summary-column">
 
                             <x-cart.summary />
 
@@ -36,10 +38,13 @@
 
                     </div>
 
-                    {{-- Recomendaciones --}}
-                    <div id="cart-recommendations" class="mt-5"></div>
-
                 </div>
+
+                {{-- Productos recomendados --}}
+                <section
+                    id="cart-recommendations"
+                    class="mt-5">
+                </section>
 
             </div>
 
@@ -47,6 +52,6 @@
 
     </div>
 
-</section>
+</div>
 
 @endsection

@@ -2,45 +2,45 @@
 
     <div class="customer-card-header">
 
-        <div>
+        <div class="customer-card-heading">
 
             <span class="customer-card-badge">
-
                 Carrito
-
             </span>
 
             <h2 class="customer-card-title">
-
                 Productos seleccionados
-
             </h2>
 
             <p class="customer-card-subtitle">
-
                 Administra las cantidades o elimina productos antes de continuar con tu compra.
-
             </p>
 
         </div>
 
-        <button
-            id="btnClearCart"
-            class="btn btn-outline-danger d-none">
+        <div class="customer-card-actions">
 
-            <i class="bi bi-trash me-2"></i>
+            <button
+                id="btnClearCart"
+                type="button"
+                class="cart-clear-btn d-none">
 
-            Vaciar carrito
+                <i class="bi bi-trash3 me-2"></i>
+                Vaciar
 
-        </button>
+            </button>
+
+        </div>
 
     </div>
 
-    <div class="customer-card-body p-0">
+    <div class="customer-card-divider"></div>
+
+    <div class="customer-card-body">
 
         <div id="cartItems">
 
-            {{-- render.js insertará aquí los productos --}}
+            {{-- Render dinámico --}}
 
         </div>
 

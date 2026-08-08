@@ -1,60 +1,54 @@
-<div class="customer-card cart-summary">
+<div class="customer-card">
 
     <div class="customer-card-body">
 
-        <span class="customer-card-badge">
+    <span class="customer-card-badge">
+        Resumen
+    </span>
 
-            Resumen
+    <h3 class="customer-card-title">
+        Resumen del pedido
+    </h3>
 
-        </span>
+    <p class="customer-card-subtitle">
+        El monto mostrado incluye todos los impuestos aplicables.
+    </p>
 
-        <h3 class="customer-card-title">
+    <div class="cart-summary-total">
 
-            Resumen del pedido
+        <span>Total a pagar</span>
 
-        </h3>
+        <strong id="cartTotal">
+            S/ 0.00
+        </strong>
 
-        <p class="customer-card-subtitle">
+    </div>
 
-            Verifica el importe total antes de finalizar la compra.
+    <small class="cart-summary-note">
+        Precio final con IGV incluido.
+    </small>
 
-        </p>
+    <div class="d-grid gap-3 mt-4">
 
-        <div class="cart-summary-total">
+        <a
+            href="{{ route('checkout.index') }}"
+            class="customer-btn">
 
-            <span>Total</span>
+            <i class="bi bi-bag-check-fill me-2"></i>
 
-            <strong id="cartTotal">
+            Continuar compra
 
-                S/ 0.00
+        </a>
 
-            </strong>
+        <a
+            href="{{ route('products') }}"
+            class="customer-btn-secondary">
 
-        </div>
+            <i class="bi bi-arrow-left me-2"></i>
 
-        <div class="d-grid gap-2 mt-4">
+            Seguir comprando
 
-            <a
-                href="{{ route('checkout.index') }}"
-                class="btn btn-primary">
-
-                <i class="bi bi-credit-card me-2"></i>
-
-                Continuar compra
-
-            </a>
-
-            <a
-                href="{{ route('products') }}"
-                class="btn btn-outline-secondary">
-
-                <i class="bi bi-arrow-left me-2"></i>
-
-                Seguir comprando
-
-            </a>
-
-        </div>
+        </a>
 
     </div>
 

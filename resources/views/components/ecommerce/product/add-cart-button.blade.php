@@ -10,10 +10,10 @@
 <button
     type="button"
     {{ $attributes->class([
-        'btn',
-        'btn-cart',
         'btn-add-to-cart',
+        'product-add-btn',
         'w-100',
+        'is-disabled' => ! $available,
     ]) }}
     data-product-id="{{ $product->id }}"
     data-quantity="{{ $quantity }}"
@@ -21,11 +21,11 @@
     aria-label="{{ $available ? 'Agregar al carrito' : 'Producto sin stock' }}">
 
     <i
-        class="bi {{ $available ? 'bi-cart-plus' : 'bi-x-circle' }}"
+        class="bi {{ $available ? 'bi-bag-plus-fill' : 'bi-slash-circle-fill' }}"
         aria-hidden="true">
     </i>
 
-    <span class="customer-btn">
+    <span>
         {{ $available ? 'Agregar al carrito' : 'Sin stock' }}
     </span>
 

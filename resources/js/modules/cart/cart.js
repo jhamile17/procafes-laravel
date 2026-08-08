@@ -1,4 +1,4 @@
-// resources/js/cart/cart.js
+// resources/js/modules/cart/cart.js
 
 import {
     getCart,
@@ -9,18 +9,33 @@ import {
     render,
     renderRecommendations
 } from './render';
+
 import {
     bindAddToCart,
     bindCartActions,
     bindClearCart
 } from './events';
-
 class Cart {
 
-    /**
-     * Obtener el carrito desde el servidor
-     */
+    constructor() {
+
+        this.loading = false;
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Obtener carrito
+    |--------------------------------------------------------------------------
+    */
+
     async refresh() {
+
+        if (this.loading) {
+            return;
+        }
+
+        this.loading = true;
 
         try {
 
@@ -32,16 +47,35 @@ class Cart {
 
             console.error('[CART]', error);
 
+        } finally {
+
+            this.loading = false;
+
         }
 
     }
 
-    /**
-     * Actualizar la interfaz
-     */
-        async update(cart) {
+    /*
+    |--------------------------------------------------------------------------
+    | Actualizar interfaz
+    |--------------------------------------------------------------------------
+    */
+
+    async update(cart) {
+
+        /*
+        |--------------------------------------------------------------
+        | Render del carrito
+        |--------------------------------------------------------------
+        */
 
         render(cart);
+
+        /*
+        |--------------------------------------------------------------
+        | Recomendaciones
+        |--------------------------------------------------------------
+        */
 
         try {
 
@@ -60,15 +94,18 @@ class Cart {
 
     }
 
-    /**
-     * Inicializar el módulo
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Inicializar
+    |--------------------------------------------------------------------------
+    */
+
     init() {
 
-        this.refresh();
-
         const update = async (cart) => {
+
             await this.update(cart);
+
         };
 
         bindAddToCart(update);
@@ -76,6 +113,8 @@ class Cart {
         bindCartActions(update);
 
         bindClearCart(update);
+
+        this.refresh();
 
     }
 

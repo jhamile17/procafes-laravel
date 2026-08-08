@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cart\AddToCartRequest;
 use App\Http\Requests\Cart\UpdateCartItemRequest;
-use App\Services\Catalogo\RecommendationService;
 use App\Models\Product;
-use App\Models\Cart;
+use App\Services\Catalogo\RecommendationService;
 use App\Services\Ventas\CartService;
 use App\Services\Ventas\SessionCartService;
 use Illuminate\Http\JsonResponse;
@@ -24,19 +25,26 @@ class CartController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Mostrar carrito
+    | Vista del carrito
     |--------------------------------------------------------------------------
     */
 
     public function index()
     {
         return view('cart.index');
-
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Datos del carrito (AJAX)
+    |--------------------------------------------------------------------------
+    */
+
     public function data(Request $request): JsonResponse
     {
         return $this->response($request);
     }
+
     /*
     |--------------------------------------------------------------------------
     | Agregar producto
@@ -149,9 +157,9 @@ class CartController extends Controller
     {
         if ($request->user()) {
 
-            $cart = $this->cart($request);
-
-            $this->cartService->vaciarCarrito($cart);
+            $this->cartService->vaciarCarrito(
+                $this->cart($request)
+            );
 
         } else {
 
@@ -160,13 +168,20 @@ class CartController extends Controller
 
         return $this->response($request);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Productos recomendados
+    |--------------------------------------------------------------------------
+    */
+
     public function recommendations(Request $request)
     {
         if ($request->user()) {
 
-            $cart = $this->cart($request);
-
-            $items = $this->cartService->obtenerItems($cart);
+            $items = $this->cartService->obtenerItems(
+                $this->cart($request)
+            );
 
         } else {
 
@@ -183,45 +198,73 @@ class CartController extends Controller
             compact('products')
         );
     }
+
     /*
     |--------------------------------------------------------------------------
-    | Construir respuesta del carrito
+    | Respuesta JSON
     |--------------------------------------------------------------------------
     */
-
     private function response(Request $request): JsonResponse
     {
         if ($request->user()) {
 
             $cart = $this->cart($request);
 
-            $items = $this->cartService->obtenerItems($cart);
+            $items = $this->cartService
+                ->obtenerItems($cart)
+                ->map(function ($item) {
+
+                    return [
+                        'product_id' => $item->product_id,
+                        'name'       => $item->product->name,
+                        'image'      => $item->product->image_url,
+                        'unit_price' => (float) $item->unit_price,
+                        'quantity'   => (int) $item->quantity,
+                        'subtotal'   => (float) $item->subtotal,
+                    ];
+                })
+                ->values();
 
             $count = $this->cartService->contarProductos($cart);
 
-            $total = $this->cartService->calcularTotal($cart);
+            $resumen = $this->cartService->calcularResumen($cart);
 
         } else {
 
             $items = collect(
                 $this->sessionCartService->obtener($request)
-            )->values();
+            )
+            ->map(function ($item) {
+
+                return [
+                    'product_id' => $item['product_id'],
+                    'name'       => $item['name'],
+                    'image'      => $item['image'],
+                    'unit_price' => (float) $item['unit_price'],
+                    'quantity'   => (int) $item['quantity'],
+                    'subtotal'   => (float) ($item['subtotal'] ?? $item['sub_total']),
+                ];
+            })
+            ->values();
 
             $count = $this->sessionCartService->cantidad($request);
 
-            $total = $this->sessionCartService->total($request);
+            $resumen = $this->sessionCartService->calcularResumen($request);
         }
+
         return response()->json([
-            'success'=> true,
-            'items' => $items,
-            'count' => $count,
-            'total' => $total,
+            'success'   => true,
+            'items'     => $items,
+            'count'     => $count,
+            'subtotal'  => $resumen['subtotal'],
+            'igv'       => $resumen['igv'],
+            'total'     => $resumen['total'],
         ]);
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener carrito del usuario autenticado
+    | Obtener carrito
     |--------------------------------------------------------------------------
     */
 
@@ -231,6 +274,4 @@ class CartController extends Controller
             $request->user()->id
         );
     }
-    
-    
 }

@@ -1,38 +1,40 @@
 @if($products->isNotEmpty())
+<section class="customer-card mt-1">
+    <div class="customer-card-header">
+        <div>
+            <span class="customer-card-badge">
+                <i class="bi bi-stars me-1"></i>
+                Recomendaciones
+            </span>
+            <h2 class="customer-card-title">
+                También podría gustarte
+            </h2>
+            <p class="customer-card-subtitle">
+                Completa tu pedido con productos seleccionados especialmente para ti.
+            </p>
+        </div>
+    </div>
+    <div class="customer-card-divider"></div>
 
-<div class="cart-recommendations mt-5">
+    <div class="customer-card-body">
 
-    <div class="mb-4">
+        <div class="row g-4">
 
-        <span class="section-badge">
-            Recomendaciones
-        </span>
+            @foreach($products as $product)
 
-        <h3 class="mt-2 mb-2">
-            También podría gustarte
-        </h3>
+                <div class="col-xl-3 col-lg-4 col-md-6">
 
-        <p class="text-muted mb-0">
-            Descubre otros productos para complementar tu compra.
-        </p>
+                    <x-ecommerce.product-card
+                        :product="$product" />
+
+                </div>
+
+            @endforeach
+
+        </div>
 
     </div>
 
-    <div class="row g-4">
-
-        @foreach($products as $product)
-
-            <div class="col-xl-3 col-lg-4 col-md-6">
-
-                <x-ecommerce.product-card
-                    :product="$product" />
-
-            </div>
-
-        @endforeach
-
-    </div>
-
-</div>
+</section>
 
 @endif

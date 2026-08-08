@@ -17,21 +17,20 @@ import {
 
 function showCart() {
 
-    // Si estamos en la página del carrito,
-    // no abrir el Offcanvas.
+    // Si estamos dentro del carrito no abrir Offcanvas
     if (document.body.classList.contains('cart-page')) {
         return;
     }
 
-    const element = document.getElementById('cartOffcanvas');
+    const offcanvas = document.getElementById('cartOffcanvas');
 
-    if (!element || !window.bootstrap) {
+    if (!offcanvas || !window.bootstrap) {
         return;
     }
 
     window.bootstrap
         .Offcanvas
-        .getOrCreateInstance(element)
+        .getOrCreateInstance(offcanvas)
         .show();
 
 }
@@ -46,60 +45,53 @@ export function bindAddToCart(onUpdate) {
 
     document.addEventListener('click', async (e) => {
 
-        const btn = e.target.closest('.btn-add-to-cart');
+        const button = e.target.closest('.btn-add-to-cart');
 
-        if (!btn) {
-            return;
-        }
+        if (!button) return;
 
         e.preventDefault();
 
-        if (btn.disabled) {
-            return;
-        }
+        if (button.disabled) return;
 
-        const productId = Number(
-            btn.dataset.productId
-        );
+        button.disabled = true;
 
-        const quantity = Math.max(
-            1,
-            Math.min(
-                MAX_QTY,
-                Number(btn.dataset.quantity ?? 1)
-            )
-        );
+        const originalHtml = button.innerHTML;
 
-        const originalHtml = btn.innerHTML;
-
-        btn.disabled = true;
-
-        btn.innerHTML = `
+        button.innerHTML = `
             <span class="spinner-border spinner-border-sm me-2"></span>
             Agregando...
         `;
 
         try {
 
+            const productId = Number(button.dataset.productId);
+
+            const quantity = Math.max(
+                1,
+                Math.min(
+                    MAX_QTY,
+                    Number(button.dataset.quantity ?? 1)
+                )
+            );
+
             const cart = await addProduct(
                 productId,
                 quantity
             );
 
-            onUpdate(cart);
+            await onUpdate(cart);
 
-            // Solo al agregar desde el catálogo
             showCart();
 
         } catch (error) {
 
-            console.error('[CART]', error);
+            console.error('[ADD CART]', error);
 
         } finally {
 
-            btn.disabled = false;
+            button.disabled = false;
 
-            btn.innerHTML = originalHtml;
+            button.innerHTML = originalHtml;
 
         }
 
@@ -109,19 +101,17 @@ export function bindAddToCart(onUpdate) {
 
 /*
 |--------------------------------------------------------------------------
-| Incrementar, disminuir y eliminar
+| Actualizar cantidades / eliminar
 |--------------------------------------------------------------------------
 */
 
 export function bindCartActions(onUpdate) {
 
-    const itemsBox = document.getElementById('cartItems');
+    const container = document.getElementById('cartItems');
 
-    if (!itemsBox) {
-        return;
-    }
+    if (!container) return;
 
-    itemsBox.addEventListener('click', async (e) => {
+    container.addEventListener('click', async (e) => {
 
         const inc = e.target.closest('.btn-inc');
         const dec = e.target.closest('.btn-dec');
@@ -130,18 +120,16 @@ export function bindCartActions(onUpdate) {
         try {
 
             /*
-            |--------------------------------------------------------------
-            | Incrementar / Disminuir
-            |--------------------------------------------------------------
+            |--------------------------------------------------------------------------
+            | Incrementar / disminuir
+            |--------------------------------------------------------------------------
             */
 
             if (inc || dec) {
 
                 const button = inc || dec;
 
-                if (button.disabled) {
-                    return;
-                }
+                if (button.disabled) return;
 
                 button.disabled = true;
 
@@ -149,12 +137,12 @@ export function bindCartActions(onUpdate) {
                     button.dataset.productId
                 );
 
-                const quantityButton = button
+                const quantityBox = button
                     .parentElement
                     .querySelector('.btn-light');
 
                 let quantity = Number(
-                    quantityButton.textContent
+                    quantityBox.textContent
                 );
 
                 quantity = inc
@@ -166,21 +154,21 @@ export function bindCartActions(onUpdate) {
                     quantity
                 );
 
-                onUpdate(cart);
-
-                button.disabled = false;
+                await onUpdate(cart);
 
                 return;
 
             }
 
             /*
-            |--------------------------------------------------------------
-            | Eliminar producto
-            |--------------------------------------------------------------
+            |--------------------------------------------------------------------------
+            | Eliminar
+            |--------------------------------------------------------------------------
             */
 
             if (remove) {
+
+                if (remove.disabled) return;
 
                 remove.disabled = true;
 
@@ -192,13 +180,21 @@ export function bindCartActions(onUpdate) {
                     productId
                 );
 
-                onUpdate(cart);
+                await onUpdate(cart);
 
             }
 
         } catch (error) {
 
-            console.error('[CART]', error);
+            console.error('[UPDATE CART]', error);
+
+        } finally {
+
+            document
+                .querySelectorAll(
+                    '.btn-inc,.btn-dec,.btn-remove'
+                )
+                .forEach(btn => btn.disabled = false);
 
         }
 
@@ -218,13 +214,13 @@ export function bindClearCart(onUpdate) {
         'btnClearCart'
     );
 
-    if (!button) {
-        return;
-    }
+    if (!button) return;
 
     button.addEventListener('click', async (e) => {
 
         e.preventDefault();
+
+        if (button.disabled) return;
 
         if (!confirm('¿Deseas vaciar el carrito?')) {
             return;
@@ -236,11 +232,11 @@ export function bindClearCart(onUpdate) {
 
             const cart = await clearCart();
 
-            onUpdate(cart);
+            await onUpdate(cart);
 
         } catch (error) {
 
-            console.error('[CART]', error);
+            console.error('[CLEAR CART]', error);
 
         } finally {
 

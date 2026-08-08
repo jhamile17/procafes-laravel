@@ -11,8 +11,8 @@ use RuntimeException;
 class SessionCartService
 {
     private const SESSION_KEY = 'cart';
-
     private const MAX_CANTIDAD = 8;
+    private const IGV = 0.18;
 
     /*
     |--------------------------------------------------------------------------
@@ -235,4 +235,37 @@ class SessionCartService
 
         $this->vaciar($request);
     }
+    /*
+|--------------------------------------------------------------------------
+| Calcular resumen
+|--------------------------------------------------------------------------
+*/
+
+public function calcularResumen(Request $request): array
+{
+    $subtotal = round(
+        $this->total($request),
+        2
+    );
+
+    $igv = round(
+        $subtotal * self::IGV,
+        2
+    );
+
+    $total = round(
+        $subtotal + $igv,
+        2
+    );
+
+    return [
+
+        'subtotal' => $subtotal,
+
+        'igv' => $igv,
+
+        'total' => $total,
+
+    ];
+}
 }

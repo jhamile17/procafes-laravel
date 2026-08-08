@@ -33,9 +33,6 @@
                 {{ $product->brand->name }}
             </small>
         @endif
-
-        <x-ecommerce.product.rating/>
-
         <div class="mt-auto">
 
             <x-ecommerce.product.price

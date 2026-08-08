@@ -5,7 +5,11 @@ import { MAX_QTY } from './config';
 
 const badge = document.getElementById('cartBadge');
 const itemsBox = document.getElementById('cartItems');
+
+const subtotalBox = document.getElementById('cartSubtotal');
+const igvBox = document.getElementById('cartIgv');
 const totalBox = document.getElementById('cartTotal');
+
 const clearBtn = document.getElementById('btnClearCart');
 
 /*
@@ -33,19 +37,29 @@ function renderBadge(count = 0) {
 
 /*
 |--------------------------------------------------------------------------
-| Total
+| Totales
 |--------------------------------------------------------------------------
 */
 
-function renderTotal(total = 0) {
+function renderTotals(cart = {}) {
 
-    if (!totalBox) {
-        return;
+    if (subtotalBox) {
+        subtotalBox.textContent = currency(
+            Number(cart.subtotal ?? 0)
+        );
     }
 
-    totalBox.textContent = currency(
-        Number(total)
-    );
+    if (igvBox) {
+        igvBox.textContent = currency(
+            Number(cart.igv ?? 0)
+        );
+    }
+
+    if (totalBox) {
+        totalBox.textContent = currency(
+            Number(cart.total ?? 0)
+        );
+    }
 
 }
 
@@ -77,12 +91,15 @@ function renderEmpty() {
         </div>
     `;
 
+    renderTotals({
+        subtotal: 0,
+        igv: 0,
+        total: 0
+    });
+
     if (clearBtn) {
-
         clearBtn.classList.add('d-none');
-
         clearBtn.disabled = true;
-
     }
 
 }
@@ -97,9 +114,12 @@ function renderItem(item) {
 
     const id = Number(item.product_id);
 
-    const name = item.name ?? '';
+    const name = item.name ?? item.product?.name ?? '';
 
-    const image = item.image || '/images/no-image.png';
+    const image =
+        item.image ??
+        item.product?.image_url ??
+        '/images/no-image.png';
 
     const price = Number(
         item.unit_price ?? 0
@@ -110,7 +130,9 @@ function renderItem(item) {
     );
 
     const subtotal = Number(
-        item.subtotal ?? (price * quantity)
+        item.subtotal ??
+        item.sub_total ??
+        (price * quantity)
     );
 
     const div = document.createElement('div');
@@ -123,8 +145,8 @@ function renderItem(item) {
             <img
                 src="${image}"
                 class="rounded border"
-                width="60"
-                height="60"
+                width="70"
+                height="70"
                 style="object-fit:cover"
                 alt="${name}"
             >
@@ -152,7 +174,6 @@ function renderItem(item) {
                         </button>
 
                         <button
-                            type="button"
                             class="btn btn-light"
                             disabled>
                             ${quantity}
@@ -168,15 +189,14 @@ function renderItem(item) {
 
                     </div>
 
-                    <strong class="text-dark">
+                    <strong>
                         ${currency(subtotal)}
                     </strong>
 
                     <button
                         type="button"
                         class="btn btn-sm btn-outline-danger btn-remove"
-                        data-product-id="${id}"
-                        title="Eliminar producto">
+                        data-product-id="${id}">
                         <i class="bi bi-trash"></i>
                     </button>
 
@@ -206,27 +226,19 @@ function renderItems(items = []) {
     itemsBox.innerHTML = '';
 
     if (!items.length) {
-
         renderEmpty();
-
         return;
-
     }
 
     if (clearBtn) {
-
         clearBtn.classList.remove('d-none');
-
         clearBtn.disabled = false;
-
     }
 
     items.forEach(item => {
-
         itemsBox.appendChild(
             renderItem(item)
         );
-
     });
 
 }
@@ -243,9 +255,7 @@ function render(cart = {}) {
         Number(cart.count ?? 0)
     );
 
-    renderTotal(
-        Number(cart.total ?? 0)
-    );
+    renderTotals(cart);
 
     const items = Array.isArray(cart.items)
         ? cart.items
@@ -254,10 +264,17 @@ function render(cart = {}) {
     renderItems(items);
 
 }
+
+/*
+|--------------------------------------------------------------------------
+| Recomendaciones
+|--------------------------------------------------------------------------
+*/
+
 function renderRecommendations(html) {
 
-    const container = document.querySelector(
-        '#cart-recommendations'
+    const container = document.getElementById(
+        'cart-recommendations'
     );
 
     if (!container) {
@@ -267,14 +284,13 @@ function renderRecommendations(html) {
     container.innerHTML = html;
 
 }
-export {
 
+export {
     render,
     renderBadge,
-    renderTotal,
+    renderTotals,
     renderEmpty,
     renderItem,
     renderItems,
     renderRecommendations
-
 };

@@ -6,9 +6,7 @@
 
     {{-- Favoritos --}}
     <a
-        href="{{ route('customer.wishlist') }}"
-        wire:navigate
-        class="navbar-action"
+        href="{{ route('customer.wishlist') }}"        class="navbar-action"
         aria-label="Lista de favoritos">
 
         <i class="bi bi-heart" aria-hidden="true"></i>
@@ -27,7 +25,6 @@
     {{-- Carrito --}}
     <a
         href="{{ route('cart.index') }}"
-        wire:navigate
         class="navbar-action"
         aria-label="Carrito de compras">
 
