@@ -70,12 +70,14 @@ return [
         'api_key' => env('LOCATIONIQ_API_KEY'),
     ],
     'apiperu' => [
+        'url' => env('APIPERU_URL'),
+        'token' => env('API_PERU_TOKEN'),
 
-    'url' => env('APIPERU_URL'),
+    ],
+    'nubefact' => [
+        'url' => env('NUBEFACT_URL'),
+        'token' => env('NUBEFACT_TOKEN'),
 
-    'token' => env('API_PERU_TOKEN'),
-
-],
-
+    ],
 
 ];

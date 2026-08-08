@@ -10,177 +10,91 @@ use Illuminate\Validation\Rule;
 
 class CheckoutRequest extends FormRequest
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Autorización
-    |--------------------------------------------------------------------------
-    */
-
+    /*Autorización*/
     public function authorize(): bool
     {
         return auth()->check();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Reglas
-    |--------------------------------------------------------------------------
-    */
-
+    /*Reglas*/
     public function rules(): array
     {
         return [
 
-            /*
-            |--------------------------------------------------------------------------
-            | Método de entrega
-            |--------------------------------------------------------------------------
-            */
-
+            /*Método de entrega*/
             'delivery_type' => [
-
                 'required',
-
                 Rule::in([
-
                     'pickup',
-
                     'delivery',
-
                 ]),
 
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Método de pago
-            |--------------------------------------------------------------------------
-            */
+            /*Método de pago*/
 
             'payment_method' => [
-
                 'required',
-
                 Rule::in([
-
                     'store',
-
                     'mercadopago',
-
                 ]),
-
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Tipo de comprobante
-            |--------------------------------------------------------------------------
-            */
-
+            /*Tipo de comprobante*/
             'tipo_comprobante' => [
-
                 'required',
-
                 Rule::in([
-
                     Comprobante::BOLETA,
-
                     Comprobante::FACTURA,
-
                 ]),
 
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Documento
-            |--------------------------------------------------------------------------
-            */
-
+            /*Documento */
             'tipo_documento' => [
-
                 'required',
-
                 Rule::in([
-
                     Comprobante::DNI,
-
                     Comprobante::RUC,
-
                 ]),
-
             ],
 
             'numero_documento' => [
-
                 'required',
-
                 'string',
-
                 'max:20',
+                'regex:/^[0-9]+$/',
 
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Boleta
-            |--------------------------------------------------------------------------
-            */
-
+            /*Boleta*/
             'nombre' => [
-
-                'required_if:tipo_comprobante,BOLETA',
-
+                'required_if:tipo_comprobante,'.Comprobante::BOLETA,
                 'nullable',
-
                 'string',
-
                 'max:255',
-
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Factura
-            |--------------------------------------------------------------------------
-            */
-
+            /*Factura*/
             'razon_social' => [
-
-                'required_if:tipo_comprobante,FACTURA',
-
+                'required_if:tipo_comprobante,'.Comprobante::FACTURA,
                 'nullable',
-
                 'string',
-
                 'max:255',
-
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Dirección Fiscal
-            |--------------------------------------------------------------------------
-            */
-
+            /*Dirección Fiscal*/
             'direccion_fiscal' => [
-
-                'required',
-
+                'required_if:tipo_comprobante,'.Comprobante::FACTURA,
+                'nullable',
                 'string',
-
                 'max:255',
-
             ],
-
         ];
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Mensajes
-    |--------------------------------------------------------------------------
-    */
+    /*Mensajes*/
 
     public function messages(): array
     {
@@ -212,14 +126,15 @@ class CheckoutRequest extends FormRequest
 
             'numero_documento.required' =>
                 'Ingresa el número de documento.',
-
+            'numero_documento.regex' =>
+                'El número de documento solo puede contener dígitos.',
             'nombre.required_if' =>
                 'Ingresa el nombre del cliente.',
 
             'razon_social.required_if' =>
                 'Ingresa la razón social.',
 
-            'direccion_fiscal.required' =>
+            'direccion_fiscal.required_if' =>
                 'Ingresa la dirección fiscal.',
 
         ];
@@ -242,11 +157,7 @@ public function withValidator($validator): void
             (string) $this->input('tipo_documento')
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Boleta
-        |--------------------------------------------------------------------------
-        */
+        /*compatibilidad entre Boleta y factura */
 
         if (
             $tipoComprobante === Comprobante::BOLETA &&
@@ -260,11 +171,7 @@ public function withValidator($validator): void
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Factura
-        |--------------------------------------------------------------------------
-        */
+        /*Factura*/
 
         if (
             $tipoComprobante === Comprobante::FACTURA &&
@@ -277,42 +184,38 @@ public function withValidator($validator): void
             );
 
         }
-        /*
-        |--------------------------------------------------------------------------
-        | Longitud del DNI
-        |--------------------------------------------------------------------------
-        */
 
-        if (
-            $tipoDocumento === Comprobante::DNI &&
-            strlen($this->numero_documento) !== 8
-        ) {
+        /*Longitud del DNI y RUC*/
 
-            $validator->errors()->add(
-                'numero_documento',
-                'El DNI debe tener 8 dígitos.'
-            );
+            switch ($tipoDocumento) {
 
-        }
+            case Comprobante::DNI:
 
-        /*
-        |--------------------------------------------------------------------------
-        | Longitud del RUC
-        |--------------------------------------------------------------------------
-        */
+                if (strlen($numeroDocumento) !== 8) {
 
-        if (
-            $tipoDocumento === Comprobante::RUC &&
-            strlen($this->numero_documento) !== 11
-        ) {
+                    $validator->errors()->add(
+                        'numero_documento',
+                        'El DNI debe tener 8 dígitos.'
+                    );
 
-            $validator->errors()->add(
-                'numero_documento',
-                'El RUC debe tener 11 dígitos.'
-            );
+                }
 
+                break;
+
+            case Comprobante::RUC:
+
+                if (strlen($numeroDocumento) !== 11) {
+
+                    $validator->errors()->add(
+                        'numero_documento',
+                        'El RUC debe tener 11 dígitos.'
+                    );
+
+                }
+
+                break;
         }
 
     });
-    }
+}
 }

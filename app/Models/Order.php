@@ -23,70 +23,44 @@ class Order extends Model
     */
 
     protected $fillable = [
-
         'user_id',
-
         'shipping_address_id',
-
         'estado_pedido_id',
-
         'numero_pedido',
-
         'delivery_alias',
-
         'delivery_direccion',
-
         'delivery_numero',
-
         'delivery_departamento',
-
         'delivery_provincia',
-
         'delivery_distrito',
-
         'delivery_referencia',
-
+        'subtotal',
+        'igv',
         'total_price',
-
         'delivery_type',
         'observaciones',
 
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relaciones automáticas
-    |--------------------------------------------------------------------------
-    */
+    /*Relaciones automáticas*/
 
     protected $with = [
-
         'estadoPedido',
-
         'payment',
-
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Conversión de atributos
-    |--------------------------------------------------------------------------
-    */
+    /*Conversión de atributos*/
 
     protected function casts(): array
     {
         return [
-
+            'subtotal' => 'decimal:2',
+            'igv' => 'decimal:2',
             'total_price' => 'decimal:2',
-
         ];
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relaciones
-    |--------------------------------------------------------------------------
-    */
+    /*Relaciones*/
 
     public function user(): BelongsTo
     {
@@ -94,14 +68,12 @@ class Order extends Model
             User::class
         );
     }
-
     public function shippingAddress(): BelongsTo
     {
         return $this->belongsTo(
             ShippingAddress::class
         );
     }
-
     public function estadoPedido(): BelongsTo
     {
         return $this->belongsTo(

@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 namespace App\Services\Ventas;
 
 use App\Models\Cart;
@@ -10,7 +9,6 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ShippingAddress;
 use App\Services\Inventario\InventoryService;
-use App\Services\Ventas\CartService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -20,67 +18,42 @@ class OrderService
 {
     public function __construct(
         protected InventoryService $inventoryService,
-        protected CartService $cartService,
     ) {
     }
 
     /*Crear pedido*/
-
     public function crearPedido(
         Cart $cart,
         ShippingAddress $shippingAddress,
+        array $resumen,
     ): Order {
-        $this->validarCarrito(
-            $cart
-        );
+        $this->validarCarrito($cart);
         return DB::transaction(function () use (
             $cart,
-            $shippingAddress
-        ) {
-
+            $shippingAddress 
+        ){
             $estadoPendiente = $this->obtenerEstadoPedido(
                 EstadoPedido::PENDIENTE
             );
-
             $order = $this->crearRegistroPedido(
-
                 cart: $cart,
-
                 shippingAddress: $shippingAddress,
-
                 estado: $estadoPendiente,
-
+                resumen: $resumen,
             );
 
             $this->crearItems(
-
                 order: $order,
-
                 cart: $cart,
-
             );
-
-            $this->actualizarTotalPedido(
-                order: $order,
-                cart : $cart,
-            );
-
             $order->load([
-
                 'user',
-
                 'shippingAddress',
-
                 'estadoPedido',
-
                 'items.product',
-
             ]);
-
             return $order;
-
         });
-
     }
 
     /*Obtener pedido*/
@@ -129,29 +102,17 @@ class OrderService
         return Order::query()
 
             ->with([
-
                 'shippingAddress',
-
                 'estadoPedido',
-
                 'items.product',
-
                 'payment',
-
             ])
-
             ->where(
-
                 'user_id',
-
                 $userId
-
             )
-
             ->latest()
-
             ->get();
-
     }
         /*
     |--------------------------------------------------------------------------
@@ -341,49 +302,28 @@ class OrderService
         Cart $cart,
         ShippingAddress $shippingAddress,
         EstadoPedido $estado,
-        string $tipoComprobante
+        array $resumen,
     ): Order {
-
         return Order::create([
 
             'user_id' => $cart->user_id,
-
             'shipping_address_id' => $shippingAddress->id,
-
             'estado_pedido_id' => $estado->id,
-
             'numero_pedido' => $this->generarNumeroPedido(),
-            'tipo_comprobante'=> strtoupper($tipoComprobante),
-
-            /*
-            |--------------------------------------------------------------------------
-            | Snapshot de la dirección
-            |--------------------------------------------------------------------------
-            */
-
             'delivery_direccion' => $shippingAddress->direccion,
-
             'delivery_numero' => $shippingAddress->numero,
-
             'delivery_departamento' => $shippingAddress->departamento,
-
             'delivery_provincia' => $shippingAddress->provincia,
-
             'delivery_distrito' => $shippingAddress->distrito,
-
             'delivery_referencia' => $shippingAddress->referencia,
-
-            'total_price' => 0,
-
+            'subtotal' => $resumen['subtotal'],
+            'igv' => $resumen['igv'],
+            'total_price' => $resumen['total'],
         ]);
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Validar carrito
-    |--------------------------------------------------------------------------
-    */
+    /*Validar carrito*/
 
     private function validarCarrito(
         Cart $cart
@@ -434,127 +374,63 @@ class OrderService
                 throw new RuntimeException(
 
                     "Stock insuficiente para {$item->product->name}."
-
                 );
-
             }
-
         }
-
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Crear items del pedido
-    |--------------------------------------------------------------------------
-    */
+    /*Crear items del pedido*/
 
     private function crearItems(
         Order $order,
         Cart $cart
     ): void {
-
         foreach ($cart->items as $item) {
-
             OrderItem::create([
-
                 'order_id' => $order->id,
-
                 'product_id' => $item->product_id,
-
                 'quantity' => $item->quantity,
-
                 'unit_price' => $item->unit_price,
-
                 'subtotal' => $item->subtotal,
-
             ]);
-
         }
-
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener estado del pedido
-    |--------------------------------------------------------------------------
-    */
+    /*Obtener estado del pedido*/
 
     private function obtenerEstadoPedido(
         string $codigo
     ): EstadoPedido {
 
         return EstadoPedido::query()
-
             ->activos()
-
             ->where(
-
                 'codigo',
-
                 strtoupper($codigo)
-
             )
-
             ->firstOrFail();
-
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Actualizar total del pedido
-    |--------------------------------------------------------------------------
-    */
-
-    private function actualizarTotalPedido(
-        Order $order,
-        Cart $cart
-    ): void {
-        $resumen = $this->cartService
-            ->calcularResumen($cart);
-        $order->update([
-            'total_price' => $resumen['total'],
-            ]);
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Generar número de pedido
-    |--------------------------------------------------------------------------
-    */
+    /*Generar número de pedido*/
 
     private function generarNumeroPedido(): string
     {
 
         do {
-
             $numero = sprintf(
-
                 'PED-%s-%s',
-
                 now()->format('Ymd'),
-
                 strtoupper(
                     Str::random(6)
                 )
-
             );
 
         } while (
-
             Order::where(
-
                 'numero_pedido',
-
                 $numero
-
             )->exists()
-
         );
-
         return $numero;
-
     }
-
 }

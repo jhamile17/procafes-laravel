@@ -24,11 +24,7 @@ class CartService
     ) {
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener o crear carrito
-    |--------------------------------------------------------------------------
-    */
+    /*Obtener o crear carrito */
 
     public function obtenerCarrito(int $userId): Cart
     {
@@ -44,7 +40,6 @@ class CartService
     }
 
     /*Agregar producto al carrito*/
-
     public function agregarProducto(
         int $userId,
         int $productId,
@@ -250,16 +245,11 @@ class CartService
             );
         }
     }
-    /*
-|--------------------------------------------------------------------------
-| Calcular resumen del carrito
-|--------------------------------------------------------------------------
-*/
+    /*Calcular resumen del carrito*/
 
 public function calcularResumen(
     Cart $cart
 ): array {
-
     $subtotal = round(
         $this->calcularTotal($cart),
         2

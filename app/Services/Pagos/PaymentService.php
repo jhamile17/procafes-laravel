@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace App\Services\Pagos;
@@ -17,27 +16,18 @@ use RuntimeException;
 class PaymentService
 {
     public function __construct(
-        protected OrderService $orderService,
         protected PaymentMethodService $paymentMethodService,
         protected MercadoPagoService $mercadoPagoService,
-        protected CartService $cartService,
     ) {
     }
 
     /*Crear pago*/
-
     public function crearPago(
         Order $order,
         string $paymentMethodCode
     ): Payment {
-        $this->validarPedido(
-            $order
-        );
-        return DB::transaction(function () use (
-            $order,
-            $paymentMethodCode
-        ) {
-            $paymentMethod = $this->paymentMethodService
+        $this->validarPedido($order);
+        $paymentMethod = $this->paymentMethodService
                 ->obtenerPorCodigo(
                     $paymentMethodCode
                 );
@@ -57,8 +47,6 @@ class PaymentService
                 'paymentMethod',
                 'estadoPago',
             ]);
-            return $payment;
-        });
     }
     /*Iniciar pago por pedido*/
     public function iniciarPagoPorPedido(
@@ -116,11 +104,6 @@ class PaymentService
                 transactionData: $preference,
             );
         }
-        $payment->loadMissing([
-            'order',
-            'paymentMethod',
-            'estadoPago',
-        ]);
         return $payment;
     }
         /*
@@ -257,47 +240,25 @@ class PaymentService
         ?string $transactionId = null,
         array $transactionData = []
     ): Payment {
-
         $data = [];
-
-        /*
-        |--------------------------------------------------------------------------
-        | ID de transacción
-        |--------------------------------------------------------------------------
-        */
+        /*ID de transacción*/
 
         if (! empty($transactionId)) {
-
             $data['transaction_id'] = $transactionId;
-
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Datos de la transacción
-        |--------------------------------------------------------------------------
-        */
-
+        /*Datos de la transacción*/
         if (! empty($transactionData)) {
-
             $data['transaction_data'] = $transactionData;
-
         }
 
         /*Actualizar únicamente si existen cambios*/
 
         if (! empty($data)) {
-            $payment->update(
-                $data
-            );
+            $payment->update($data);
         }
-        $payment->loadMissing([
-            'order',
-            'paymentMethod',
-            'estadoPago',
-
-        ]);
-        return $payment;
+    
+        return $payment->refresh();
 
     }
         /*
@@ -311,66 +272,33 @@ class PaymentService
         ?string $transactionId = null,
         array $transactionData = []
     ): Payment {
-
         return DB::transaction(function () use (
-
             $payment,
-
             $transactionId,
-
             $transactionData,
 
         ) {
-
             $payment = $this->actualizarTransaccion(
-
                 payment: $payment,
-
                 transactionId: $transactionId,
-
                 transactionData: $transactionData,
-
             );
 
             $this->cambiarEstado(
-
                 $payment,
-
                 EstadoPago::APPROVED
-
             );
 
-            $this->orderService
-                ->completarPedido(
-                    $payment->order
-                );
-
-            $this->cartService
-                ->vaciarPorUsuario(
-                    $payment->order->user_id
-                );
-
             $payment->loadMissing([
-
                 'order',
-
                 'paymentMethod',
-
                 'estadoPago',
-
             ]);
-
             return $payment;
-
         });
-
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Rechazar pago
-    |--------------------------------------------------------------------------
-    */
+    /*Rechazar pago*/
 
     public function rechazarPago(
         Payment $payment,
@@ -379,17 +307,13 @@ class PaymentService
     ): Payment {
 
         return DB::transaction(function () use (
-
             $payment,
-
             $transactionId,
-
             $transactionData,
 
         ) {
 
             $payment = $this->actualizarTransaccion(
-
                 payment: $payment,
 
                 transactionId: $transactionId,
@@ -399,105 +323,57 @@ class PaymentService
             );
 
             $this->cambiarEstado(
-
                 $payment,
-
                 EstadoPago::REJECTED
-
             );
-
-            $this->orderService
-                ->cancelarPedido(
-                    $payment->order
-                );
-
             $payment->loadMissing([
-
                 'order',
-
                 'paymentMethod',
-
                 'estadoPago',
-
             ]);
-
             return $payment;
-
         });
-
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Eliminar pago
-    |--------------------------------------------------------------------------
-    */
+    /*Eliminar pago*/
 
     public function eliminarPago(
         Payment $payment
     ): bool {
 
         if (! $payment->isPendiente()) {
-
             throw new RuntimeException(
-
                 'Solo se pueden eliminar pagos pendientes.'
-
             );
-
         }
 
         return $payment->delete();
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Validar pedido
-    |--------------------------------------------------------------------------
-    */
+    /*Validar pedido*/
 
     private function validarPedido(
         Order $order
     ): void {
-
         if (! $order->exists) {
-
             throw new RuntimeException(
-
                 'El pedido no existe.'
-
             );
-
         }
-
         if ($order->payment()->exists()) {
-
             throw new RuntimeException(
-
                 'El pedido ya tiene un pago registrado.'
-
             );
-
         }
-
         if (! $order->items()->exists()) {
-
             throw new RuntimeException(
-
                 'El pedido no contiene productos.'
-
             );
-
         }
-
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Cambiar estado
-    |--------------------------------------------------------------------------
-    */
+    /*Cambiar estado*/
 
     private function cambiarEstado(
         Payment $payment,
@@ -507,7 +383,6 @@ class PaymentService
         $estado = $this->obtenerEstado(
             $codigoEstado
         );
-
         $payment->actualizarEstado(
             $estado
         );

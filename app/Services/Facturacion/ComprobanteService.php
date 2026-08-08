@@ -11,31 +11,18 @@ use RuntimeException;
 
 class ComprobanteService
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Crear comprobante
-    |--------------------------------------------------------------------------
-    */
+    /*Crear comprobante*/
 
     public function crear(
         Order $order,
         array $data
     ): Comprobante {
 
-        if ($order->comprobante()->exists()) {
-
-            throw new RuntimeException(
-                'El pedido ya tiene un comprobante.'
-            );
-
-        }
+        $this->validarPedido($order);
 
         return Comprobante::create([
-
             'order_id' => $order->id,
-
             'estado_comprobante_id' => $this->estadoPendiente()->id,
-
             'tipo_comprobante' => strtoupper(
                 $data['tipo_comprobante']
             ),
@@ -52,31 +39,38 @@ class ComprobanteService
 
             'razon_social' => $data['razon_social'] ?? null,
 
-            'direccion_fiscal' => trim(
-                $data['direccion_fiscal']
-            ),
+            'direccion_fiscal' => isset($data['direccion_fiscal'])
+                ? trim($data['direccion_fiscal'])
+                : null,
+
+        ])->load([
+
+            'order',
+            'estadoComprobante',
 
         ]);
 
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener estado pendiente
-    |--------------------------------------------------------------------------
-    */
+    /*Obtener comprobante por pedido*/
+
+    public function obtenerPorPedido(
+        Order $order
+    ): Comprobante {
+        return $order->comprobante()
+            ->with([
+                'estadoComprobante',
+            ])
+            ->firstOrFail();
+    }
+
+    /*Obtener estado pendiente*/
 
     public function estadoPendiente(): EstadoComprobante
     {
-        return EstadoComprobante::query()
-
-            ->where(
-                'codigo',
-                EstadoComprobante::PENDIENTE
-            )
-
-            ->firstOrFail();
-
+        return $this->obtenerEstado(
+            EstadoComprobante::PENDIENTE
+        );
     }
 
     /*
@@ -87,20 +81,17 @@ class ComprobanteService
 
     public function marcarEmitido(
         Comprobante $comprobante
-    ): void {
+    ): Comprobante {
 
-        $estado = EstadoComprobante::query()
+        $comprobante->actualizarEstado(
 
-            ->where(
-                'codigo',
+            $this->obtenerEstado(
                 EstadoComprobante::EMITIDO
             )
 
-            ->firstOrFail();
-
-        $comprobante->actualizarEstado(
-            $estado
         );
+
+        return $comprobante->refresh();
 
     }
 
@@ -112,20 +103,42 @@ class ComprobanteService
 
     public function marcarAnulado(
         Comprobante $comprobante
-    ): void {
+    ): Comprobante {
 
-        $estado = EstadoComprobante::query()
+        $comprobante->actualizarEstado(
 
-            ->where(
-                'codigo',
+            $this->obtenerEstado(
                 EstadoComprobante::ANULADO
             )
 
-            ->firstOrFail();
-
-        $comprobante->actualizarEstado(
-            $estado
         );
+        return $comprobante->refresh();
+    }
+    /*Obtener estado*/
+    protected function obtenerEstado(
+        string $codigo
+    ): EstadoComprobante {
+
+        return EstadoComprobante::query()
+
+            ->where(
+                'codigo',
+                $codigo
+            )
+            ->firstOrFail();
+    }
+    /*Validar pedido*/
+    protected function validarPedido(
+        Order $order
+    ): void {
+
+        if ($order->comprobante()->exists()) {
+
+            throw new RuntimeException(
+                'El pedido ya tiene un comprobante.'
+            );
+
+        }
 
     }
 }
