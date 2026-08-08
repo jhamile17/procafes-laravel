@@ -24,12 +24,12 @@ class PaymentService
     /*Crear pago*/
     public function crearPago(
         Order $order,
-        string $paymentMethodCode
+        int $paymentMethodId
     ): Payment {
         $this->validarPedido($order);
         $paymentMethod = $this->paymentMethodService
                 ->obtenerPorCodigo(
-                    $paymentMethodCode
+                    $paymentMethodId
                 );
             $estadoPendiente = $this->obtenerEstado(
                 EstadoPago::PENDING
@@ -47,6 +47,7 @@ class PaymentService
                 'paymentMethod',
                 'estadoPago',
             ]);
+            return $payment;
     }
     /*Iniciar pago por pedido*/
     public function iniciarPagoPorPedido(

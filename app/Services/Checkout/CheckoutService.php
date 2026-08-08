@@ -96,7 +96,7 @@ class CheckoutService
                 $this->paymentService->crearPago(
 
                     order: $order,
-                    paymentMethodCode: $data['payment_method'],
+                    paymentMethodCode: (int)$data['payment_method_id'],
 
                 );
 

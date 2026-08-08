@@ -1,27 +1,15 @@
 <div class="checkout-card">
-
-    {{-- ==========================================================
-        HEADER
-    =========================================================== --}}
-
     <div class="checkout-card-header">
-
         <span class="checkout-card-badge">
-
             Paso 2
-
         </span>
 
         <h2 class="checkout-card-title">
-
             Método de pago
-
         </h2>
 
         <p class="checkout-card-subtitle">
-
             Selecciona cómo deseas pagar tu pedido.
-
         </p>
 
     </div>
@@ -47,8 +35,8 @@
                 <input
                     id="paymentStore"
                     type="radio"
-                    name="payment_method"
-                    value="store"
+                    name="payment_method_id"
+                    value="1"
                     checked>
 
                 <div class="checkout-payment-content">
@@ -94,8 +82,9 @@
                 <input
                     id="paymentMercadoPago"
                     type="radio"
-                    name="payment_method"
-                    value="mercadopago">
+                    name="payment_method_id"
+                    value="2"
+                    checked>
 
                 <div class="checkout-payment-content">
 
