@@ -134,17 +134,12 @@ class Payment extends Model
 
     public function isPagado(): bool
     {
-        return $this->estadoPago?->esPagado() ?? false;
+        return $this->estadoPago?->esAprovado() ?? false;
     }
 
     public function isRechazado(): bool
     {
         return $this->estadoPago?->esRechazado() ?? false;
-    }
-
-    public function isCancelado(): bool
-    {
-        return $this->estadoPago?->esCancelado() ?? false;
     }
 
     /*

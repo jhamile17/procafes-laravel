@@ -10,6 +10,7 @@ use App\Services\Checkout\CheckoutService;
 use App\Services\Pagos\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use RuntimeException;
 use Throwable;
 
 class CheckoutController extends Controller
@@ -20,7 +21,11 @@ class CheckoutController extends Controller
     ) {
     }
 
-    /*Mostrar checkout*/
+    /*
+    |--------------------------------------------------------------------------
+    | Mostrar checkout
+    |--------------------------------------------------------------------------
+    */
 
     public function index(): View
     {
@@ -32,44 +37,71 @@ class CheckoutController extends Controller
         );
     }
 
-    /*Procesar checkout*/
+    /*
+    |--------------------------------------------------------------------------
+    | Procesar checkout
+    |--------------------------------------------------------------------------
+    */
 
     public function store(
         CheckoutRequest $request
     ): RedirectResponse {
 
         try {
-            /* crear pedido, comprobante y registro de pago */
+
+            /*
+            |--------------------------------------------------------------------------
+            | Crear pedido, comprobante y pago
+            |--------------------------------------------------------------------------
+            */
+
             $order = $this->checkoutService->procesar(
                 auth()->id(),
                 $request->validated()
             );
-            /*Iniciar pago*/
-            
+
+            /*
+            |--------------------------------------------------------------------------
+            | Iniciar flujo de pago
+            |--------------------------------------------------------------------------
+            */
+
             $payment = $this->paymentService
                 ->iniciarPagoPorPedido($order);
-            
-            /*Mercado Pago*/
 
-            if (
-                $this->paymentService->esMercadoPago($payment)) {
-                $initPoint= $payment->transaction_data['init_point']?? null;
-                    if (!$initPoint){
-                        throw new \RuntimerException(
-                            'No fue posible iniciar el pago con Mercado Pago'
-                        );
-                    }
-                return redirect ()->away($initPoint);
+            /*
+            |--------------------------------------------------------------------------
+            | Mercado Pago
+            |--------------------------------------------------------------------------
+            */
+
+            if ($this->paymentService->esMercadoPago($payment)) {
+
+                $initPoint = $payment->transaction_data['init_point'] ?? null;
+
+                if (blank($initPoint)) {
+                    throw new RuntimeException(
+                        'No fue posible iniciar el pago con Mercado Pago.'
+                    );
+                }
+
+                return redirect()->away($initPoint);
+
             }
 
-            /*Pago en tienda*/
+            /*
+            |--------------------------------------------------------------------------
+            | Pago en tienda
+            |--------------------------------------------------------------------------
+            */
 
             return redirect()->route(
                 'checkout.success',
                 [
-                    'order'=>$order,
+                    'order' => $order,
                 ]
             );
+
         } catch (Throwable $e) {
 
             report($e);

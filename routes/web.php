@@ -259,11 +259,8 @@ Route::middleware(['auth'])
     });
 
 Route::middleware('auth')
-
     ->prefix('mercado-pago')
-
     ->name('mp.')
-
     ->group(function () {
 
         Route::get(
@@ -272,31 +269,35 @@ Route::middleware('auth')
         )->name('success');
 
         Route::get(
-            '/failure',
-            [MercadoPagoController::class, 'failure']
-        )->name('failure');
-
-        Route::get(
             '/pending',
             [MercadoPagoController::class, 'pending']
         )->name('pending');
 
+        Route::get(
+            '/failure',
+            [MercadoPagoController::class, 'failure']
+        )->name('failure');
+
     });
 
+/*
+|--------------------------------------------------------------------------
+| Mercado Pago - Webhook
+|--------------------------------------------------------------------------
+*/
+
 Route::prefix('mercado-pago')
-
     ->name('mp.')
-
     ->group(function () {
 
         Route::post(
             '/webhook',
             [MercadoPagoWebhookController::class, 'handle']
-        )
-
-        ->name('webhook');
+        )->name('webhook');
 
     });
+
+
 Route::middleware('auth')
     ->prefix('customer/documentos')
     ->name('customer.documentos.')

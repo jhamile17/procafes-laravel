@@ -133,6 +133,10 @@ class Comprobante extends Model
     {
         return $this->estadoComprobante?->esAnulado() ?? false;
     }
+    public function yaFueEmitido(): bool
+    {
+        return $this->electronicDocument?->esAceptado() ?? false;
+    }
 
     /*
     |--------------------------------------------------------------------------

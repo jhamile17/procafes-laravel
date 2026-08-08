@@ -106,12 +106,7 @@ class PaymentService
         }
         return $payment;
     }
-        /*
-    |--------------------------------------------------------------------------
-    | Obtener pago
-    |--------------------------------------------------------------------------
-    */
-
+        /* Obtener pago*/
     public function obtener(
         int $paymentId
     ): Payment {
@@ -289,12 +284,11 @@ class PaymentService
                 EstadoPago::APPROVED
             );
 
-            $payment->loadMissing([
+            return $payment->fresh([
                 'order',
                 'paymentMethod',
                 'estadoPago',
             ]);
-            return $payment;
         });
     }
 

@@ -4,43 +4,26 @@ declare(strict_types=1);
 
 namespace App\Services\Pasarelas;
 
-use App\Services\Pagos\PaymentService;
+use App\Models\Payment;
+use App\Services\Pagos\PaymentConfirmationService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use MercadoPago\Client\Payment\PaymentClient;
-use MercadoPago\MercadoPagoConfig;
-use RuntimeException;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
-class MercadoPagoWebhookService
+final class MercadoPagoWebhookService
 {
     public function __construct(
-        protected PaymentService $paymentService,
+        protected MercadoPagoApiService $mercadoPagoApiService,
+        protected MercadoPagoSignatureService $signatureService,
+        protected PaymentConfirmationService $paymentConfirmationService,
     ) {
-
-        $accessToken = config(
-            'mercadopago.access_token'
-        );
-
-        if (blank($accessToken)) {
-
-            throw new RuntimeException(
-
-                'No se configuró el Access Token de Mercado Pago.'
-
-            );
-
-        }
-
-        MercadoPagoConfig::setAccessToken(
-            $accessToken
-        );
-
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Procesar webhook
+    | Procesar Webhook
     |--------------------------------------------------------------------------
     */
 
@@ -48,26 +31,37 @@ class MercadoPagoWebhookService
         Request $request
     ): JsonResponse {
 
+        Log::info(
+            'Webhook Mercado Pago recibido.',
+            $request->all()
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validar firma del Webhook
+        |--------------------------------------------------------------------------
+        */
+
+        if (! $this->signatureService->validar($request)) {
+
+            return response()->json([
+                'message' => 'Firma inválida.',
+            ], 401);
+
+        }
+
         try {
 
             /*
             |--------------------------------------------------------------------------
-            | Solo pagos
+            | Solo procesar eventos de pago
             |--------------------------------------------------------------------------
             */
 
-            if (
-
-                $request->input('type') !== 'payment'
-
-            ) {
+            if ($request->input('type') !== 'payment') {
 
                 return response()->json([
-
-                    'success' => true,
-
                     'message' => 'Evento ignorado.',
-
                 ]);
 
             }
@@ -78,299 +72,120 @@ class MercadoPagoWebhookService
             |--------------------------------------------------------------------------
             */
 
-            $paymentId = $request->input(
-                'data.id'
-            );
+            $paymentId = $request->input('data.id');
 
             if (blank($paymentId)) {
 
                 return response()->json([
-
-                    'success' => false,
-
-                    'message' => 'No se recibió el ID del pago.',
-
+                    'message' => 'Payment ID no recibido.',
                 ], 400);
 
             }
 
             /*
             |--------------------------------------------------------------------------
-            | Obtener pago desde Mercado Pago
+            | Consultar pago en Mercado Pago
             |--------------------------------------------------------------------------
             */
 
-            $mpPayment = $this->obtenerPagoMercadoPago(
-                (string) $paymentId
-            );
+            $mercadoPagoPayment = $this->mercadoPagoApiService
+                ->obtenerPago($paymentId);
 
             /*
             |--------------------------------------------------------------------------
-            | Buscar pago interno
+            | Solo procesar pagos aprobados
             |--------------------------------------------------------------------------
             */
 
-            $payment = $this->paymentService
-                ->obtenerPorReferencia(
-
-                    $mpPayment->external_reference
-
-                );
-
-            if (! $payment) {
+            if ($mercadoPagoPayment->status !== 'approved') {
 
                 return response()->json([
-
-                    'success' => false,
-
-                    'message' => 'Pago no encontrado.',
-
-                ], 404);
-
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Evitar reprocesar
-            |--------------------------------------------------------------------------
-            */
-
-            $payment->loadMissing(
-                'estadoPago'
-            );
-
-            if (
-
-                $payment->estadoPago
-                    ->esAprobado()
-
-            ) {
-
-                return response()->json([
-
-                    'success' => true,
-
-                    'message' => 'Pago ya procesado.',
-
+                    'message' => 'Pago no aprobado.',
                 ]);
 
             }
 
             /*
             |--------------------------------------------------------------------------
-            | Procesar estado
+            | Buscar pago en nuestra base de datos
             |--------------------------------------------------------------------------
             */
 
-            return $this->procesarEstado(
+            $payment = Payment::query()
+                ->where(
+                    'reference',
+                    $mercadoPagoPayment->external_reference
+                )
+                ->firstOrFail();
 
-                $payment,
+            /*
+            |--------------------------------------------------------------------------
+            | Evitar procesar dos veces
+            |--------------------------------------------------------------------------
+            */
 
-                $mpPayment
+            $payment->loadMissing('estadoPago');
+
+            if ($payment->estadoPago?->esAprobado()) {
+
+                return response()->json([
+                    'message' => 'Pago ya procesado.',
+                ]);
+
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Confirmar pago
+            |--------------------------------------------------------------------------
+            */
+
+            $this->paymentConfirmationService->confirmar(
+
+                payment: $payment,
+
+                transactionId: (string) $mercadoPagoPayment->id,
+
+                transactionData: json_decode(
+                    json_encode($mercadoPagoPayment),
+                    true
+                ),
 
             );
 
-        } catch (Throwable $e) {
+            return response()->json([
+                'message' => 'OK',
+            ]);
 
-            report($e);
+        } catch (ModelNotFoundException $e) {
+
+            Log::warning(
+                'Pago no encontrado.',
+                [
+                    'payment_id' => $request->input('data.id'),
+                ]
+            );
 
             return response()->json([
+                'message' => 'Pago no encontrado.',
+            ], 404);
 
-                'success' => false,
+        } catch (Throwable $e) {
 
-                'message' => $e->getMessage(),
+            Log::error(
+                'Error procesando Webhook de Mercado Pago.',
+                [
+                    'message' => $e->getMessage(),
+                    'file'    => $e->getFile(),
+                    'line'    => $e->getLine(),
+                ]
+            );
 
+            return response()->json([
+                'message' => 'Error interno.',
             ], 500);
 
         }
 
     }
-        /*
-    |--------------------------------------------------------------------------
-    | Obtener pago desde Mercado Pago
-    |--------------------------------------------------------------------------
-    */
-
-    private function obtenerPagoMercadoPago(
-        string $paymentId
-    ): object {
-
-        return $this->paymentClient()
-            ->get(
-                $paymentId
-            );
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Construir información de la transacción
-    |--------------------------------------------------------------------------
-    */
-
-    private function construirTransactionData(
-        object $mpPayment
-    ): array {
-
-        return [
-
-            'id' => $mpPayment->id,
-
-            'status' => $mpPayment->status,
-
-            'status_detail' => $mpPayment->status_detail,
-
-            'payment_method' => $mpPayment->payment_method_id,
-
-            'payment_type' => $mpPayment->payment_type_id,
-
-            'external_reference' => $mpPayment->external_reference,
-
-            'transaction_amount' => $mpPayment->transaction_amount,
-
-            'currency_id' => $mpPayment->currency_id,
-
-            'date_created' => $mpPayment->date_created,
-
-            'date_approved' => $mpPayment->date_approved,
-
-            'date_last_updated' => $mpPayment->date_last_updated,
-
-            'collector_id' => $mpPayment->collector_id,
-
-        ];
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cliente Mercado Pago
-    |--------------------------------------------------------------------------
-    */
-
-    private function paymentClient(): PaymentClient
-    {
-
-        return new PaymentClient();
-
-    }
-        /*
-    |--------------------------------------------------------------------------
-    | Procesar estado del pago
-    |--------------------------------------------------------------------------
-    */
-
-    private function procesarEstado(
-        \App\Models\Payment $payment,
-        object $mpPayment
-    ): JsonResponse {
-
-        $transactionData = $this->construirTransactionData(
-            $mpPayment
-        );
-
-        switch ($mpPayment->status) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | Pago aprobado
-            |--------------------------------------------------------------------------
-            */
-
-            case 'approved':
-
-                $this->paymentService
-                    ->confirmarPago(
-
-                        payment: $payment,
-
-                        transactionId: (string) $mpPayment->id,
-
-                        transactionData: $transactionData,
-
-                    );
-
-                break;
-
-            /*
-            |--------------------------------------------------------------------------
-            | Pago rechazado
-            |--------------------------------------------------------------------------
-            */
-
-            case 'rejected':
-
-            case 'cancelled':
-
-                $this->paymentService
-                    ->rechazarPago(
-
-                        payment: $payment,
-
-                        transactionId: (string) $mpPayment->id,
-
-                        transactionData: $transactionData,
-
-                    );
-
-                break;
-
-            /*
-            |--------------------------------------------------------------------------
-            | Pago pendiente
-            |--------------------------------------------------------------------------
-            */
-
-            case 'pending':
-
-            case 'in_process':
-
-            case 'authorized':
-
-                $this->paymentService
-                    ->actualizarTransaccion(
-
-                        payment: $payment,
-
-                        transactionId: (string) $mpPayment->id,
-
-                        transactionData: $transactionData,
-
-                    );
-
-                break;
-
-            /*
-            |--------------------------------------------------------------------------
-            | Otros estados
-            |--------------------------------------------------------------------------
-            */
-
-            default:
-
-                $this->paymentService
-                    ->actualizarTransaccion(
-
-                        payment: $payment,
-
-                        transactionId: (string) $mpPayment->id,
-
-                        transactionData: $transactionData,
-
-                    );
-
-                break;
-
-        }
-
-        return response()->json([
-
-            'success' => true,
-
-            'status' => $mpPayment->status,
-
-        ]);
-
-    }
-
 }

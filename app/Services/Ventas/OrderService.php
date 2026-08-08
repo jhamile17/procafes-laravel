@@ -114,11 +114,8 @@ class OrderService
             ->latest()
             ->get();
     }
-        /*
-    |--------------------------------------------------------------------------
-    | Confirmar pedido
-    |--------------------------------------------------------------------------
-    */
+
+    /*Confirmar pedido*/
 
     public function confirmarPedido(
         Order $order
@@ -211,26 +208,28 @@ class OrderService
         return DB::transaction(function () use ($order) {
 
             $order->loadMissing(
-                'items.product'
+                'estadoPedido',
+                'items.product',
             );
+            if(! $order->estadoPedido->esConfirmado()){
+                throw new RuntimeException(
+                    'Solo se puede completar pedidos confirmados.'
+                );
+            }
 
-            $this->confirmarPedido(
-                $order
+            $this->cambiarEstado(
+                order: $order,
+                codigoEstado: EstadoPedido::ENTREGADO,
             );
 
             $this->descontarStock(
                 $order
             );
 
-            $order->loadMissing([
-
+            return $order->fresh([
                 'estadoPedido',
-
                 'items.product',
-
             ]);
-
-            return $order;
 
         });
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services\Pasarelas;
 
 use App\Models\Payment;
-use Exception;
 use Illuminate\Support\Facades\Log;
 use MercadoPago\Client\Preference\PreferenceClient;
 use MercadoPago\Exceptions\MPApiException;
@@ -116,58 +115,44 @@ public function crearPreferencia(
     }
 
 }
-/*
-|--------------------------------------------------------------------------
-| Construir Request
-|--------------------------------------------------------------------------
-*/
-
+/*Construir Request*/
 private function construirRequest(
     Payment $payment
-): array {
-
-    return [
-
-        'items' => $this->construirItems(
-            $payment
-        ),
-
-        'payer' => $this->construirPayer(
-            $payment
-        ),
-
+):array{
+    return[
+        'items' => $this->construirItems($payment),
+        'prayer' => $this->construirPrayer($payment),
         'external_reference' => $payment->reference,
-
         'statement_descriptor' => self::STATEMENT_DESCRIPTOR,
-
         'binary_mode' => false,
-
-        'metadata' => [
-
-            'payment_id' => $payment->id,
-
-            'order_id' => $payment->order->id,
-
-        ],
-
-        'back_urls' => [
-
-            'success' => route('mp.success'),
-
-            'failure' => route('mp.failure'),
-
-            'pending' => route('mp.pending'),
-
-        ],
-
+        'metadata' => $this->construirMetadata(
+            $payment
+        ),
+        'back_urls' => $this->construirBackUrls(),
         'notification_url' => route('mp.webhook'),
-
         'auto_return' => 'approved',
         'purpose' => 'wallet_purchase',
-
     ];
 
 }
+/* construir Metadata */
+private function construirMetadata(
+    Payment $payment
+): array{
+    return [
+        'payment_id' => $payment->id,
+        'order_id' =>$payment->order->id,
+    ];
+}
+private function construirBackUrls(): array{
+    return[
+        'success' => route('mp.success'),
+        'failure' => route('mp.failure'),
+        'pending' => route('mp.pending'),
+    ];
+}
+    
+
 /*
 |--------------------------------------------------------------------------
 | Construir Items
