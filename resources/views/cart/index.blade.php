@@ -1,9 +1,6 @@
 @extends('layouts.app')
-
 @section('title', 'Mi carrito')
-
 @section('body-class', 'cart-page')
-
 @section('content')
 
 <div class="container">
