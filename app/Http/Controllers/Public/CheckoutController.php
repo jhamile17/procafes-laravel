@@ -36,7 +36,7 @@ class CheckoutController extends Controller
             )
         );
     }
-
+   
     /*
     |--------------------------------------------------------------------------
     | Procesar checkout
@@ -49,31 +49,17 @@ class CheckoutController extends Controller
 
         try {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Crear pedido, comprobante y pago
-            |--------------------------------------------------------------------------
-            */
+           
 
             $order = $this->checkoutService->procesar(
                 auth()->id(),
                 $request->validated()
             );
 
-            /*
-            |--------------------------------------------------------------------------
-            | Iniciar flujo de pago
-            |--------------------------------------------------------------------------
-            */
-
             $payment = $this->paymentService
                 ->iniciarPagoPorPedido($order);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Mercado Pago
-            |--------------------------------------------------------------------------
-            */
+    
 
             if ($this->paymentService->esMercadoPago($payment)) {
 
@@ -89,11 +75,7 @@ class CheckoutController extends Controller
 
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Pago en tienda
-            |--------------------------------------------------------------------------
-            */
+        
 
             return redirect()->route(
                 'checkout.success',
@@ -103,7 +85,7 @@ class CheckoutController extends Controller
             );
 
         } catch (Throwable $e) {
-
+        
             report($e);
 
             return back()
@@ -112,7 +94,7 @@ class CheckoutController extends Controller
                     'error',
                     'No fue posible procesar tu pedido. Inténtalo nuevamente.'
                 );
-
+        
         }
 
     }

@@ -28,7 +28,7 @@ class PaymentService
     ): Payment {
         $this->validarPedido($order);
         $paymentMethod = $this->paymentMethodService
-                ->obtenerPorCodigo(
+                ->obtener(
                     $paymentMethodId
                 );
             $estadoPendiente = $this->obtenerEstado(

@@ -80,7 +80,8 @@ class Comprobante extends Model
     public function electronicDocument(): HasOne
     {
         return $this->hasOne(
-            ElectronicDocument::class
+            ElectronicDocument::class,
+            'comprobante_id'
         );
     }
 

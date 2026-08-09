@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\Comprobante;
 
 class Order extends Model
 {
@@ -94,11 +95,10 @@ class Order extends Model
             Payment::class
         );
     }
-
-    public function electronicDocument(): HasOne
+    public function comprobante(): HasOne
     {
         return $this->hasOne(
-            ElectronicDocument::class
+            Comprobante::class
         );
     }
 
@@ -141,7 +141,7 @@ class Order extends Model
 
     public function tieneDocumentoElectronico(): bool
     {
-        return $this->electronicDocument()->exists();
+        return $this->comprobante?->electronicDocument()->exists() ?? false;
     }
 
     public function calcularTotal(): float

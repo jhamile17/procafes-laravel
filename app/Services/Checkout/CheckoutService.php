@@ -63,19 +63,17 @@ class CheckoutService
 
             /*Validar carrito*/
             $cart = $this->validar($userId);
-
-            /*Obtener dirección registrada*/
-            $address = $this->addressService
-                ->obtenerDireccion(
-                    $userId
-                );
-
-            if (! $address) {
-
-                throw new RuntimeException(
-                    'Debes registrar una dirección de envío.'
-                );
-
+            $deliveryType = $data['delivery_type'];
+            $address = null;
+           
+            if ($deliveryType === 'delivery') {
+                $address = $this->addressService
+                    ->obtenerDireccion($userId);
+                if (! $address) {
+                    throw new RuntimeException(
+                        'Debes registrar una dirección de envío.'
+                    );
+                }
             }
             $resumen = $this->cartService->calcularResumen($cart);
             /*Crear pedido*/
@@ -84,6 +82,7 @@ class CheckoutService
                     cart: $cart,
                     shippingAddress: $address,
                     resumen: $resumen,
+                    deliveryType: $deliveryType,
 
                 );
             /*crear comprobante */
@@ -96,7 +95,7 @@ class CheckoutService
                 $this->paymentService->crearPago(
 
                     order: $order,
-                    paymentMethodCode: (int)$data['payment_method_id'],
+                    paymentMethodId: (int)$data['payment_method_id'],
 
                 );
 
@@ -106,8 +105,7 @@ class CheckoutService
                     'items.product',
                     'payment.paymentMethod',
                     'payment.estadoPago',
-                    'comprobante',
-                    'electronicDocument',
+                    'comprobante.electronicDocument',
                     
                 ]);
         });

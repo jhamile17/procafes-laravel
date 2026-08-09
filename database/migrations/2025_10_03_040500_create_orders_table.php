@@ -27,9 +27,10 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->foreignId('shipping_address_id')
+                ->nullable()
                 ->constrained('shipping_addresses')
                 ->cascadeOnUpdate()
-                ->restrictOnDelete();
+                ->nullOnDelete();
 
             $table->foreignId('estado_pedido_id')
                 ->constrained('estados_pedido')
@@ -47,24 +48,38 @@ return new class extends Migration
 
             /*
             |--------------------------------------------------------------------------
-            | Snapshot de la dirección de entrega
+            | Tipo de entrega
             |--------------------------------------------------------------------------
-            | Se guarda una copia de la dirección utilizada en el momento de la
-            | compra para conservar el historial, aunque el cliente modifique
-            | posteriormente sus direcciones guardadas.
+            */
+
+            $table->enum('delivery_type', [
+                'pickup',
+                'delivery',
+            ])->default('pickup');
+
+            /*
+            |--------------------------------------------------------------------------
+            | Snapshot de la dirección
+            |--------------------------------------------------------------------------
+            | Solo se llena cuando el pedido es DELIVERY.
+            | Para RECOJO todos estos campos permanecen en NULL.
             |--------------------------------------------------------------------------
             */
 
             $table->string('delivery_alias', 100)
                 ->nullable();
 
-            $table->string('delivery_direccion');
+            $table->string('delivery_direccion')
+                ->nullable();
 
-            $table->string('delivery_departamento', 100);
+            $table->string('delivery_departamento', 100)
+                ->nullable();
 
-            $table->string('delivery_provincia', 100);
+            $table->string('delivery_provincia', 100)
+                ->nullable();
 
-            $table->string('delivery_distrito', 100);
+            $table->string('delivery_distrito', 100)
+                ->nullable();
 
             $table->string('delivery_referencia', 255)
                 ->nullable();
@@ -76,16 +91,6 @@ return new class extends Migration
             */
 
             $table->decimal('total_price', 10, 2);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Tipo de entrega
-            |--------------------------------------------------------------------------
-            */
-
-            $table->string('delivery_type', 30);
-            $table->string('tipo_comprobante', 20);
-
             /*
             |--------------------------------------------------------------------------
             | Observaciones
@@ -96,7 +101,6 @@ return new class extends Migration
                 ->nullable();
 
             $table->timestamps();
-
         });
     }
 

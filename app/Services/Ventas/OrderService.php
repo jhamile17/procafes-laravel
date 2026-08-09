@@ -24,13 +24,16 @@ class OrderService
     /*Crear pedido*/
     public function crearPedido(
         Cart $cart,
-        ShippingAddress $shippingAddress,
+        ?ShippingAddress $shippingAddress,
         array $resumen,
+        string $deliveryType,
     ): Order {
         $this->validarCarrito($cart);
         return DB::transaction(function () use (
             $cart,
-            $shippingAddress 
+            $shippingAddress, 
+            $resumen,
+            $deliveryType
         ){
             $estadoPendiente = $this->obtenerEstadoPedido(
                 EstadoPedido::PENDIENTE
@@ -40,6 +43,7 @@ class OrderService
                 shippingAddress: $shippingAddress,
                 estado: $estadoPendiente,
                 resumen: $resumen,
+                deliveryType: $deliveryType,
             );
 
             $this->crearItems(
@@ -299,25 +303,28 @@ class OrderService
 
     private function crearRegistroPedido(
         Cart $cart,
-        ShippingAddress $shippingAddress,
+        ?ShippingAddress $shippingAddress,
         EstadoPedido $estado,
         array $resumen,
+        string $deliveryType,
     ): Order {
         return Order::create([
 
             'user_id' => $cart->user_id,
-            'shipping_address_id' => $shippingAddress->id,
+            'shipping_address_id' => $shippingAddress?->id,
             'estado_pedido_id' => $estado->id,
             'numero_pedido' => $this->generarNumeroPedido(),
-            'delivery_direccion' => $shippingAddress->direccion,
-            'delivery_numero' => $shippingAddress->numero,
-            'delivery_departamento' => $shippingAddress->departamento,
-            'delivery_provincia' => $shippingAddress->provincia,
-            'delivery_distrito' => $shippingAddress->distrito,
-            'delivery_referencia' => $shippingAddress->referencia,
+            'delivery_type' =>$deliveryType,
+            'delivery_direccion' => $shippingAddress?->direccion,
+            'delivery_numero' => $shippingAddress?->numero,
+            'delivery_departamento' => $shippingAddress?->departamento,
+            'delivery_provincia' => $shippingAddress?->provincia,
+            'delivery_distrito' => $shippingAddress?->distrito,
+            'delivery_referencia' => $shippingAddress?->referencia,
             'subtotal' => $resumen['subtotal'],
             'igv' => $resumen['igv'],
             'total_price' => $resumen['total'],
+
         ]);
 
     }

@@ -24,9 +24,9 @@ class EstadoPedidoSeeder extends Seeder
             ],
 
             [
-                'codigo' => 'PAGADO',
-                'nombre' => 'Pagado',
-                'descripcion' => 'Pago confirmado.',
+                'codigo' => 'CONFIRMADO',
+                'nombre' => 'Confirmado',
+                'descripcion' => 'El pedido ha sido confirmado.',
                 'status' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
