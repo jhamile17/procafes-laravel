@@ -35,7 +35,7 @@ final class NubeFact
     /*IGV*/
 
     public const PORCENTAJE_IGV = 18;
-
+    public const FACTOR_IGV = 1.18;
     /*Tipo de afectación IGV*/
 
     public const GRAVADO = 10;

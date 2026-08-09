@@ -44,11 +44,10 @@ final class NubeFactService
             $payload = $this->builder->build(
                 $comprobante
             );
-
             $response = $this->cliente->enviar(
                 $payload
             );
-
+            dd($response);
             $dto = NubeFactResponseDTO::fromArray(
                 $response
             );
