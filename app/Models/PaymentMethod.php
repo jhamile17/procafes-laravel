@@ -10,15 +10,26 @@ class PaymentMethod extends Model
 {
     use HasFactory;
 
+    protected $table = 'payment_methods';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Constantes
+    |--------------------------------------------------------------------------
+    */
+
+    public const STORE = 'store';
+
+    public const MERCADOPAGO = 'mercadopago';
+
     /*
     |--------------------------------------------------------------------------
     | Asignación masiva
     |--------------------------------------------------------------------------
     */
 
-    protected $table = 'payment_methods';
-
     protected $fillable = [
+        'codigo',
         'nombre',
         'descripcion',
         'estado',
@@ -61,12 +72,22 @@ class PaymentMethod extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Métodos auxiliares
+    | Helpers
     |--------------------------------------------------------------------------
     */
 
     public function isActive(): bool
     {
         return $this->estado;
+    }
+
+    public function esPagoEnTienda(): bool
+    {
+        return $this->codigo === self::STORE;
+    }
+
+    public function esMercadoPago(): bool
+    {
+        return $this->codigo === self::MERCADOPAGO;
     }
 }

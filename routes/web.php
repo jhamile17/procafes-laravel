@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Order;
 use App\Notifications\UsuarioReactivacion;
 
 use App\Livewire\Pages\Auth\CheckEmail;

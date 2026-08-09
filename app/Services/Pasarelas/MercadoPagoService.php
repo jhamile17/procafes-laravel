@@ -121,7 +121,7 @@ private function construirRequest(
 ):array{
     return[
         'items' => $this->construirItems($payment),
-        'prayer' => $this->construirPrayer($payment),
+        'payer' => $this->construirPrayer($payment),
         'external_reference' => $payment->reference,
         'statement_descriptor' => self::STATEMENT_DESCRIPTOR,
         'binary_mode' => false,
@@ -131,7 +131,6 @@ private function construirRequest(
         'back_urls' => $this->construirBackUrls(),
         'notification_url' => route('mp.webhook'),
         'auto_return' => 'approved',
-        'purpose' => 'wallet_purchase',
     ];
 
 }

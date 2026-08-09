@@ -86,15 +86,11 @@ class CheckoutController extends Controller
 
         } catch (Throwable $e) {
         
-            report($e);
-
-            return back()
-                ->withInput()
-                ->with(
-                    'error',
-                    'No fue posible procesar tu pedido. Inténtalo nuevamente.'
-                );
-        
+             dd(
+                $e->getMessage(),
+                $e->getFile(),
+                $e->getLine()
+            );
         }
 
     }
