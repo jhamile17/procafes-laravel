@@ -73,13 +73,10 @@ final class PaymentConfirmationService
             | Emitir comprobante (solo una vez)
             |--------------------------------------------------------------------------
             */
-
-            if (! $payment->order->comprobante->yaFueEmitido()) {
-
-                $this->nubeFactService->emitir(
-                    $payment->order->comprobante
-                );
-
+            $comprobante = $payment->order->comprobante;
+            if ($comprobante &&! $comprobante->yaFueEmitido()
+            ) {
+                $this->nubeFactService->emitir($comprobante);
             }
 
             /*
