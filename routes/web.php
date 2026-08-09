@@ -326,7 +326,7 @@ Route::prefix('admin')
     ->middleware(['auth', 'verified'])
     ->group(function () {
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])
         ->name('dashboard');
 
         Route::resource('/categories', CategoryController::class);
