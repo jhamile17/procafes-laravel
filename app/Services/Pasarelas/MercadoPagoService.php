@@ -121,7 +121,7 @@ private function construirRequest(
 ):array{
     return[
         'items' => $this->construirItems($payment),
-        'payer' => $this->construirPrayer($payment),
+        'payer' => $this->construirPayer($payment),
         'external_reference' => $payment->reference,
         'statement_descriptor' => self::STATEMENT_DESCRIPTOR,
         'binary_mode' => false,
