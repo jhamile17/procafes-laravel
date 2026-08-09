@@ -20,6 +20,11 @@ final class MercadoPagoSignatureService
     ): bool {
 
         $secret = config('mercadopago.webhook_secret');
+        Log::info('WEBHOOK CONFIG', [
+        'secret' => $secret,
+        'blank' => blank($secret),
+        'signature' => $request->header('x-signature'),
+        ]);
 
         /*
         |--------------------------------------------------------------------------
