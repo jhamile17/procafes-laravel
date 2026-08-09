@@ -68,23 +68,27 @@ final class ClienteNubeFactService
     |--------------------------------------------------------------------------
     */
 
-    protected function decode(
-    Response $response
-    ): array {
-        if (! $response->successful()) {
-            throw new NubeFactException(
-                'NubeFact respondió con un error HTTP (' .
-                $response->status() .
-                ').'
-            );
-        }
-        $data = $response->json();
-        if (! is_array($data)) {
+    protected function decode(Response $response): array
+        {
+            $data = $response->json();
 
-            throw new NubeFactException(
-                'NubeFact devolvió una respuesta inválida.'
-            );
+            if (! $response->successful()) {
+
+                $mensaje = is_array($data)
+                    ? ($data['errors'] ?? json_encode($data))
+                    : $response->body();
+
+                throw new NubeFactException(
+                    "NubeFact ({$response->status()}): {$mensaje}"
+                );
+            }
+
+            if (! is_array($data)) {
+                throw new NubeFactException(
+                    'NubeFact devolvió una respuesta inválida.'
+                );
+            }
+
+            return $data;
         }
-        return $data;
-    }
 }

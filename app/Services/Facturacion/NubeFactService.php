@@ -47,7 +47,6 @@ final class NubeFactService
             $response = $this->cliente->enviar(
                 $payload
             );
-            dd($response);
             $dto = NubeFactResponseDTO::fromArray(
                 $response
             );
