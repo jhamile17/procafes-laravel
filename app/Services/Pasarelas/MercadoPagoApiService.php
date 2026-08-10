@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Pasarelas;
 
-use Illuminate\Support\Facades\Log;
 use MercadoPago\Client\Payment\PaymentClient;
 use MercadoPago\MercadoPagoConfig;
 use RuntimeException;
@@ -43,18 +42,13 @@ final class MercadoPagoApiService
 
         } catch (Throwable $e) {
 
-            Log::error('ERROR SDK MERCADO PAGO', [
-                'payment_id' => $paymentId,
-                'message'    => $e->getMessage(),
-                'code'       => $e->getCode(),
-                'class'      => get_class($e),
-                'file'       => $e->getFile(),
-                'line'       => $e->getLine(),
-                'trace'      => $e->getTraceAsString(),
-            ]);
+            throw new RuntimeException(
+                'No fue posible obtener el pago desde Mercado Pago.',
+                previous: $e
+            );
 
-            throw $e;
         }
+
     }
 
     /*
