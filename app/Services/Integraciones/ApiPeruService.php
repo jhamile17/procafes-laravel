@@ -30,7 +30,7 @@ class ApiPeruService
     {
         $this->baseUrl = rtrim(
 
-            config('APIS_PERU_URL'),
+            config('services.apiperu.url'),
 
             '/'
 
@@ -38,7 +38,7 @@ class ApiPeruService
 
         $this->token = config(
 
-            'APIS_PERU_TOKEN'
+            'services.apiperu.token'
 
         );
 
