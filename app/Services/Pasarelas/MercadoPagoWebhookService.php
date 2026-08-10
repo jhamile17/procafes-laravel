@@ -27,114 +27,87 @@ final class MercadoPagoWebhookService
     |--------------------------------------------------------------------------
     */
 
-    public function procesar(Request $request): JsonResponse
-    {
+    public function procesar(
+        Request $request
+    ): JsonResponse {
+
         Log::info(
             'Webhook Mercado Pago recibido.',
-            [
-                'headers' => $request->headers->all(),
-                'body'    => $request->all(),
-            ]
+            $request->all()
         );
 
         /*
         |--------------------------------------------------------------------------
-        | Validar firma
+        | Validar firma del Webhook
         |--------------------------------------------------------------------------
         */
 
         if (! $this->signatureService->validar($request)) {
 
-            Log::warning('Webhook con firma inválida.');
-
             return response()->json([
                 'message' => 'Firma inválida.',
             ], 401);
-        }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Solo eventos payment
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->input('type') !== 'payment') {
-
-            Log::info('Evento ignorado.', [
-                'type' => $request->input('type'),
-            ]);
-
-            return response()->json([
-                'message' => 'Evento ignorado.',
-            ], 200);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Payment ID
-        |--------------------------------------------------------------------------
-        */
-
-        $paymentId = $request->input('data.id');
-
-        if (blank($paymentId)) {
-
-            Log::warning('Webhook sin payment_id.');
-
-            return response()->json([
-                'message' => 'Payment ID no recibido.',
-            ], 200);
         }
 
         try {
 
             /*
             |--------------------------------------------------------------------------
-            | Consultar Mercado Pago
+            | Solo procesar eventos de pago
             |--------------------------------------------------------------------------
             */
 
-            try {
-
-                $mercadoPagoPayment = $this->mercadoPagoApiService
-                    ->obtenerPago($paymentId);
-
-            } catch (Throwable $e) {
-
-                Log::warning(
-                    'No fue posible obtener el pago desde Mercado Pago.',
-                    [
-                        'payment_id' => $paymentId,
-                        'error'      => $e->getMessage(),
-                    ]
-                );
+            if ($request->input('type') !== 'payment') {
 
                 return response()->json([
-                    'message' => 'OK',
-                ], 200);
+                    'message' => 'Evento ignorado.',
+                ]);
+
             }
 
             /*
             |--------------------------------------------------------------------------
-            | Solo pagos aprobados
+            | Obtener ID del pago
+            |--------------------------------------------------------------------------
+            */
+
+            $paymentId = $request->input('data.id');
+
+            if (blank($paymentId)) {
+
+                return response()->json([
+                    'message' => 'Payment ID no recibido.',
+                ], 400);
+
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Consultar pago en Mercado Pago
+            |--------------------------------------------------------------------------
+            */
+
+            $mercadoPagoPayment = $this->mercadoPagoApiService
+                ->obtenerPago($paymentId);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Solo procesar pagos aprobados
             |--------------------------------------------------------------------------
             */
 
             if ($mercadoPagoPayment->status !== 'approved') {
 
-                Log::info('Pago aún no aprobado.', [
-                    'payment_id' => $paymentId,
-                    'status'     => $mercadoPagoPayment->status,
-                ]);
-
                 return response()->json([
                     'message' => 'Pago no aprobado.',
-                ], 200);
+                ]);
+
             }
 
             /*
             |--------------------------------------------------------------------------
-            | Buscar pago local
+            | Buscar pago en nuestra base de datos
             |--------------------------------------------------------------------------
             */
 
@@ -147,7 +120,7 @@ final class MercadoPagoWebhookService
 
             /*
             |--------------------------------------------------------------------------
-            | Evitar doble procesamiento
+            | Evitar procesar dos veces
             |--------------------------------------------------------------------------
             */
 
@@ -155,13 +128,10 @@ final class MercadoPagoWebhookService
 
             if ($payment->estadoPago?->esAprobado()) {
 
-                Log::info('Pago ya procesado.', [
-                    'payment_id' => $paymentId,
-                ]);
-
                 return response()->json([
                     'message' => 'Pago ya procesado.',
-                ], 200);
+                ]);
+
             }
 
             /*
@@ -171,52 +141,51 @@ final class MercadoPagoWebhookService
             */
 
             $this->paymentConfirmationService->confirmar(
+
                 payment: $payment,
+
                 transactionId: (string) $mercadoPagoPayment->id,
+
                 transactionData: json_decode(
                     json_encode($mercadoPagoPayment),
                     true
                 ),
-            );
 
-            Log::info('Pago confirmado correctamente.', [
-                'payment_id' => $paymentId,
-            ]);
+            );
 
             return response()->json([
                 'message' => 'OK',
-            ], 200);
+            ]);
 
         } catch (ModelNotFoundException $e) {
 
             Log::warning(
-                'Pago no encontrado en la base de datos.',
+                'Pago no encontrado.',
                 [
-                    'payment_id' => $paymentId,
-                    'reference'  => $mercadoPagoPayment->external_reference ?? null,
+                    'payment_id' => $request->input('data.id'),
                 ]
             );
 
             return response()->json([
                 'message' => 'Pago no encontrado.',
-            ], 200);
+            ], 404);
 
         } catch (Throwable $e) {
 
             Log::error(
                 'Error procesando Webhook de Mercado Pago.',
                 [
-                    'payment_id' => $paymentId,
-                    'message'    => $e->getMessage(),
-                    'file'       => $e->getFile(),
-                    'line'       => $e->getLine(),
-                    'trace'      => $e->getTraceAsString(),
+                    'message' => $e->getMessage(),
+                    'file'    => $e->getFile(),
+                    'line'    => $e->getLine(),
                 ]
             );
 
             return response()->json([
-                'message' => 'OK',
-            ], 200);
+                'message' => 'Error interno.',
+            ], 500);
+
         }
+
     }
 }
