@@ -287,16 +287,9 @@ Route::middleware('auth')
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('mercado-pago')
-    ->name('mp.')
-    ->group(function () {
+Route::post('/mercado-pago/webhook', [MercadoPagoWebhookController::class, 'handle'])
+    ->name('mp.webhook');
 
-        Route::post(
-            '/webhook',
-            [MercadoPagoWebhookController::class, 'handle']
-        )->name('webhook');
-
-    });
 
 
 Route::middleware('auth')
