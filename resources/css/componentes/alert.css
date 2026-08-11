@@ -5,7 +5,6 @@
 .app-alert-overlay{
     position:fixed;
     inset:0;
-
     display:flex;
     align-items:center;
     justify-content:center;
@@ -32,23 +31,28 @@
 
 .app-alert{
 
-    width:300px;
-    max-width:90%;
+    position:fixed;
 
-    padding:var(--space-md);
+    top:25px;
+    right:25px;
 
-    background:var(--color-surface);
+    width:340px;
 
-    border-radius:var(--radius-lg);
+    background:#fff;
 
-    box-shadow:var(--shadow-md);
+    border-radius:14px;
 
-    text-align:center;
+    box-shadow:0 12px 40px rgba(0,0,0,.18);
 
-    transform:scale(.92);
+    transform:translateX(120%);
     opacity:0;
 
-    transition:var(--transition);
+    transition:.25s;
+
+    z-index:99999;
+
+    overflow:hidden;
+
 }
 
 .app-alert-overlay.show .app-alert{
@@ -196,4 +200,197 @@ TOAST
 
     font-size:1rem;
 
+}
+/*=========================================================
+    APP ALERT
+=========================================================*/
+
+.app-alert-overlay{
+    position:fixed;
+    inset:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:rgba(0,0,0,.25);
+    backdrop-filter:blur(4px);
+
+    opacity:0;
+    visibility:hidden;
+
+    transition:var(--transition);
+
+    z-index:9999;
+}
+
+.app-alert-overlay.show{
+    opacity:1;
+    visibility:visible;
+}
+
+/*=========================================================
+    CARD
+=========================================================*/
+
+.app-alert{
+
+    position:fixed;
+
+    top:25px;
+    right:25px;
+
+    width:340px;
+
+    background:#fff;
+
+    border-radius:14px;
+
+    box-shadow:0 12px 40px rgba(0,0,0,.18);
+
+    transform:translateX(120%);
+    opacity:0;
+
+    transition:.25s;
+
+    z-index:99999;
+
+    overflow:hidden;
+
+}
+
+.app-alert-overlay.show .app-alert{
+
+    transform:scale(1);
+    opacity:1;
+
+}
+
+/*=========================================================
+    ICONO
+=========================================================*/
+
+.app-alert-icon{
+
+    width:56px;
+    height:56px;
+
+    margin:0 auto var(--space-sm);
+
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:var(--color-white);
+
+    font-size:1.45rem;
+
+}
+
+/* Estados */
+
+.app-alert-success .app-alert-icon{
+
+    background:var(--color-success);
+
+}
+
+.app-alert-error .app-alert-icon{
+
+    background:var(--color-danger);
+
+}
+
+.app-alert-warning .app-alert-icon{
+
+    background:var(--color-warning);
+
+}
+
+.app-alert-info .app-alert-icon{
+
+    background:var(--color-info);
+
+}
+
+/*=========================================================
+    TEXTO
+=========================================================*/
+
+.app-alert-title{
+
+    margin:0;
+
+    font-family:var(--font-body);
+
+    font-size:1rem;
+
+    font-weight:600;
+
+    color:var(--color-coffee-dark);
+
+}
+
+.app-alert-message{
+
+    margin-top:var(--space-xs);
+
+    margin-bottom:0;
+
+    font-family:var(--font-body);
+
+    font-size:.9rem;
+
+    line-height:1.6;
+
+    color:var(--color-text-light);
+
+}
+/*=========================================================
+= MENSAJE DEL BOTÓN AGREGAR AL CARRITO
+=========================================================*/
+
+.product-alert{
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:.45rem;
+    margin-top:.65rem;
+    padding:.65rem .85rem;
+    width:100%;
+    border-radius:10px;
+    background:#fff3cd;
+    border:1px solid #ffe69c;
+    color:#856404;
+    font-size:.86rem;
+    font-weight:500;
+    animation:productAlertIn .25s ease;
+}
+
+.product-alert i{
+    color:#dc3545;
+    font-size:1rem;
+}
+
+.product-alert.hide{
+
+    opacity:0;
+    transform:translateY(-8px);
+    transition:.25s;
+
+}
+
+@keyframes productAlertIn{
+    from{
+        opacity:0;
+        transform:translateY(-8px);
+
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
 }

@@ -256,8 +256,10 @@ class CartController extends Controller
             'success'   => true,
             'items'     => $items,
             'count'     => $count,
+            /* total para el carrito */
             'subtotal'  => $resumen['subtotal'],
             'igv'       => $resumen['igv'],
+            /*el offcanvas mostrara el subtotal */
             'total'     => $resumen['total'],
         ]);
     }

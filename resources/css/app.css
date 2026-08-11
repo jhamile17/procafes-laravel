@@ -27,6 +27,7 @@
 @import "./home/featured.css";
 
 
+
 @import "./pages/products.css";
 @import "./pages/nosotros.css";
 @import "./pages/ubicanos.css";
@@ -38,3 +39,4 @@
 
 @import './componentes/alert.css';
 @import './componentes/messages.css';
+@import './componentes/offcanvas-cart.css';

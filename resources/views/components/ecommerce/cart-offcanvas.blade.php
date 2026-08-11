@@ -4,133 +4,164 @@
     id="cartOffcanvas"
     aria-labelledby="cartOffcanvasLabel">
 
-    <div class="offcanvas-header">
+  {{-- Header --}}
+<div class="offcanvas-header">
 
-        <h5
-            class="offcanvas-title"
-            id="cartOffcanvasLabel">
+    <div>
 
-            <i class="bi bi-cart3 me-2"></i>
+        <h5 id="cartOffcanvasLabel">
             Mi carrito
-
         </h5>
 
-        <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="offcanvas"
-            aria-label="Cerrar">
-        </button>
+        <small id="cartCountLabel">
+            0 productos
+        </small>
 
     </div>
 
-    <div class="offcanvas-body d-flex flex-column">
+    <button
+        class="btn-close"
+        data-bs-dismiss="offcanvas">
+    </button>
 
-        {{-- Estado de carga --}}
-        <div
-            id="cartLoading"
-            class="text-center py-5 d-none">
+</div>
 
-            <div
-                class="spinner-border text-dark"
-                role="status">
-            </div>
+{{-- Mensajes --}}
+<div
+    id="cartMessage"
+    class="alert alert-warning d-none">
 
-            <p class="mt-3 mb-0 text-muted">
-                Cargando carrito...
-            </p>
+    <div class="cart-warning-icon">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+    </div>
+   <div>
 
-        </div>
+        <strong>Límite alcanzado</strong>
 
-        {{-- Productos --}}
-        <div
-            id="cartItems"
-            class="list-group list-group-flush flex-grow-1">
-        </div>
-
-        {{-- Carrito vacío --}}
-        <div
-            id="cartEmpty"
-            class="text-center py-5 d-none">
-
-            <i class="bi bi-cart-x fs-1 text-muted"></i>
-
-            <h5 class="mt-3">
-                Tu carrito está vacío
-            </h5>
-
-            <p class="text-muted mb-0">
-                Agrega algunos productos para comenzar tu compra.
-            </p>
-
-        </div>
-
-        {{-- Resumen --}}
-        <div
-            id="cartSummary"
-            class="border-top pt-3 mt-3">
-
-            <div class="d-flex justify-content-between mb-3">
-
-                <strong>Total</strong>
-
-                <strong id="cartTotal">
-                    S/ 0.00
-                </strong>
-
-            </div>
-
-            <div class="d-grid gap-2">
-
-                <a
-                    href="{{ route('cart.index') }}"
-                    class="btn btn-outline-dark">
-
-                    Ver carrito
-
-                </a>
-
-                @auth
-
-                    <a
-                        href="{{ route('checkout.index') }}"
-                        class="btn btn-dark">
-
-                        Finalizar compra
-
-                    </a>
-
-                @else
-
-                    <a
-                        href="{{ route('login') }}"
-                        class="btn btn-dark">
-
-                        Iniciar sesión para pagar
-
-                    </a>
-
-                @endauth
-
-                <button
-                    id="btnClearCart"
-                    type="button"
-                    class="btn btn-outline-danger">
-
-                    Vaciar carrito
-
-                </button>
-
-            </div>
-
-        </div>
+        <div id="cartMessageText"></div>
 
     </div>
 
 </div>
 
-<div
-    id="toastContainer"
-    class="toast-container position-fixed bottom-0 end-0 p-3"
-    style="z-index:1100">
+{{-- Body --}}
+<div class="offcanvas-body p-0 d-flex flex-column">
+
+    <div
+        id="cartLoading"
+        class="d-none flex-grow-1 d-flex align-items-center justify-content-center">
+
+        <div class="text-center">
+
+            <div class="spinner-border text-danger"></div>
+
+            <p class="small mt-3">
+                Cargando...
+            </p>
+
+        </div>
+
+    </div>
+
+    <div
+        id="cartEmpty"
+        class="d-none flex-grow-1 d-flex align-items-center justify-content-center">
+
+        <div class="text-center">
+
+            <i class="bi bi-cart-x fs-1 text-secondary"></i>
+
+            <h6 class="mt-3">
+
+                Tu carrito está vacío
+
+            </h6>
+
+            <small class="text-muted">
+
+                Agrega tus bebidas favoritas.
+
+            </small>
+
+        </div>
+
+    </div>
+
+    <div
+        id="cartItems"
+        class="flex-grow-1 overflow-auto">
+
+    </div>
+
+</div>
+
+{{-- Footer --}}
+<div class="border-top bg-white p-3">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <span class="text-muted">
+
+            Total a pagar 
+
+        </span>
+
+        <span id="cartTotal" class="fw-bold mb-1">
+
+            S/ 0.00
+
+        </span>
+
+    </div>
+
+    <div class="d-grid gap-1">
+
+        <a
+            href="{{ route('cart.index') }}"
+            class="btn btn-outline-dark">
+
+            <i class="bi bi-cart3 me-2"></i>
+
+            Ver carrito
+
+        </a>
+
+        @auth
+
+            <a
+                href="{{ route('checkout.index') }}"
+                class="btn btn-danger w-100 cart-action-btn">
+
+                <i class="bi bi-credit-card me-2"></i>
+
+                Finalizar compra
+
+            </a>
+
+        @else
+
+            <a
+                href="{{ route('login') }}"
+                class="btn btn-danger">
+
+                <i class="bi bi-box-arrow-in-right me-2"></i>
+
+                Iniciar sesión
+
+            </a>
+
+        @endauth
+
+        <button
+            id="btnClearCart"
+            class="btn btn-link text-danger">
+
+            <i class="bi bi-trash3 me-1"></i>
+
+            Vaciar carrito
+
+        </button>
+
+    </div>
+
 </div>

@@ -53,10 +53,6 @@ return [
     'confirmation'=> env('PAYU_CONFIRMATION_URL'),
     ],
     
-    'mercadopago' => [
-    'public_key' => env('MP_PUBLIC_KEY', ''),
-    'token'      => env('MP_ACCESS_TOKEN', ''),
-],
     'gemini' => [
         'api_key' => env('GEMINI_API_KEY'),
         'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),

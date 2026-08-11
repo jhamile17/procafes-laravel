@@ -18,9 +18,7 @@ async function request(
 
     const response = await fetch(url, {
         method,
-
         credentials: 'same-origin',
-
         cache: 'no-store',
 
         headers: {
@@ -47,10 +45,11 @@ async function request(
         let message = `HTTP ${response.status}`;
 
         try {
-
             const error = await response.json();
-
-            message = error.message ?? message;
+            message =
+             error.message ?? 
+             error.error ??
+             message;
 
         } catch (_) {}
 

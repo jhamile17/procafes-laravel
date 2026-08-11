@@ -15,6 +15,7 @@ import {
     bindCartActions,
     bindClearCart
 } from './events';
+
 class Cart {
 
     constructor() {
@@ -22,10 +23,13 @@ class Cart {
         this.loading = false;
 
     }
+    reload(){
+        return this.refresh();
+    }
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener carrito
+    | Obtener carrito desde Laravel
     |--------------------------------------------------------------------------
     */
 
@@ -41,13 +45,19 @@ class Cart {
 
             const cart = await getCart();
 
-            await this.update(cart);
+            render(cart);
 
-        } catch (error) {
+            await this.loadRecommendations();
 
-            console.error('[CART]', error);
+        }
 
-        } finally {
+        catch (error) {
+
+            console.error(error);
+
+        }
+
+        finally {
 
             this.loading = false;
 
@@ -57,25 +67,11 @@ class Cart {
 
     /*
     |--------------------------------------------------------------------------
-    | Actualizar interfaz
+    | Recomendaciones
     |--------------------------------------------------------------------------
     */
 
-    async update(cart) {
-
-        /*
-        |--------------------------------------------------------------
-        | Render del carrito
-        |--------------------------------------------------------------
-        */
-
-        render(cart);
-
-        /*
-        |--------------------------------------------------------------
-        | Recomendaciones
-        |--------------------------------------------------------------
-        */
+    async loadRecommendations() {
 
         try {
 
@@ -83,14 +79,27 @@ class Cart {
 
             renderRecommendations(html);
 
-        } catch (error) {
+        }
 
-            console.error(
-                '[RECOMMENDATIONS]',
-                error
-            );
+        catch (e) {
+
+            console.error(e);
 
         }
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cuando alguna acción devuelve un carrito actualizado
+    |--------------------------------------------------------------------------
+    */
+
+    async update(cart) {
+
+        render(cart);
+
+        await this.loadRecommendations();
 
     }
 
@@ -102,17 +111,17 @@ class Cart {
 
     init() {
 
-        const update = async (cart) => {
+        bindAddToCart(
+            this.update.bind(this)
+        );
 
-            await this.update(cart);
+        bindCartActions(
+            this.update.bind(this)
+        );
 
-        };
-
-        bindAddToCart(update);
-
-        bindCartActions(update);
-
-        bindClearCart(update);
+        bindClearCart(
+            this.update.bind(this)
+        );
 
         this.refresh();
 

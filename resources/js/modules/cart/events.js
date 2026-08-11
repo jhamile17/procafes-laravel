@@ -1,5 +1,3 @@
-// resources/js/modules/cart/events.js
-
 import { MAX_QTY } from './config';
 
 import {
@@ -9,27 +7,52 @@ import {
     clearCart
 } from './api';
 
-/*
-|--------------------------------------------------------------------------
-| Helpers
-|--------------------------------------------------------------------------
-*/
+function showButtonAlert(button, message) {
 
+    const old = button.parentNode.querySelector('.product-alert');
+
+    if (old) {
+        old.remove();
+    }
+
+    const alert = document.createElement('div');
+
+    alert.className = 'product-alert';
+
+    alert.innerHTML = `
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>${message}</span>
+    `;
+
+    button.insertAdjacentElement('afterend', alert);
+
+    setTimeout(() => {
+
+        alert.classList.add('hide');
+
+        setTimeout(() => {
+
+            alert.remove();
+
+        }, 250);
+
+    }, 2500);
+
+}
+/*Mostrar Offcanvas*/
 function showCart() {
-
-    // Si estamos dentro del carrito no abrir Offcanvas
+    
     if (document.body.classList.contains('cart-page')) {
         return;
     }
 
     const offcanvas = document.getElementById('cartOffcanvas');
-
-    if (!offcanvas || !window.bootstrap) {
+    
+    if (!offcanvas || typeof bootstrap === 'undefined') {
         return;
     }
 
-    window.bootstrap
-        .Offcanvas
+    bootstrap.Offcanvas
         .getOrCreateInstance(offcanvas)
         .show();
 
@@ -55,7 +78,7 @@ export function bindAddToCart(onUpdate) {
 
         button.disabled = true;
 
-        const originalHtml = button.innerHTML;
+        const html = button.innerHTML;
 
         button.innerHTML = `
             <span class="spinner-border spinner-border-sm me-2"></span>
@@ -63,35 +86,39 @@ export function bindAddToCart(onUpdate) {
         `;
 
         try {
-
-            const productId = Number(button.dataset.productId);
-
-            const quantity = Math.max(
-                1,
-                Math.min(
-                    MAX_QTY,
-                    Number(button.dataset.quantity ?? 1)
-                )
-            );
-
             const cart = await addProduct(
-                productId,
-                quantity
+                Number(button.dataset.productId),
+                Number(button.dataset.quantity ?? 1)
             );
-
             await onUpdate(cart);
-
             showCart();
 
-        } catch (error) {
+        }
 
-            console.error('[ADD CART]', error);
+        catch (error) {
 
-        } finally {
+            console.error(error);
+            if(
+                error.message &&
+                error.message.includes('8 unidades')
+            ){
+                showCart();
+                showButtonAlert(
+                    button,
+                    error.message
+                 );
+            return;
+        }
+         alert(
+            error.message || 'No se puo agregar el producto'
+         );
+        }
+
+        finally {
 
             button.disabled = false;
 
-            button.innerHTML = originalHtml;
+            button.innerHTML = html;
 
         }
 
@@ -101,100 +128,110 @@ export function bindAddToCart(onUpdate) {
 
 /*
 |--------------------------------------------------------------------------
-| Actualizar cantidades / eliminar
+| Incrementar
+|--------------------------------------------------------------------------
+*/
+
+async function increment(button, onUpdate) {
+
+    const id = Number(button.dataset.productId);
+
+    const quantity = Number(button.dataset.quantity) + 1;
+    try{
+        const cart = await updateProduct(id, quantity);
+         await onUpdate(cart);
+        }
+        catch (error){
+            console.error(error);
+             showToast(
+            error.message || 'Solo puedes comprar hasta 8 unidades de este producto.',
+            'warning'
+        );
+            
+        
+}
+}
+/*
+|--------------------------------------------------------------------------
+| Disminuir
+|--------------------------------------------------------------------------
+*/
+
+async function decrement(button, onUpdate) {
+
+    const id = Number(button.dataset.productId);
+
+    const quantity = Number(button.dataset.quantity) - 1;
+
+    if (quantity < 1) {
+        return;
+    }
+
+    const cart = await updateProduct(id, quantity);
+
+    await onUpdate(cart);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Eliminar
+|--------------------------------------------------------------------------
+*/
+
+async function remove(button, onUpdate) {
+
+    const cart = await removeProduct(
+        Number(button.dataset.productId)
+    );
+
+    await onUpdate(cart);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Eventos del carrito
 |--------------------------------------------------------------------------
 */
 
 export function bindCartActions(onUpdate) {
 
-    const container = document.getElementById('cartItems');
-
-    if (!container) return;
-
-    container.addEventListener('click', async (e) => {
+    document.addEventListener('click', async (e) => {
 
         const inc = e.target.closest('.btn-inc');
         const dec = e.target.closest('.btn-dec');
-        const remove = e.target.closest('.btn-remove');
+        const del = e.target.closest('.btn-remove');
 
         try {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Incrementar / disminuir
-            |--------------------------------------------------------------------------
-            */
+            if (inc) {
 
-            if (inc || dec) {
-
-                const button = inc || dec;
-
-                if (button.disabled) return;
-
-                button.disabled = true;
-
-                const productId = Number(
-                    button.dataset.productId
-                );
-
-                const quantityBox = button
-                    .parentElement
-                    .querySelector('.btn-light');
-
-                let quantity = Number(
-                    quantityBox.textContent
-                );
-
-                quantity = inc
-                    ? Math.min(MAX_QTY, quantity + 1)
-                    : Math.max(1, quantity - 1);
-
-                const cart = await updateProduct(
-                    productId,
-                    quantity
-                );
-
-                await onUpdate(cart);
+                await increment(inc, onUpdate);
 
                 return;
 
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Eliminar
-            |--------------------------------------------------------------------------
-            */
+            if (dec) {
 
-            if (remove) {
+                await decrement(dec, onUpdate);
 
-                if (remove.disabled) return;
-
-                remove.disabled = true;
-
-                const productId = Number(
-                    remove.dataset.productId
-                );
-
-                const cart = await removeProduct(
-                    productId
-                );
-
-                await onUpdate(cart);
+                return;
 
             }
 
-        } catch (error) {
+            if (del) {
 
-            console.error('[UPDATE CART]', error);
+                await remove(del, onUpdate);
 
-        } finally {
+            }
 
-            document
-                .querySelectorAll(
-                    '.btn-inc,.btn-dec,.btn-remove'
-                )
-                .forEach(btn => btn.disabled = false);
+        }
+
+        catch (error) {
+
+            console.error(error);
 
         }
 
@@ -210,22 +247,15 @@ export function bindCartActions(onUpdate) {
 
 export function bindClearCart(onUpdate) {
 
-    const button = document.getElementById(
-        'btnClearCart'
-    );
+    document.addEventListener('click', async (e) => {
 
-    if (!button) return;
+        const button = e.target.closest('#btnClearCart');
 
-    button.addEventListener('click', async (e) => {
-
-        e.preventDefault();
-
-        if (button.disabled) return;
-
-        if (!confirm('¿Deseas vaciar el carrito?')) {
+        if (!button) {
             return;
         }
 
+        e.preventDefault();
         button.disabled = true;
 
         try {
@@ -234,11 +264,15 @@ export function bindClearCart(onUpdate) {
 
             await onUpdate(cart);
 
-        } catch (error) {
+        }
 
-            console.error('[CLEAR CART]', error);
+        catch (error) {
 
-        } finally {
+            console.error(error);
+
+        }
+
+        finally {
 
             button.disabled = false;
 

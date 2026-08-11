@@ -1,16 +1,15 @@
-// resources/js/modules/cart/render.js
-
 import { currency } from './helpers';
 import { MAX_QTY } from './config';
 
+
+const offcanvas = document.getElementById('cartOffcanvas');
+const isOffcanvas = !!offcanvas;
+const isCartPage = document.body.classList.contains('cart-page');
 const badge = document.getElementById('cartBadge');
 const itemsBox = document.getElementById('cartItems');
-
-const subtotalBox = document.getElementById('cartSubtotal');
-const igvBox = document.getElementById('cartIgv');
 const totalBox = document.getElementById('cartTotal');
-
 const clearBtn = document.getElementById('btnClearCart');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -19,21 +18,22 @@ const clearBtn = document.getElementById('btnClearCart');
 */
 
 function renderBadge(count = 0) {
-
-    if (!badge) {
-        return;
+    count = Number(count);
+    if (badge) {
+        badge.textContent = count;
+        badge.classList.toggle(
+            'd-none',
+            count <= 0
+        );
+    }
+    const label = document.getElementById('cartCountLabel');
+    if (label){
+        label.textContent = count === 1
+         ? '1 producto'
+         : `${count} productos`;
+        }
     }
 
-    count = Number(count);
-
-    badge.textContent = count;
-
-    badge.classList.toggle(
-        'd-none',
-        count <= 0
-    );
-
-}
 
 /*
 |--------------------------------------------------------------------------
@@ -42,26 +42,15 @@ function renderBadge(count = 0) {
 */
 
 function renderTotals(cart = {}) {
-
-    if (subtotalBox) {
-        subtotalBox.textContent = currency(
+    if (!totalBox) {
+        return;
+    }
+        totalBox.textContent = currency(
             Number(cart.subtotal ?? 0)
         );
     }
 
-    if (igvBox) {
-        igvBox.textContent = currency(
-            Number(cart.igv ?? 0)
-        );
-    }
 
-    if (totalBox) {
-        totalBox.textContent = currency(
-            Number(cart.total ?? 0)
-        );
-    }
-
-}
 
 /*
 |--------------------------------------------------------------------------
@@ -70,31 +59,25 @@ function renderTotals(cart = {}) {
 */
 
 function renderEmpty() {
-
     if (!itemsBox) {
         return;
     }
-
     itemsBox.innerHTML = `
-        <div class="text-center py-5 text-muted">
-
-            <i class="bi bi-cart-x fs-1 d-block mb-3"></i>
-
-            <h6 class="mb-2">
+         <div class="cart-empty-state">
+            <div class="cart-empty-icon">
+                <i class="bi bi-cart-x"></i>
+            </div>
+            <h5>
                 Tu carrito está vacío
-            </h6>
-
-            <p class="mb-0 small">
-                Agrega productos para comenzar tu compra.
+            </h5>
+            <p>
+                Agrega tus bebidas favoritas para comenzar tu compra.
             </p>
-
         </div>
     `;
 
     renderTotals({
-        subtotal: 0,
-        igv: 0,
-        total: 0
+        subtotal: 0
     });
 
     if (clearBtn) {
@@ -109,25 +92,23 @@ function renderEmpty() {
 | Item
 |--------------------------------------------------------------------------
 */
-
-function renderItem(item) {
+function renderItem(item, offcanvas = false) {
 
     const id = Number(item.product_id);
 
-    const name = item.name ?? item.product?.name ?? '';
+    const name =
+        item.name ??
+        item.product?.name ??
+        '';
 
     const image =
         item.image ??
         item.product?.image_url ??
         '/images/no-image.png';
 
-    const price = Number(
-        item.unit_price ?? 0
-    );
+    const price = Number(item.unit_price ?? 0);
 
-    const quantity = Number(
-        item.quantity ?? 1
-    );
+    const quantity = Number(item.quantity ?? 1);
 
     const subtotal = Number(
         item.subtotal ??
@@ -135,82 +116,116 @@ function renderItem(item) {
         (price * quantity)
     );
 
-    const div = document.createElement('div');
+    /*
+    |--------------------------------------------------------------------------
+    | OFFCANVAS
+    |--------------------------------------------------------------------------
+    */
 
-    div.className = 'list-group-item py-3';
+   if (offcanvas) {
 
-    div.innerHTML = `
-        <div class="d-flex gap-3">
+    const card = document.createElement('div');
+
+    card.className = 'offcanvas-cart-row';
+
+    card.innerHTML = `
+
+        <div class="offcanvas-item">
 
             <img
                 src="${image}"
-                class="rounded border"
-                width="70"
-                height="70"
-                style="object-fit:cover"
                 alt="${name}"
-            >
+                class="offcanvas-item-image">
 
-            <div class="flex-grow-1">
+            <div class="offcanvas-item-body">
 
-                <div class="fw-semibold mb-1">
-                    ${name}
+                <div class="offcanvas-item-header">
+
+                    <div class="offcanvas-item-info">
+
+                        <div class="offcanvas-item-title">
+                            ${name}
+                        </div>
+
+                        <div class="offcanvas-item-price">
+                            ${currency(price)} c/u
+                        </div>
+
+                    </div>
+
+                    <button
+                        class="offcanvas-remove btn-remove"
+                        data-product-id="${id}"
+                        aria-label="Eliminar">
+
+                        <i class="bi bi-trash3"></i>
+
+                    </button>
+
                 </div>
 
-                <small class="text-muted">
-                    ${currency(price)}
-                </small>
+                <div class="offcanvas-item-footer">
 
-                <div class="d-flex justify-content-between align-items-center mt-3">
-
-                    <div class="btn-group btn-group-sm">
+                    <div class="offcanvas-qty">
 
                         <button
-                            type="button"
-                            class="btn btn-outline-secondary btn-dec"
+                            class="btn-dec"
                             data-product-id="${id}"
+                            data-quantity="${quantity}"
                             ${quantity <= 1 ? 'disabled' : ''}>
+
                             <i class="bi bi-dash"></i>
+
                         </button>
 
-                        <button
-                            class="btn btn-light"
-                            disabled>
-                            ${quantity}
-                        </button>
+                        <span>${quantity}</span>
 
                         <button
-                            type="button"
-                            class="btn btn-outline-secondary btn-inc"
+                            class="btn-inc"
                             data-product-id="${id}"
+                            data-quantity="${quantity}"
                             ${quantity >= MAX_QTY ? 'disabled' : ''}>
+
                             <i class="bi bi-plus"></i>
+
                         </button>
 
                     </div>
 
-                    <strong>
+                    <div class="offcanvas-item-total">
                         ${currency(subtotal)}
-                    </strong>
-
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-danger btn-remove"
-                        data-product-id="${id}">
-                        <i class="bi bi-trash"></i>
-                    </button>
+                    </div>
 
                 </div>
 
             </div>
 
         </div>
+
     `;
 
-    return div;
+    return card;
+}
+    /*
+    |--------------------------------------------------------------------------
+    | PÁGINA MI CARRITO
+    |--------------------------------------------------------------------------
+    */
+
+    const card = document.createElement('div');
+
+    card.className = 'cart-item-card';
+
+    card.innerHTML = `
+
+        <!-- AQUÍ VA EL HTML QUE YA TENÍA
+             LA PÁGINA "MI CARRITO" -->
+
+    `;
+
+    return card;
 
 }
-
 /*
 |--------------------------------------------------------------------------
 | Lista de productos
@@ -226,23 +241,38 @@ function renderItems(items = []) {
     itemsBox.innerHTML = '';
 
     if (!items.length) {
+
         renderEmpty();
         return;
+
     }
 
     if (clearBtn) {
+
         clearBtn.classList.remove('d-none');
         clearBtn.disabled = false;
+
     }
 
-    items.forEach(item => {
-        itemsBox.appendChild(
-            renderItem(item)
-        );
-    });
+    if (isOffcanvas) {
 
+        const wrapper = document.createElement('div');
+        wrapper.className = 'offcanvas-cart-list';
+
+        items.forEach(item => {
+            wrapper.appendChild(renderItem(item, true));
+        });
+
+        itemsBox.appendChild(wrapper);
+
+    } else {
+
+        items.forEach(item => {
+            itemsBox.appendChild(renderItem(item, false));
+        });
+
+    }
 }
-
 /*
 |--------------------------------------------------------------------------
 | Render general
@@ -250,7 +280,6 @@ function renderItems(items = []) {
 */
 
 function render(cart = {}) {
-
     renderBadge(
         Number(cart.count ?? 0)
     );
@@ -284,13 +313,13 @@ function renderRecommendations(html) {
     container.innerHTML = html;
 
 }
-
 export {
     render,
+
     renderBadge,
     renderTotals,
     renderEmpty,
     renderItem,
     renderItems,
-    renderRecommendations
+    renderRecommendations,
 };

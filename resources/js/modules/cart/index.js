@@ -1,12 +1,9 @@
-// resources/js/cart/index.js
-
 import Cart from './cart';
 
-document.addEventListener(
-    'DOMContentLoaded',
-    () => {
+window.Cart = Cart;
 
-        Cart.init();
+document.addEventListener('DOMContentLoaded', () => {
 
-    }
-);
+    Cart.init();
+
+});
