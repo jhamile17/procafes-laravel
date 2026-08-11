@@ -329,7 +329,8 @@ Route::prefix('admin')
 
         Route::get('/reports', [ReportController::class, 'index'])
             ->name('reports.index');
-
+        Route::get('/billing', [BillingController::class, 'index'])
+            ->name('billing.index');
         Route::get('/orders', [OrderController::class, 'index'])
             ->name('orders.index');
 
