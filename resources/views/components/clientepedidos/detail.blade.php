@@ -1,71 +1,210 @@
 <article class="customer-card order-detail">
+
     <div class="customer-card-body">
-        <div class="order-card-header">
+
+        {{-- Cabecera --}}
+        <div class="order-detail-header">
+
             <div>
-                <h4 class="order-number">
+
+                <h3 class="order-number">
                     Pedido #{{ $order->numero_pedido }}
-                </h4>
-                <span class="order-date">
-                    {{ $order->created_at->format('d/m/Y') }}
-                </span>
+                </h3>
+
+                <p>
+                    Realizado el {{ $order->created_at->format('d/m/Y H:i') }}
+                </p>
 
             </div>
 
-            <span class="order-status">
-
+            <span class="order-status {{ $order->estadoClass() }}">
                 {{ $order->estadoPedido->nombre }}
-
             </span>
 
         </div>
 
-        <hr class="my-4">
+        <hr class="my-3">
 
-        <div class="order-items">
+        {{-- Resumen --}}
+        <div class="row g-3 order-summary">
 
-            @foreach($order->items as $item)
+            <div class="col-md-3">
 
-                <div class="order-item">
+                <div class="summary-card text-center">
 
-                    <div>
+                    <small>Método de pago</small>
 
-                        <strong>{{ $item->product->name }}</strong>
-
-                        <div class="text-muted">
-
-                            Cantidad: {{ $item->quantity }}
-
-                        </div>
-
-                    </div>
-
-                    <div>
-
-                        S/ {{ number_format($item->subtotal, 2) }}
-
-                    </div>
+                    <strong>
+                        {{ $order->payment?->paymentMethod?->nombre ?? 'No registrado' }}
+                    </strong>
 
                 </div>
 
-            @endforeach
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="summary-card text-center">
+
+                    <small>Tipo de entrega</small>
+
+                    <strong>
+                        {{ $order->delivery_type === 'pickup' ? 'Recojo en tienda' : 'Delivery' }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="summary-card text-center">
+
+                    <small>Productos</small>
+
+                    <strong>
+                        {{ $order->totalItems() }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="summary-card text-center">
+
+                    <small>Total</small>
+
+                    <strong class="summary-total">
+                        S/ {{ number_format($order->total_price,2) }}
+                    </strong>
+
+                </div>
+
+            </div>
 
         </div>
 
-        <hr class="my-4">
+        <hr class="my-3">
 
-        <div class="row g-4">
+        {{-- Productos --}}
+        <h5 class="order-section-title">
+
+            Productos del pedido
+
+        </h5>
+
+        <div class="table-responsive">
+
+            <table class="table align-middle">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Producto</th>
+
+                        <th class="text-center">
+                            Cant.
+                        </th>
+
+                        <th class="text-end">
+                            Precio
+                        </th>
+
+                        <th class="text-end">
+                            Subtotal
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach($order->items as $item)
+
+                        <tr>
+
+                            <td>
+
+                                <strong>
+
+                                    {{ $item->product->name }}
+
+                                </strong>
+
+                            </td>
+
+                            <td class="text-center">
+
+                                {{ $item->quantity }}
+
+                            </td>
+
+                            <td class="text-end">
+
+                                S/ {{ number_format($item->unit_price,2) }}
+
+                            </td>
+
+                            <td class="text-end">
+
+                                S/ {{ number_format($item->subtotal,2) }}
+
+                            </td>
+
+                        </tr>
+
+                    @endforeach
+
+                </tbody>
+
+                <tfoot>
+
+                    <tr>
+
+                        <th colspan="3" class="text-end">
+
+                            Total
+
+                        </th>
+
+                        <th class="text-end text-primary">
+
+                            S/ {{ number_format($order->total_price,2) }}
+
+                        </th>
+
+                    </tr>
+
+                </tfoot>
+
+            </table>
+
+        </div>
+
+        <hr class="my-3">
+
+        {{-- Información del pedido --}}
+        <div class="row g-3">
 
             <div class="col-md-6">
 
-                <label class="customer-label">
+                <div class="order-info-box">
 
-                    Dirección de entrega
+                    <span class="order-info-title">
 
-                </label>
+                        Dirección de entrega
 
-                <div class="customer-value">
+                    </span>
 
-                    {{ $order->delivery_direccion }}
+                    <div class="order-info-value">
+
+                        {{ $order->delivery_direccion }}
+
+                    </div>
 
                 </div>
 
@@ -73,15 +212,19 @@
 
             <div class="col-md-6">
 
-                <label class="customer-label">
+                <div class="order-info-box">
 
-                    Total pagado
+                    <span class="order-info-title">
 
-                </label>
+                        Observaciones
 
-                <div class="customer-value">
+                    </span>
 
-                    S/ {{ number_format($order->total_price, 2) }}
+                    <div class="order-info-value">
+
+                        {{ $order->observaciones ?: 'Sin observaciones.' }}
+
+                    </div>
 
                 </div>
 
@@ -91,51 +234,57 @@
 
         @if($order->comprobante)
 
-            <hr class="my-4">
+            <hr class="my-3">
 
-            <div class="row g-4">
+            <h5 class="order-section-title">
 
-                <div class="col-md-6">
+                Comprobante electrónico
 
-                    <label class="customer-label">
+            </h5>
 
-                        Comprobante
+            <div class="order-document">
 
-                    </label>
+                <div class="row g-3">
 
-                    <div class="customer-value">
+                    <div class="col-md-6">
 
-                        {{ $order->comprobante->tipo_comprobante }}
+                        <span class="order-info-title">
+
+                            Tipo de comprobante
+
+                        </span>
+
+                        <div class="order-info-value">
+
+                            {{ ucfirst($order->comprobante->tipo_comprobante) }}
+
+                        </div>
 
                         @if($order->comprobante->electronicDocument)
 
-                            - {{ $order->comprobante->electronicDocument->numeroCompleto() }}
+                            <div class="order-document-number mt-2">
+
+                                {{ $order->comprobante->electronicDocument->numeroCompleto() }}
+
+                            </div>
 
                         @endif
 
                     </div>
 
-                </div>
+                    <div class="col-md-6">
 
-                <div class="col-md-6">
+                        <span class="order-info-title">
 
-                    <label class="customer-label">
+                            Estado SUNAT
 
-                        Estado SUNAT
+                        </span>
 
-                    </label>
+                        <div class="order-info-value">
 
-                    <div class="customer-value">
+                            {{ $order->comprobante->electronicDocument->estado ?? 'Pendiente' }}
 
-                        @if($order->comprobante->electronicDocument)
-
-                            {{ $order->comprobante->electronicDocument->estado }}
-
-                        @else
-
-                            Pendiente
-
-                        @endif
+                        </div>
 
                     </div>
 
@@ -145,7 +294,10 @@
 
         @endif
 
-        <div class="order-actions mt-4">
+        <hr class="my-3">
+
+        {{-- Botones --}}
+        <div class="order-actions">
 
             <a
                 href="{{ route('customer.orders') }}"
@@ -166,11 +318,11 @@
                 <a
                     href="{{ $order->comprobante->electronicDocument->pdf_url }}"
                     target="_blank"
-                    class="btn btn-primary">
+                    class="customer-btn">
 
                     <i class="bi bi-file-earmark-pdf me-2"></i>
 
-                    Descargar {{ strtolower($order->comprobante->tipo_comprobante) }}
+                    Descargar {{ ucfirst($order->comprobante->tipo_comprobante) }}
 
                 </a>
 

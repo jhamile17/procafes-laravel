@@ -27,12 +27,14 @@
                     @if($orders->isNotEmpty())
 
                         <div class="orders-header">
+                           
                             <div>Pedido</div>
                             <div>Fecha</div>
                             <div>Estado</div>
                             <div>Producto</div>
                             <div>Total</div>
-                            
+                            <div></div>
+  
                         </div>
 
                         <div class="customer-orders">
@@ -40,7 +42,6 @@
                                 <x-clientepedidos.card :order="$order"/>
                             @endforeach
                         </div>
-
                         <div class="mt-4 d-flex justify-content-center">
                             {{ $orders->links() }}
                         </div>
