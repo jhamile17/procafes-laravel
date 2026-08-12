@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Services\IA\ChatbotService;
+use Illuminate\Http\Request;
 use Throwable;
 
 class ChatbotController extends Controller
@@ -12,16 +12,15 @@ class ChatbotController extends Controller
     public function chat(
         Request $request,
         ChatbotService $chatbot
-        
     ) {
-        $request->validate([
+        $validated = $request->validate([
             'mensaje' => ['required', 'string', 'max:500'],
         ]);
 
         try {
 
             $response = $chatbot->reply(
-                $request->input('mensaje')
+                $validated['mensaje']
             );
 
             return response()->json($response);
@@ -31,12 +30,8 @@ class ChatbotController extends Controller
             report($e);
 
             return response()->json([
-
-                'message' =>
-                    'Lo siento, ocurrió un error al procesar tu consulta. Inténtalo nuevamente.',
-
-                'products' => []
-
+                'message' => 'Lo siento, ocurrió un error al procesar tu consulta. Inténtalo nuevamente.',
+                'products' => [],
             ], 500);
         }
     }
