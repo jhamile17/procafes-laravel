@@ -31,6 +31,7 @@ use App\Http\Controllers\Customer\PerfilController;
 use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Customer\DocumentController;
 // Admin
+use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\CategoryController as CategoryController;
 use App\Http\Controllers\Admin\BrandController as BrandController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
