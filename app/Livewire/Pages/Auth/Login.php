@@ -37,19 +37,13 @@ class Login extends Component
     public function login(): void
     {
         $this->form->authenticate();
-
-        session()->regenerate();
-
         $this->sessionCartService->sincronizar(
-
             request(),
-
             $this->cartService,
-
             auth()->id()
 
         );
-
+        session()->regenerate();
         $this->redirectAfterLogin();
     }
 

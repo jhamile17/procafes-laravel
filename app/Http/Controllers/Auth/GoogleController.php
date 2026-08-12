@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Facades\Socialite;
+use App\Services\Ventas\CartService;
+use App\Services\Ventas\SessionCartService;
 
 class GoogleController extends Controller
 {
@@ -61,7 +63,9 @@ class GoogleController extends Controller
     |--------------------------------------------------------------------------
     */
     public function callback(
-        UserRegistrationService $registrationService
+        UserRegistrationService $registrationService,
+        CartService $cartService,
+        SessionCartService $sessionCartService
     ): RedirectResponse {
         try {
 
@@ -215,10 +219,15 @@ class GoogleController extends Controller
                 $user,
                 true
             );
-
+            $sessionCartService->sincronizar(
+                request(),
+                $cartService,
+                $user->id
+            );
             request()
                 ->session()
                 ->regenerate();
+    
 
             /*
             |--------------------------------------------------------------------------

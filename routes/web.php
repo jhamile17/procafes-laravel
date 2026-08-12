@@ -330,15 +330,9 @@ Route::prefix('admin')
 
         Route::get('/reports', [ReportController::class, 'index'])
             ->name('reports.index');
-<<<<<<< Updated upstream
         Route::get('/billing', [BillingController::class, 'index'])
             ->name('billing.index');
-            Route::get('/orders', [OrderController::class, 'index'])
-=======
-            Route::get('/billing', [BillingController::class, 'index'])
-            ->name('billing.index');
         Route::get('/orders', [OrderController::class, 'index'])
->>>>>>> Stashed changes
             ->name('orders.index');
         
         Route::get('/orders/{order}', [OrderController::class, 'show'])
