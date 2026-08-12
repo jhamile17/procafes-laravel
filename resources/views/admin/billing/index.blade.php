@@ -1093,7 +1093,7 @@
                     <div>
 
                         {{ $orders->links(
-                            'vendor.pagination.paginacion-admin'
+                            'vendor.pagination.paginacion'
                         ) }}
 
                     </div>
