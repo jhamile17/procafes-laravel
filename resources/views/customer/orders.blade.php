@@ -43,7 +43,7 @@
                             @endforeach
                         </div>
                         <div class="mt-4 d-flex justify-content-center">
-                            {{ $orders->links() }}
+                            {{ $orders->links('vendor.pagination.customer') }}
                         </div>
 
                     @else
