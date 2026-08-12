@@ -340,9 +340,9 @@ Route::prefix('admin')
         Route::post('/billing/lookup', [BillingController::class, 'lookup'])
             ->name('billing.lookup');
         Route::patch(
-                '/billing/{order}/payment/approve',
+                '/billing/{order}/approve-payment',
                 [BillingController::class, 'approvePayment']
-            )->name('billing.payment.approve');
+            )->name('billing.approve-payment');
         Route::get('/orders', [OrderController::class, 'index'])
             ->name('orders.index');
         

@@ -6,6 +6,10 @@
 
 <div class="container-fluid py-2">
 
+    {{-- =====================================================
+         ENCABEZADO
+    ====================================================== --}}
+
     <div class="d-flex flex-column flex-md-row
                 justify-content-between
                 align-items-md-center
@@ -48,7 +52,7 @@
 
 
     {{-- =====================================================
-         MENSAJES
+         MENSAJE ÉXITO
     ====================================================== --}}
 
     @if(session('success'))
@@ -69,13 +73,17 @@
             <button
                 type="button"
                 class="btn-close"
-                data-bs-dismiss="alert">
-            </button>
+                data-bs-dismiss="alert"
+            ></button>
 
         </div>
 
     @endif
 
+
+    {{-- =====================================================
+         MENSAJE ERROR
+    ====================================================== --}}
 
     @if(session('error'))
 
@@ -95,8 +103,8 @@
             <button
                 type="button"
                 class="btn-close"
-                data-bs-dismiss="alert">
-            </button>
+                data-bs-dismiss="alert"
+            ></button>
 
         </div>
 
@@ -142,7 +150,7 @@
                     </h5>
 
                     <small style="color:#777777;">
-                        Consulta la información del pedido y su comprobante.
+                        Busca un pedido por su número.
                     </small>
 
                 </div>
@@ -179,20 +187,13 @@
                             id="numero_pedido"
                             class="form-control"
                             placeholder="Ej. PED-20260808-UTDSMS"
-                            value="{{ old('numero_pedido') }}"
+                            value="{{ request('numero_pedido') }}"
                             autocomplete="off"
-                            style="
-                                border-color:#ECE7E2;
-                                border-radius:10px;
-                            "
                         >
 
                         @error('numero_pedido')
 
-                            <div
-                                class="small mt-1"
-                                style="color:#DC3545;"
-                            >
+                            <div class="text-danger small mt-1">
                                 {{ $message }}
                             </div>
 
@@ -200,6 +201,8 @@
 
                     </div>
 
+
+                    {{-- Buscar --}}
 
                     <div class="col-md-auto">
 
@@ -221,6 +224,28 @@
 
                     </div>
 
+
+                    {{-- Limpiar --}}
+
+                    @if(request()->filled('numero_pedido'))
+
+                        <div class="col-md-auto">
+
+                            <a
+                                href="{{ route('admin.billing.index') }}"
+                                class="btn btn-outline-secondary"
+                            >
+
+                                <i class="bi bi-x-lg me-1"></i>
+
+                                Limpiar
+
+                            </a>
+
+                        </div>
+
+                    @endif
+
                 </div>
 
             </form>
@@ -229,73 +254,14 @@
 
     </div>
 
-{{-- =====================================================
-     PAGINACIÓN
-====================================================== --}}
 
-@if ($orders->hasPages())
-
-    <div
-        class="card-footer bg-white border-0 py-3"
-        style="
-            border-top:1px solid #ECE7E2 !important;
-            border-radius:0 0 14px 14px;
-        "
-    >
-
-        <div class="d-flex
-                    flex-column flex-md-row
-                    justify-content-between
-                    align-items-center
-                    gap-3">
-
-            {{-- Información --}}
-
-            <small style="color:#777777;">
-
-                Mostrando
-
-                <strong style="color:#3D2C2E;">
-                    {{ $orders->firstItem() }}
-                </strong>
-
-                a
-
-                <strong style="color:#3D2C2E;">
-                    {{ $orders->lastItem() }}
-                </strong>
-
-                de
-
-                <strong style="color:#3D2C2E;">
-                    {{ $orders->total() }}
-                </strong>
-
-                pedidos
-
-            </small>
-
-
-            {{-- Navegación --}}
-
-            <div>
-
-                {{ $orders->links('vendor.pagination.paginacion-admin') }}
-
-            </div>
-
-        </div>
-
-    </div>
-
-@endif
     {{-- =====================================================
          RESUMEN
     ====================================================== --}}
 
     <div class="row g-3 mb-4">
 
-        {{-- Pedidos --}}
+        {{-- Total pedidos --}}
 
         <div class="col-sm-6 col-xl-3">
 
@@ -318,7 +284,7 @@
                                 class="fw-bold mt-1 mb-0"
                                 style="color:#3D2C2E;"
                             >
-                                {{ $orders->count() }}
+                                {{ $orders->total() }}
                             </h4>
 
                         </div>
@@ -330,7 +296,9 @@
                                 color:#D62828;
                             "
                         >
+
                             <i class="bi bi-cart-check fs-5"></i>
+
                         </div>
 
                     </div>
@@ -342,7 +310,7 @@
         </div>
 
 
-        {{-- Emitidos --}}
+        {{-- Comprobantes emitidos --}}
 
         <div class="col-sm-6 col-xl-3">
 
@@ -365,12 +333,14 @@
                                 class="fw-bold mt-1 mb-0"
                                 style="color:#3D2C2E;"
                             >
+
                                 {{
                                     $orders->filter(
                                         fn ($order) =>
                                             $order->comprobante?->electronicDocument
                                     )->count()
                                 }}
+
                             </h4>
 
                         </div>
@@ -382,7 +352,9 @@
                                 color:#18A558;
                             "
                         >
+
                             <i class="bi bi-file-earmark-check fs-5"></i>
+
                         </div>
 
                     </div>
@@ -417,12 +389,14 @@
                                 class="fw-bold mt-1 mb-0"
                                 style="color:#3D2C2E;"
                             >
+
                                 {{
                                     $orders->filter(
                                         fn ($order) =>
                                             !$order->comprobante?->electronicDocument
                                     )->count()
                                 }}
+
                             </h4>
 
                         </div>
@@ -434,7 +408,9 @@
                                 color:#F59E0B;
                             "
                         >
+
                             <i class="bi bi-clock-history fs-5"></i>
+
                         </div>
 
                     </div>
@@ -469,6 +445,7 @@
                                 class="fw-bold mt-1 mb-0"
                                 style="color:#3D2C2E;"
                             >
+
                                 {{
                                     $orders->filter(
                                         fn ($order) =>
@@ -479,6 +456,7 @@
                                             ) === 'aceptado'
                                     )->count()
                                 }}
+
                             </h4>
 
                         </div>
@@ -490,7 +468,9 @@
                                 color:#18A558;
                             "
                         >
+
                             <i class="bi bi-shield-check fs-5"></i>
+
                         </div>
 
                     </div>
@@ -533,19 +513,17 @@
                         class="mb-0 fw-semibold"
                         style="color:#3D2C2E;"
                     >
+
                         <i
                             class="bi bi-receipt me-2"
                             style="color:#D62828;"
                         ></i>
 
                         Pedidos para facturación
+
                     </h5>
-
-                    <small style="color:#777777;">
-                        Comprobantes gestionados mediante NubeFact / API Perú.
-                    </small>
-
                 </div>
+
 
                 <span
                     class="badge rounded-pill px-3 py-2"
@@ -555,7 +533,9 @@
                         border:1px solid #ECE7E2;
                     "
                 >
-                    {{ $orders->count() }} registros
+
+                    {{ $orders->total() }} registros
+
                 </span>
 
             </div>
@@ -606,32 +586,43 @@
 
                     </thead>
 
+
                     <tbody>
 
                         @forelse($orders as $order)
 
                             <tr>
 
+                                {{-- PEDIDO --}}
+
                                 <td class="ps-4">
 
                                     <strong style="color:#3D2C2E;">
+
                                         #{{ $order->numero_pedido }}
+
                                     </strong>
 
                                     <small
                                         class="d-block"
                                         style="color:#888888;"
                                     >
+
                                         Pedido #{{ $order->id }}
+
                                     </small>
 
                                 </td>
 
 
+                                {{-- CLIENTE --}}
+
                                 <td>
 
                                     <strong style="color:#2B2B2B;">
+
                                         {{ $order->user?->name ?? 'Cliente' }}
+
                                     </strong>
 
                                     @if($order->user?->email)
@@ -640,7 +631,9 @@
                                             class="d-block"
                                             style="color:#888888;"
                                         >
+
                                             {{ $order->user->email }}
+
                                         </small>
 
                                     @endif
@@ -648,21 +641,29 @@
                                 </td>
 
 
+                                {{-- FECHA --}}
+
                                 <td>
 
                                     <span style="color:#2B2B2B;">
+
                                         {{ $order->created_at->format('d/m/Y') }}
+
                                     </span>
 
                                     <small
                                         class="d-block"
                                         style="color:#888888;"
                                     >
+
                                         {{ $order->created_at->format('H:i') }}
+
                                     </small>
 
                                 </td>
 
+
+                                {{-- COMPROBANTE --}}
 
                                 <td>
 
@@ -710,6 +711,8 @@
                                 </td>
 
 
+                                {{-- ESTADO --}}
+
                                 <td>
 
                                     @if(
@@ -726,6 +729,7 @@
 
                                         @endphp
 
+
                                         @if($estado === 'aceptado')
 
                                             <span
@@ -735,9 +739,15 @@
                                                     color:#18A558;
                                                 "
                                             >
-                                                <i class="bi bi-check-circle me-1"></i>
+
+                                                <i
+                                                    class="bi bi-check-circle me-1"
+                                                ></i>
+
                                                 Aceptado
+
                                             </span>
+
 
                                         @elseif($estado === 'rechazado')
 
@@ -748,9 +758,15 @@
                                                     color:#DC3545;
                                                 "
                                             >
-                                                <i class="bi bi-x-circle me-1"></i>
+
+                                                <i
+                                                    class="bi bi-x-circle me-1"
+                                                ></i>
+
                                                 Rechazado
+
                                             </span>
+
 
                                         @elseif($estado === 'anulado')
 
@@ -761,8 +777,11 @@
                                                     color:#666666;
                                                 "
                                             >
+
                                                 Anulado
+
                                             </span>
+
 
                                         @else
 
@@ -773,8 +792,13 @@
                                                     color:#F59E0B;
                                                 "
                                             >
-                                                <i class="bi bi-clock me-1"></i>
+
+                                                <i
+                                                    class="bi bi-clock me-1"
+                                                ></i>
+
                                                 {{ ucfirst($estado ?: 'Pendiente') }}
+
                                             </span>
 
                                         @endif
@@ -788,13 +812,17 @@
                                                 color:#777777;
                                             "
                                         >
+
                                             Pendiente
+
                                         </span>
 
                                     @endif
 
                                 </td>
 
+
+                                {{-- DOCUMENTOS --}}
 
                                 <td class="text-end pe-4">
 
@@ -803,10 +831,13 @@
                                     )
 
                                         @php
+
                                             $document =
                                                 $order->comprobante
                                                     ->electronicDocument;
+
                                         @endphp
+
 
                                         <div
                                             class="d-flex
@@ -814,6 +845,8 @@
                                                    flex-wrap
                                                    gap-1"
                                         >
+
+                                            {{-- PDF --}}
 
                                             @if($document->pdf_url)
 
@@ -826,15 +859,25 @@
                                                         background:#D62828;
                                                         color:#FFFFFF;
                                                     "
+                                                    title="Ver PDF"
                                                 >
-                                                    <i class="bi bi-file-earmark-pdf"></i>
-                                                    <span class="d-none d-lg-inline">
+
+                                                    <i
+                                                        class="bi bi-file-earmark-pdf"
+                                                    ></i>
+
+                                                    <span
+                                                        class="d-none d-lg-inline"
+                                                    >
                                                         PDF
                                                     </span>
+
                                                 </a>
 
                                             @endif
 
+
+                                            {{-- XML --}}
 
                                             @if($document->xml_url)
 
@@ -848,15 +891,25 @@
                                                         color:#3D2C2E;
                                                         border:1px solid #ECE7E2;
                                                     "
+                                                    title="Ver XML"
                                                 >
-                                                    <i class="bi bi-filetype-xml"></i>
-                                                    <span class="d-none d-lg-inline">
+
+                                                    <i
+                                                        class="bi bi-filetype-xml"
+                                                    ></i>
+
+                                                    <span
+                                                        class="d-none d-lg-inline"
+                                                    >
                                                         XML
                                                     </span>
+
                                                 </a>
 
                                             @endif
 
+
+                                            {{-- CDR --}}
 
                                             @if($document->cdr_url)
 
@@ -870,11 +923,19 @@
                                                         color:#18A558;
                                                         border:1px solid #18A558;
                                                     "
+                                                    title="Ver CDR"
                                                 >
-                                                    <i class="bi bi-file-earmark-check"></i>
-                                                    <span class="d-none d-lg-inline">
+
+                                                    <i
+                                                        class="bi bi-file-earmark-check"
+                                                    ></i>
+
+                                                    <span
+                                                        class="d-none d-lg-inline"
+                                                    >
                                                         CDR
                                                     </span>
+
                                                 </a>
 
                                             @endif
@@ -889,7 +950,9 @@
                                                 <small
                                                     style="color:#888888;"
                                                 >
+
                                                     Procesando...
+
                                                 </small>
 
                                             @endif
@@ -899,7 +962,9 @@
                                     @else
 
                                         <small style="color:#888888;">
+
                                             No generado
+
                                         </small>
 
                                     @endif
@@ -907,6 +972,7 @@
                                 </td>
 
                             </tr>
+
 
                         @empty
 
@@ -926,15 +992,36 @@
                                         class="mt-3 mb-1"
                                         style="color:#3D2C2E;"
                                     >
-                                        No hay pedidos
+
+                                        @if(request()->filled('numero_pedido'))
+
+                                            No se encontró el pedido
+
+                                        @else
+
+                                            No hay pedidos
+
+                                        @endif
+
                                     </h5>
 
                                     <p
                                         class="mb-0"
                                         style="color:#888888;"
                                     >
-                                        No existen pedidos disponibles
-                                        para facturación.
+
+                                        @if(request()->filled('numero_pedido'))
+
+                                            No existe un pedido que coincida
+                                            con "{{ request('numero_pedido') }}".
+
+                                        @else
+
+                                            No existen pedidos disponibles
+                                            para facturación.
+
+                                        @endif
+
                                     </p>
 
                                 </td>
@@ -950,6 +1037,72 @@
             </div>
 
         </div>
+
+
+        {{-- =================================================
+             PAGINACIÓN
+        ================================================== --}}
+
+        @if($orders->hasPages())
+
+            <div
+                class="card-footer bg-white border-0 py-3"
+                style="
+                    border-top:1px solid #ECE7E2 !important;
+                    border-radius:0 0 14px 14px;
+                "
+            >
+
+                <div
+                    class="d-flex
+                           flex-column flex-md-row
+                           justify-content-between
+                           align-items-center
+                           gap-3"
+                >
+
+                    {{-- Información --}}
+
+                    <small style="color:#777777;">
+
+                        Mostrando
+
+                        <strong style="color:#3D2C2E;">
+                            {{ $orders->firstItem() }}
+                        </strong>
+
+                        a
+
+                        <strong style="color:#3D2C2E;">
+                            {{ $orders->lastItem() }}
+                        </strong>
+
+                        de
+
+                        <strong style="color:#3D2C2E;">
+                            {{ $orders->total() }}
+                        </strong>
+
+                        pedidos
+
+                    </small>
+
+
+                    {{-- Paginación personalizada PROCÁFES --}}
+
+                    <div>
+
+                        {{ $orders->links(
+                            'vendor.pagination.paginacion-admin'
+                        ) }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        @endif
 
     </div>
 
