@@ -139,7 +139,7 @@
 
                     <label
                         for="password_confirmation"
-                        class="customer-btn">
+                        class="customer-label">
 
                         Confirmar contraseña
 
@@ -184,7 +184,7 @@
 
                 <button
                     type="submit"
-                    class="customer-button">
+                    class="customer-btn">
 
                     <i class="bi bi-shield-lock me-2"></i>
 
