@@ -323,6 +323,126 @@
 
 }
 
+.wishlist-card{
+    display:flex;
+    align-items:center;
+    gap:24px;
+
+    padding:24px;
+    margin:20px;
+
+    border:1px solid #ececec;
+    border-radius:20px;
+
+    background:#fff;
+    box-shadow:0 6px 20px rgba(0,0,0,.05);
+
+    transition:.25s;
+}
+
+.wishlist-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+
+.wishlist-image{
+    width:130px;
+    height:130px;
+    object-fit:cover;
+    border-radius:18px;
+}
+
+.wishlist-content{
+    flex:1;
+}
+
+.wishlist-name{
+    font-size:1.45rem;
+    font-weight:700;
+    margin-bottom:.3rem;
+}
+
+.wishlist-category{
+    color:#777;
+    margin-bottom:12px;
+}
+
+.wishlist-price{
+    font-size:1.6rem;
+    font-weight:700;
+    color:#7a3e18;
+    margin-bottom:12px;
+}
+
+.wishlist-actions{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.wishlist-cart,
+.wishlist-remove{
+    width:56px;
+    height:56px;
+
+    border-radius:16px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:1.35rem;
+}
+
+.wishlist-cart{
+    background:#fff7f2;
+    color:#8b4513;
+    border:1px solid #e8d6c9;
+}
+
+.wishlist-cart:hover{
+    background:#8b4513;
+    color:#fff;
+}
+
+.wishlist-remove{
+    background:#fff;
+    color:#666;
+    border:1px solid #ddd;
+}
+
+.wishlist-remove:hover{
+    background:#dc3545;
+    color:#fff;
+}
+.wishlist-container{
+    background:#fff;
+    border-radius:24px;
+    min-height:600px;
+    overflow:hidden;
+}
+
+.wishlist-container .card-body{
+    padding:2rem;
+    background:#fff;
+}
+
+.wishlist-empty{
+    min-height:500px;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    text-align:center;
+}
+
+.wishlist-empty i{
+    font-size:5rem;
+    color:#d7d7d7;
+    margin-bottom:1rem;
+}
 /*==============================================================================
     RESPONSIVE
 ==============================================================================*/

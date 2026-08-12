@@ -1,4 +1,4 @@
-<div class="card shadow-sm border-0">
+<div class="card shadow-sm border-0 whislist-container">
 
     {{-- Header --}}
     <div class="card-header bg-white border-bottom-0 py-4">
@@ -37,92 +37,62 @@
     <div class="card-body p-0">
 
         @forelse($products as $product)
+                <div class="wishlist-card">
 
-            <div class="wishlist-item">
-
-                <div class="row align-items-center g-3">
-
-                    {{-- Imagen --}}
-                    <div class="col-auto">
-
+                    <div class="wishlist-image-wrapper">
                         <img
                             src="{{ $product->image }}"
                             alt="{{ $product->name }}"
                             class="wishlist-image">
-
                     </div>
 
-                    {{-- Información --}}
-                    <div class="col">
+                    <div class="wishlist-content">
 
-                        <h6 class="wishlist-name mb-1">
-
+                        <h5 class="wishlist-name">
                             {{ $product->name }}
+                        </h5>
 
-                        </h6>
-
-                        <small class="wishlist-category">
-
+                        <div class="wishlist-category">
                             {{ $product->category }}
-
-                        </small>
-
-                    </div>
-
-                    {{-- Precio --}}
-                    <div class="col-auto text-end">
-
-                        <div class="wishlist-price">
-
-                            {{ $product->formatted_price }}
-
                         </div>
 
-                    </div>
+                        <div class="wishlist-price">
+                            {{ $product->formatted_price }}
+                        </div>
 
-                    {{-- Stock --}}
-                    <div class="col-auto">
-
-                        <span class="badge bg-{{ $product->stock_badge }} wishlist-stock">
-
+                        <span class="badge bg-{{ $product->stock_badge }}">
                             {{ $product->stock_status }}
-
                         </span>
 
                     </div>
 
-                    {{-- Acciones --}}
-                    <div class="col-auto">
+                    <div class="wishlist-actions">
 
-                        <div class="d-flex align-items-center gap-2">
+                        <button
+                            type="button"
+                            class="btn wishlist-cart"
+                            data-product="{{ $product->product_id }}"
+                            data-quantity="1"
+                            title="Agregar al carrito">
 
-                            <button
-                                type="button"
-                                class="btn wishlist-cart add-to-cart"
-                                data-product="{{ $product->product_id }}"
-                                title="Agregar al carrito">
+                            <i class="bi bi-cart-plus"></i>
 
-                                <i class="bi bi-cart-plus"></i>
+                        </button>
 
-                            </button>
+                        <button
+                            type="button"
+                            class="btn wishlist-remove"
+                            data-product="{{ $product->product_id }}"
+                            title="Eliminar de favoritos">
 
-                            <button
-                                type="button"
-                                class="btn wishlist-remove"
-                                data-product="{{ $product->product_id }}"
-                                title="Eliminar de favoritos">
+                            <i class="bi bi-trash"></i>
 
-                                <i class="bi bi-trash"></i>
-
-                            </button>
-
-                        </div>
+                        </button>
 
                     </div>
 
                 </div>
 
-            </div>
 
         @empty
 
@@ -144,7 +114,7 @@
 
                 <a
                     href="{{ route('products') }}"
-                    class="btn btn-primary">
+                    class="customer-btn">
 
                     <i class="bi bi-shop me-2"></i>
 
