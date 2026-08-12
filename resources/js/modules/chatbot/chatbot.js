@@ -337,7 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try{
 
-            const response = await fetch("/cart/add",{
+            const response = await fetch("/cart",{
 
                 method:"POST",
 
@@ -351,11 +351,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 },
 
-                body:JSON.stringify({
+                body: JSON.stringify({
 
-                    product_id:productId,
+                    product_id: productId,
 
-                    qty:1
+                    cantidad: 1
 
                 })
 

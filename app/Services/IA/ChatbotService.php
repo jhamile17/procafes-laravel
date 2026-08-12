@@ -65,7 +65,7 @@ class ChatbotService
             }
 
             $response = $this->products->search(
-                $intent['filters']
+                $intent['filters'] ?? []
             );
 
             Session::put('chatbot.last_filters', $intent['filters']);
@@ -120,11 +120,23 @@ class ChatbotService
 
             case 'recommendation':
 
-            return $this->products->recommend(
+                return $this->products->recommend(
+                    $intent['filters'] ?? []
+                );
 
-                $intent['filters'] ?? []
+            case 'companion':
 
-            );
+            return $this->products->companion();
+
+            case 'conversation':
+
+                return [
+
+                    'message' => 'Estoy recordando tu búsqueda anterior.',
+
+                    'products' => $this->lastProducts()
+
+                ];
 
             case 'ai':
             default:
@@ -135,19 +147,12 @@ class ChatbotService
                 );
 
                 return [
+
                     'message' => $this->groq->chat($messages),
+
                     'products' => []
+
                 ];
-            case 'conversation':
-
-            return [
-
-                'message'=>'Estoy recordando tu búsqueda anterior. Esta función estará disponible en el siguiente paso.',
-
-                'products'=>$this->lastProducts()
-
-            ];
-
             
         }
     }

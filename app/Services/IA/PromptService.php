@@ -13,40 +13,48 @@ class PromptService
         foreach ($products as $product) {
 
             $context .=
-                "Producto: {$product->name}\n".
-                "Categoría: ".($product->category->name ?? 'Sin categoría')."\n".
-                "Precio: S/ {$product->price}\n".
-                "Temperatura: ".($product->temperature ?? 'No especificada')."\n".
-                "Stock: {$product->stock}\n".
-                "Descripción: {$product->description}\n\n";
+                "Producto: {$product->name}\n" .
+                "Categoría: " . ($product->category?->name ?? 'Sin categoría') . "\n" .
+                "Marca: " . ($product->brand?->name ?? 'Sin marca') . "\n" .
+                "Tipo de consumo: " . ($product->tipoConsumo?->nombre ?? 'No especificado') . "\n" .
+                "Precio: S/ " . number_format($product->sale_price, 2) . "\n" .
+                "Stock: {$product->stock}\n" .
+                "Descripción: " . ($product->description ?? 'Sin descripción') . "\n\n";
+
         }
 
         return [
 
             [
-                "role" => "system",
-                "content" => "
+                'role' => 'system',
+
+                'content' => <<<PROMPT
 Eres el asistente virtual de PROCAFES.
+
+Tu función es ayudar únicamente con información relacionada con PROCAFES.
 
 Reglas:
 
-- Responde SIEMPRE en español.
-- Usa únicamente la información proporcionada.
+- Responde siempre en español.
+- Sé amable, breve y profesional.
 - Nunca inventes productos.
 - Nunca inventes precios.
-- Si un producto no existe, dilo amablemente.
-- Si te saludan, responde cordialmente.
-- Si preguntan algo fuera de PROCAFES, indica que solo puedes ayudar con información del negocio.
+- Nunca inventes promociones.
+- Nunca inventes stock.
+- Si un producto no existe, indícalo amablemente.
+- Si el usuario pregunta algo fuera de PROCAFES, responde que solo puedes ayudar con información del negocio.
+- Si existe información de productos, utilízala para responder.
+- No menciones información que no aparezca en el contexto.
 
-Información de la base de datos:
+Productos disponibles:
 
 {$context}
-"
+PROMPT
             ],
 
             [
-                "role"=>"user",
-                "content"=>$question
+                'role' => 'user',
+                'content' => $question
             ]
 
         ];

@@ -16,6 +16,8 @@ class IntentService
 
         if ($this->contains($message, [
             'hola',
+            'holi',
+            'hey',
             'buenas',
             'buenos dias',
             'buenas tardes',
@@ -28,7 +30,7 @@ class IntentService
 
         /*
         |--------------------------------------------------------------------------
-        | Negocio
+        | Horario
         |--------------------------------------------------------------------------
         */
 
@@ -37,7 +39,11 @@ class IntentService
             'hora',
             'atienden',
             'abren',
-            'cierran'
+            'cierran',
+            'a que hora abren',
+            'a qué hora abren',
+            'a que hora cierran',
+            'a qué hora cierran'
         ])) {
             return [
                 'module' => 'business',
@@ -52,35 +58,37 @@ class IntentService
         */
 
         if ($this->contains($message, [
-
             'ubicacion',
             'ubicación',
             'direccion',
             'dirección',
             'donde',
             'dónde',
-            'ubicado',
-            'ubicada',
-            'encuentra',
             'local',
             'tienda',
-            'sucursal'
-
+            'sucursal',
+            'como llegar',
+            'cómo llegar',
+            'encuentran'
         ])) {
-
             return [
-
                 'module' => 'business',
                 'action' => 'location'
-
             ];
-
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Delivery
+        |--------------------------------------------------------------------------
+        */
 
         if ($this->contains($message, [
             'delivery',
             'envio',
-            'envío'
+            'envío',
+            'reparto',
+            'domicilio'
         ])) {
             return [
                 'module' => 'business',
@@ -88,40 +96,60 @@ class IntentService
             ];
         }
 
-        if ($this->contains($message, [
+        /*
+        |--------------------------------------------------------------------------
+        | Métodos de pago
+        |--------------------------------------------------------------------------
+        */
 
+        if ($this->contains($message, [
             'pago',
             'pagos',
-            'método de pago',
             'metodo de pago',
-            'métodos de pagos',
-            'metodos de pagos',
+            'método de pago',
             'forma de pago',
-            'forma de pagos',
             'formas de pago',
-            'formas de pagos',
-            'cómo puedo pagar',
-            'como puedo pagar',
-            'aceptan yape',
-            'aceptan plin',
-            'aceptan tarjeta',
             'tarjeta',
             'tarjetas',
-            'crédito',
             'credito',
-            'débito',
+            'crédito',
             'debito',
+            'débito',
+            'visa',
+            'mastercard',
             'yape',
             'plin',
             'efectivo'
+        ])) {
+            return [
+                'module' => 'business',
+                'action' => 'payments'
+            ];
+        }
+        
+        /*
+        |--------------------------------------------------------------------------
+        | Producto más barato
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'más barato',
+            'mas barato',
+            'producto más barato',
+            'producto mas barato',
+            'económico',
+            'economico',
+            'más económico',
+            'mas economico'
 
         ])) {
 
             return [
 
-                'module' => 'business',
-
-                'action' => 'payments'
+                'module' => 'product',
+                'action' => 'cheapest'
 
             ];
 
@@ -129,39 +157,84 @@ class IntentService
 
         /*
         |--------------------------------------------------------------------------
-        | Acciones especiales
+        | Producto más caro
         |--------------------------------------------------------------------------
         */
 
         if ($this->contains($message, [
-            'más barato',
-            'mas barato'
-        ])) {
-            return [
-                'module' => 'product',
-                'action' => 'cheapest'
-            ];
-        }
 
-        if ($this->contains($message, [
             'más caro',
-            'mas caro'
+            'mas caro',
+            'producto más caro',
+            'producto mas caro'
+
         ])) {
+
             return [
+
                 'module' => 'product',
                 'action' => 'expensive'
+
             ];
+
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Productos disponibles
+        |--------------------------------------------------------------------------
+        */
+
         if ($this->contains($message, [
-            'stock',
+
             'disponibles',
-            'hay disponibles'
+            'disponible',
+            'hay',
+            'hay disponibles',
+            'con stock',
+            'stock'
+
         ])) {
+
             return [
+
                 'module' => 'product',
                 'action' => 'available'
+
             ];
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Productos más vendidos
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'más vendido',
+            'mas vendido',
+            'más vendidos',
+            'mas vendidos',
+            'más popular',
+            'mas popular',
+            'más populares',
+            'mas populares',
+            'top productos',
+            'top de productos',
+            'favoritos',
+            'recomendados'
+
+        ])) {
+
+            return [
+
+                'module' => 'product',
+                'action' => 'best_sellers'
+
+            ];
+
         }
 
         /*
@@ -172,88 +245,315 @@ class IntentService
 
         $filters = [];
 
-        // Categorías
+        /*
+        |--------------------------------------------------------------------------
+        | Categorías
+        |--------------------------------------------------------------------------
+        */
+
+        /*
+        |--------------------------------------------------------------------------
+        | Bebidas (todas)
+        |--------------------------------------------------------------------------
+        */
 
         if ($this->contains($message, [
             'bebida',
-            'bebidas',
-            'frappé',
-            'frappe',
-            'jugo',
-            'refresco',
-            'latte',
-            'ice latte'
+            'bebidas'
         ])) {
+
             $filters['category'] = 'Bebidas';
-        }
 
-        if ($this->contains($message, [
-            'café',
-            'cafe',
-            'cafés',
-            'cafes',
-            'americano',
-            'espresso'
-        ])) {
-            $filters['category'] = 'Café';
-        }
-
-        if ($this->contains($message, [
-            'snack',
-            'snacks',
-            'yuca',
-            'pan'
-        ])) {
-            $filters['category'] = 'Snacks';
-        }
-
-        if ($this->contains($message, [
-            'postre',
-            'postres'
-        ])) {
-            $filters['category'] = 'Postres';
-        }
-
-        // Temperatura
-
-        if ($this->contains($message, [
-            'fría',
-            'fria',
-            'frías',
-            'frias',
-            'frío',
-            'frio',
-            'fríos',
-            'frios',
-            'helado',
-            'helada',
-            'helados',
-            'heladas',
-            'bebida fría',
-            'bebidas frías',
-            'bebida fria',
-            'bebidas frias'
-        ])) {
-            $filters['temperature'] = 'Fría';
-        }
-
-        if ($this->contains($message, [
-            'caliente',
-            'calientes',
-            'bebida caliente',
-            'bebidas calientes'
-        ])) {
-            $filters['temperature'] = 'Caliente';
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Precio dinámico
+        | Cafés Calientes
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $this->contains($message, [
+                'café caliente',
+                'cafés calientes',
+                'cafe caliente',
+                'cafes calientes'
+            ])
+            ||
+            (
+                $this->contains($message, [
+                    'americano',
+                    'espresso',
+                    'capuccino',
+                    'capuchino'
+                ])
+                &&
+                !$this->contains($message, [
+                    'ice',
+                    'frío',
+                    'frio',
+                    'latte',
+                    'granizado',
+                    'shakerato',
+                    'cold brew'
+                ])
+            )
+        ) {
+
+            $filters['category'] = 'Cafés Calientes';
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cafés Fríos
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'café frío',
+            'café frio',
+            'cafés fríos',
+            'cafes frios',
+            'ice latte',
+            'granizado',
+            'shakerato',
+            'affogato',
+            'submarino'
+
+        ])) {
+
+            $filters['category'] = 'Cafés Fríos';
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cold Brew
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'cold brew'
+
+        ])) {
+
+            $filters['category'] = 'Cold Brew';
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Jugos
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'jugo',
+            'jugos'
+
+        ])) {
+
+            $filters['category'] = 'Jugos';
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Refrescos
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'refresco',
+            'refrescos'
+
+        ])) {
+
+            $filters['category'] = 'Refrescos';
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Frappés
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'frappé',
+            'frappés',
+            'frappe',
+            'frappes'
+
+        ])) {
+
+            $filters['category'] = 'Frappés';
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cremoladas
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'cremolada',
+            'cremoladas',
+            'frozen'
+
+        ])) {
+
+            $filters['category'] = 'Cremoladas';
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Piqueos
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'snack',
+            'snacks',
+            'piqueo',
+            'piqueos',
+            'yuca'
+
+        ])) {
+
+            $filters['category'] = 'Piqueos Artesanales';
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Sándwiches
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'sandwich',
+            'sándwich',
+            'pan',
+            'pollo',
+            'chorizo',
+            'queso',
+            'huevo'
+
+        ])) {
+
+            $filters['category'] = 'Sándwiches';
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Postres
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'postre',
+            'postres'
+
+        ])) {
+
+            $filters['category'] = 'Postres';
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tipo de consumo
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'caliente',
+            'calientes'
+
+        ])) {
+
+            $filters['tipo_consumo'] = 'Caliente';
+
+        }
+
+        if ($this->contains($message, [
+
+            'frío',
+            'frio',
+            'fría',
+            'fria',
+            'fríos',
+            'frios',
+            'helado',
+            'helada',
+            'ice'
+
+        ])) {
+
+            $filters['tipo_consumo'] = 'Frío';
+
+        }
+
+        if ($this->contains($message, [
+
+            'empacado',
+            'molido',
+            'grano',
+            'bolsa'
+
+        ])) {
+
+            $filters['tipo_consumo'] = 'Empacado';
+
+        }
+
+        if ($this->contains($message, [
+
+            'embotellado',
+            'botella'
+
+        ])) {
+
+            $filters['tipo_consumo'] = 'Embotellado';
+
+        }
+
+        if ($this->contains($message, [
+
+            'accesorio',
+            'accesorios',
+            'taza',
+            'vaso'
+
+        ])) {
+
+            $filters['tipo_consumo'] = 'Accesorio';
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Precio máximo
         |--------------------------------------------------------------------------
         */
 
         if (preg_match(
-            '/(?:menos\s+(?:de|que)|menor\s+que|hasta|máximo|maximo)\s*(?:s\/\.?\s*)?(\d+)/iu',
+            '/(?:menos de|hasta|maximo|máximo|menor a)\s*s?\/?\s*(\d+)/iu',
             $message,
             $matches
         )) {
@@ -263,7 +563,7 @@ class IntentService
         }
 
         elseif (preg_match(
-            '/(?:s\/\.?\s*)?(\d+)\s*soles?/iu',
+            '/s\/?\s*(\d+)/iu',
             $message,
             $matches
         )) {
@@ -275,6 +575,7 @@ class IntentService
         elseif ($this->contains($message, [
 
             'barato',
+            'barata',
             'económico',
             'economico'
 
@@ -284,52 +585,66 @@ class IntentService
 
         }
 
-        // Ingredientes
-
-        foreach ([
-            'oreo',
-            'fresa',
-            'queso',
-            'pollo',
-            'chorizo',
-            'huevo',
-            'camu camu',
-            'chocolate'
-        ] as $keyword) {
-
-            if (str_contains($message, $keyword)) {
-
-                $filters['keyword'] = $keyword;
-
-                break;
-
-            }
-
-        }
-
         /*
         |--------------------------------------------------------------------------
-        | Palabras clave de productos
+        | Palabras clave
         |--------------------------------------------------------------------------
         */
 
         $productKeywords = [
 
-            'hamburguesa',
-            'pollo',
-            'queso',
-            'huevo',
-            'chorizo',
-            'yuca',
-            'pan',
-            'latte',
+            // Cafés
             'americano',
+            'espresso',
+            'latte',
+            'moka',
+            'capuccino',
+            'capuchino',
+            'cold brew',
+            'granizado',
+            'shakerato',
+            'affogato',
+            'submarino',
+
+            // Frappés
             'frappé',
             'frappe',
+
+            // Sabores
             'oreo',
+            'vainilla',
+            'chocolate',
+            'cacao',
+            'panela',
+            'miel',
+            'algarrobina',
+
+            // Frutas
             'fresa',
+            'papaya',
+            'piña',
+            'platano',
+            'plátano',
+            'maracuyá',
+            'maracuya',
+            'guanábana',
+            'guanabana',
+            'naranja',
+            'limón',
+            'limon',
+            'arándanos',
+            'arandanos',
             'camu camu',
-            'jugo',
+
+            // Sándwiches
+            'pollo',
+            'chorizo',
+            'cecina',
+            'queso',
+            'huevo',
+
+            // Piqueos
+            'yuca',
             'mixto'
 
         ];
@@ -339,7 +654,6 @@ class IntentService
             if (str_contains($message, $keyword)) {
 
                 $filters['keyword'] = $keyword;
-
                 break;
 
             }
@@ -352,11 +666,18 @@ class IntentService
         |--------------------------------------------------------------------------
         */
 
+        /*
+        |--------------------------------------------------------------------------
+        | Algo dulce
+        |--------------------------------------------------------------------------
+        */
+
         if ($this->contains($message, [
 
             'dulce',
             'postre',
-            'postres'
+            'postres',
+            'quiero algo dulce'
 
         ])) {
 
@@ -364,26 +685,54 @@ class IntentService
 
                 'module' => 'recommendation',
 
-                'filters' => array_merge(
+                'filters' => array_merge($filters, [
 
-                    $filters,
+                    'preference' => 'sweet'
 
-                    [
-
-                        'preference' => 'sweet'
-
-                    ]
-
-                )
+                ])
 
             ];
 
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Algo salado
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'salado',
+            'quiero algo salado'
+
+        ])) {
+
+            return [
+
+                'module' => 'recommendation',
+
+                'filters' => array_merge($filters, [
+
+                    'preference' => 'salty'
+
+                ])
+
+            ];
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Desayuno
+        |--------------------------------------------------------------------------
+        */
 
         if ($this->contains($message, [
 
             'desayuno',
-            'desayunar'
+            'desayunar',
+            'para desayunar'
 
         ])) {
 
@@ -391,52 +740,28 @@ class IntentService
 
                 'module' => 'recommendation',
 
-                'filters' => array_merge(
+                'filters' => array_merge($filters, [
 
-                    $filters,
+                    'preference' => 'breakfast'
 
-                    [
-
-                        'preference'=>'breakfast'
-
-                    ]
-
-                )
+                ])
 
             ];
 
         }
 
-        if ($this->contains($message, [
-
-            'hambre',
-            'comer'
-
-        ])) {
-
-            return [
-
-                'module' => 'recommendation',
-
-                'filters' => array_merge(
-
-                    $filters,
-    
-                    [
-
-                        'preference' => 'hungry'
-                    ]
-                )
-
-            ];
-
-        }
+        /*
+        |--------------------------------------------------------------------------
+        | Hace calor
+        |--------------------------------------------------------------------------
+        */
 
         if ($this->contains($message, [
 
             'calor',
-            'caluroso',
-            'refrescante'
+            'hace calor',
+            'refrescante',
+            'algo fresco'
 
         ])) {
 
@@ -444,25 +769,28 @@ class IntentService
 
                 'module' => 'recommendation',
 
-                'filters' => array_merge(
-
-                    $filters,
-
-                    [
+                'filters' => array_merge($filters, [
 
                     'preference' => 'cold'
 
-                    ]
-
-                )
+                ])
 
             ];
 
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Hace frío
+        |--------------------------------------------------------------------------
+        */
+
         if ($this->contains($message, [
 
-            'salado'
+            'hace frío',
+            'hace frio',
+            'tengo frío',
+            'tengo frio'
 
         ])) {
 
@@ -470,21 +798,87 @@ class IntentService
 
                 'module' => 'recommendation',
 
-                'filters' => array_merge(
+                'filters' => array_merge($filters, [
 
-                    $filters,
+                    'preference' => 'hot'
 
-                    [
-
-                    'preference' => 'salty'
-
-                    ]
-
-                )
+                ])
 
             ];
 
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tengo hambre
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'hambre',
+            'quiero comer',
+            'comer',
+            'almorzar',
+            'cenar'
+
+        ])) {
+
+            return [
+
+                'module' => 'recommendation',
+
+                'filters' => array_merge($filters, [
+
+                    'preference' => 'hungry'
+
+                ])
+
+            ];
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Acompañamiento
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'acompañar',
+            'acompañar',
+            'acompañarlo',
+            'acompañarla',
+            'acompañe',
+            'acompaño',
+            'con que puedo acompañarlo',
+            'con qué puedo acompañarlo',
+            'con que puedo acompañarla',
+            'con qué puedo acompañarla',
+            'con que lo acompaño',
+            'con qué lo acompaño',
+            'para acompañar',
+            'que combina',
+            'qué combina',
+            'que puedo comer con',
+            'qué puedo comer con'
+
+        ])) {
+
+            return [
+
+                'module' => 'companion'
+
+            ];
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Solicitud de recomendaciones
+        |--------------------------------------------------------------------------
+        */
 
         if ($this->contains($message, [
 
@@ -492,38 +886,15 @@ class IntentService
             'recomiéndame',
             'recomiendame',
             'recomendar',
-            'recomendarias',
-            'recomendarías',
-            'qué me recomiendas',
-            'que me recomiendas'
+            'recomiendas',
+            'qué recomiendas',
+            'que recomiendas',
+            'sugerencia',
+            'sugiere',
+            'algo rico',
+            'algo bueno'
 
         ])) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | Si el usuario no especificó nada,
-            | recomendar productos variados.
-            |--------------------------------------------------------------------------
-            */
-
-            if (empty($filters)) {
-
-                return [
-
-                    'module' => 'recommendation',
-
-                    'filters' => []
-
-                ];
-
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Si especificó categoría, temperatura o precio,
-            | conservar los filtros.
-            |--------------------------------------------------------------------------
-            */
 
             return [
 
@@ -534,6 +905,40 @@ class IntentService
             ];
 
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Carrito
+        |--------------------------------------------------------------------------
+        */
+
+        if ($this->contains($message, [
+
+            'agregar',
+            'agrégalo',
+            'agregalo',
+            'añadir',
+            'añádelo',
+            'comprar',
+            'lo quiero',
+            'llévame',
+            'llevame'
+
+        ])) {
+
+            return [
+
+                'module' => 'cart'
+
+            ];
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Búsqueda de productos
+        |--------------------------------------------------------------------------
+        */
 
         if (!empty($filters)) {
 
@@ -549,63 +954,7 @@ class IntentService
 
         /*
         |--------------------------------------------------------------------------
-        | Carrito
-        |--------------------------------------------------------------------------
-        */
-
-        if ($this->contains($message, [
-            'agregar',
-            'agrégalo',
-            'agregalo',
-            'añadir',
-            'añádelo',
-            'comprar',
-            'lo quiero'
-        ])) {
-
-            return [
-                'module' => 'cart'
-            ];
-
-        }
-
-        if ($this->contains($message, [
-
-            'más vendido',
-
-            'mas vendido',
-
-            'más vendidos',
-
-            'mas vendidos',
-
-            'top productos',
-
-            'top de productos',
-
-            'más populares',
-
-            'mas populares',
-
-            'producto favorito',
-
-            'favoritos'
-
-        ])) {
-
-            return [
-
-                'module' => 'product',
-
-                'action' => 'best_sellers'
-
-            ];
-
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | IA
+        | IA General
         |--------------------------------------------------------------------------
         */
 
@@ -621,9 +970,7 @@ class IntentService
         foreach ($words as $word) {
 
             if (str_contains($text, $word)) {
-
                 return true;
-
             }
 
         }

@@ -4,76 +4,107 @@ namespace App\Services\IA;
 
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Collection;
 
 class ProductService
 {
-        private array $preferences = [
+    /**
+     * Preferencias utilizadas por el chatbot.
+     */
+    private array $preferences = [
 
         'dulce' => [
             'oreo',
             'fresa',
             'chocolate',
+            'capuccino',
+            'latte',
+            'frappé',
             'postre'
         ],
 
         'salado' => [
-            'queso',
             'pollo',
-            'chorizo',
-            'huevo',
+            'queso',
+            'jamón',
             'hamburguesa',
-            'yuca'
+            'sándwich',
+            'empanada'
         ],
 
         'desayuno' => [
-            'pan',
-            'huevo',
-            'chorizo',
             'americano',
-            'latte'
+            'espresso',
+            'latte',
+            'capuccino',
+            'pan'
         ],
 
         'calor' => [
-            'Fría'
+            'Frío'
         ],
 
         'frio' => [
             'Caliente'
-        ]
+        ],
 
     ];
 
-    /**
-     * Buscar productos.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Buscar productos
+    |--------------------------------------------------------------------------
+    */
+
     public function search(array $filters): array
     {
         $query = Product::query()
-            ->with('category')
-            ->where('status', 1);
+            ->with([
+                'category',
+                'tipoConsumo'
+            ])
+            ->disponibles();
 
         $this->applyFilters($query, $filters);
 
-        $products = $query->get();
+        // Total de productos encontrados
+        $total = (clone $query)->count();
+
+        // Mostrar solo los primeros 5
+        $products = $query
+            ->limit(5)
+            ->get();
 
         return [
 
-            'message' => $this->buildMessage($filters, $products),
+            'message' => $this->buildMessage(
+                $filters,
+                $products,
+                $total
+            ),
 
-            'products' => $this->formatProducts($products)
+            'products' => $this->formatProducts(
+                $products
+            )
 
         ];
     }
 
-    /**
-     * Productos recomendados.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Recomendaciones
+    |--------------------------------------------------------------------------
+    */
+
     public function recommend(array $filters = []): array
     {
         $query = Product::query()
-            ->with('category')
-            ->where('status', 1)
-            ->where('stock', '>', 0);
+            ->with([
+                'category',
+                'tipoConsumo'
+            ])
+            ->disponibles();
 
         /*
         |--------------------------------------------------------------------------
@@ -95,65 +126,21 @@ class ProductService
 
                     $query->where(function ($q) {
 
-                        $q->where('name','like','%oreo%')
+                        foreach ($this->preferences['dulce'] as $word) {
 
-                        ->orWhere('name','like','%fresa%')
+                            $q->orWhere(
+                                'name',
+                                'LIKE',
+                                "%{$word}%"
+                            );
 
-                        ->orWhere('name','like','%latte%')
+                            $q->orWhere(
+                                'description',
+                                'LIKE',
+                                "%{$word}%"
+                            );
 
-                        ->orWhere('description','like','%dulce%');
-
-                    });
-
-                break;
-
-                /*
-                |--------------------------------------------------------------
-                | Desayuno
-                |--------------------------------------------------------------
-                */
-
-                case 'breakfast':
-
-                    $query->where(function ($q) {
-
-                        $q->where('name', 'like', '%americano%')
-                        ->orWhere('name', 'like', '%pan%')
-                        ->orWhere('name', 'like', '%mixto%')
-                        ->orWhere('name', 'like', '%tostada%');
-
-                    });
-
-                    break;
-
-                /*
-                |--------------------------------------------------------------
-                | Hace calor
-                |--------------------------------------------------------------
-                */
-
-                case 'cold':
-
-                    $query->where('temperature', 'Fría');
-
-                    break;
-
-                /*
-                |--------------------------------------------------------------
-                | Tengo hambre
-                |--------------------------------------------------------------
-                */
-
-                case 'hungry':
-
-                    $query->whereHas('category', function ($q) {
-
-                        $q->whereIn('name', [
-
-                            'Snacks',
-                            'Gourmet'
-
-                        ]);
+                        }
 
                     });
 
@@ -169,13 +156,116 @@ class ProductService
 
                     $query->where(function ($q) {
 
-                        $q->where('name', 'like', '%pollo%')
-                        ->orWhere('name', 'like', '%queso%')
-                        ->orWhere('name', 'like', '%huevo%')
-                        ->orWhere('name', 'like', '%chorizo%')
-                        ->orWhere('name', 'like', '%hamburguesa%');
+                        foreach ($this->preferences['salado'] as $word) {
+
+                            $q->orWhere(
+                                'name',
+                                'LIKE',
+                                "%{$word}%"
+                            );
+
+                            $q->orWhere(
+                                'description',
+                                'LIKE',
+                                "%{$word}%"
+                            );
+
+                        }
 
                     });
+
+                    break;
+
+                /*
+                |--------------------------------------------------------------
+                | Desayuno
+                |--------------------------------------------------------------
+                */
+
+                case 'breakfast':
+
+                    $query->where(function ($q) {
+
+                        foreach ($this->preferences['desayuno'] as $word) {
+
+                            $q->orWhere(
+                                'name',
+                                'LIKE',
+                                "%{$word}%"
+                            );
+
+                        }
+
+                    });
+
+                    break;
+
+                /*
+                |--------------------------------------------------------------
+                | Hace calor
+                |--------------------------------------------------------------
+                */
+
+                case 'cold':
+
+                    $query->whereHas(
+                        'tipoConsumo',
+                        function ($q) {
+
+                            $q->where(
+                                'nombre',
+                                'Frío'
+                            );
+
+                        }
+                    );
+
+                    break;
+
+                /*
+                |--------------------------------------------------------------
+                | Hace frío
+                |--------------------------------------------------------------
+                */
+
+                case 'hot':
+
+                    $query->whereHas(
+                        'tipoConsumo',
+                        function ($q) {
+
+                            $q->where(
+                                'nombre',
+                                'Caliente'
+                            );
+
+                        }
+                    );
+
+                    break;
+
+                /*
+                |--------------------------------------------------------------
+                | Tengo hambre
+                |--------------------------------------------------------------
+                */
+
+                case 'hungry':
+
+                    $query->whereHas(
+                        'category',
+                        function ($q) {
+
+                            $q->whereIn(
+                                'name',
+                                [
+                                    'Snacks',
+                                    'Piqueos Artesanales'
+                                ]
+                            );
+
+                        }
+                    );
 
                     break;
 
@@ -183,27 +273,222 @@ class ProductService
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Sin preferencia
-        |--------------------------------------------------------------------------
-        */
+        $this->applyFilters(
+            $query,
+            $filters
+        );
 
-        elseif (
+        $products = $query
+            ->limit(5)
+            ->get();
 
-            empty($filters['category']) &&
+        return [
 
-            empty($filters['temperature']) &&
+            'message' => $this->recommendationMessage(
+                $filters
+            ),
 
-            empty($filters['price_max'])
+            'products' => $this->formatProducts(
+                $products
+            )
 
-        ) {
+        ];
+    }
 
-            $query->inRandomOrder();
+    public function companion(): array
+    {
+        $products = Product::query()
+            ->with([
+                'category',
+                'tipoConsumo'
+            ])
+            ->disponibles()
+            ->whereHas('category', function ($q) {
+
+                $q->whereIn('name', [
+
+                    'Piqueos Artesanales',
+                    'Sándwiches'
+
+                ]);
+
+            })
+            ->limit(5)
+            ->get();
+
+        return [
+
+            'message' =>
+                '🥪 Estas opciones combinan muy bien con tu bebida.',
+
+            'products' =>
+                $this->formatProducts($products)
+
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Producto más barato
+    |--------------------------------------------------------------------------
+    */
+
+    public function cheapest(): array
+    {
+        $product = Product::query()
+            ->with([
+                'category',
+                'tipoConsumo'
+            ])
+            ->disponibles()
+            ->orderBy('sale_price')
+            ->first();
+
+        if (!$product) {
+
+            return [
+
+                'message' => 'No encontré productos disponibles.',
+
+                'products' => []
+
+            ];
 
         }
 
-                /*
+        return [
+
+            'message' => "💰 El producto más económico es {$product->name}.",
+
+            'products' => $this->formatProducts(
+                collect([$product])
+            )
+
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Producto más caro
+    |--------------------------------------------------------------------------
+    */
+
+    public function expensive(): array
+    {
+        $product = Product::query()
+            ->with([
+                'category',
+                'tipoConsumo'
+            ])
+            ->disponibles()
+            ->orderByDesc('sale_price')
+            ->first();
+
+        if (!$product) {
+
+            return [
+
+                'message' => 'No encontré productos disponibles.',
+
+                'products' => []
+
+            ];
+
+        }
+
+        return [
+
+            'message' => "💎 El producto de mayor precio es {$product->name}.",
+
+            'products' => $this->formatProducts(
+                collect([$product])
+            )
+
+        ];
+    }
+        /*
+    |--------------------------------------------------------------------------
+    | Productos disponibles
+    |--------------------------------------------------------------------------
+    */
+
+    public function available(): array
+    {
+        $products = Product::query()
+            ->with([
+                'category',
+                'tipoConsumo'
+            ])
+            ->disponibles()
+            ->orderBy('name')
+            ->get();
+
+        return [
+
+            'message' => '✅ Estos son los productos disponibles actualmente.',
+
+            'products' => $this->formatProducts(
+                $products
+            )
+
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Productos más vendidos
+    |--------------------------------------------------------------------------
+    */
+
+    public function bestSellers(): array
+    {
+        $products = Product::query()
+            ->with([
+                'category',
+                'tipoConsumo'
+            ])
+            ->withSum('orderItems as total_sales', 'quantity')
+            ->disponibles()
+            ->orderByDesc('total_sales')
+            ->limit(5)
+            ->get();
+
+        if ($products->isEmpty()) {
+
+            return [
+
+                'message' => 'Todavía no existen ventas registradas.',
+
+                'products' => []
+
+            ];
+
+        }
+
+        return [
+
+            'message' => '🏆 Estos son nuestros productos más vendidos.',
+
+            'products' => $this->formatProducts(
+                $products
+            )
+
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Aplicar filtros
+    |--------------------------------------------------------------------------
+    */
+
+    private function applyFilters(
+        Builder $query,
+        array $filters
+    ): void
+    {
+
+        /*
         |--------------------------------------------------------------------------
         | Categoría
         |--------------------------------------------------------------------------
@@ -211,9 +496,99 @@ class ProductService
 
         if (!empty($filters['category'])) {
 
-            $query->whereHas('category', function ($q) use ($filters) {
+        $category = mb_strtolower($filters['category']);
 
-                $q->where('name', $filters['category']);
+        $query->whereHas('category', function ($q) use ($category) {
+
+            switch ($category) {
+
+                case 'bebidas':
+
+                    $q->whereIn('name', [
+                        'Cafés Calientes',
+                        'Cafés Fríos',
+                        'Frappés',
+                        'Jugos',
+                        'Refrescos',
+                        'Cold Brew',
+                        'Cremoladas'
+                    ]);
+                    return;
+
+                case 'jugos':
+
+                    $q->where('name', 'Jugos');
+                    return;
+
+                case 'frappés':
+                case 'frappes':
+
+                    $q->where('name', 'Frappés');
+                    return;
+
+                case 'refrescos':
+
+                    $q->where('name', 'Refrescos');
+                    return;
+
+                case 'cremoladas':
+
+                    $q->where('name', 'Cremoladas');
+                    return;
+
+                case 'cold brew':
+
+                    $q->where('name', 'Cold Brew');
+                    return;
+
+                case 'cafés fríos':
+                case 'cafes frios':
+
+                    $q->where('name', 'Cafés Fríos');
+                    return;
+
+                case 'cafés':
+                case 'cafes':
+
+                    $q->whereIn('name', [
+                        'Cafés Calientes',
+                        'Cafés Fríos',
+                        'Cold Brew'
+                    ]);
+                    return;
+
+                case 'piqueos':
+
+                    $q->whereIn('name', [
+                        'Piqueos Artesanales',
+                        'Sándwiches'
+                    ]);
+                    return;
+
+                default:
+
+                    $q->where('name', 'LIKE', "%{$category}%");
+
+            }
+
+        });
+
+    }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tipo de consumo (antes tipo consumo)
+        |--------------------------------------------------------------------------
+        */
+
+        if (!empty($filters['tipo_consumo'])) {
+
+            $query->whereHas('tipoConsumo', function ($q) use ($filters) {
+
+                $q->where(
+                    'nombre',
+                    $filters['tipo_consumo']
+                );
 
             });
 
@@ -221,19 +596,29 @@ class ProductService
 
         /*
         |--------------------------------------------------------------------------
-        | Temperatura
+        | Palabra clave
         |--------------------------------------------------------------------------
         */
 
-        if (!empty($filters['temperature'])) {
+        if (!empty($filters['keyword'])) {
 
-            $query->where(
+            $keyword = trim($filters['keyword']);
 
-                'temperature',
+            $query->where(function ($q) use ($keyword) {
 
-                $filters['temperature']
+                $q->where(
+                    'name',
+                    'LIKE',
+                    "%{$keyword}%"
+                )
 
-            );
+                ->orWhere(
+                    'description',
+                    'LIKE',
+                    "%{$keyword}%"
+                );
+
+            });
 
         }
 
@@ -246,156 +631,20 @@ class ProductService
         if (!empty($filters['price_max'])) {
 
             $query->where(
-
-                'price',
-
-                '<=',
-
-                $filters['price_max']
-
-            );
-
-        }
-
-        $products = $query
-            ->limit(3)
-            ->get();
-
-
-        return [
-
-            'message' => $this->recommendationMessage($filters),
-
-            'products' => $this->formatProducts($products)
-
-        ];
-    }
-
-    /**
-     * Producto más barato.
-     */
-    public function cheapest(): array
-    {
-        $product = Product::with('category')
-            ->where('status', 1)
-            ->orderBy('price')
-            ->first();
-
-        if (!$product) {
-            return [
-                'message' => 'No encontré productos.',
-                'products' => []
-            ];
-        }
-
-        return [
-            'message' => "El producto más económico es {$product->name}.",
-            'products' => $this->formatProducts(collect([$product]))
-        ];
-    }
-
-    /**
-     * Producto más caro.
-     */
-    public function expensive(): array
-    {
-        $product = Product::with('category')
-            ->where('status', 1)
-            ->orderByDesc('price')
-            ->first();
-
-        if (!$product) {
-            return [
-                'message' => 'No encontré productos.',
-                'products' => []
-            ];
-        }
-
-        return [
-            'message' => "El producto de mayor precio es {$product->name}.",
-            'products' => $this->formatProducts(collect([$product]))
-        ];
-    }
-
-    /**
-     * Productos disponibles.
-     */
-    public function available(): array
-    {
-        $products = Product::with('category')
-            ->where('status',1)
-            ->where('stock','>',0)
-            ->get();
-
-        return [
-            'message' => 'Estos son los productos disponibles.',
-            'products' => $this->formatProducts($products)
-        ];
-    }
-
-    /**
-     * Aplicar filtros.
-     */
-    private function applyFilters(
-        Builder $query,
-        array $filters
-    ): void {
-
-        if(isset($filters['category'])){
-
-            $query->whereHas('category',function($q)use($filters){
-
-                $q->where(
-                    'name',
-                    $filters['category']
-                );
-
-            });
-
-        }
-
-        if(isset($filters['temperature'])){
-
-            $query->where(
-                'temperature',
-                $filters['temperature']
-            );
-
-        }
-
-        if(isset($filters['keyword'])){
-
-            $keyword=$filters['keyword'];
-
-            $query->where(function($q)use($keyword){
-
-                $q->where(
-                    'name',
-                    'like',
-                    "%{$keyword}%"
-                )
-
-                ->orWhere(
-                    'description',
-                    'like',
-                    "%{$keyword}%"
-                );
-
-            });
-
-        }
-
-        if(isset($filters['price_max'])){
-
-            $query->where(
-                'price',
+                'sale_price',
                 '<=',
                 $filters['price_max']
             );
 
         }
 
-        if(isset($filters['available'])){
+        /*
+        |--------------------------------------------------------------------------
+        | Disponibilidad
+        |--------------------------------------------------------------------------
+        */
+
+        if (!empty($filters['available'])) {
 
             $query->where(
                 'stock',
@@ -405,88 +654,136 @@ class ProductService
 
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Recomendación aleatoria
+        |--------------------------------------------------------------------------
+        */
+
         if (!empty($filters['recommend'])) {
 
-            $query->inRandomOrder()
-                ->limit(3);
+            $query->inRandomOrder();
 
         }
 
     }
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Mensaje de búsqueda
+    |--------------------------------------------------------------------------
+    */
 
-    /**
-     * Mensaje.
-     */
-    private function buildMessage(array $filters, $products): string
+    private function buildMessage(
+        array $filters,
+        Collection $products,
+        int $total
+    ): string
     {
         if ($products->isEmpty()) {
-
-            return "Lo siento, no encontré productos con esas características.";
-
+            return "😔 No encontré productos con esas características.";
         }
 
         if (!empty($filters['recommend'])) {
-
             return "⭐ Te recomiendo estos productos.";
-
         }
 
-        if (
-            isset($filters['category']) &&
-            isset($filters['temperature'])
-        ) {
+        $shown = $products->count();
 
-            return "Estas son nuestras {$filters['category']} {$filters['temperature']} disponibles.";
+        /*
+        |--------------------------------------------------------------------------
+        | Categoría + Tipo de consumo
+        |--------------------------------------------------------------------------
+        */
 
+        if (!empty($filters['category']) && !empty($filters['tipo_consumo'])) {
+
+            if ($total > $shown) {
+                return "Encontré {$total} productos de {$filters['category']} ({$filters['tipo_consumo']}). Te muestro los primeros {$shown}.";
+            }
+
+            return "Encontré {$total} productos de {$filters['category']} ({$filters['tipo_consumo']}).";
         }
 
-        if (isset($filters['category'])) {
+        /*
+        |--------------------------------------------------------------------------
+        | Solo categoría
+        |--------------------------------------------------------------------------
+        */
 
-            return "Estos son nuestros {$filters['category']}.";
+        if (!empty($filters['category'])) {
 
+            if ($total > $shown) {
+                return "Encontré {$total} productos de {$filters['category']}. Te muestro los primeros {$shown}.";
+            }
+
+            return "Encontré {$total} productos de {$filters['category']}.";
         }
 
-        return "Encontré {$products->count()} productos.";
+        /*
+        |--------------------------------------------------------------------------
+        | Búsqueda general
+        |--------------------------------------------------------------------------
+        */
+
+        if ($total > $shown) {
+            return "Encontré {$total} productos. Te muestro los primeros {$shown}.";
+        }
+
+        return "Encontré {$total} productos para ti.";
     }
 
-    private function recommendationMessage(array $filters): string
+    /*
+    |--------------------------------------------------------------------------
+    | Mensajes de recomendaciones
+    |--------------------------------------------------------------------------
+    */
+
+    private function recommendationMessage(
+        array $filters
+    ): string
     {
         if (!empty($filters['preference'])) {
 
             return match ($filters['preference']) {
 
-                'sweet' =>
-                    "🍰 Si buscas algo dulce, estas son mis mejores recomendaciones.",
+                'sweet'
+                    => "🍰 Si buscas algo dulce, estas son mis recomendaciones.",
 
-                'breakfast' =>
-                    "🍳 Estas opciones son ideales para un buen desayuno.",
+                'salty'
+                    => "🧂 Si prefieres algo salado, estas opciones pueden gustarte.",
 
-                'cold' =>
-                    "🥤 Hace calor... estas bebidas frías son una excelente opción.",
+                'breakfast'
+                    => "🍳 Estas opciones son ideales para el desayuno.",
 
-                'hungry' =>
-                    "🍔 Si tienes hambre, te recomiendo estos productos.",
+                'cold'
+                    => "🥤 Estas bebidas frías son perfectas para refrescarte.",
 
-                'salty' =>
-                    "🧂 Si prefieres algo salado, estas opciones te pueden gustar.",
+                'hot'
+                    => "☕ Estas bebidas calientes son ideales para disfrutar un buen café.",
 
-                default =>
-                    "⭐ Estas son mis recomendaciones."
+                'hungry'
+                    => "🍔 Si tienes hambre, estas son mis mejores recomendaciones.",
 
+                default
+                    => "⭐ Estas son mis recomendaciones."
             };
-
         }
 
         return "⭐ Estas son mis recomendaciones.";
     }
 
-    /**
-     * Formatear.
-     */
-    private function formatProducts($products): array
-    {
+    /*
+    |--------------------------------------------------------------------------
+    | Formatear productos
+    |--------------------------------------------------------------------------
+    */
 
-        return $products->map(function($product){
+    private function formatProducts(
+        Collection $products
+    ): array {
+
+        return $products->map(function (Product $product) {
 
             return [
 
@@ -496,62 +793,44 @@ class ProductService
 
                 'description' => $product->description,
 
-                'price' => 'S/ '.number_format($product->price,2),
+                'price' => 'S/ ' . number_format(
+                    $product->sale_price,
+                    2
+                ),
 
-                'category' => $product->category->name ?? '',
+                'price_value' => (float) $product->sale_price,
 
-                'temperature' => $product->temperature,
+                'category' => $product->category?->name,
+
+                'tipo_consumo' => $product->tipoConsumo?->nombre,
 
                 'stock' => $product->stock,
 
                 'available' => $product->stock > 0,
 
-                'image' => $product->image
-                    ? asset('storage/'.$product->image)
-                    : null
+                'image' => $product->image_url,
+
+                'image_url' => $product->image_url,
+
+                'can_add_to_cart' => $product->can_add_to_cart,
 
             ];
 
-        })->values()->toArray();
+        })
+        ->values()
+        ->toArray();
 
     }
 
-        private function footer(): string
+    /*
+    |--------------------------------------------------------------------------
+    | Pie de respuesta
+    |--------------------------------------------------------------------------
+    */
+
+    private function footer(): string
     {
         return "\n\n💬 ¿Hay algo más en lo que pueda ayudarte?";
-    }
-
-    /**
-     * Top 5 productos más vendidos.
-     */
-    public function bestSellers(): array
-    {
-        $products = Product::with('category')
-            ->withSum('orderItems as total_sales', 'quantity')
-            ->where('status', 1)
-            ->orderByDesc('total_sales')
-            ->limit(5)
-            ->get();
-
-        if ($products->isEmpty()) {
-
-            return [
-
-                'message' => 'Aún no contamos con ventas registradas.',
-
-                'products' => []
-
-            ];
-
-        }
-
-        return [
-
-            'message' => '🏆 Estos son nuestros 5 productos más vendidos.',
-
-            'products' => $this->formatProducts($products)
-
-        ];
     }
 
 }

@@ -31,49 +31,49 @@
 
                 <div class="quick-actions">
 
-                    <button
-                        class="quick-btn"
-                        data-question="¿Qué cafés tienen?"
-                    >
-                        ☕ Cafés
-                    </button>
+                <button
+                    class="quick-btn"
+                    data-question="Muéstrame los cafés calientes"
+                >
+                    ☕ Cafés Calientes
+                </button>
 
-                    <button
-                        class="quick-btn"
-                        data-question="¿Qué bebidas frías tienen?"
-                    >
-                        🥤 Bebidas
-                    </button>
+                <button
+                    class="quick-btn"
+                    data-question="Muéstrame los cafés fríos"
+                >
+                    🧊 Cafés Fríos
+                </button>
 
-                    <button
-                        class="quick-btn"
-                        data-question="Muéstrame los snacks"
-                    >
-                        🍔 Snacks
-                    </button>
+                <button
+                    class="quick-btn"
+                    data-question="Muéstrame los frappés"
+                >
+                    🥤 Frappés
+                </button>
 
-                    <button
-                        class="quick-btn"
-                        data-question="¿Qué postres tienen?"
-                    >
-                        🍰 Postres
-                    </button>
+                <button
+                    class="quick-btn"
+                    data-question="Muéstrame los piqueos artesanales"
+                >
+                    🍔 Piqueos
+                </button>
 
-                    <button
-                        class="quick-btn"
-                        data-question="¿Cuál es su horario?"
-                    >
-                        🕒 Horario
-                    </button>
+                <button
+                    class="quick-btn"
+                    data-question="¿Cuál es su horario?"
+                >
+                    🕒 Horario
+                </button>
 
-                    <button
-                        class="quick-btn"
-                        data-question="¿Dónde están ubicados?"
-                    >
-                        📍 Ubicación
-                    </button>
+                <button
+                    class="quick-btn"
+                    data-question="¿Dónde están ubicados?"
+                >
+                    📍 Ubicación
+                </button>
 
-                </div>
+            </div>
 
             </div>
 
@@ -142,7 +142,7 @@
             class="text-muted d-block mt-2 text-center"
         >
 
-            💬 Pregunta por cafés, bebidas, snacks, postres, horarios o ubicación.
+            💬 Pregunta por cafés calientes, cafés fríos, frappés, piqueos, horarios o ubicación.
 
         </small>
 
