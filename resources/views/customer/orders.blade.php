@@ -22,19 +22,27 @@
 
                     <x-clienteperfil.header
                         title="Mis pedidos"
-                        subtitle="Consulta el estado de tus compras y revisa el historial de pedidos." />
-
+                        subtitle="Consulta el estado de tus compras y revisa el historial de pedidos."
+                    />
                     @if($orders->isNotEmpty())
 
+                        <div class="orders-header">
+                            <div>Pedido</div>
+                            <div>Fecha</div>
+                            <div>Estado</div>
+                            <div>Producto</div>
+                            <div>Total</div>
+                            
+                        </div>
+
                         <div class="customer-orders">
-
                             @foreach($orders as $order)
-
-                                <x-clientepedidos.card
-                                    :order="$order" />
-
+                                <x-clientepedidos.card :order="$order"/>
                             @endforeach
+                        </div>
 
+                        <div class="mt-4 d-flex justify-content-center">
+                            {{ $orders->links() }}
                         </div>
 
                     @else

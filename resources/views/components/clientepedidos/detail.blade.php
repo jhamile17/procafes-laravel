@@ -1,28 +1,19 @@
 <article class="customer-card order-detail">
-
     <div class="customer-card-body">
-
         <div class="order-card-header">
-
             <div>
-
                 <h4 class="order-number">
-
-                    Pedido #{{ $order['numero'] }}
-
+                    Pedido #{{ $order->numero_pedido }}
                 </h4>
-
                 <span class="order-date">
-
-                    {{ $order['fecha'] }}
-
+                    {{ $order->created_at->format('d/m/Y') }}
                 </span>
 
             </div>
 
-            <span class="order-status {{ $order['estado_class'] }}">
+            <span class="order-status">
 
-                {{ $order['estado'] }}
+                {{ $order->estadoPedido->nombre }}
 
             </span>
 
@@ -32,17 +23,17 @@
 
         <div class="order-items">
 
-            @foreach($order['items'] as $item)
+            @foreach($order->items as $item)
 
                 <div class="order-item">
 
                     <div>
 
-                        <strong>{{ $item['nombre'] }}</strong>
+                        <strong>{{ $item->product->name }}</strong>
 
                         <div class="text-muted">
 
-                            Cantidad: {{ $item['cantidad'] }}
+                            Cantidad: {{ $item->quantity }}
 
                         </div>
 
@@ -50,7 +41,7 @@
 
                     <div>
 
-                        S/ {{ number_format($item['subtotal'], 2) }}
+                        S/ {{ number_format($item->subtotal, 2) }}
 
                     </div>
 
@@ -74,7 +65,7 @@
 
                 <div class="customer-value">
 
-                    {{ $order['direccion'] }}
+                    {{ $order->delivery_direccion }}
 
                 </div>
 
@@ -90,7 +81,7 @@
 
                 <div class="customer-value">
 
-                    S/ {{ number_format($order['total'], 2) }}
+                    S/ {{ number_format($order->total_price, 2) }}
 
                 </div>
 
@@ -98,11 +89,67 @@
 
         </div>
 
+        @if($order->comprobante)
+
+            <hr class="my-4">
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+
+                    <label class="customer-label">
+
+                        Comprobante
+
+                    </label>
+
+                    <div class="customer-value">
+
+                        {{ $order->comprobante->tipo_comprobante }}
+
+                        @if($order->comprobante->electronicDocument)
+
+                            - {{ $order->comprobante->electronicDocument->numeroCompleto() }}
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label class="customer-label">
+
+                        Estado SUNAT
+
+                    </label>
+
+                    <div class="customer-value">
+
+                        @if($order->comprobante->electronicDocument)
+
+                            {{ $order->comprobante->electronicDocument->estado }}
+
+                        @else
+
+                            Pendiente
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        @endif
+
         <div class="order-actions mt-4">
 
             <a
                 href="{{ route('customer.orders') }}"
-                class="btn btn-outline-primary">
+                class="customer-btn-secondary">
 
                 <i class="bi bi-arrow-left me-2"></i>
 
@@ -110,16 +157,20 @@
 
             </a>
 
-            @if(!empty($order['invoice_url']))
+            @if(
+                $order->comprobante &&
+                $order->comprobante->electronicDocument &&
+                $order->comprobante->electronicDocument->pdf_url
+            )
 
                 <a
-                    href="{{ $order['invoice_url'] }}"
+                    href="{{ $order->comprobante->electronicDocument->pdf_url }}"
                     target="_blank"
                     class="btn btn-primary">
 
-                    <i class="bi bi-download me-2"></i>
+                    <i class="bi bi-file-earmark-pdf me-2"></i>
 
-                    Descargar comprobante
+                    Descargar {{ strtolower($order->comprobante->tipo_comprobante) }}
 
                 </a>
 

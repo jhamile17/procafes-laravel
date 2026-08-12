@@ -4,51 +4,26 @@ namespace App\Services\Cliente;
 
 use App\Models\EstadoPedido;
 use App\Models\Order;
-use Illuminate\Support\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class PedidoService
 {
     /**
      * Obtener los pedidos del cliente.
      */
-    public function getOrders(int $userId): Collection
+    public function getOrders(int $userId): LengthAwarePaginator
         {
             return Order::query()
                 ->with([
                     'estadoPedido',
                     'items.product',
                     'payment',
+                    'comprobante.electronicDocument',
                 ])
                 ->where('user_id', $userId)
                 ->latest()
-                ->get();
+                ->paginate(8);
         }
-
-    /**
-     * Transformar un pedido para la vista.
-     */
-    protected function transform(Order $order): array
-    {
-        return [
-            'id' => $order->id,
-
-            'numero' => $order->numero_pedido,
-
-            'fecha' => $order->created_at->format('d/m/Y'),
-
-            'estado' => $order->estadoPedido->nombre,
-
-            'estado_class' => $this->estadoClass(
-                $order->estadoPedido->codigo
-            ),
-
-            'productos' => $order->totalItems(),
-
-            'total' => number_format($order->total_price, 2),
-
-            'delivery_type' => $order->delivery_type,
-        ];
-    }
 
     /**
      * Obtener la clase CSS del estado.

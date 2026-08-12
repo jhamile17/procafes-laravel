@@ -20,7 +20,7 @@
 
         <a
             href="{{ route('customer.profile.edit') }}"
-            class="customer-button">
+            class="customer-btn btn-sm px-3 py-2">
 
             <i class="bi bi-pencil-square"></i>
 

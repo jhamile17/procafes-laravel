@@ -153,7 +153,7 @@
 
                                     <a
                                         href="{{ route('customer.profile') }}"
-                                        class="btn btn-secondary">
+                                        class="customer-btn-secondary btn-sm">
 
                                         Cancelar
 
@@ -161,7 +161,7 @@
 
                                     <button
                                         type="submit"
-                                        class="btn btn-primary">
+                                        class="customer-btn btn-sm py-2">
 
                                         <i class="bi bi-check-circle me-2"></i>
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Services\Cliente\PedidoService;
+use App\Models\Order;
 use Illuminate\Contracts\View\View;
 
 class PedidoController extends Controller
@@ -22,5 +23,23 @@ class PedidoController extends Controller
             ->getOrders(auth()->id());
 
         return view('customer.orders', compact('orders'));
+    }
+    public function show(int $order): View
+    {
+        $order = Order::query()
+            ->with([
+                'estadoPedido',
+                'items.product',
+                'payment',
+                'comprobante.estadoComprobante',
+                'comprobante.electronicDocument',
+            ])
+            ->where('user_id', auth()->id())
+            ->findOrFail($order);
+
+        return view(
+            'customer.orders.show',
+            compact('order')
+        );
     }
 }

@@ -166,7 +166,21 @@ class Order extends Model
 
         return $this->refresh();
     }
+    public function estadoClass(): string
+        {
+            return match ($this->estadoPedido->codigo) {
 
+                \App\Models\EstadoPedido::PENDIENTE => 'pending',
+
+                \App\Models\EstadoPedido::CONFIRMADO => 'processing',
+
+                \App\Models\EstadoPedido::ENTREGADO => 'completed',
+
+                \App\Models\EstadoPedido::CANCELADO => 'cancelled',
+
+                default => 'default',
+            };
+        }
     /*
     |--------------------------------------------------------------------------
     | Scopes
