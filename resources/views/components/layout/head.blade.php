@@ -5,7 +5,7 @@
 <title>@yield('title', 'PROCAFES')</title>
 
 <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
-
+<link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 @stack('styles')
