@@ -6,40 +6,37 @@
     <meta charset="UTF-8">
 
     <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+        content="width=device-width, initial-scale=1.0">
 
     <title>
-        @yield('title', 'Panel Administrativo | PROCÁFES')
+
+        @yield('title','Panel Administrativo | PROCÁFES')
+
     </title>
 
     {{-- Bootstrap --}}
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet">
 
     {{-- Bootstrap Icons --}}
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
         rel="stylesheet">
 
     {{-- Google Fonts --}}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect"
+        href="https://fonts.googleapis.com">
 
-    <link
-        rel="preconnect"
+    <link rel="preconnect"
         href="https://fonts.gstatic.com"
         crossorigin>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
 
-    {{-- CSS principal administrativo --}}
-    <link
-        rel="stylesheet"
+    {{-- CSS --}}
+    <link rel="stylesheet"
         href="{{ asset('css/admin.css') }}">
 
-    {{-- CSS adicional de cada página --}}
     @stack('styles')
 
 </head>
@@ -54,7 +51,10 @@
 
     <aside class="sidebar">
 
-        {{-- Logo --}}
+        {{-- =============================
+            LOGO
+        ============================== --}}
+
         <div class="sidebar-brand">
 
             <img
@@ -63,18 +63,25 @@
                 class="brand-logo">
 
             <h2>
+
                 PROCÁFES
+
             </h2>
 
             <span>
+
                 Pasión por el buen café
+
             </span>
 
         </div>
 
         <div class="sidebar-separator"></div>
 
-        {{-- Perfil --}}
+        {{-- =============================
+            PERFIL
+        ============================== --}}
+
         <div class="sidebar-profile">
 
             <div class="profile-avatar">
@@ -96,15 +103,21 @@
             <div class="profile-content">
 
                 <h5>
+
                     {{ auth()->user()->nombre_completo ?? auth()->user()->name }}
+
                 </h5>
 
                 <p>
+
                     {{ auth()->user()->email }}
+
                 </p>
 
                 <span>
+
                     Administrador
+
                 </span>
 
             </div>
@@ -113,106 +126,85 @@
 
         <div class="sidebar-separator"></div>
 
-        {{-- Menú --}}
+        {{-- =============================
+            MENÚ
+        ============================== --}}
+
         <nav class="sidebar-menu">
 
-            <a
-                href="{{ route('admin.dashboard') }}"
+            <a href="{{ route('admin.dashboard') }}"
                 class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
 
                 <i class="bi bi-house-door-fill"></i>
 
-                <span>
-                    Dashboard
-                </span>
+                <span>Dashboard</span>
 
             </a>
 
-            <a
-                href="{{ route('admin.products.index') }}"
+            <a href="{{ route('admin.products.index') }}"
                 class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
 
                 <i class="bi bi-cup-hot-fill"></i>
 
-                <span>
-                    Productos
-                </span>
+                <span>Productos</span>
 
             </a>
 
-            <a
-                href="{{ route('admin.categories.index') }}"
+            <a href="{{ route('admin.categories.index') }}"
                 class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
 
                 <i class="bi bi-grid-fill"></i>
 
-                <span>
-                    Categorías
-                </span>
+                <span>Categorías</span>
 
             </a>
 
-            <a
-                href="{{ route('admin.brands.index') }}"
+            <a href="{{ route('admin.brands.index') }}"
                 class="{{ request()->routeIs('admin.brands.*') ? 'active' : '' }}">
 
                 <i class="bi bi-award-fill"></i>
 
-                <span>
-                    Marcas
-                </span>
+                <span>Marcas</span>
 
             </a>
 
-            <a
-                href="{{ route('admin.users.index') }}"
+            <a href="{{ route('admin.users.index') }}"
                 class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
 
                 <i class="bi bi-people-fill"></i>
 
-                <span>
-                    Usuarios
-                </span>
+                <span>Usuarios</span>
 
             </a>
 
-            <a
-                href="{{ route('admin.orders.index') }}"
+            <a href="{{ route('admin.orders.index') }}"
                 class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
 
                 <i class="bi bi-cart-check-fill"></i>
 
-                <span>
-                    Pedidos
-                </span>
+                <span>Pedidos</span>
 
             </a>
 
-            <a
-                href="{{ route('admin.billing.index') }}"
+            <a href="{{ route('admin.billing.index') }}"
                 class="{{ request()->routeIs('admin.billing.*') ? 'active' : '' }}">
 
                 <i class="bi bi-receipt-cutoff"></i>
 
-                <span>
-                    Facturación
-                </span>
+                <span>Facturación</span>
 
             </a>
 
-            <a href="{{ route('admin.reports.index') }}">
+            <a href="#">
 
                 <i class="bi bi-bar-chart-fill"></i>
 
-                <span>
-                    Reportes
-                </span>
+                <span>Reportes</span>
 
             </a>
 
         </nav>
 
-        {{-- Footer sidebar --}}
         <div class="sidebar-footer">
 
             <form
@@ -228,7 +220,9 @@
                     <i class="bi bi-box-arrow-right"></i>
 
                     <span>
+
                         Cerrar sesión
+
                     </span>
 
                 </button>
@@ -247,104 +241,99 @@
 
     </aside>
 
-
     {{-- =====================================================
         CONTENIDO PRINCIPAL
     ====================================================== --}}
 
     <main class="main-content">
+            {{-- =====================================================
+        HEADER
+    ====================================================== --}}
 
+    <header class="topbar">
 
-        {{-- =====================================================
-            HEADER
-        ====================================================== --}}
-
-        <header class="topbar">
+        <div class="topbar-right">
 
             <div class="topbar-right">
 
-                {{-- Ver tienda --}}
-                <a
-                    href="{{ url('/') }}"
-                    target="_blank"
-                    class="btn-admin">
-
+                <a href="{{ url('/') }}" target="_blank" class="btn-admin">
                     <i class="bi bi-shop-window"></i>
-
-                    <span>
-                        Ver tienda
-                    </span>
-
+                    <span>Ver tienda</span>
                 </a>
 
-
-                {{-- Perfil --}}
                 <div class="top-profile">
 
                     <div class="top-avatar">
-
                         <i class="bi bi-person-fill"></i>
-
                     </div>
 
                     <div>
-
-                        <strong>
-                            {{ auth()->user()->name }}
-                        </strong>
-
-                        <small>
-                            Administrador
-                        </small>
-
+                        <strong>{{ auth()->user()->name }}</strong>
+                        <small>Administrador</small>
                     </div>
 
                 </div>
-
+                
             </div>
 
-        </header>
+        </div>
 
+    </header>
 
-        {{-- =====================================================
-            CONTENIDO DE CADA PÁGINA
-        ====================================================== --}}
+    {{-- =====================================================
+        CONTENIDO
+    ====================================================== --}}
 
-        <section class="dashboard-container">
+    <section class="dashboard-container">
 
-            @yield('content')
+        @yield('content')
 
-        </section>
+    </section>
 
+    {{-- =====================================================
+        FOOTER
+    ====================================================== --}}
 
-        {{-- =====================================================
-            FOOTER
-        ====================================================== --}}
+    <footer class="admin-footer">
 
-        <footer class="admin-footer">
+        <div class="footer-left">
 
-            <div class="footer-left">
+            © {{ date('Y') }}
 
-                © {{ date('Y') }}
+            <strong>
 
-                <strong>
-                    PROCÁFES
-                </strong>
+                PROCÁFES
 
-                · Todos los derechos reservados.
+            </strong>
 
-            </div>
-        </footer>
+            · Todos los derechos reservados.
+
+        </div>
+
+        <div class="footer-right">
+
+            <span>
+
+                Sistema Administrativo
+
+            </span>
+
+            <span class="version">
+
+                v1.0
+
+            </span>
+
+        </div>
+
+    </footer>
 
     </main>
 
 </div>
 
-
 {{-- Bootstrap --}}
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 @stack('scripts')
 

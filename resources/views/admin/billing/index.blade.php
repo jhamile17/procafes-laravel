@@ -1092,7 +1092,7 @@
 
                     <div>
 
-                        {{ $orders->onEachSide(2)->links('vendor.pagination.paginacion-admin') }}
+                         {{ $orders->onEachSide(2)->links('vendor.pagination.paginacion-admin') }}
 
                     </div>
 
