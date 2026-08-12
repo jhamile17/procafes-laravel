@@ -1,196 +1,958 @@
 @extends('layouts.admin')
-@section('title','Boletas y Facturas | PROCAFES')
+
+@section('title', 'Facturación electrónica | PROCÁFES')
 
 @section('content')
-<div class="d-flex align-items-center justify-content-between mb-3">
-  <h1 class="h4 mb-0">Boletas y Facturas</h1>
-</div>
 
-{{-- ALERTA --}}
-@if(session('status'))
-  <div class="alert alert-success">{{ session('status') }}</div>
-@endif
+<div class="container-fluid py-2">
 
-<div class="card shadow-sm mb-3">
-  <div class="card-body">
-    <form id="consulta-form" class="row g-3" method="POST" action="{{ route('admin.billing.lookup') }}">
-      @csrf
+    <div class="d-flex flex-column flex-md-row
+                justify-content-between
+                align-items-md-center
+                gap-3 mb-4">
 
-      <div class="col-12 col-md-3">
-        <label class="form-label d-block">Tipo de documento</label>
-        <div class="hstack gap-3">
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="doc_type" id="tipo_dni" value="dni" checked>
-            <label class="form-check-label" for="tipo_dni">DNI</label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="doc_type" id="tipo_ruc" value="ruc">
-            <label class="form-check-label" for="tipo_ruc">RUC</label>
-          </div>
+        <div>
+
+            <div class="d-flex align-items-center gap-2 mb-1">
+
+                <div
+                    class="rounded-3 p-2"
+                    style="
+                        background:#FDECEC;
+                        color:#D62828;
+                    "
+                >
+                    <i class="bi bi-receipt-cutoff fs-5"></i>
+                </div>
+
+                <h1
+                    class="h4 fw-bold mb-0"
+                    style="color:#3D2C2E;"
+                >
+                    Facturación electrónica
+                </h1>
+
+            </div>
+
+            <p
+                class="mb-0 small"
+                style="color:#777777;"
+            >
+                Consulta y administra los comprobantes electrónicos
+                generados para los pedidos.
+            </p>
+
         </div>
-        <div class="form-text" id="help-doc">DNI: 8 dígitos • RUC: 11 dígitos</div>
-      </div>
 
-      <div class="col-12 col-md-6">
-        <label class="form-label">Número</label>
-        <input
-          id="doc_number"
-          name="doc_number"
-          class="form-control"
-          type="text"
-          inputmode="numeric"
-          autocomplete="off"
-          placeholder="Ingrese DNI o RUC"
-          required
-        >
-      </div>
-
-      <div class="col-12 col-md-3 align-self-end">
-        <button type="submit" class="btn btn-dark w-100">
-          <i class="bi bi-search me-1"></i> Consultar
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div class="card shadow-sm mb-3">
-  <div class="card-body">
-    <h5 class="mb-3">Resultado de consulta</h5>
-
-    <div class="row g-3">
-      <div class="col-12 col-md-2">
-        <label class="form-label">Tipo</label>
-        <input id="result_type" class="form-control" type="text" readonly>
-      </div>
-
-      <div class="col-12 col-md-3">
-        <label class="form-label">Documento</label>
-        <input id="result_document" class="form-control" type="text" readonly>
-      </div>
-
-      <div class="col-12 col-md-7">
-        <label class="form-label">Nombre</label>
-        <input id="result_name" class="form-control" type="text" readonly>
-      </div>
-
-      <div class="col-12">
-        <label class="form-label">Dirección</label>
-        <input id="result_address" class="form-control" type="text" readonly>
-      </div>
     </div>
-  </div>
+
+
+    {{-- =====================================================
+         MENSAJES
+    ====================================================== --}}
+
+    @if(session('success'))
+
+        <div
+            class="alert alert-dismissible fade show border-0 shadow-sm"
+            role="alert"
+            style="
+                background:#E9F8EF;
+                color:#18A558;
+            "
+        >
+
+            <i class="bi bi-check-circle-fill me-2"></i>
+
+            {{ session('success') }}
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+            </button>
+
+        </div>
+
+    @endif
+
+
+    @if(session('error'))
+
+        <div
+            class="alert alert-dismissible fade show border-0 shadow-sm"
+            role="alert"
+            style="
+                background:#FDECEC;
+                color:#DC3545;
+            "
+        >
+
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+            {{ session('error') }}
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+            </button>
+
+        </div>
+
+    @endif
+
+
+    {{-- =====================================================
+         BÚSQUEDA
+    ====================================================== --}}
+
+    <div
+        class="card border-0 shadow-sm mb-4"
+        style="border-radius:14px;"
+    >
+
+        <div
+            class="card-header bg-white py-3"
+            style="
+                border-bottom:1px solid #ECE7E2;
+                border-radius:14px 14px 0 0;
+            "
+        >
+
+            <div class="d-flex align-items-center">
+
+                <div
+                    class="rounded-3 p-2 me-3"
+                    style="
+                        background:#FDECEC;
+                        color:#D62828;
+                    "
+                >
+                    <i class="bi bi-search"></i>
+                </div>
+
+                <div>
+
+                    <h5
+                        class="mb-0 fw-semibold"
+                        style="color:#3D2C2E;"
+                    >
+                        Buscar pedido
+                    </h5>
+
+                    <small style="color:#777777;">
+                        Consulta la información del pedido y su comprobante.
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <form
+                action="{{ route('admin.billing.lookup') }}"
+                method="POST"
+            >
+
+                @csrf
+
+                <div class="row g-3 align-items-end">
+
+                    <div class="col-md-6 col-lg-5">
+
+                        <label
+                            for="numero_pedido"
+                            class="form-label fw-semibold"
+                            style="color:#3D2C2E;"
+                        >
+                            Número de pedido
+                        </label>
+
+                        <input
+                            type="text"
+                            name="numero_pedido"
+                            id="numero_pedido"
+                            class="form-control"
+                            placeholder="Ej. PED-20260808-UTDSMS"
+                            value="{{ old('numero_pedido') }}"
+                            autocomplete="off"
+                            style="
+                                border-color:#ECE7E2;
+                                border-radius:10px;
+                            "
+                        >
+
+                        @error('numero_pedido')
+
+                            <div
+                                class="small mt-1"
+                                style="color:#DC3545;"
+                            >
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    <div class="col-md-auto">
+
+                        <button
+                            type="submit"
+                            class="btn px-4"
+                            style="
+                                background:#D62828;
+                                color:#FFFFFF;
+                                border-radius:10px;
+                            "
+                        >
+
+                            <i class="bi bi-search me-1"></i>
+
+                            Buscar pedido
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+{{-- =====================================================
+     PAGINACIÓN
+====================================================== --}}
+
+@if ($orders->hasPages())
+
+    <div
+        class="card-footer bg-white border-0 py-3"
+        style="
+            border-top:1px solid #ECE7E2 !important;
+            border-radius:0 0 14px 14px;
+        "
+    >
+
+        <div class="d-flex
+                    flex-column flex-md-row
+                    justify-content-between
+                    align-items-center
+                    gap-3">
+
+            {{-- Información --}}
+
+            <small style="color:#777777;">
+
+                Mostrando
+
+                <strong style="color:#3D2C2E;">
+                    {{ $orders->firstItem() }}
+                </strong>
+
+                a
+
+                <strong style="color:#3D2C2E;">
+                    {{ $orders->lastItem() }}
+                </strong>
+
+                de
+
+                <strong style="color:#3D2C2E;">
+                    {{ $orders->total() }}
+                </strong>
+
+                pedidos
+
+            </small>
+
+
+            {{-- Navegación --}}
+
+            <div>
+
+                {{ $orders->links('vendor.pagination.paginacion-admin') }}
+
+            </div>
+
+        </div>
+
+    </div>
+
+@endif
+    {{-- =====================================================
+         RESUMEN
+    ====================================================== --}}
+
+    <div class="row g-3 mb-4">
+
+        {{-- Pedidos --}}
+
+        <div class="col-sm-6 col-xl-3">
+
+            <div
+                class="card border-0 shadow-sm h-100"
+                style="border-radius:14px;"
+            >
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <small style="color:#777777;">
+                                Pedidos
+                            </small>
+
+                            <h4
+                                class="fw-bold mt-1 mb-0"
+                                style="color:#3D2C2E;"
+                            >
+                                {{ $orders->count() }}
+                            </h4>
+
+                        </div>
+
+                        <div
+                            class="rounded-3 p-2"
+                            style="
+                                background:#FDECEC;
+                                color:#D62828;
+                            "
+                        >
+                            <i class="bi bi-cart-check fs-5"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- Emitidos --}}
+
+        <div class="col-sm-6 col-xl-3">
+
+            <div
+                class="card border-0 shadow-sm h-100"
+                style="border-radius:14px;"
+            >
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <small style="color:#777777;">
+                                Comprobantes emitidos
+                            </small>
+
+                            <h4
+                                class="fw-bold mt-1 mb-0"
+                                style="color:#3D2C2E;"
+                            >
+                                {{
+                                    $orders->filter(
+                                        fn ($order) =>
+                                            $order->comprobante?->electronicDocument
+                                    )->count()
+                                }}
+                            </h4>
+
+                        </div>
+
+                        <div
+                            class="rounded-3 p-2"
+                            style="
+                                background:#E9F8EF;
+                                color:#18A558;
+                            "
+                        >
+                            <i class="bi bi-file-earmark-check fs-5"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- Pendientes --}}
+
+        <div class="col-sm-6 col-xl-3">
+
+            <div
+                class="card border-0 shadow-sm h-100"
+                style="border-radius:14px;"
+            >
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <small style="color:#777777;">
+                                Pendientes
+                            </small>
+
+                            <h4
+                                class="fw-bold mt-1 mb-0"
+                                style="color:#3D2C2E;"
+                            >
+                                {{
+                                    $orders->filter(
+                                        fn ($order) =>
+                                            !$order->comprobante?->electronicDocument
+                                    )->count()
+                                }}
+                            </h4>
+
+                        </div>
+
+                        <div
+                            class="rounded-3 p-2"
+                            style="
+                                background:#FFF8E8;
+                                color:#F59E0B;
+                            "
+                        >
+                            <i class="bi bi-clock-history fs-5"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- SUNAT --}}
+
+        <div class="col-sm-6 col-xl-3">
+
+            <div
+                class="card border-0 shadow-sm h-100"
+                style="border-radius:14px;"
+            >
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <small style="color:#777777;">
+                                Aceptados SUNAT
+                            </small>
+
+                            <h4
+                                class="fw-bold mt-1 mb-0"
+                                style="color:#3D2C2E;"
+                            >
+                                {{
+                                    $orders->filter(
+                                        fn ($order) =>
+                                            strtolower(
+                                                $order->comprobante
+                                                    ?->electronicDocument
+                                                    ?->estado ?? ''
+                                            ) === 'aceptado'
+                                    )->count()
+                                }}
+                            </h4>
+
+                        </div>
+
+                        <div
+                            class="rounded-3 p-2"
+                            style="
+                                background:#E9F8EF;
+                                color:#18A558;
+                            "
+                        >
+                            <i class="bi bi-shield-check fs-5"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{-- =====================================================
+         TABLA
+    ====================================================== --}}
+
+    <div
+        class="card border-0 shadow-sm"
+        style="border-radius:14px;"
+    >
+
+        <div
+            class="card-header bg-white py-3"
+            style="
+                border-bottom:1px solid #ECE7E2;
+                border-radius:14px 14px 0 0;
+            "
+        >
+
+            <div
+                class="d-flex flex-column flex-md-row
+                       justify-content-between
+                       align-items-md-center gap-2"
+            >
+
+                <div>
+
+                    <h5
+                        class="mb-0 fw-semibold"
+                        style="color:#3D2C2E;"
+                    >
+                        <i
+                            class="bi bi-receipt me-2"
+                            style="color:#D62828;"
+                        ></i>
+
+                        Pedidos para facturación
+                    </h5>
+
+                    <small style="color:#777777;">
+                        Comprobantes gestionados mediante NubeFact / API Perú.
+                    </small>
+
+                </div>
+
+                <span
+                    class="badge rounded-pill px-3 py-2"
+                    style="
+                        background:#FAF8F5;
+                        color:#3D2C2E;
+                        border:1px solid #ECE7E2;
+                    "
+                >
+                    {{ $orders->count() }} registros
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead>
+
+                        <tr
+                            style="
+                                background:#FAF8F5;
+                                color:#3D2C2E;
+                            "
+                        >
+
+                            <th class="ps-4">
+                                Pedido
+                            </th>
+
+                            <th>
+                                Cliente
+                            </th>
+
+                            <th>
+                                Fecha
+                            </th>
+
+                            <th>
+                                Comprobante
+                            </th>
+
+                            <th>
+                                Estado
+                            </th>
+
+                            <th class="text-end pe-4">
+                                Documentos
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @forelse($orders as $order)
+
+                            <tr>
+
+                                <td class="ps-4">
+
+                                    <strong style="color:#3D2C2E;">
+                                        #{{ $order->numero_pedido }}
+                                    </strong>
+
+                                    <small
+                                        class="d-block"
+                                        style="color:#888888;"
+                                    >
+                                        Pedido #{{ $order->id }}
+                                    </small>
+
+                                </td>
+
+
+                                <td>
+
+                                    <strong style="color:#2B2B2B;">
+                                        {{ $order->user?->name ?? 'Cliente' }}
+                                    </strong>
+
+                                    @if($order->user?->email)
+
+                                        <small
+                                            class="d-block"
+                                            style="color:#888888;"
+                                        >
+                                            {{ $order->user->email }}
+                                        </small>
+
+                                    @endif
+
+                                </td>
+
+
+                                <td>
+
+                                    <span style="color:#2B2B2B;">
+                                        {{ $order->created_at->format('d/m/Y') }}
+                                    </span>
+
+                                    <small
+                                        class="d-block"
+                                        style="color:#888888;"
+                                    >
+                                        {{ $order->created_at->format('H:i') }}
+                                    </small>
+
+                                </td>
+
+
+                                <td>
+
+                                    @if($order->comprobante)
+
+                                        <strong style="color:#3D2C2E;">
+
+                                            {{
+                                                ucfirst(
+                                                    $order->comprobante
+                                                        ->tipo_comprobante
+                                                )
+                                            }}
+
+                                        </strong>
+
+                                        @if(
+                                            $order->comprobante
+                                                ->electronicDocument
+                                        )
+
+                                            <small
+                                                class="d-block"
+                                                style="color:#888888;"
+                                            >
+
+                                                {{
+                                                    $order->comprobante
+                                                        ->electronicDocument
+                                                        ->numeroCompleto()
+                                                }}
+
+                                            </small>
+
+                                        @endif
+
+                                    @else
+
+                                        <span style="color:#888888;">
+                                            Sin comprobante
+                                        </span>
+
+                                    @endif
+
+                                </td>
+
+
+                                <td>
+
+                                    @if(
+                                        $order->comprobante?->electronicDocument
+                                    )
+
+                                        @php
+
+                                            $estado = strtolower(
+                                                $order->comprobante
+                                                    ->electronicDocument
+                                                    ->estado ?? ''
+                                            );
+
+                                        @endphp
+
+                                        @if($estado === 'aceptado')
+
+                                            <span
+                                                class="badge rounded-pill"
+                                                style="
+                                                    background:#E9F8EF;
+                                                    color:#18A558;
+                                                "
+                                            >
+                                                <i class="bi bi-check-circle me-1"></i>
+                                                Aceptado
+                                            </span>
+
+                                        @elseif($estado === 'rechazado')
+
+                                            <span
+                                                class="badge rounded-pill"
+                                                style="
+                                                    background:#FDECEC;
+                                                    color:#DC3545;
+                                                "
+                                            >
+                                                <i class="bi bi-x-circle me-1"></i>
+                                                Rechazado
+                                            </span>
+
+                                        @elseif($estado === 'anulado')
+
+                                            <span
+                                                class="badge rounded-pill"
+                                                style="
+                                                    background:#F5F5F5;
+                                                    color:#666666;
+                                                "
+                                            >
+                                                Anulado
+                                            </span>
+
+                                        @else
+
+                                            <span
+                                                class="badge rounded-pill"
+                                                style="
+                                                    background:#FFF8E8;
+                                                    color:#F59E0B;
+                                                "
+                                            >
+                                                <i class="bi bi-clock me-1"></i>
+                                                {{ ucfirst($estado ?: 'Pendiente') }}
+                                            </span>
+
+                                        @endif
+
+                                    @else
+
+                                        <span
+                                            class="badge rounded-pill"
+                                            style="
+                                                background:#F5F5F5;
+                                                color:#777777;
+                                            "
+                                        >
+                                            Pendiente
+                                        </span>
+
+                                    @endif
+
+                                </td>
+
+
+                                <td class="text-end pe-4">
+
+                                    @if(
+                                        $order->comprobante?->electronicDocument
+                                    )
+
+                                        @php
+                                            $document =
+                                                $order->comprobante
+                                                    ->electronicDocument;
+                                        @endphp
+
+                                        <div
+                                            class="d-flex
+                                                   justify-content-end
+                                                   flex-wrap
+                                                   gap-1"
+                                        >
+
+                                            @if($document->pdf_url)
+
+                                                <a
+                                                    href="{{ $document->pdf_url }}"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="btn btn-sm"
+                                                    style="
+                                                        background:#D62828;
+                                                        color:#FFFFFF;
+                                                    "
+                                                >
+                                                    <i class="bi bi-file-earmark-pdf"></i>
+                                                    <span class="d-none d-lg-inline">
+                                                        PDF
+                                                    </span>
+                                                </a>
+
+                                            @endif
+
+
+                                            @if($document->xml_url)
+
+                                                <a
+                                                    href="{{ $document->xml_url }}"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="btn btn-sm"
+                                                    style="
+                                                        background:#FAF8F5;
+                                                        color:#3D2C2E;
+                                                        border:1px solid #ECE7E2;
+                                                    "
+                                                >
+                                                    <i class="bi bi-filetype-xml"></i>
+                                                    <span class="d-none d-lg-inline">
+                                                        XML
+                                                    </span>
+                                                </a>
+
+                                            @endif
+
+
+                                            @if($document->cdr_url)
+
+                                                <a
+                                                    href="{{ $document->cdr_url }}"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="btn btn-sm"
+                                                    style="
+                                                        background:#E9F8EF;
+                                                        color:#18A558;
+                                                        border:1px solid #18A558;
+                                                    "
+                                                >
+                                                    <i class="bi bi-file-earmark-check"></i>
+                                                    <span class="d-none d-lg-inline">
+                                                        CDR
+                                                    </span>
+                                                </a>
+
+                                            @endif
+
+
+                                            @if(
+                                                !$document->pdf_url &&
+                                                !$document->xml_url &&
+                                                !$document->cdr_url
+                                            )
+
+                                                <small
+                                                    style="color:#888888;"
+                                                >
+                                                    Procesando...
+                                                </small>
+
+                                            @endif
+
+                                        </div>
+
+                                    @else
+
+                                        <small style="color:#888888;">
+                                            No generado
+                                        </small>
+
+                                    @endif
+
+                                </td>
+
+                            </tr>
+
+                        @empty
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="text-center py-5"
+                                >
+
+                                    <i
+                                        class="bi bi-receipt display-6"
+                                        style="color:#D9D2CB;"
+                                    ></i>
+
+                                    <h5
+                                        class="mt-3 mb-1"
+                                        style="color:#3D2C2E;"
+                                    >
+                                        No hay pedidos
+                                    </h5>
+
+                                    <p
+                                        class="mb-0"
+                                        style="color:#888888;"
+                                    >
+                                        No existen pedidos disponibles
+                                        para facturación.
+                                    </p>
+
+                                </td>
+
+                            </tr>
+
+                        @endforelse
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
-{{-- Bloque para generar desde orden pagada (tu bloque actual, lo mantengo) --}}
-<div class="card shadow-sm">
-  <div class="card-body">
-    <h5 class="mb-3">Generar desde orden pagada</h5>
-    <form method="POST" action="{{ route('admin.billing.pdf') }}" target="_blank" class="row g-3">
-      @csrf
-
-      <div class="col-12 col-md-6">
-        <label class="form-label">Selecciona la orden</label>
-            <select name="order_id" class="form-select" required>
-              <option value="">— Elegir —</option>
-              @foreach($orders as $o)
-                <option value="{{ $o->id }}">
-                  #{{ $o->id }} — {{ $o->customer_name }} — S/ {{ number_format($o->total, 2) }}
-                </option>
-              @endforeach
-            </select>
-
-        <div class="form-text">Solo aparecen órdenes pagadas. Se usará la información de la orden (cliente, ítems, totales) para generar el comprobante.</div>
-      </div>
-
-      <div class="col-12 col-md-3">
-        <label class="form-label">Tipo de comprobante</label>
-        <select name="doc_type" class="form-select">
-          <option value="BOLETA">BOLETA</option>
-          <option value="FACTURA">FACTURA</option>
-        </select>
-      </div>
-
-      <div class="col-12 col-md-3 align-self-end">
-        <button class="btn btn-dark w-100">
-          <i class="bi bi-printer me-1"></i> Generar e imprimir
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
 @endsection
-
-@push('scripts')
-<script>
-(function () {
-  const $number = document.getElementById('doc_number');
-  const radios  = document.querySelectorAll('input[name="doc_type"]');
-
-  function applyConstraints() {
-    const type = document.querySelector('input[name="doc_type"]:checked').value; // 'dni' | 'ruc'
-    if (type === 'dni') {
-      $number.setAttribute('maxlength', '8');
-      $number.setAttribute('minlength', '8');
-      $number.setAttribute('pattern', '\\d{8}');
-      $number.placeholder = 'DNI (8 dígitos)';
-    } else { // ruc
-      $number.setAttribute('maxlength', '11');
-      $number.setAttribute('minlength', '11');
-      $number.setAttribute('pattern', '\\d{11}');
-      $number.placeholder = 'RUC (11 dígitos)';
-    }
-    // recorta si sobra
-    const max = parseInt($number.getAttribute('maxlength'), 10);
-    if ($number.value.length > max) $number.value = $number.value.slice(0, max);
-  }
-
-  // Solo dígitos y límite por tipo.
-  $number.addEventListener('input', function () {
-    this.value = this.value.replace(/\D+/g, '');
-    const max = parseInt(this.getAttribute('maxlength') || '11', 10);
-    if (this.value.length > max) this.value = this.value.slice(0, max);
-  });
-
-  radios.forEach(r => r.addEventListener('change', applyConstraints));
-  applyConstraints();
-
-  // Envío AJAX para pintar resultados
-  const form = document.getElementById('consulta-form');
-  form.addEventListener('submit', async function (e) {
-    e.preventDefault();
-
-    const fd = new FormData(form);
-    try {
-      const res = await fetch(form.action, {
-        method: 'POST',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-        },
-        body: fd
-      });
-
-      if (!res.ok) throw new Error('Error de consulta');
-
-      const data = await res.json();
-      // Esperamos: { ok:true, type:'DNI'|'RUC', document:'', name:'', address:'' }
-      if (data.ok) {
-        document.getElementById('result_type').value      = data.type || '';
-        document.getElementById('result_document').value  = data.document || '';
-        document.getElementById('result_name').value      = data.name || '';
-        document.getElementById('result_address').value   = data.address || '';
-      } else {
-        document.getElementById('result_type').value      = '';
-        document.getElementById('result_document').value  = '';
-        document.getElementById('result_name').value      = '';
-        document.getElementById('result_address').value   = '';
-        alert(data.message || 'No se encontró información.');
-      }
-    } catch (err) {
-      alert('No se pudo completar la consulta. Intente de nuevo.');
-    }
-  });
-})();
-</script>
-@endpush

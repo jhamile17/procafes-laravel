@@ -337,6 +337,12 @@ Route::prefix('admin')
             ->name('reports.index');
         Route::get('/billing', [BillingController::class, 'index'])
             ->name('billing.index');
+        Route::post('/billing/lookup', [BillingController::class, 'lookup'])
+            ->name('billing.lookup');
+        Route::patch(
+                '/billing/{order}/payment/approve',
+                [BillingController::class, 'approvePayment']
+            )->name('billing.payment.approve');
         Route::get('/orders', [OrderController::class, 'index'])
             ->name('orders.index');
         
