@@ -11,6 +11,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
+use Illuminate\Support\Facades\Log;
+
 class ProductService
 {
     /*
@@ -39,7 +41,19 @@ class ProductService
 
             $product = $product->fresh();
 
+            /*
+            |--------------------------------------------------------------------------
+            | Verificar stock bajo
+            |--------------------------------------------------------------------------
+            */
+
             if ($product->stock <= $product->stock_minimo) {
+
+                Log::info('ENTRÓ AL BLOQUE DE ALERTAS', [
+                    'producto' => $product->name,
+                    'stock' => $product->stock,
+                    'stock_minimo' => $product->stock_minimo,
+                ]);
 
                 $codigo = $product->stock <= 0
                     ? 'OUT'
@@ -49,27 +63,43 @@ class ProductService
                     ->where('status', true)
                     ->first();
 
-                if ($nivel) {
+                if (!$nivel) {
 
-                    $mensaje = $codigo === 'OUT'
-                        ? "Producto AGOTADO: {$product->name}"
-                        : "Stock bajo ({$product->stock}): {$product->name}";
-
-                    AlertaStock::create([
-                        'product_id' => $product->id,
-                        'nivel_alerta_id' => $nivel->id,
-                        'stock_detectado' => $product->stock,
-                        'mensaje' => $mensaje,
-                        'enviado_correo' => false,
-                        'enviado_app' => false,
+                    Log::error('NO EXISTE NIVEL DE ALERTA', [
+                        'codigo' => $codigo,
                     ]);
+
+                    return $product;
                 }
+
+                $mensaje = $codigo === 'OUT'
+                    ? "Producto AGOTADO: {$product->name}"
+                    : "Stock bajo ({$product->stock}): {$product->name}";
+
+                $alerta = AlertaStock::create([
+                    'product_id'       => $product->id,
+                    'nivel_alerta_id'  => $nivel->id,
+                    'stock_detectado'  => $product->stock,
+                    'mensaje'          => $mensaje,
+                    'enviado_correo'   => false,
+                    'enviado_app'      => false,
+                ]);
+
+                Log::info('ALERTA CREADA', [
+                    'id' => $alerta->id,
+                ]);
+            } else {
+
+                Log::warning('NO SE GENERÓ ALERTA', [
+                    'producto' => $product->name,
+                    'stock' => $product->stock,
+                    'stock_minimo' => $product->stock_minimo,
+                ]);
             }
 
             return $product;
         });
     }
-
     public function eliminar(Product $product): bool
     {
         return DB::transaction(function () use ($product) {
@@ -358,7 +388,7 @@ class ProductService
             ]);
     }
 
-        /*
+    /*
     |--------------------------------------------------------------------------
     | Preparar datos
     |--------------------------------------------------------------------------
