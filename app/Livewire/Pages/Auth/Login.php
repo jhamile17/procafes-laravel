@@ -56,24 +56,18 @@ class Login extends Component
     private function redirectAfterLogin(): void
     {
         $user = Auth::user();
-
         if (! $user) {
-
             $this->redirectRoute('login');
-
             return;
-
         }
-
         if ($user->isAdmin()) {
-
             $this->redirectRoute('admin.dashboard');
-
             return;
-
         }
-
-        $this->redirectRoute('products');
+        $this->redirectIntended(
+        default: route('products'),
+        navigate: true
+        );
     }
     public function boot(
     CartService $cartService,

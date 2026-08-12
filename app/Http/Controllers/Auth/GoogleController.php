@@ -243,7 +243,7 @@ class GoogleController extends Controller
             }
 
             return redirect()->intended(
-                route('customer.dashboard')
+                route('products')
             );
         } catch (\Throwable $exception) {
             Log::error(

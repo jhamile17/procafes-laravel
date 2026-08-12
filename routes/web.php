@@ -176,7 +176,12 @@ Route::get('/reactivar-test', function () {
 
     return "Correos enviados";
 });
-
+Route::get('/login-checkout', function () {
+    session([
+        'url.intended' => route('checkout.index')
+    ]);
+    return redirect()->route('login');
+})->name('login.checkout');
 /*
 |--------------------------------------------------------------------------
 | CLIENTE (VERIFICADO)
