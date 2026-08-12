@@ -318,7 +318,7 @@
                 <a
                     href="{{ $order->comprobante->electronicDocument->pdf_url }}"
                     target="_blank"
-                    class="customer-btn">
+                    class="customer-btn btn-sm py-2">
 
                     <i class="bi bi-file-earmark-pdf me-2"></i>
 
