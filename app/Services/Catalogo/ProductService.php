@@ -3,6 +3,8 @@
 namespace App\Services\Catalogo;
 
 use App\Models\Product;
+use App\Models\AlertaStock;
+use App\Models\NivelAlertaStock;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -35,7 +37,36 @@ class ProductService
 
             $product->update($datos);
 
-            return $product->fresh();
+            $product = $product->fresh();
+
+            if ($product->stock <= $product->stock_minimo) {
+
+                $codigo = $product->stock <= 0
+                    ? 'OUT'
+                    : 'LOW';
+
+                $nivel = NivelAlertaStock::where('codigo', $codigo)
+                    ->where('status', true)
+                    ->first();
+
+                if ($nivel) {
+
+                    $mensaje = $codigo === 'OUT'
+                        ? "Producto AGOTADO: {$product->name}"
+                        : "Stock bajo ({$product->stock}): {$product->name}";
+
+                    AlertaStock::create([
+                        'product_id' => $product->id,
+                        'nivel_alerta_id' => $nivel->id,
+                        'stock_detectado' => $product->stock,
+                        'mensaje' => $mensaje,
+                        'enviado_correo' => false,
+                        'enviado_app' => false,
+                    ]);
+                }
+            }
+
+            return $product;
         });
     }
 
