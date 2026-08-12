@@ -131,35 +131,22 @@
             <a
                 href="{{ route('checkout.index') }}"
                 class="btn btn-danger w-100 cart-action-btn">
-
                 <i class="bi bi-credit-card me-2"></i>
-
                 Finalizar compra
-
             </a>
-
         @else
-
             <a
-                href="{{ route('login') }}"
+                href="{{ route('login.checkout') }}" 
                 class="btn btn-danger">
-
                 <i class="bi bi-box-arrow-in-right me-2"></i>
-
-                Iniciar sesión
-
+                Iniciar sesión para Continuar 
             </a>
-
         @endauth
-
         <button
             id="btnClearCart"
             class="btn btn-link text-danger">
-
             <i class="bi bi-trash3 me-1"></i>
-
             Vaciar carrito
-
         </button>
 
     </div>
