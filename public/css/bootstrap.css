@@ -3646,15 +3646,11 @@ textarea.form-control-lg {
 }
 .dropdown-item:hover, .dropdown-item:focus {
   color: var(--bs-dropdown-link-hover-color);
-  background-color: var(--bs-dropdown-link-hover-bg);
 }
 .dropdown-item.active, .dropdown-item:active {
-  color: var(--bs-dropdown-link-active-color);
   text-decoration: none;
-  background-color: var(--bs-dropdown-link-active-bg);
 }
 .dropdown-item.disabled, .dropdown-item:disabled {
-  color: var(--bs-dropdown-link-disabled-color);
   pointer-events: none;
   background-color: transparent;
 }
