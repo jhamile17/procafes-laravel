@@ -25,7 +25,7 @@
 
                     <x-clienteperfil.header
                         title="Configuración"
-                        subtitle="Administra la seguridad y las opciones de tu cuenta." />
+                        subtitle="Administra la seguridad de tu cuenta." />
 
                     <x-clienteperfil.security
                         :user="$user" />
