@@ -139,7 +139,7 @@
 
                     <label
                         for="password_confirmation"
-                        class="customer-label">
+                        class="customer-btn">
 
                         Confirmar contraseña
 
