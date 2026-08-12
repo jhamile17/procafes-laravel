@@ -1,4 +1,5 @@
-@props(['order'])
+@props(['order'
+'empresa'])
 
 <div class="order-row">
 

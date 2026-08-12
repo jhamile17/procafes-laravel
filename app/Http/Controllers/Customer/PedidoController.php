@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Cliente\PedidoService;
 use App\Models\Order;
 use Illuminate\Contracts\View\View;
-
+use App\Models\ConfiguracionEmpresa;
 class PedidoController extends Controller
 {
     public function __construct(
@@ -36,10 +36,10 @@ class PedidoController extends Controller
             ])
             ->where('user_id', auth()->id())
             ->findOrFail($order);
-
+            $empresa = ConfiguracionEmpresa::first();
         return view(
             'customer.orders.show',
-            compact('order')
+            compact('order','empresa')
         );
     }
 }

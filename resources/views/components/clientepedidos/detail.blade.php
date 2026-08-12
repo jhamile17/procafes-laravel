@@ -194,21 +194,24 @@
 
                 <div class="order-info-box">
 
-                    <span class="order-info-title">
+                <span class="order-info-title">
+                    {{ $order->delivery_type === 'pickup'
+                        ? 'Lugar de recojo'
+                        : 'Dirección de entrega' }}
+                </span>
 
-                        Dirección de entrega
+                <div class="order-info-value">
 
-                    </span>
-
-                    <div class="order-info-value">
-
+                    @if($order->delivery_type === 'pickup')
+                        {{ $empresa->direccion }}
+                    @else
                         {{ $order->delivery_direccion }}
-
-                    </div>
+                    @endif
 
                 </div>
 
             </div>
+    </div>
 
             <div class="col-md-6">
 

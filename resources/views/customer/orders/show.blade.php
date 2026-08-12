@@ -13,7 +13,8 @@
                         title="Detalle del pedido"
                         subtitle="Consulta la información completa de tu compra." />
                     <x-clientepedidos.detail
-                        :order="$order" />
+                        :order="$order" 
+                        :empresa="$empresa"/>
 
                 </div>
 
