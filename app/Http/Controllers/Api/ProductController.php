@@ -1,168 +1,281 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\AlertaStock;
+use App\Models\NivelAlertaStock;
 use App\Models\Product;
-use App\Models\AlertasStock;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Http;
 use App\Services\FirebaseService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
-    // Obtener todos los productos
+    /**
+     * Obtener todos los productos.
+     */
     public function index()
     {
         $products = Product::select(
-            'id', 'name', 'stock', 'stock_minimo', 'price', 'image'
-        )->get()->map(function ($p) {
-            return [
-                'id' => $p->id,
-                'name' => $p->name,
-                'stock' => $p->stock,
-                'stock_minimo' => $p->stock_minimo,
-                'price' => $p->price,
-                'image_url' => $p->image ? asset('storage/' . $p->image) : null,
-            ];
+            'id',
+            'name',
+            'stock',
+            'stock_minimo',
+            'sale_price',
+            'image'
+        )
+        ->orderBy('name')
+        ->get()
+        ->map(function ($product) {
+            return $this->formatProduct($product);
+        });
+
+        // IMPORTANTE:
+        // Flutter espera directamente un array.
+        return response()->json($products);
+    }
+
+    /**
+     * Obtener productos con stock bajo o agotado.
+     */
+    public function alertasActuales()
+    {
+        $products = Product::where(function ($query) {
+            $query->where('stock', '<=', 0)
+                ->orWhereColumn('stock', '<=', 'stock_minimo');
+        })
+        ->select(
+            'id',
+            'name',
+            'stock',
+            'stock_minimo',
+            'sale_price',
+            'image'
+        )
+        ->orderBy('stock')
+        ->get()
+        ->map(function ($product) {
+            return $this->formatProduct($product);
         });
 
         return response()->json($products);
     }
 
-    // Productos con stock bajo o agotado
-    public function alertasActuales()
+    /**
+     * Obtener un producto por ID.
+     */
+    public function show(int $id)
     {
-        $alertas = Product::whereColumn('stock', '<=', 'stock_minimo')
-            ->orWhere('stock', '<=', 0)
-            ->select('id', 'name', 'stock', 'stock_minimo', 'price', 'image')
-            ->get()
-            ->map(function ($p) {
-                return [
-                    'id' => $p->id,
-                    'name' => $p->name,
-                    'stock' => $p->stock,
-                    'stock_minimo' => $p->stock_minimo,
-                    'price' => $p->price,
-                    'image_url' => $p->image ? asset('storage/' . $p->image) : null,
-                ];
-            });
-
-        return response()->json($alertas);
-    }
-   // Obtener un producto por ID
-        public function show($id)
-        {
-            $product = Product::find($id);
-        
-            if (!$product) {
-                return response()->json([
-                    'message' => 'Producto no encontrado'
-                ], 404);
-            }
-        
-            return response()->json([
-                'id' => $product->id,
-                'name' => $product->name,
-                'stock' => $product->stock,
-                'stock_minimo' => $product->stock_minimo,
-                'price' => $product->price,
-                'image_url' => $product->image ? asset('storage/' . $product->image) : null,
-            ]);
-        }
-
-    // 🔥 UPDATE STOCK + NOTIFICACIÓN EN TIEMPO REAL
-    public function updateStock(Request $request)
-    {
-        $request->validate([
-            'id' => 'required|integer|exists:products,id',
-            'stock' => 'required|integer|min:0',
-            'stock_minimo' => 'required|integer|min:0',
-        ]);
-
-        $product = Product::find($request->id);
+        $product = Product::find($id);
 
         if (!$product) {
             return response()->json([
-                'message' => 'Producto no encontrado'
+                'message' => 'Producto no encontrado',
             ], 404);
         }
 
-        /// ✅ ACTUALIZAR PRODUCTO
-        $product->update([
-            'stock' => $request->stock,
-            'stock_minimo' => $request->stock_minimo,
+        return response()->json(
+            $this->formatProduct($product)
+        );
+    }
+
+    /**
+     * Actualizar stock.
+     */
+    public function updateStock(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => [
+                'required',
+                'integer',
+                'exists:products,id',
+            ],
+
+            'stock' => [
+                'required',
+                'integer',
+                'min:0',
+            ],
+
+            'stock_minimo' => [
+                'required',
+                'integer',
+                'min:0',
+            ],
         ]);
 
-        /// 🔥 VALIDAR ALERTA
+        $product = Product::find($validated['id']);
+
+        if (!$product) {
+            return response()->json([
+                'message' => 'Producto no encontrado',
+            ], 404);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACTUALIZAR STOCK
+        |--------------------------------------------------------------------------
+        */
+
+        $product->update([
+            'stock' => $validated['stock'],
+            'stock_minimo' => $validated['stock_minimo'],
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | CREAR ALERTA
+        |--------------------------------------------------------------------------
+        */
+
         if ($product->stock <= $product->stock_minimo) {
 
-            $tipo = $product->stock <= 0 ? 'agotado' : 'bajo';
+            /*
+            | OUT = producto agotado
+            | LOW = stock bajo
+            */
 
-            $mensaje = $tipo === 'agotado'
-                ? "Producto AGOTADO: {$product->name}"
-                : "Stock bajo ({$product->stock}): {$product->name}";
+            $codigoNivel = $product->stock <= 0
+                ? 'OUT'
+                : 'LOW';
 
-            /// 💾 GUARDAR ALERTA (sin regla de 30 min)
-            AlertasStock::create([
-                'product_id' => $product->id,
-                'stock_detectado' => $product->stock,
-                'mensaje' => $mensaje,
-                'fecha_alerta' => Carbon::now(),
-            ]);
+            $nivel = NivelAlertaStock::where('codigo', $codigoNivel)
+                ->where('status', true)
+                ->first();
 
-            /// 🔥 FIREBASE (TOPIC)
-            try {
-                $firebase = new FirebaseService();
-                $accessToken = $firebase->getAccessToken();
+            if ($nivel) {
 
-                $url = "https://fcm.googleapis.com/v1/projects/my-project-de-entrega/messages:send";
+                $mensaje = $codigoNivel === 'OUT'
+                    ? "Producto AGOTADO: {$product->name}"
+                    : "Stock bajo ({$product->stock}): {$product->name}";
 
-                $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $accessToken,
-                    'Content-Type' => 'application/json',
-                ])->post($url, [
-                    "message" => [
-                        "topic" => "alertas_stock",
-
-                        "notification" => [
-                            "title" => "Alerta de Inventario",
-                            "body" => $mensaje
-                        ],
-
-                        "data" => [
-                            "screen" => "alertas",
-                            "producto_id" => (string)$product->id,
-                            "tipo" => $tipo
-                        ],
-
-                        "android" => [
-                            "priority" => "HIGH"
-                        ]
-                    ]
+                $alerta = AlertaStock::create([
+                    'product_id' => $product->id,
+                    'nivel_alerta_id' => $nivel->id,
+                    'stock_detectado' => $product->stock,
+                    'mensaje' => $mensaje,
+                    'enviado_correo' => false,
+                    'enviado_app' => false,
                 ]);
 
-                \Log::info("📤 Notificación enviada", [
-                    'status' => $response->status(),
-                    'body' => $response->body()
-                ]);
+                /*
+                |--------------------------------------------------------------------------
+                | FIREBASE
+                |--------------------------------------------------------------------------
+                */
 
-            } catch (\Exception $e) {
-                \Log::error("❌ Error Firebase: " . $e->getMessage());
+                $this->enviarNotificacionFirebase(
+                    $product,
+                    $mensaje,
+                    $codigoNivel
+                );
             }
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Stock actualizado correctamente',
-            'product' => [
-                'id' => $product->id,
-                'name' => $product->name,
-                'stock' => $product->stock,
-                'stock_minimo' => $product->stock_minimo,
-                'price' => $product->price,
-                'image_url' => $product->image ? asset('storage/' . $product->image) : null,
-            ]
+            'product' => $this->formatProduct($product),
         ]);
+    }
+
+    /**
+     * Formatear producto para Flutter.
+     */
+    private function formatProduct(Product $product): array
+    {
+        return [
+            'id' => $product->id,
+
+            'name' => $product->name,
+
+            /*
+             * Flutter espera "price".
+             * La BD actual utiliza "sale_price".
+             */
+            'price' => (float) $product->sale_price,
+
+            'stock' => (int) $product->stock,
+
+            'stock_minimo' => (int) $product->stock_minimo,
+
+            'image_url' => $product->image
+                ? asset('storage/' . $product->image)
+                : null,
+        ];
+    }
+
+    /**
+     * Enviar notificación mediante Firebase.
+     */
+    private function enviarNotificacionFirebase(
+        Product $product,
+        string $mensaje,
+        string $tipo
+    ): void {
+        try {
+
+            $firebase = new FirebaseService();
+
+            $accessToken = $firebase->getAccessToken();
+
+            $projectId = config('services.firebase.project_id');
+
+            if (!$projectId) {
+                Log::warning(
+                    'Firebase project_id no está configurado.'
+                );
+
+                return;
+            }
+
+            $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $accessToken,
+                'Content-Type' => 'application/json',
+            ])->post($url, [
+
+                'message' => [
+
+                    'topic' => 'alertas_stock',
+
+                    'notification' => [
+                        'title' => 'Alerta de Inventario',
+                        'body' => $mensaje,
+                    ],
+
+                    'data' => [
+                        'screen' => 'alertas',
+                        'producto_id' => (string) $product->id,
+                        'tipo' => $tipo,
+                    ],
+
+                    'android' => [
+                        'priority' => 'HIGH',
+                    ],
+                ],
+            ]);
+
+            Log::info(
+                'Notificación Firebase enviada.',
+                [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]
+            );
+
+        } catch (\Throwable $e) {
+
+            Log::error(
+                'Error enviando notificación Firebase.',
+                [
+                    'error' => $e->getMessage(),
+                ]
+            );
+        }
     }
 }

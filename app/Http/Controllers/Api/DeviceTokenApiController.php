@@ -3,67 +3,112 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\DeviceToken;
+use Illuminate\Http\Request;
 
 class DeviceTokenApiController extends Controller
 {
     /**
-     * Registrar o actualizar token (CON o SIN login)
+     * Registrar o actualizar el token del dispositivo
+     * del administrador autenticado.
      */
     public function register(Request $request)
     {
-        $request->validate([
-            'user_id' => 'nullable|exists:users,id',
-            'device_token' => 'required|string',
+        $validated = $request->validate([
+            'device_token' => [
+                'required',
+                'string',
+            ],
         ]);
 
-        // Si no viene user_id, toma el ID del usuario autenticado, si hay
-        $userId = $request->user_id ?? auth()->id();
+        // El usuario se obtiene del token de Sanctum.
+        $user = $request->user();
+
+        // La aplicación móvil es exclusivamente administrativa.
+        if (!$user->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No autorizado.',
+            ], 403);
+        }
 
         $device = DeviceToken::updateOrCreate(
-            ['device_token' => $request->device_token],
-            ['user_id' => $userId]
+            [
+                'device_token' => $validated['device_token'],
+            ],
+            [
+                'user_id' => $user->id,
+            ]
         );
 
         return response()->json([
             'success' => true,
-            'message' => 'Token registrado correctamente',
-            'data' => $device
-        ]);
+            'message' => 'Token registrado correctamente.',
+            'data' => $device,
+        ], 200);
     }
 
     /**
-     * Obtener tokens de un usuario
+     * Obtener los tokens del administrador autenticado.
      */
-    public function getTokensByUser($userId)
+    public function getTokensByUser(Request $request, $userId)
     {
-        $tokens = DeviceToken::where('user_id', $userId)
+        $user = $request->user();
+
+        if (!$user->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No autorizado.',
+            ], 403);
+        }
+
+        // No permitimos consultar tokens de otro usuario.
+        if ((int) $user->id !== (int) $userId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No puedes consultar los tokens de otro usuario.',
+            ], 403);
+        }
+
+        $tokens = DeviceToken::where('user_id', $user->id)
             ->pluck('device_token');
 
         return response()->json([
             'success' => true,
-            'tokens' => $tokens
-        ]);
+            'tokens' => $tokens,
+        ], 200);
     }
 
     /**
-     * Eliminar token
+     * Eliminar el token del dispositivo.
      */
     public function deleteToken(Request $request)
     {
-        $request->validate([
-            'device_token' => 'required|string',
+        $validated = $request->validate([
+            'device_token' => [
+                'required',
+                'string',
+            ],
         ]);
 
-        $deleted = DeviceToken::where('device_token', $request->device_token)
+        $user = $request->user();
+
+        if (!$user->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No autorizado.',
+            ], 403);
+        }
+
+        $deleted = DeviceToken::where('device_token', $validated['device_token'])
+            ->where('user_id', $user->id)
             ->delete();
 
         return response()->json([
             'success' => $deleted > 0,
             'message' => $deleted > 0
-                ? 'Token eliminado'
-                : 'Token no encontrado'
-        ]);
+                ? 'Token eliminado correctamente.'
+                : 'Token no encontrado.',
+        ], 200);
     }
 }

@@ -3,14 +3,23 @@
 namespace App\Services\Catalogo;
 
 use App\Models\Product;
+use App\Models\AlertaStock;
+use App\Models\NivelAlertaStock;
+use App\Services\AlertasStockService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
+use Illuminate\Support\Facades\Log;
+
 class ProductService
 {
+    public function __construct(
+        private AlertasStockService $alertasStockService
+    ) {
+    }
     /*
     |--------------------------------------------------------------------------
     | CRUD
@@ -35,10 +44,20 @@ class ProductService
 
             $product->update($datos);
 
-            return $product->fresh();
+            $product = $product->fresh();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Verificar stock bajo y enviar notificación
+            |--------------------------------------------------------------------------
+            */
+
+            $this->alertasStockService->revisarStock($product);
+
+
+            return $product;
         });
     }
-
     public function eliminar(Product $product): bool
     {
         return DB::transaction(function () use ($product) {
@@ -327,7 +346,7 @@ class ProductService
             ]);
     }
 
-        /*
+    /*
     |--------------------------------------------------------------------------
     | Preparar datos
     |--------------------------------------------------------------------------

@@ -2,10 +2,11 @@
 
 namespace App\Services;
 
-use App\Models\AlertasStock;
+use App\Models\AlertaStock;
 use App\Models\DeviceToken;
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class AlertasStockService
 {
@@ -23,7 +24,7 @@ class AlertasStockService
                 : "Stock bajo ({$product->stock}): {$product->name}";
 
             // 🔁 Evitar spam: 30 minutos
-            $ultimaAlerta = AlertasStock::where('product_id', $product->id)
+            $ultimaAlerta = AlertaStock::where('product_id', $product->id)
                 ->latest('fecha_alerta')
                 ->first();
 
@@ -43,14 +44,14 @@ class AlertasStockService
             if ($crearAlerta) {
 
                 /// 📌 Guardar alerta en DB
-                AlertasStock::create([
+                AlertaStock::create([
                     'product_id' => $product->id,
                     'stock_detectado' => $product->stock,
                     'mensaje' => $mensaje,
                     'fecha_alerta' => now(),
                 ]);
 
-                \Log::info("🆕 Alerta registrada: {$mensaje}");
+                Log::info("🆕 Alerta registrada: {$mensaje}");
 
                 /// 📲 Enviar a todos los dispositivos
                 $tokens = DeviceToken::orderBy('created_at', 'desc')
@@ -68,7 +69,7 @@ class AlertasStockService
                             $product->image
                         );
                     } catch (\Exception $e) {
-                        \Log::error("❌ Error enviando notificación: " . $e->getMessage());
+                        Log::error(" Error enviando notificación: " . $e->getMessage());
                     }
                 }
             }
@@ -126,6 +127,6 @@ class AlertasStockService
         'Content-Type' => 'application/json',
     ])->post($url, $payload);
 
-    \Log::info("📤 Notificación enviada a {$token} | Código: " . $response->status());
+    Log::info("📤 Notificación enviada a {$token} | Código: " . $response->status());
 }
 }
