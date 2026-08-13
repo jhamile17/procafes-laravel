@@ -35,7 +35,7 @@
             {{ session('success') }}
         </div>
     @endif
-
+    <div class="verify-actions">
     <form action="{{ route('register.resend') }}" method="POST">
 
         @csrf
@@ -48,18 +48,18 @@
         <button
             id="btnResend"
             type="submit"
-            class="btn btn-outline-primary w-100"
+            class="verify-btn verify-btn-primary"
             data-seconds="{{ $seconds }}"
             disabled>
-            <i class="bi bi-arrow-clockwise me-2"></i>
+            <i class="bi bi-arrow-clockwise"></i>
             Reenviar correo
             (<span id="countdown">{{ $seconds }}</span>)
         </button>
     </form>
     <a
         href="{{ route('home') }}"
-        class="btn btn-primary w-100 mt-3">
-        <i class="bi bi-house-door-fill me-2"></i>
+         class="verify-btn verify-btn-secondary">
+        <i class="bi bi-house-door-fill"></i>
         Volver al inicio
     </a>
     <div class="text-center mt-4">
@@ -73,6 +73,6 @@
         </small>
 
     </div>
-
+</div>
 </x-auth.card>
 

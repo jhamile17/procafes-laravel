@@ -15,7 +15,7 @@
         </p>
 
     </div>
-
+    
     <form wire:submit="resetPassword">
 
         <x-auth.input
@@ -46,10 +46,10 @@
             wire:model.live.debounce.300ms="form.password_confirmation"
             autocomplete="new-password"
             maxlength="100" />
-
+   
         <button
             type="submit"
-            class="auth-submit"
+            class="auth-submit mt-3"
             wire:loading.attr="disabled">
 
             <span wire:loading.remove>
