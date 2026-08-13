@@ -36,7 +36,7 @@ class PendingRegistrationService
 
                 'numero_documento' => $data['numero_documento'],
 
-                'telefono' => $data['telefono'] ?? null,
+                'telefono' => $data['celular'] ?? null,
 
                 'email' => strtolower(
                     trim($data['email'])
