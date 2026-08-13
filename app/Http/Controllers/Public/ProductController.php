@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Services\Catalogo\ProductService;
 use App\Services\Catalogo\CategoryService;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class ProductController extends Controller
 {
@@ -18,21 +17,32 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $filters = [
+        $search = trim(
+            (string) $request->input('search', '')
+        );
 
-            'buscar' => $request->input('search'),
+        if ($search !== '') {
 
-            'categoria' => $request->input('categoria'),
+            $products = $this->productService
+                ->buscarCliente($search, 12);
 
-        ];
+        } else {
+
+            $products = $this->productService
+                ->paginar([], 12)
+                ->withQueryString();
+
+        }
 
         return view('products', [
 
-            'products' => $this->productService->paginar($filters, 12),
+            'products' => $products,
 
-            'categories' => $this->categoryService->obtenerActivas(),
+            'categories' => $this->categoryService
+                ->obtenerActivas(),
 
-            'counts' => $this->productService->contarPorCategorias(),
+            'counts' => $this->productService
+                ->contarPorCategorias(),
 
         ]);
     }

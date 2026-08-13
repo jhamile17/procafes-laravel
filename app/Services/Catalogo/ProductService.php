@@ -651,4 +651,57 @@ class ProductService
 
         return $sku;
     }
+   public function buscarCliente(
+    string $texto,
+    int $perPage = 12
+): LengthAwarePaginator {
+
+    $texto = trim($texto);
+
+    // Texto original
+    $busqueda = $texto;
+
+    // Si termina en "s", también probar su forma singular.
+    // Ejemplo:
+    // cafes   -> cafe
+    // frappes -> frappe
+    $singular = $texto;
+
+    if (
+        strlen($texto) > 3 &&
+        str_ends_with(
+            mb_strtolower($texto),
+            's'
+        )
+    ) {
+        $singular = mb_substr(
+            $texto,
+            0,
+            mb_strlen($texto) - 1
+        );
+    }
+
+    return $this->consultaBase()
+        ->where('status', true)
+        ->where('stock', '>', 0)
+        ->where(function ($query) use (
+            $busqueda,
+            $singular
+        ) {
+
+            $query
+                ->whereRaw(
+                    'name COLLATE utf8mb4_unicode_ci LIKE ?',
+                    ['%' . $busqueda . '%']
+                )
+                ->orWhereRaw(
+                    'name COLLATE utf8mb4_unicode_ci LIKE ?',
+                    ['%' . $singular . '%']
+                );
+
+        })
+        ->orderBy('name')
+        ->paginate($perPage)
+        ->withQueryString();
+}
 }
