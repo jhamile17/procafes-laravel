@@ -84,7 +84,7 @@
                     type="radio"
                     name="payment_method_id"
                     value="2"
-                    checked>
+                    >
 
                 <div class="checkout-payment-content">
 

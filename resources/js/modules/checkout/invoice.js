@@ -268,8 +268,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 );
 
-                resetData();
-
                 return;
 
             }
@@ -293,13 +291,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(error);
 
             showError(
-
                 'Ocurrió un error al consultar el documento.'
-
             );
-
-            resetData();
-
         }
 
     }
@@ -311,26 +304,19 @@ document.addEventListener('DOMContentLoaded', () => {
     */
 
     function fillDocument(data)
-    {
-        if (boleta.checked) {
+        {
+            if (boleta.checked) {
 
-            nombre.value =
+                nombre.value = data.nombre || nombre.value;
 
-                data.nombre ?? '';
+            } else {
 
-        } else {
+                razonSocial.value = data.razon_social || razonSocial.value;
 
-            razonSocial.value =
+                direccionFiscal.value = data.direccion_fiscal || direccionFiscal.value;
 
-                data.razon_social ?? '';
-
+            }
         }
-
-        direccionFiscal.value =
-
-            data.direccion_fiscal ?? '';
-
-    }
 
     /*
     |--------------------------------------------------------------------------

@@ -25,62 +25,206 @@
             </p>
         </div>
 
-        {{-- ==========================================================
-            FORMULARIO
-        =========================================================== --}}
+            <form
+                id="checkoutForm"
+                method="POST"
+                action="{{ route('checkout.store') }}">
 
-        <form
-            id="checkoutForm"
-            method="POST"
-            action="{{ route('checkout.store') }}"
-            >
-
-            @csrf
-
-            <div class="row g-4 checkout-content">
+                @csrf
 
                 {{-- ==========================================================
-                    INFORMACIÓN DEL PEDIDO
+                    INDICADOR DE PASOS
                 =========================================================== --}}
 
-                <div class="col-xl-8">
+                <div class="checkout-steps mb-4">
 
-                    <div class="d-flex flex-column gap-4">
+                    <div
+                        id="stepIndicator1"
+                        class="checkout-step-indicator is-active">
 
-                        <x-checkout.delivery
-                            :permiteEnvio="$permiteEnvio"
-                            :address="$address" />
-                        <x-checkout.payment />
-                        <x-checkout.invoice />
-                    
-                        
+                        <span class="checkout-step-number">
+                            1
+                        </span>
+
+                        <span class="checkout-step-label">
+                            Entrega
+                        </span>
+
+                    </div>
+
+                    <div class="checkout-step-line"></div>
+
+                    <div
+                        id="stepIndicator2"
+                        class="checkout-step-indicator">
+
+                        <span class="checkout-step-number">
+                            2
+                        </span>
+
+                        <span class="checkout-step-label">
+                            Pago
+                        </span>
+
+                    </div>
+
+                    <div class="checkout-step-line"></div>
+
+                    <div
+                        id="stepIndicator3"
+                        class="checkout-step-indicator">
+
+                        <span class="checkout-step-number">
+                            3
+                        </span>
+
+                        <span class="checkout-step-label">
+                            Comprobante
+                        </span>
+
                     </div>
 
                 </div>
 
-                {{-- ==========================================================
-                    RESUMEN
-                =========================================================== --}}
 
-                <div class="col-xl-4">
+                <div class="row g-4 checkout-content">
 
-                    <div class="checkout-sidebar">
+                    {{-- ======================================================
+                        INFORMACIÓN DEL PEDIDO
+                    ======================================================= --}}
 
-                        <x-checkout.summary
-                            :cart="$cart"
-                            :items="$items"
-                            :cantidad="$cantidad"
-                            :subtotal="$subtotal"
-                            :igv="$igv"
-                            :total="$total" />
+                    <div class="col-xl-8">
+
+                        {{-- ==================================================
+                            PASO 1
+                        =================================================== --}}
+
+                        <div id="checkoutStep1">
+
+                            <x-checkout.delivery
+                                :permiteEnvio="$permiteEnvio"
+                                :address="$address" />
+
+                            <div class="checkout-step-actions">
+
+                                <button
+                                    type="button"
+                                    id="checkoutNext1"
+                                    class="customer-btn">
+
+                                    Continuar
+
+                                    <i class="bi bi-arrow-right"></i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- ==================================================
+                            PASO 2
+                        =================================================== --}}
+
+                        <div
+                            id="checkoutStep2"
+                            class="d-none">
+
+                            <x-checkout.payment />
+
+                            <div class="checkout-step-actions">
+
+                                <button
+                                    type="button"
+                                    id="checkoutBack2"
+                                    class="customer-btn-secondary">
+
+                                    <i class="bi bi-arrow-left"></i>
+
+                                    Atrás
+
+                                </button>
+
+                                <button
+                                    type="button"
+                                    id="checkoutNext2"
+                                    class="customer-btn">
+
+                                    Continuar
+
+                                    <i class="bi bi-arrow-right"></i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- ==================================================
+                            PASO 3
+                        =================================================== --}}
+
+                        <div
+                            id="checkoutStep3"
+                            class="d-none">
+
+                            <x-checkout.invoice />
+
+                            <div class="checkout-step-actions">
+
+                                <button
+                                    type="button"
+                                    id="checkoutBack3"
+                                    class="customer-btn-secondary">
+
+                                    <i class="bi bi-arrow-left"></i>
+
+                                    Atrás
+
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    class="customer-btn">
+
+                                    Confirmar pedido
+
+                                    <i class="bi bi-check-circle"></i>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- ======================================================
+                        RESUMEN
+                    ======================================================= --}}
+
+                    <div class="col-xl-4">
+
+                        <div class="checkout-sidebar">
+
+                            <x-checkout.summary
+                                :cart="$cart"
+                                :items="$items"
+                                :cantidad="$cantidad"
+                                :subtotal="$subtotal"
+                                :igv="$igv"
+                                :total="$total" />
+
+                        </div>
 
                     </div>
 
                 </div>
 
-            </div>
-
-        </form>
+            </form>
 
     </div>
 
