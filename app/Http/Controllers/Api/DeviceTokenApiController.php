@@ -21,10 +21,9 @@ class DeviceTokenApiController extends Controller
             ],
         ]);
 
-        // El usuario se obtiene del token de Sanctum.
+        // Usuario autenticado por Sanctum
         $user = $request->user();
 
-        // La aplicación móvil es exclusivamente administrativa.
         if (!$user->isAdmin()) {
             return response()->json([
                 'success' => false,
@@ -34,10 +33,12 @@ class DeviceTokenApiController extends Controller
 
         $device = DeviceToken::updateOrCreate(
             [
-                'device_token' => $validated['device_token'],
+                'token' => $validated['device_token'],
             ],
             [
                 'user_id' => $user->id,
+                'platform' => 'android',
+                'activo' => true,
             ]
         );
 

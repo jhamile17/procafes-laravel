@@ -380,11 +380,11 @@ class ProductService
 
         // normalizar status
         if (isset($datos['status'])) {
-            $datos['status'] = filter_var($datos['status'], FILTER_VALIDATE_BOOLEAN);
+            $datos['status'] = (int) $datos['status'];
         }
 
         $datos = $this->prepararSlug($datos, $product);
-        $datos = $this->prepararSku($datos);
+        $datos = $this->prepararSku($datos, $product);
 
         return $datos;
     }
@@ -620,12 +620,16 @@ class ProductService
     |--------------------------------------------------------------------------
     */
 
-    private function prepararSku(array $datos): array
-    {
-        if (empty($datos['sku'])) {
+    private function prepararSku(
+        array $datos,
+        ?Product $product = null
+    ): array {
 
+        if (
+            empty($datos['sku']) &&
+            $product === null
+        ) {
             $datos['sku'] = $this->generarSku();
-
         }
 
         return $datos;

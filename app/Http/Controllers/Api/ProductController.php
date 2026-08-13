@@ -10,6 +10,7 @@ use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\DeviceToken;
 
 class ProductController extends Controller
 {
@@ -234,39 +235,49 @@ class ProductController extends Controller
 
             $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
 
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $accessToken,
-                'Content-Type' => 'application/json',
-            ])->post($url, [
+            $tokens = DeviceToken::where('activo', true)
+                ->pluck('token');
 
-                'message' => [
+            foreach ($tokens as $token) {
 
-                    'topic' => 'alertas_stock',
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer '.$accessToken,
+                    'Content-Type' => 'application/json',
+                ])->post($url, [
 
-                    'notification' => [
-                        'title' => 'Alerta de Inventario',
-                        'body' => $mensaje,
+                    'message' => [
+
+                        'token' => $token,
+
+                        'notification' => [
+                            'title' => '🚨 Alerta de Inventario',
+                            'body' => $mensaje,
+                        ],
+
+                        'data' => [
+                            'screen' => 'alertas',
+                            'producto_id' => (string)$product->id,
+                            'tipo' => $tipo,
+                        ],
+
+                        'android' => [
+                            'priority' => 'HIGH',
+                            'notification' => [
+                                'sound' => 'default',
+                                'channel_id' => 'high_importance_channel',
+                            ],
+                        ],
+
                     ],
 
-                    'data' => [
-                        'screen' => 'alertas',
-                        'producto_id' => (string) $product->id,
-                        'tipo' => $tipo,
-                    ],
+                ]);
 
-                    'android' => [
-                        'priority' => 'HIGH',
-                    ],
-                ],
-            ]);
-
-            Log::info(
-                'Notificación Firebase enviada.',
-                [
+                Log::info('Firebase', [
+                    'token' => $token,
                     'status' => $response->status(),
                     'body' => $response->body(),
-                ]
-            );
+                ]);
+            }
 
         } catch (\Throwable $e) {
 
