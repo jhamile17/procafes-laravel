@@ -1,7 +1,12 @@
 /*==============================================================================
     CARD
 ==============================================================================*/
+.checkout-section .customer-header {
+    padding-top: 2.5rem;
+}
 .checkout-card{
+    display:flex;
+    flex-direction:column;
     background:var(--color-white);
     border:1px solid var(--color-border);
     border-radius:var(--radius-xl);
@@ -50,9 +55,10 @@
     DELIVERY body
 ==============================================================================*/
 .checkout-card-body{
+    flex:1;
     display:flex;
     flex-direction:column;
-    padding:1.5rem;
+    padding:2rem;
 }
 .checkout-delivery-options{
     display:grid;
@@ -662,9 +668,10 @@
 ==============================================================================*/
 
 .checkout-payment-panel{
-
+    flex:1;
+    display:flex;
+    align-items:flex-start;
     margin-top:1rem;
-
 }
 /*==============================================================================
     ALERT
@@ -964,40 +971,114 @@
     font-size: .88rem;
     margin-bottom: 1rem;
 }
+/*==================================================
+=            PRODUCTOS DEL RESUMEN
+==================================================*/
 
-/*=========================================
-=            Resumen Pedido              =
-=========================================*/
-
-.order-summary{
-    background:var(--color-cream);
-    border:1px solid var(--color-border);
-    border-radius:var(--radius-md);
-    overflow:hidden;
-    margin: 1rem 0;
-}
-
-.summary-item{
+.checkout-summary-products{
     display:flex;
-    justify-content:space-between;
+    flex-direction:column;
+    gap:.9rem;
+    margin-bottom:1rem;
+}
+
+.checkout-summary-item{
+
+    display:flex;
     align-items:center;
-    padding: .65rem 1rem;
-    border-bottom:1px solid var(--color-border);
+    gap:.8rem;
+
 }
 
-.summary-item:last-child{
-    border-bottom:none;
+.checkout-summary-thumb{
+
+    width:58px;
+    height:58px;
+
+    border-radius:12px;
+
+    object-fit:cover;
+
+    border:1px solid var(--color-border);
+
+    flex-shrink:0;
+
 }
 
-.summary-item span:first-child{
-    color:var(--color-text-light);
-    font-size:.82rem;
+.checkout-summary-details{
+
+    flex:1;
+
 }
 
-.summary-item strong{
+.checkout-summary-details h6{
+
+    margin:0 0 .2rem;
+
+    font-size:.95rem;
+
+    font-weight:600;
+
     color:var(--color-coffee);
+
+}
+
+.checkout-summary-details small{
+
+    color:var(--color-text-light);
+
+}
+
+.checkout-summary-item strong{
+
+    font-size:.95rem;
+
+    color:var(--color-coffee);
+
+}
+
+/*==================================================
+=            RESUMEN
+==================================================*/
+
+.checkout-summary-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-bottom:.65rem;
+
+}
+
+.checkout-summary-total{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    font-size:1.15rem;
+
     font-weight:700;
-    font-size: .80rem;
+
+}
+
+.checkout-summary-note{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.45rem;
+
+    margin-top:1rem;
+
+    color:var(--color-text-light);
+
+    font-size:.82rem;
+
 }
 
 /*=========================================
@@ -1005,15 +1086,146 @@
 =========================================*/
 
 .status-pill{
+
     display:inline-flex;
+
+    align-items:center;
+
+    gap:.45rem;
+
+    padding:.45rem .9rem;
+
+    border-radius:999px;
+
+    background:var(--color-warning-soft);
+
+    color:var(--color-warning);
+
+    font-size:.80rem;
+
+    font-weight:600;
+
+    border:1px solid rgba(245,158,11,.15);
+
+}
+
+.status-pill i{
+
+    font-size:.75rem;
+
+}
+/* ==========================================================
+   CHECKOUT paso a paso 1-3
+========================================================== */
+
+.checkout-steps {
+
+    display:flex;
     align-items:center;
     justify-content:center;
-    padding: .3rem .8rem;
-    font-size: .75rem;
-    border-radius:999px;
-    background:var(--color-warning-soft);
-    color:var(--color-warning);
+
+    width:100%;
+
+    padding:1rem 0 1.5rem;
+
+}
+
+.checkout-step-indicator {
+
+    display:flex;
+    align-items:center;
+    gap:.6rem;
+
+    color:var(--color-text-muted);
+
+    font-family:var(--font-body);
+    font-size:.9rem;
     font-weight:600;
+
+    transition:var(--transition);
+
+}
+
+.checkout-step-number {
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:38px;
+    height:38px;
+
+    border-radius:50%;
+
+    background:var(--color-border);
+
+    color:var(--color-text-muted);
+
+    font-size:.9rem;
+    font-weight:700;
+
+    transition:var(--transition);
+
+}
+
+.checkout-step-indicator.is-active {
+
+    color:var(--color-primary);
+
+}
+
+.checkout-step-indicator.is-active
+.checkout-step-number {
+
+    background:var(--color-primary);
+
+    color:var(--color-white);
+
+    box-shadow:
+        0 0 0 5px var(--color-primary-soft);
+
+}
+
+.checkout-step-indicator.is-completed {
+
+    color:var(--color-success);
+
+}
+
+.checkout-step-indicator.is-completed
+.checkout-step-number {
+
+    background:var(--color-success);
+
+    color:var(--color-white);
+
+}
+
+.checkout-step-line {
+
+    width:90px;
+    height:2px;
+
+    margin:0 .75rem;
+
+    background:var(--color-border);
+
+    transition:var(--transition);
+
+}
+
+
+/* ==========================================================
+   ACCIONES DEL PASO
+========================================================== */
+
+.checkout-step-actions {
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:.75rem;
+    margin-top:1rem;
+    margin-bottom:4rem;
 }
 
 
@@ -1144,8 +1356,55 @@
     .btn-outline-custom{
         width:100%;
     }
+    .checkout-steps {
+
+        justify-content:space-between;
+
+        padding:.5rem 0 1.25rem;
+
+    }
+
+    .checkout-step-label {
+
+        display:none;
+
+    }
+
+    .checkout-step-line {
+
+        flex:1;
+
+        width:auto;
+
+        margin:0 .5rem;
+
+    }
+
+    .checkout-step-number {
+
+        width:36px;
+        height:36px;
+
+    }
+
+    .checkout-step-actions {
+
+        flex-direction:column-reverse;
+
+        width:100%;
+
+    }
+
+    .checkout-step-actions .customer-btn,
+    .checkout-step-actions .customer-btn-secondary {
+
+        width:100%;
+
+    }
 
 }
+
+
 
 @media (max-width:575.98px){
 

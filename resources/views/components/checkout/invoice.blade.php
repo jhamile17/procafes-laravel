@@ -197,7 +197,7 @@
                         class="customer-input"
                         value="{{ old('nombre') }}"
                         placeholder="Se completará automáticamente"
-                        readonly>
+                        >
 
                     @error('nombre')
 
@@ -235,8 +235,8 @@
                         name="razon_social"
                         class="customer-input"
                         value="{{ old('razon_social') }}"
-                        placeholder="Se completará automáticamente"
-                        readonly>
+                        placeholder="Se completará automáticamente o puede escribirlo"
+                        >
 
                     @error('razon_social')
 
@@ -265,7 +265,7 @@
                         class="customer-input"
                         value="{{ old('direccion_fiscal') }}"
                         placeholder="Se completará automáticamente"
-                        readonly>
+                        >
 
                     @error('direccion_fiscal')
 
