@@ -46,18 +46,13 @@ class ProductService
 
             $product = $product->fresh();
 
-            /*
-            |--------------------------------------------------------------------------
-            | Verificar stock bajo y enviar notificación
-            |--------------------------------------------------------------------------
-            */
-
-            //$this->alertasStockService->revisarStock($product);
-
+            // Revisar si debe generar alerta
+            $this->alertasStockService->revisarStock($product);
 
             return $product;
         });
     }
+
     public function eliminar(Product $product): bool
     {
         return DB::transaction(function () use ($product) {

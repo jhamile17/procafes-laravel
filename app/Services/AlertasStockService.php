@@ -15,77 +15,83 @@ class AlertasStockService
      */
     public function revisarStock($product)
     {
-        if ($product->stock <= $product->stock_minimo) {
+        if ($product->stock > $product->stock_minimo) {
+            return;
+        }
 
-            $tipo = $product->stock == 0 ? 'agotado' : 'bajo';
+        $tipo = $product->stock <= 0 ? 'agotado' : 'bajo';
 
-            $mensaje = $tipo === 'agotado'
-                ? "Producto AGOTADO: {$product->name}"
-                : "Stock bajo ({$product->stock}): {$product->name}";
+        $mensaje = $tipo === 'agotado'
+            ? "Producto AGOTADO: {$product->name}"
+            : "Stock bajo ({$product->stock}): {$product->name}";
 
-            // Evitar enviar muchas alertas (30 minutos)
-            $ultimaAlerta = AlertaStock::where('product_id', $product->id)
-                ->latest('fecha_alerta')
-                ->first();
+        // Obtener nivel de alerta
+        $nivel = \App\Models\NivelAlertaStock::where(
+            'codigo',
+            $tipo === 'agotado' ? 'OUT' : 'LOW'
+        )->first();
 
-            $crearAlerta = false;
+        if (!$nivel) {
+            Log::error('No existe el nivel de alerta.');
 
-            if (!$ultimaAlerta) {
-                $crearAlerta = true;
-            } else {
+            return;
+        }
 
-                $minutos = Carbon::parse($ultimaAlerta->fecha_alerta)
-                    ->diffInMinutes(now());
+        // Evitar alertas repetidas durante 30 minutos
+        $ultimaAlerta = AlertaStock::where('product_id', $product->id)
+            ->latest()
+            ->first();
 
-                if ($minutos >= 30) {
-                    $crearAlerta = true;
-                }
-            }
+        if ($ultimaAlerta) {
 
-            if (!$crearAlerta) {
+            $minutos = Carbon::parse($ultimaAlerta->created_at)
+                ->diffInMinutes(now());
+
+            if ($minutos < 30) {
                 return;
             }
+        }
 
-            // Guardar alerta
-            AlertaStock::create([
-                'product_id'       => $product->id,
-                'stock_detectado'  => $product->stock,
-                'mensaje'          => $mensaje,
-                'fecha_alerta'     => now(),
-            ]);
+        // Guardar alerta
+        AlertaStock::create([
+            'product_id'       => $product->id,
+            'nivel_alerta_id'  => $nivel->id,
+            'stock_detectado'  => $product->stock,
+            'mensaje'          => $mensaje,
+            'enviado_correo'   => false,
+            'enviado_app'      => false,
+        ]);
 
-            Log::info("🆕 Alerta registrada: {$mensaje}");
+        Log::info("🆕 Alerta registrada: {$mensaje}");
 
-            // Obtener tokens
-            $tokens = DeviceToken::where('activo', true)
-                ->pluck('token');
+        // Obtener tokens
+        $tokens = DeviceToken::where('activo', true)
+            ->pluck('token');
 
-            Log::info("📱 Tokens encontrados: " . $tokens->count());
+        Log::info("📱 Tokens encontrados: ".$tokens->count());
 
-            foreach ($tokens as $token) {
+        foreach ($tokens as $token) {
 
-                try {
+            try {
 
-                    $this->enviarNotificacion(
-                        $token,
-                        $mensaje,
-                        $tipo,
-                        $product->id,
-                        $product->name,
-                        $product->stock,
-                        $product->image
-                    );
+                $this->enviarNotificacion(
+                    $token,
+                    $mensaje,
+                    $tipo,
+                    $product->id,
+                    $product->name,
+                    $product->stock,
+                    $product->image
+                );
 
-                } catch (\Exception $e) {
+            } catch (\Exception $e) {
 
-                    Log::error("❌ Error enviando notificación: " . $e->getMessage());
-
-                }
+                Log::error("❌ Error enviando notificación: ".$e->getMessage());
 
             }
         }
     }
-
+    
     /**
      * Enviar notificación mediante Firebase Cloud Messaging
      */
