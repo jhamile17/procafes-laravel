@@ -5,6 +5,7 @@ namespace App\Services\Catalogo;
 use App\Models\Product;
 use App\Models\AlertaStock;
 use App\Models\NivelAlertaStock;
+use App\Services\AlertasStockService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -15,6 +16,10 @@ use Illuminate\Support\Facades\Log;
 
 class ProductService
 {
+    public function __construct(
+        private AlertasStockService $alertasStockService
+    ) {
+    }
     /*
     |--------------------------------------------------------------------------
     | CRUD
@@ -43,59 +48,12 @@ class ProductService
 
             /*
             |--------------------------------------------------------------------------
-            | Verificar stock bajo
+            | Verificar stock bajo y enviar notificación
             |--------------------------------------------------------------------------
             */
 
-            if ($product->stock <= $product->stock_minimo) {
+            $this->alertasStockService->revisarStock($product);
 
-                Log::info('ENTRÓ AL BLOQUE DE ALERTAS', [
-                    'producto' => $product->name,
-                    'stock' => $product->stock,
-                    'stock_minimo' => $product->stock_minimo,
-                ]);
-
-                $codigo = $product->stock <= 0
-                    ? 'OUT'
-                    : 'LOW';
-
-                $nivel = NivelAlertaStock::where('codigo', $codigo)
-                    ->where('status', true)
-                    ->first();
-
-                if (!$nivel) {
-
-                    Log::error('NO EXISTE NIVEL DE ALERTA', [
-                        'codigo' => $codigo,
-                    ]);
-
-                    return $product;
-                }
-
-                $mensaje = $codigo === 'OUT'
-                    ? "Producto AGOTADO: {$product->name}"
-                    : "Stock bajo ({$product->stock}): {$product->name}";
-
-                $alerta = AlertaStock::create([
-                    'product_id'       => $product->id,
-                    'nivel_alerta_id'  => $nivel->id,
-                    'stock_detectado'  => $product->stock,
-                    'mensaje'          => $mensaje,
-                    'enviado_correo'   => false,
-                    'enviado_app'      => false,
-                ]);
-
-                Log::info('ALERTA CREADA', [
-                    'id' => $alerta->id,
-                ]);
-            } else {
-
-                Log::warning('NO SE GENERÓ ALERTA', [
-                    'producto' => $product->name,
-                    'stock' => $product->stock,
-                    'stock_minimo' => $product->stock_minimo,
-                ]);
-            }
 
             return $product;
         });
