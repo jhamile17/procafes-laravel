@@ -17,4 +17,5 @@ class DashboardController extends Controller
             $dashboard->getDashboardData($request)
         );
     }
+    
 }

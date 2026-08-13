@@ -81,13 +81,9 @@
 .customer-btn{
 
     display:inline-flex;
-
     align-items:center;
-
     justify-content:center;
-
     gap:.60rem;
-
     padding:.85rem 1.45rem;
 
     border:2px solid var(--color-primary);

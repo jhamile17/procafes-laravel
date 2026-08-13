@@ -9,15 +9,15 @@
     background:var(--color-background);
     padding:0;
 }
-#cartItems{
+#offcanvasCartItems{
     overflow-y:auto;
 }
 
-#cartItems::-webkit-scrollbar{
+#offcanvasCartItems::-webkit-scrollbar{
     width:6px;
 }
 
-#cartItems::-webkit-scrollbar-thumb{
+#offcanvasCartItems::-webkit-scrollbar-thumb{
     background:#d14848;
     border-radius:999px;
 }
@@ -400,7 +400,7 @@
 
 }
 
-#cartTotal{
+#offcanvasCartTotal{
 
     font-family:var(--font-body);
 
@@ -428,7 +428,7 @@
 
 }
 
-#btnClearCart{
+#cartOffcanvas .btn-clear-cart{
 
     font-size:.82rem;
 
@@ -442,7 +442,7 @@
 
 }
 
-#btnClearCart:hover{
+#cartOffcanvas .btn-clear-cart:hover{
 
     color:var(--color-primary);
 

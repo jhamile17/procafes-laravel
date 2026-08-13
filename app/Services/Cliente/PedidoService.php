@@ -6,6 +6,7 @@ use App\Models\EstadoPedido;
 use App\Models\Order;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
+
 class PedidoService
 {
     /**

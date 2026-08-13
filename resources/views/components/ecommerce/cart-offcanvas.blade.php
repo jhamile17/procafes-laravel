@@ -88,7 +88,7 @@
     </div>
 
     <div
-        id="cartItems"
+        id="offcanvasCartItems"
         class="flex-grow-1 overflow-auto">
 
     </div>
@@ -106,7 +106,7 @@
 
         </span>
 
-        <span id="cartTotal" class="fw-bold mb-1">
+        <span id="offcanvasCartTotal" class="fw-bold mb-1">
 
             S/ 0.00
 
@@ -143,8 +143,8 @@
             </a>
         @endauth
         <button
-            id="btnClearCart"
-            class="btn btn-link text-danger">
+            type="button"
+            class="btn btn-link text-danger btn-clear-cart">
             <i class="bi bi-trash3 me-1"></i>
             Vaciar carrito
         </button>

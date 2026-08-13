@@ -90,7 +90,8 @@ export function bindAddToCart(onUpdate) {
                 Number(button.dataset.productId),
                 Number(button.dataset.quantity ?? 1)
             );
-            await onUpdate(cart);
+
+            onUpdate(cart);
             showCart();
 
         }
@@ -143,10 +144,10 @@ async function increment(button, onUpdate) {
         }
         catch (error){
             console.error(error);
-             showToast(
-            error.message || 'Solo puedes comprar hasta 8 unidades de este producto.',
-            'warning'
-        );
+            showButtonAlert(
+                button,
+                error.message || 'Solo puedes comprar hasta 8 unidades de este producto.'
+            );
             
         
 }
@@ -249,7 +250,7 @@ export function bindClearCart(onUpdate) {
 
     document.addEventListener('click', async (e) => {
 
-        const button = e.target.closest('#btnClearCart');
+        const button = e.target.closest('.btn-clear-cart');
 
         if (!button) {
             return;

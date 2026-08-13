@@ -1,5 +1,3 @@
-// resources/js/modules/cart/cart.js
-
 import {
     getCart,
     getRecommendations
@@ -19,112 +17,63 @@ import {
 class Cart {
 
     constructor() {
-
-        this.loading = false;
-
+        this.version = 0;
+        this.isCartPage = document.body.classList.contains('cart-page');
     }
-    reload(){
+
+    reload() {
         return this.refresh();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener carrito desde Laravel
-    |--------------------------------------------------------------------------
-    */
-
     async refresh() {
+        const version = ++this.version;
 
-        if (this.loading) {
+        try {
+            const cart = await getCart();
+
+            // Ignore a response that started before a more recent cart action.
+            if (version !== this.version) {
+                return;
+            }
+
+            render(cart);
+            void this.loadRecommendations(version);
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async loadRecommendations(version = this.version) {
+        if (!this.isCartPage) {
             return;
         }
 
-        this.loading = true;
-
         try {
-
-            const cart = await getCart();
-
-            render(cart);
-
-            await this.loadRecommendations();
-
-        }
-
-        catch (error) {
-
-            console.error(error);
-
-        }
-
-        finally {
-
-            this.loading = false;
-
-        }
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Recomendaciones
-    |--------------------------------------------------------------------------
-    */
-
-    async loadRecommendations() {
-
-        try {
-
             const html = await getRecommendations();
 
-            renderRecommendations(html);
+            if (version === this.version) {
+                renderRecommendations(html);
+            }
 
+        } catch (error) {
+            console.error(error);
         }
-
-        catch (e) {
-
-            console.error(e);
-
-        }
-
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Cuando alguna acción devuelve un carrito actualizado
-    |--------------------------------------------------------------------------
-    */
-
-    async update(cart) {
+    update(cart) {
+        const version = ++this.version;
 
         render(cart);
-
-        await this.loadRecommendations();
-
+        void this.loadRecommendations(version);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Inicializar
-    |--------------------------------------------------------------------------
-    */
-
     init() {
+        bindAddToCart(this.update.bind(this));
+        bindCartActions(this.update.bind(this));
+        bindClearCart(this.update.bind(this));
 
-        bindAddToCart(
-            this.update.bind(this)
-        );
-
-        bindCartActions(
-            this.update.bind(this)
-        );
-
-        bindClearCart(
-            this.update.bind(this)
-        );
-
-        this.refresh();
-
+        void this.refresh();
     }
 
 }

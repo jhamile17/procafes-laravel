@@ -46,11 +46,7 @@ class BillingController extends Controller
             )
 
             ->latest()
-
-            // 8 pedidos por página
             ->paginate(8)
-
-            // Mantener búsqueda al cambiar de página
             ->withQueryString();
 
         return view(

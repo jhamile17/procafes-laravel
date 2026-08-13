@@ -21,9 +21,8 @@
         <div class="customer-card-actions">
 
             <button
-                id="btnClearCart"
                 type="button"
-                class="cart-clear-btn d-none">
+                class="cart-clear-btn btn-clear-cart d-none">
 
                 <i class="bi bi-trash3 me-2"></i>
                 Vaciar
@@ -38,7 +37,7 @@
 
     <div class="customer-card-body">
 
-        <div id="cartItems">
+        <div id="cartPageItems">
 
             {{-- Render dinámico --}}
 

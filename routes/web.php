@@ -335,6 +335,10 @@ Route::prefix('admin')
 
         Route::get('/reports', [ReportController::class, 'index'])
             ->name('reports.index');
+        Route::get(
+                '/reports/sales',
+                [ReportController::class, 'salesByDate']
+            )->name('reports.sales');
         Route::get('/billing', [BillingController::class, 'index'])
             ->name('billing.index');
         Route::post('/billing/lookup', [BillingController::class, 'lookup'])

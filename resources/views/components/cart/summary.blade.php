@@ -18,7 +18,7 @@
 
         <span>Total a pagar</span>
 
-        <strong id="cartTotal">
+        <strong id="cartPageTotal">
             S/ 0.00
         </strong>
 
