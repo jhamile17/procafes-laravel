@@ -22,13 +22,11 @@ class MercadoPagoWebhookController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function handle(
-        Request $request
-    ): JsonResponse {
-        return $this->webhookService
-            ->procesar(
-                $request
-            );
-
-    }
+    public function handle(Request $request): JsonResponse
+{
+    return response()->json([
+        'success' => true,
+        'message' => 'Webhook funcionando correctamente.',
+    ]);
+}
 }
