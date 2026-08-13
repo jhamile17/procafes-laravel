@@ -46,7 +46,7 @@
                     @if($user->foto_perfil)
 
                         <img
-                            src="{{ asset('storage/' . $user->foto_perfil) }}"
+                            src="{{ $user->foto_perfil_url }}"
                             alt="{{ $user->name }}">
 
                     @else

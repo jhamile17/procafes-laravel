@@ -144,13 +144,20 @@ class User extends Authenticatable
     /**
      * Obtiene la URL de la foto de perfil.
      */
-    public function getFotoPerfilUrlAttribute(): string
+   public function getFotoPerfilUrlAttribute(): string
     {
         if (empty($this->foto_perfil)) {
             return asset('images/default-avatar.png');
         }
 
-        return asset('storage/' . $this->foto_perfil);
-    }
+        // Avatar externo de Google
+        if (filter_var($this->foto_perfil, FILTER_VALIDATE_URL)) {
+            return $this->foto_perfil;
+        }
 
+        // Foto subida manualmente
+        return Storage::disk('public')->url(
+            $this->foto_perfil
+        );
+    }
 }
