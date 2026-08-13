@@ -36,6 +36,7 @@ class User extends Authenticatable
         'foto_perfil',
         'estado',
         'ultimo_acceso',
+        'email_verified_at'
     ];
     //atributos ocultos
     protected $hidden = [

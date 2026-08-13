@@ -82,8 +82,12 @@ class GoogleController extends Controller
             }
             $flow = session()->pull(
                 'google_flow',
-                'login'
-            );
+                'login');
+            log::info('GOOGLE CALLBACK', [
+                 'flow' => $flow,
+                'session_id' => session()->getId(),
+                'email' => $email,
+            ]);
             $user = User::query()
                 ->whereRaw(
                     'LOWER(email) = ?',
@@ -133,8 +137,8 @@ class GoogleController extends Controller
                     'nombres' => $nombres,
                     'apellido_paterno' => $apellidoPaterno,
                     'apellido_materno' => $apellidoMaterno,
-                    'tipo_documento' => 'PENDIENTE',
-                    'numero_documento' => 'PENDIENTE',
+                    'tipo_documento' => null,
+                    'numero_documento' => null,
                     'email' => $email,
                     'password' => bin2hex(random_bytes(32)),
                     'has_local_password'=> false,

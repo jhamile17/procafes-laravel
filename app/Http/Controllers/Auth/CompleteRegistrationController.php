@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Notifications\WelcomeToProcafes;
 use App\Services\Auth\PendingRegistrationService;
 use App\Services\Auth\UserRegistrationService;
+use App\Services\Ventas\CartService;
+use App\Services\Ventas\SessionCartService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -15,6 +17,8 @@ class CompleteRegistrationController extends Controller
     public function __construct(
         protected PendingRegistrationService $pendingService,
         protected UserRegistrationService $userRegistrationService,
+        protected CartService $cartService,
+        protected SessionCartService $sessionCartService,
     ) {
     }
 
@@ -98,6 +102,11 @@ class CompleteRegistrationController extends Controller
         */
 
         Auth::login($user);
+        $this->sessionCartService->sincronizar(
+            request(),
+            $this->cartService,
+            $user->id
+        );
 
         request()->session()->regenerate();
     
