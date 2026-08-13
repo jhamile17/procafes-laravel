@@ -188,7 +188,6 @@ class ProductController extends Controller
         UpdateProductRequest $request,
         Product $product
     ): RedirectResponse {
-        dd($request->all());
 
         try {
 

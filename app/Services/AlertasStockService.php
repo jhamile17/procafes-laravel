@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Models\AlertaStock;
 use App\Models\DeviceToken;
 use Illuminate\Support\Facades\Http;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class AlertasStockService
 {
@@ -23,7 +23,7 @@ class AlertasStockService
                 ? "Producto AGOTADO: {$product->name}"
                 : "Stock bajo ({$product->stock}): {$product->name}";
 
-            // 🔁 Evitar spam: 30 minutos
+            // Evitar enviar muchas alertas (30 minutos)
             $ultimaAlerta = AlertaStock::where('product_id', $product->id)
                 ->latest('fecha_alerta')
                 ->first();
@@ -33,100 +33,130 @@ class AlertasStockService
             if (!$ultimaAlerta) {
                 $crearAlerta = true;
             } else {
-                $diffMin = Carbon::parse($ultimaAlerta->fecha_alerta)
+
+                $minutos = Carbon::parse($ultimaAlerta->fecha_alerta)
                     ->diffInMinutes(now());
 
-                if ($diffMin >= 30) {
+                if ($minutos >= 30) {
                     $crearAlerta = true;
                 }
             }
 
-            if ($crearAlerta) {
+            if (!$crearAlerta) {
+                return;
+            }
 
-                /// 📌 Guardar alerta en DB
-                AlertaStock::create([
-                    'product_id' => $product->id,
-                    'stock_detectado' => $product->stock,
-                    'mensaje' => $mensaje,
-                    'fecha_alerta' => now(),
-                ]);
+            // Guardar alerta
+            AlertaStock::create([
+                'product_id'       => $product->id,
+                'stock_detectado'  => $product->stock,
+                'mensaje'          => $mensaje,
+                'fecha_alerta'     => now(),
+            ]);
 
-                Log::info("🆕 Alerta registrada: {$mensaje}");
+            Log::info("🆕 Alerta registrada: {$mensaje}");
 
-                /// 📲 Enviar a todos los dispositivos
-                $tokens = DeviceToken::orderBy('created_at', 'desc')
-                    ->pluck('device_token');
+            // Obtener tokens
+            $tokens = DeviceToken::where('activo', true)
+                ->pluck('token');
 
-                foreach ($tokens as $token) {
-                    try {
-                        $this->enviarNotificacion(
-                            $token,
-                            $mensaje,
-                            $tipo,
-                            $product->id,
-                            $product->name,
-                            $product->stock,
-                            $product->image
-                        );
-                    } catch (\Exception $e) {
-                        Log::error(" Error enviando notificación: " . $e->getMessage());
-                    }
+            Log::info("📱 Tokens encontrados: " . $tokens->count());
+
+            foreach ($tokens as $token) {
+
+                try {
+
+                    $this->enviarNotificacion(
+                        $token,
+                        $mensaje,
+                        $tipo,
+                        $product->id,
+                        $product->name,
+                        $product->stock,
+                        $product->image
+                    );
+
+                } catch (\Exception $e) {
+
+                    Log::error("❌ Error enviando notificación: " . $e->getMessage());
+
                 }
+
             }
         }
     }
 
     /**
-     * 🔥 ENVÍO FCM CON NOTIFICACIÓN VISUAL
+     * Enviar notificación mediante Firebase Cloud Messaging
      */
-   private function enviarNotificacion($token, $mensaje, $tipo, $productoId, $productoName, $stock, $imagen = null)
-{
-    $firebase = new \App\Services\FirebaseService();
-    $accessToken = $firebase->getAccessToken();
+    private function enviarNotificacion(
+        $token,
+        $mensaje,
+        $tipo,
+        $productoId,
+        $productoName,
+        $stock,
+        $imagen = null
+    ) {
 
-    $url = "https://fcm.googleapis.com/v1/projects/my-project-de-entrega/messages:send";
+        $firebase = new FirebaseService();
 
-    $payload = [
-        "message" => [
-            "token" => $token,
+        $accessToken = $firebase->getAccessToken();
 
-            // 🔥 DATA (para Flutter)
-            "data" => [
-                "tipo" => "producto",
-                "nivel" => $tipo,
-                "producto_id" => (string)$productoId,
-                "producto" => $productoName,
-                "stock" => (string)$stock,
-                "title" => "🚨 Alerta de Inventario",
-                "body" => $mensaje,
-                "image" => $imagen ? asset('storage/' . $imagen) : ""
-            ],
+        $url = "https://fcm.googleapis.com/v1/projects/my-project-de-entrega/messages:send";
 
-            // 🔔 NOTIFICACIÓN (clave para background y app cerrada)
-            "notification" => [
-                "title" => "🚨 Alerta de Inventario",
-                "body" => $mensaje,
-                "image" => $imagen ? asset('storage/' . $imagen) : null,
-            ],
+        $payload = [
 
-            "android" => [
-                "priority" => "HIGH",
+            "message" => [
+
+                "token" => $token,
+
                 "notification" => [
-                    "channel_id" => "high_importance_channel",
-                    "icon" => "ic_launcher",
-                    "color" => "#FF0000",
-                    "sound" => "default",
-                    "click_action" => "FLUTTER_NOTIFICATION_CLICK"
+                    "title" => "🚨 Alerta de Inventario",
+                    "body"  => $mensaje,
+                ],
+
+                "data" => [
+                    "tipo"         => "producto",
+                    "nivel"        => $tipo,
+                    "producto_id"  => (string) $productoId,
+                    "producto"     => $productoName,
+                    "stock"        => (string) $stock,
+                    "title"        => "🚨 Alerta de Inventario",
+                    "body"         => $mensaje,
+                    "image"        => $imagen
+                        ? asset('storage/' . $imagen)
+                        : "",
+                ],
+
+                "android" => [
+
+                    "priority" => "HIGH",
+
+                    "notification" => [
+                        "channel_id"   => "high_importance_channel",
+                        "sound"        => "default",
+                        "click_action" => "FLUTTER_NOTIFICATION_CLICK",
+                    ]
                 ]
             ]
-        ]
-    ];
+        ];
 
-    $response = Http::withHeaders([
-        'Authorization' => 'Bearer ' . $accessToken,
-        'Content-Type' => 'application/json',
-    ])->post($url, $payload);
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $accessToken,
+            'Content-Type'  => 'application/json',
+        ])->post($url, $payload);
 
-    Log::info("📤 Notificación enviada a {$token} | Código: " . $response->status());
-}
+        Log::info("📤 Firebase HTTP: " . $response->status());
+
+        Log::info("📤 Firebase Response:", [
+            'body' => $response->body()
+        ]);
+
+        if (!$response->successful()) {
+
+            Log::error("❌ Firebase Error: " . $response->body());
+
+        }
+    }
 }
