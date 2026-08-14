@@ -35,7 +35,7 @@ function renderTotals(cart = {}) {
         return;
     }
 
-    totalBox.textContent = currency(Number(cart.subtotal ?? 0));
+    totalBox.textContent = currency(Number(cart.total ?? 0));
 }
 
 function renderEmpty() {
