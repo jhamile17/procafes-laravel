@@ -88,12 +88,12 @@ class CheckoutController extends Controller
 
         
 
-            return redirect()->route(
-                'checkout.success',
-                [
-                    'order' => $order,
-                ]
-            );
+            return redirect()
+                ->route('customer.orders')
+                ->with(
+                    'success',
+                    'Pedido registrado correctamente. Revisa tu correo para ver el número de pedido.'
+                );
 
         } catch (Throwable $e) {
         
