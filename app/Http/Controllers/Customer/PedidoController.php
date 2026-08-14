@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Services\Cliente\PedidoService;
-use App\Models\Order;
-use Illuminate\Contracts\View\View;
 use App\Models\ConfiguracionEmpresa;
+use App\Models\Order;
+use App\Services\Cliente\PedidoService;
+use Illuminate\Contracts\View\View;
+
 class PedidoController extends Controller
 {
     public function __construct(
@@ -15,19 +16,21 @@ class PedidoController extends Controller
     }
 
     /**
-     * Mostrar los pedidos del cliente.
+     * Mostrar todos los pedidos del cliente.
      */
     public function index(): View
     {
-        $orders = $this->pedidoService
-            ->getOrders(auth()->id());
+        $orders = $this->pedidoService->getOrders(auth()->id());
 
         return view('customer.orders', compact('orders'));
     }
+
+    /**
+     * Mostrar el detalle de un pedido.
+     */
     public function show(int $order): View
     {
-        $order = Order::query()
-            ->with([
+        $order = Order::with([
                 'estadoPedido',
                 'items.product',
                 'payment',
@@ -36,10 +39,12 @@ class PedidoController extends Controller
             ])
             ->where('user_id', auth()->id())
             ->findOrFail($order);
-            $empresa = ConfiguracionEmpresa::first();
+
+        $empresa = ConfiguracionEmpresa::first();
+
         return view(
             'customer.orders.show',
-            compact('order','empresa')
+            compact('order', 'empresa')
         );
     }
 }

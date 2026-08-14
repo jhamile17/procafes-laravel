@@ -13,8 +13,7 @@
 
 </head>
 
-<body class="@yield('body-class')">
-
+<body class="@yield('body-class') d-flex flex-column min-vh-100">
     {{-- ===========================
         NAVBAR
     ============================ --}}
@@ -25,7 +24,7 @@
         CONTENIDO
     ============================ --}}
 
-    <main id="app">
+    <main id="app" class="flex-grow-1">
 
         @yield('content')
 
@@ -45,11 +44,10 @@
 
     <x-ecommerce.whatsapp />
 
-    <x-chat.button />
-
     <x-ecommerce.cart-offcanvas />
 
-    <x-ui.alert />
+   <x-ui.alerts/>
+
     <x-ui.toast />
     {{-- ===========================
         CONFIGURACIÓN JAVASCRIPT

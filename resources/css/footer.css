@@ -3,49 +3,42 @@
 | FOOTER
 |--------------------------------------------------------------------------
 */
-
 .footer{
-    background: var(--color-coffee);
-    color: var(--color-white);
-    border-top: 3px solid var(--color-primary);
-    padding: 2.5rem 0 1rem;
+    background:#2B1F1B;
+    color:#fff;
+    border-top:2px solid var(--color-gold);
+    padding:1.8rem 0 .8rem;
 }
-
 /*
 |--------------------------------------------------------------------------
 | BRAND
 |--------------------------------------------------------------------------
 */
-
 .footer-brand{
     display:flex;
     flex-direction:column;
 }
-
 .footer-logo{
-    width:64px;
-    height:64px;
-    object-fit:cover;
+    width:52px;
+    height:52px;
+    border:2px solid rgba(255,255,255,.2);
     border-radius:50%;
-    background:var(--color-white);
-    border:3px solid var(--color-white);
-    box-shadow:var(--shadow-sm);
-    margin-bottom:1rem;
 }
+
 
 .footer-title{
     font-family:var(--font-heading);
-    font-size:2rem;
+    font-size:1.45rem;
     font-weight:700;
     color:var(--color-white);
-    margin-bottom:.6rem;
+    margin-bottom:.4rem;
 }
 
 .footer-description{
     font-family:var(--font-body);
-    color:rgba(255,255,255,.75);
+    color:rgba(255,255,255,.70);
     font-size:.95rem;
-    line-height:1.7;
+    line-height:1.6;
     max-width:320px;
     margin:0;
 }
@@ -58,8 +51,9 @@
 
 .footer-heading{
     font-family:var(--font-heading);
-    font-size:1.1rem;
+    font-size:.88rem;
     font-weight:700;
+    line-height:1.6;
     color:var(--color-white);
     margin-bottom:1rem;
     position:relative;
@@ -70,9 +64,9 @@
     position:absolute;
     left:0;
     bottom:-6px;
-    width:40px;
+    width:28px;
     height:2px;
-    background:var(--color-primary);
+    background:var(--color-gold);
     border-radius:999px;
 }
 
@@ -84,6 +78,7 @@
 
 .footer-links{
     list-style:none;
+    margin-bottom:.45rem;
     margin:0;
     padding:0;
 }
@@ -101,7 +96,7 @@
 
 .footer-links a:hover{
     color:var(--color-gold);
-    padding-left:5px;
+    padding-left:3px;
 }
 
 /*
@@ -150,21 +145,15 @@
 }
 
 .footer-social a{
-    width:40px;
-    height:40px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:50%;
-    background:rgba(255,255,255,.08);
-    color:var(--color-white);
-    text-decoration:none;
-    transition:var(--transition);
+    width:38px;
+    height:38px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
 }
 
 .footer-social a:hover{
-    background:var(--color-primary);
-    transform:translateY(-3px);
+    background:var(--color-gold);
+    color:#2B1F1B;
 }
 
 .social-whatsapp:hover{
@@ -180,7 +169,7 @@
 .footer-divider{
     border:0;
     border-top:1px solid rgba(255,255,255,.12);
-    margin:2rem 0 1rem;
+    margin:1.3rem 0 .8rem;
 }
 
 /*
@@ -201,7 +190,8 @@
     margin:0;
     font-family:var(--font-body);
     color:rgba(255,255,255,.65);
-    font-size:.9rem;
+    
+    font-size:.82rem;
 }
 
 .footer-bottom-links{

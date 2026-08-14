@@ -26,24 +26,20 @@
         ];
     @endphp
 
-    <div id="appAlert" class="app-alert-overlay">
-
-        <div class="app-alert app-alert-{{ $type }}">
-
-            <div class="app-alert-icon">
-                <i class="bi {{ $icons[$type] }}"></i>
-            </div>
-
-            <h6 class="app-alert-title">
-                {{ $titles[$type] }}
-            </h6>
-
-            <p class="app-alert-message">
-                {{ $message }}
-            </p>
-
-        </div>
-
-    </div>
+<div
+    id="appAlert"
+    style="
+        position:fixed;
+        top:20px;
+        right:20px;
+        background:#dc3545;
+        color:white;
+        padding:20px;
+        border-radius:10px;
+        z-index:999999;
+    "
+>
+    ALERTA FUNCIONANDO
+</div>
 
 @endif

@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('alert.js cargado');
 
     const overlay = document.getElementById('appAlert');
 
