@@ -4,12 +4,10 @@ namespace App\Notifications;
 
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PedidoRealizadoNotification extends Notification implements ShouldQueue
-{
+class PedidoRealizadoNotification extends Notification{ 
     use Queueable;
 
     public function __construct(

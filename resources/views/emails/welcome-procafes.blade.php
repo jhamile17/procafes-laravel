@@ -18,7 +18,7 @@
         name="viewport"
         content="width=device-width, initial-scale=1.0">
 
-    <title>Pedido realizado | PROCÁFES</title>
+    <title>Bienvenido | PROCÁFES</title>
 
 </head>
 
@@ -67,22 +67,24 @@
             <img
                 src="{{ $message->embed(public_path('images/logo.jpg')) }}"
                 alt="PROCÁFES"
-                width="64"
+                width="58"
                 style="
-                    display:block;
-                    width:64px;
-                    height:64px;
-                    margin:0 auto 12px;
-                    border-radius:50%;
-                    border:3px solid #FFFFFF;
-                    object-fit:cover;
-                    background:#FFFFFF;">
+                display:block;
+                width:64px;
+                height:64px;
+                margin:0 auto 12px;
+                border-radius:50%;
+                border:3px solid #FFFFFF;
+                object-fit:cover;
+                background:#FFFFFF;">
 
             <h1
                 style="
                     margin:0;
-                    color:#FFFFFF;
-                    font-size:24px;">
+                    color:#ffffff;
+                    font-size:24px;
+                    font-weight:bold;
+                    letter-spacing:.5px;">
 
                 PROCÁFES
 
@@ -97,16 +99,17 @@
     <tr>
 
         <td
+            align="center"
             style="
-                padding:32px;">
+                padding:32px 32px 24px;">
 
             <h2
                 style="
                     margin:0 0 18px;
                     color:{{ $coffee }};
-                    text-align:center;">
+                    font-size:28px;">
 
-                ¡Pago confirmado!
+                ¡Bienvenido!
 
             </h2>
 
@@ -122,98 +125,21 @@
 
             <p
                 style="
-                    margin:0 0 24px;
+                    margin:0 0 28px;
                     color:{{ $text }};
-                    line-height:1.7;">
+                    font-size:15px;
+                    line-height:1.6;">
 
-                Hemos recibido correctamente tu pago.
-                Tu pedido ya fue registrado y se encuentra en proceso.
+                Tu cuenta ya está activa. Ahora puedes explorar nuestros cafés, realizar pedidos y disfrutar de la experiencia <strong>PROCÁFES</strong>.
 
             </p>
 
             <table
                 role="presentation"
-                width="100%"
                 cellpadding="0"
                 cellspacing="0"
                 border="0"
-                style="
-                    border:1px solid {{ $border }};
-                    border-radius:12px;
-                    background:#FAF8F5;">
-
-                <tr>
-                    <td style="padding:18px;">
-
-                        <table width="100%">
-
-                            <tr>
-                                <td style="color:{{ $text }};">
-                                    Número de pedido
-                                </td>
-
-                                <td align="right">
-                                    <strong style="color:{{ $coffee }};">
-                                        {{ $order->numero_pedido }}
-                                    </strong>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td colspan="2" height="12"></td>
-                            </tr>
-
-                            <tr>
-                                <td style="color:{{ $text }};">
-                                    Total pagado
-                                </td>
-
-                                <td align="right">
-                                    <strong style="color:{{ $primary }};">
-                                        S/ {{ number_format($order->total_price,2) }}
-                                    </strong>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td colspan="2" height="12"></td>
-                            </tr>
-
-                            <tr>
-                                <td style="color:{{ $text }};">
-                                    Entrega
-                                </td>
-
-                                <td align="right">
-
-                                    {{ $order->delivery_type == 'pickup'
-                                        ? 'Recojo en tienda'
-                                        : 'Delivery' }}
-
-                                </td>
-                            </tr>
-
-                        </table>
-
-                    </td>
-                </tr>
-
-            </table>
-
-            <p
-                style="
-                    margin:24px 0;
-                    color:{{ $text }};
-                    line-height:1.7;">
-
-                También podrás consultar el estado de tu pedido desde tu cuenta en PROCÁFES.
-
-            </p>
-
-            <table
-                align="center"
-                cellpadding="0"
-                cellspacing="0">
+                align="center">
 
                 <tr>
 
@@ -222,15 +148,16 @@
                         style="border-radius:999px;">
 
                         <a
-                            href="{{ route('customer.orders') }}"
+                            href="{{ route('products') }}"
                             style="
                                 display:inline-block;
                                 padding:14px 34px;
-                                color:#FFFFFF;
+                                color:#ffffff;
                                 text-decoration:none;
+                                font-size:15px;
                                 font-weight:bold;">
 
-                            Ver mis pedidos
+                            Explorar productos
 
                         </a>
 
@@ -239,6 +166,16 @@
                 </tr>
 
             </table>
+
+            <p
+                style="
+                    margin:24px 0 0;
+                    color:#8A7D7D;
+                    font-size:13px;">
+
+                Gracias por confiar en nosotros. ☕
+
+            </p>
 
         </td>
 

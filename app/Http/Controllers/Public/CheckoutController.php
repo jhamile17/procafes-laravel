@@ -8,8 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Checkout\CheckoutRequest;
 use App\Services\Checkout\CheckoutService;
 use App\Services\Pagos\PaymentService;
+use App\Notifications\PedidoRealizadoNotification;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use RuntimeException;
 use Throwable;
 
@@ -37,7 +37,7 @@ class CheckoutController extends Controller
 
             return view('checkout.index', $data);
 
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
 
             return redirect()
                 ->route('cart.index')
@@ -47,7 +47,7 @@ class CheckoutController extends Controller
                 );
         }
     }
-   
+
     /*
     |--------------------------------------------------------------------------
     | Procesar checkout
@@ -60,8 +60,6 @@ class CheckoutController extends Controller
 
         try {
 
-           
-
             $order = $this->checkoutService->procesar(
                 auth()->id(),
                 $request->validated()
@@ -70,7 +68,12 @@ class CheckoutController extends Controller
             $payment = $this->paymentService
                 ->iniciarPagoPorPedido($order);
 
-    
+            if (! $this->paymentService->esMercadoPago($payment)) {
+
+                $order->user->notify(
+                    new PedidoRealizadoNotification($order)
+                );
+            }
 
             if ($this->paymentService->esMercadoPago($payment)) {
 
@@ -83,10 +86,7 @@ class CheckoutController extends Controller
                 }
 
                 return redirect()->away($initPoint);
-
             }
-
-        
 
             return redirect()
                 ->route('customer.orders')
@@ -96,13 +96,13 @@ class CheckoutController extends Controller
                 );
 
         } catch (Throwable $e) {
-        
-             dd(
-                $e->getMessage(),
-                $e->getFile(),
-                $e->getLine()
+
+            report($e);
+
+            return back()->with(
+                'error',
+                'Ocurrió un error al procesar el pedido.'
             );
         }
-
     }
 }
