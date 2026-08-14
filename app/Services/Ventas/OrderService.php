@@ -392,16 +392,15 @@ class OrderService
         Cart $cart
     ): void {
         foreach ($cart->items as $item) {
-            $precioConIgv=round(
-                $item->unit_price * 1.18,2
-            );
+        
             OrderItem::create([
                 'order_id' => $order->id,
                 'product_id' => $item->product_id,
                 'quantity' => $item->quantity,
-                'unit_price' => $precioConIgv,
+                'unit_price' => $item->unit_price,
                 'subtotal' => round(
-                    $precioConIgv * $item ->quantity,2
+                    $item->unit_price * $item->quantity,
+                2
                 ),
             ]);
         }

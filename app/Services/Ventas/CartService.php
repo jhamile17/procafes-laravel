@@ -247,25 +247,29 @@ class CartService
     }
     /*Calcular resumen del carrito*/
 
-public function calcularResumen(
-    Cart $cart
-): array {
-    $subtotal = round(
-        $this->calcularTotal($cart),
-        2
-    );
-    $igv = round(
-        $subtotal * self::IGV,
-        2
-    );
-    $total = round(
-        $subtotal + $igv,
-        2
-    );
-    return [
-        'subtotal' => $subtotal,
-        'igv' => $igv,
-        'total' => $total,
-    ];
-}
+    public function calcularResumen(
+        Cart $cart
+    ): array {
+
+        $total = round(
+            $this->calcularTotal($cart),
+            2
+        );
+
+        $subtotal = round(
+            $total / (1 + self::IGV),
+            2
+        );
+
+        $igv = round(
+            $total - $subtotal,
+            2
+        );
+
+        return [
+            'subtotal' => $subtotal,
+            'igv' => $igv,
+            'total' => $total,
+        ];
+    }
 }

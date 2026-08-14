@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Pagos;
 
 use App\Models\Payment;
+use App\Services\Ventas\CartService;
 use App\Services\Facturacion\NubeFactService;
 use App\Services\Ventas\OrderService;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,7 @@ final class PaymentConfirmationService
     public function __construct(
         protected PaymentService $paymentService,
         protected OrderService $orderService,
+        protected CartService $cartService,
         protected NubeFactService $nubeFactService,
     ) {
     }
@@ -35,6 +37,7 @@ final class PaymentConfirmationService
             $transactionId,
             $transactionData
         ) {
+            
 
             /*
             |--------------------------------------------------------------------------
@@ -67,7 +70,6 @@ final class PaymentConfirmationService
             $this->orderService->confirmarPedido(
                 $payment->order
             );
-
             /*
             |--------------------------------------------------------------------------
             | Emitir comprobante (solo una vez)
@@ -78,6 +80,11 @@ final class PaymentConfirmationService
             ) {
                 $this->nubeFactService->emitir($comprobante);
             }
+             /*vaciar carrito despues de la compra */
+            $this->cartService->vaciarPorUsuario(
+                $payment->order->user_id
+            );
+
 
             /*
             |--------------------------------------------------------------------------
