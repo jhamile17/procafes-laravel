@@ -17,7 +17,7 @@ class MercadoPagoController extends Controller
 
     public function success(): RedirectResponse
     {
-        return $this->redirectToOrders(
+        return $this->redirectTo(
 
             'success',
             '¡Pago realizado correctamente! Tu pedido fue registrado y hemos enviado el número de pedido a tu correo electrónico.'
