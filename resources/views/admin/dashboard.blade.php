@@ -6,37 +6,25 @@
 
 <div class="dashboard-page">
 
-    {{-- ==========================================================
-        DASHBOARD HEADER
-    =========================================================== --}}
-
     <section class="dashboard-header">
 
         <div class="dashboard-header-left">
 
             <span class="dashboard-badge">
-
                 <i class="bi bi-cup-hot-fill"></i>
-
                 Dashboard PROCÁFES
-
             </span>
 
             <h1>
-
                 ¡Buenos días,
                 {{ auth()->user()->nombre_completo ?? auth()->user()->name }}!
                 👋
-
             </h1>
 
             <p>
-
                 Bienvenido al panel administrativo de PROCÁFES.
-
-                Desde aquí podrás controlar productos, pedidos,
-                clientes, ventas y reportes del sistema.
-
+                Desde aquí podrás administrar productos, pedidos,
+                clientes, ventas y reportes.
             </p>
 
         </div>
@@ -59,115 +47,383 @@
 
     </section>
 
-    {{-- ==========================================================
-        KPI CARDS
-    =========================================================== --}}
+        <section class="dashboard-kpis">
 
+        <div class="kpi-card">
 
-    {{-- ==========================================================
-        RESUMEN DE VENTAS
-    =========================================================== --}}
+            <div class="kpi-top">
 
-    <section class="dashboard-main">
+                <span>Ventas</span>
 
-        {{-- ======================================================
-            COLUMNA IZQUIERDA
-        ======================================================= --}}
+                <div class="kpi-icon red">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
 
-        <div class="dashboard-left">
+            </div>
 
-            <div class="dashboard-card">
+            <h2>
+                S/ {{ number_format($stats['revenue'],2) }}
+            </h2>
 
-                <div class="card-header-custom">
+            <p>Ingresos acumulados</p>
 
-                    <div>
+        </div>
 
-                        <span class="section-badge">
+        <div class="kpi-card">
 
-                            <i class="bi bi-graph-up-arrow"></i>
+            <div class="kpi-top">
 
-                            Ventas
+                <span>Pedidos</span>
 
-                        </span>
+                <div class="kpi-icon blue">
+                    <i class="bi bi-cart-check-fill"></i>
+                </div>
 
-                        <h3>
+            </div>
 
-                            Resumen de Ventas
+            <h2>
+                {{ number_format($stats['orders']) }}
+            </h2>
 
-                        </h3>
+            <p>Pedidos registrados</p>
 
-                        <p>
+        </div>
 
-                            Consulta el rendimiento de las ventas por año y mes.
+        <div class="kpi-card">
 
-                        </p>
+            <div class="kpi-top">
+
+                <span>Clientes</span>
+
+                <div class="kpi-icon gold">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+
+            </div>
+
+            <h2>
+                {{ number_format($stats['customers']) }}
+            </h2>
+
+            <p>Clientes registrados</p>
+
+        </div>
+
+        <div class="kpi-card">
+
+            <div class="kpi-top">
+
+                <span>Productos</span>
+
+                <div class="kpi-icon green">
+                    <i class="bi bi-cup-hot-fill"></i>
+                </div>
+
+            </div>
+
+            <h2>
+                {{ number_format($stats['products']) }}
+            </h2>
+
+            <p>Productos disponibles</p>
+
+        </div>
+
+    </section>
+
+        <section class="dashboard-main">
+
+            {{-- ===========================
+                COLUMNA IZQUIERDA
+            ============================ --}}
+            <div class="dashboard-left">
+
+                <div class="dashboard-card">
+
+                    @php
+                        $meses = [
+                            1 => 'Enero',
+                            2 => 'Febrero',
+                            3 => 'Marzo',
+                            4 => 'Abril',
+                            5 => 'Mayo',
+                            6 => 'Junio',
+                            7 => 'Julio',
+                            8 => 'Agosto',
+                            9 => 'Septiembre',
+                            10 => 'Octubre',
+                            11 => 'Noviembre',
+                            12 => 'Diciembre',
+                        ];
+
+                        $mesSeleccionado = $month ? $meses[$month] : 'Todo el año';
+
+                        $totalVentas = $stats['revenue'] ?? 0;
+                        $totalPedidos = $stats['orders'] ?? 0;
+
+                        $ticketPromedio = $totalPedidos > 0
+                            ? $totalVentas / $totalPedidos
+                            : 0;
+
+                        $hayVentas = $totalPedidos > 0;
+                    @endphp
+
+                    <div class="card-header-custom">
+
+                        <div>
+
+                            <span class="section-badge">
+                                <i class="bi bi-graph-up-arrow"></i>
+                                Ventas
+                            </span>
+
+                            <h3>Resumen de Ventas</h3>
+
+                            <p class="text-muted mb-3">
+                                Mostrando ventas correspondientes a
+                                <strong>{{ $mesSeleccionado }} {{ $year }}</strong>
+                            </p>
+
+                            @unless($hayVentas)
+
+                                <div class="alert alert-warning mt-3 mb-0">
+
+                                    <i class="bi bi-exclamation-circle-fill me-2"></i>
+
+                                    No existen ventas para este período.
+
+                                </div>
+
+                            @endunless
+
+                        </div>
+
+                        <form method="GET" class="card-actions">
+
+                            <select name="year" class="form-select">
+
+                                @foreach($availableYears as $availableYear)
+
+                                    <option value="{{ $availableYear }}"
+                                        {{ $year == $availableYear ? 'selected' : '' }}>
+
+                                        {{ $availableYear }}
+
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+
+                            <select name="month" class="form-select">
+
+                                <option value=""
+                                    {{ empty($month) ? 'selected' : '' }}>
+
+                                    Todo el año
+
+                                </option>
+
+                                @foreach($meses as $numero => $nombre)
+
+                                    <option value="{{ $numero }}"
+                                        {{ $month == $numero ? 'selected' : '' }}>
+
+                                        {{ $nombre }}
+
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+
+                            <button
+                                type="submit"
+                                class="btn btn-danger">
+
+                                <i class="bi bi-funnel-fill me-2"></i>
+
+                                Filtrar
+
+                            </button>
+
+                        </form>
 
                     </div>
 
+                    <div class="chart-wrapper">
+
+                        <canvas id="salesChart"></canvas>
+
+                        @unless($hayVentas)
+
+                            <div class="empty-chart-message">
+
+                                <i class="bi bi-exclamation-circle-fill"></i>
+
+                                <h5>No existen ventas</h5>
+
+                                <p>
+                                    No se registraron ventas para
+                                    {{ $mesSeleccionado }} {{ $year }}.
+                                </p>
+
+                            </div>
+
+                        @endunless
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {{-- ===========================
+                COLUMNA DERECHA
+            ============================ --}}
+            <div class="dashboard-right">
+
+                <div class="dashboard-card reports-card">
+
+                    <span class="section-badge">
+
+                        <i class="bi bi-file-earmark-excel-fill"></i>
+
+                        Centro de Reportes
+
+                    </span>
+
+                    <h3 class="mt-3">
+
+                        Exportar información
+
+                    </h3>
+
+                    <p class="text-muted">
+
+                        Descarga reportes para analizar el rendimiento de PROCÁFES.
+
+                    </p>
+
                     <form
+                        id="reportForm"
                         method="GET"
-                        class="d-flex align-items-center gap-2 flex-wrap">
+                        action="{{ route('admin.reports.sales') }}">
 
-                        <select
-                            name="year"
-                            class="form-select">
+                        <div class="mb-3">
 
-                            @foreach($availableYears as $availableYear)
+                            <label class="form-label">
 
-                                <option
-                                    value="{{ $availableYear }}"
-                                    {{ $year == $availableYear ? 'selected' : '' }}>
+                                Reporte
 
-                                    {{ $availableYear }}
+                            </label>
 
+                            <select
+                                id="reportType"
+                                class="form-select">
+
+                                <option value="sales">
+                                    📈 Ventas detalladas
                                 </option>
 
-                            @endforeach
-
-                        </select>
-
-                        <select
-                            name="month"
-                            class="form-select">
-
-                            <option value="">
-
-                                Todo el año
-
-                            </option>
-
-                            @foreach([
-                                1=>'Enero',
-                                2=>'Febrero',
-                                3=>'Marzo',
-                                4=>'Abril',
-                                5=>'Mayo',
-                                6=>'Junio',
-                                7=>'Julio',
-                                8=>'Agosto',
-                                9=>'Septiembre',
-                                10=>'Octubre',
-                                11=>'Noviembre',
-                                12=>'Diciembre'
-                            ] as $numero=>$nombre)
-
-                                <option
-                                    value="{{ $numero }}"
-                                    {{ $month == $numero ? 'selected' : '' }}>
-
-                                    {{ $nombre }}
-
+                                <option value="best-sellers">
+                                    🏆 Productos más vendidos
                                 </option>
 
-                            @endforeach
+                                <option value="least-sellers">
+                                    📉 Productos menos vendidos
+                                </option>
 
-                        </select>
+                                <option value="inventory">
+                                    📦 Inventario crítico
+                                </option>
+
+                                <option value="categories">
+                                    🗂 Ventas por categoría
+                                </option>
+
+                                <option value="products">
+                                    ☕ Inventario completo
+                                </option>
+
+                                <option value="orders">
+                                    🧾 Órdenes
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div id="fromGroup" class="mb-3">
+                            <label class="form-label">
+                                Desde
+                            </label>
+
+                            <input
+                                type="date"
+                                name="from"
+                                class="form-control">
+                        </div>
+
+                        <div id="toGroup" class="mb-4">
+                            <label class="form-label">
+                                Hasta
+                            </label>
+
+                            <input
+                                type="date"
+                                name="to"
+                                class="form-control">
+                        </div>
+
+                        <div class="report-preview">
+
+                            <h6 class="mb-3">
+                                <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                                Información del reporte
+                            </h6>
+
+                            <div class="preview-item">
+
+                                <i class="bi bi-file-earmark-excel-fill text-success"></i>
+
+                                <span>Formato Excel (.xlsx)</span>
+
+                            </div>
+
+                            <div class="preview-item">
+
+                                <i class="bi bi-check-circle-fill text-success"></i>
+
+                                <span>Incluye encabezados automáticos</span>
+
+                            </div>
+
+                            <div class="preview-item">
+
+                                <i class="bi bi-table text-primary"></i>
+
+                                <span>Compatible con Excel y Google Sheets</span>
+
+                            </div>
+
+                            <div class="preview-item">
+
+                                <i class="bi bi-clock-history text-warning"></i>
+
+                                <span>Generación inmediata del archivo</span>
+
+                            </div>
+
+                        </div>
 
                         <button
                             type="submit"
-                            class="btn btn-danger">
+                            class="btn btn-success w-100">
 
-                            <i class="bi bi-funnel-fill"></i>
+                            <i class="bi bi-download me-2"></i>
+
+                                Generar Reporte Excel
 
                         </button>
 
@@ -175,658 +431,9 @@
 
                 </div>
 
-                {{-- KPIs superiores --}}
-
-                <div class="metrics-row">
-
-                    <div class="metric-box">
-
-                        <span>
-
-                            Ingresos
-
-                        </span>
-
-                        <strong>
-
-                            S/ {{ number_format($stats['revenue'],2) }}
-
-                        </strong>
-
-                    </div>
-
-                    <div class="metric-box">
-
-                        <span>
-
-                            Pedidos
-
-                        </span>
-
-                        <strong>
-
-                            {{ number_format($stats['orders']) }}
-
-                        </strong>
-
-                    </div>
-
-                    <div class="metric-box">
-
-                        <span>
-
-                            Clientes
-
-                        </span>
-
-                        <strong>
-
-                            {{ number_format($stats['customers']) }}
-
-                        </strong>
-
-                    </div>
-
-                </div>
-
-                {{-- CHART --}}
-
-                <div class="chart-wrapper">
-
-                    <canvas id="salesChart"></canvas>
-
-                </div>
-
             </div>
 
-        </div>
-
-        {{-- ======================================================
-            COLUMNA DERECHA
-        ======================================================= --}}
-
-        <div class="dashboard-right">
-
-            <div class="dashboard-card">
-
-                <div class="card-header-custom">
-
-                    <h4>
-
-                        <i class="bi bi-lightning-charge-fill text-warning"></i>
-
-                        Estadísticas rápidas
-
-                    </h4>
-
-                </div>
-
-                <div class="report-links">
-
-                    <a href="#">
-
-                        <i class="bi bi-cart-fill"></i>
-
-                        <div>
-
-                            <strong>
-
-                                {{ number_format($stats['orders']) }}
-
-                            </strong>
-
-                            <small>
-
-                                Pedidos registrados
-
-                            </small>
-
-                        </div>
-
-                    </a>
-
-                    <a href="#">
-
-                        <i class="bi bi-cash-stack"></i>
-
-                        <div>
-
-                            <strong>
-
-                                S/ {{ number_format($stats['revenue'],2) }}
-
-                            </strong>
-
-                            <small>
-
-                                Ventas acumuladas
-
-                            </small>
-
-                        </div>
-
-                    </a>
-
-                    <a href="#">
-
-                        <i class="bi bi-people-fill"></i>
-
-                        <div>
-
-                            <strong>
-
-                                {{ number_format($stats['customers']) }}
-
-                            </strong>
-
-                            <small>
-
-                                Clientes registrados
-
-                            </small>
-
-                        </div>
-
-                    </a>
-
-                    <a href="#">
-
-                        <i class="bi bi-cup-hot-fill"></i>
-
-                        <div>
-
-                            <strong>
-
-                                {{ number_format($stats['products']) }}
-
-                            </strong>
-
-                            <small>
-
-                                Productos disponibles
-
-                            </small>
-
-                        </div>
-
-                    </a>
-
-                </div>
-
-                <hr>
-
-                <a
-                    href="#"
-                    class="btn btn-danger w-100">
-
-                    <i class="bi bi-file-earmark-excel-fill"></i>
-
-                    Exportar Excel
-
-                </a>
-
-            </div>
-
-        </div>
-
-    </section>
-
-    {{-- ==========================================================
-        PRODUCTOS + STOCK
-    =========================================================== --}}
-
-    <section class="dashboard-bottom">
-
-        {{-- ======================================================
-            PRODUCTOS MÁS VENDIDOS
-        ======================================================= --}}
-
-        <div class="dashboard-card">
-
-            <div class="card-header-custom">
-
-                <div>
-
-                    <span class="section-badge">
-
-                        <i class="bi bi-award-fill"></i>
-
-                        Ranking
-
-                    </span>
-
-                    <h3>
-
-                        Productos más vendidos
-
-                    </h3>
-
-                </div>
-
-            </div>
-
-            @if(count($best))
-
-                <div class="top-products-list">
-
-                    @foreach($best as $product)
-
-                        <div class="product-item">
-
-                            <img
-                                src="{{ $product['img'] }}"
-                                alt="{{ $product['name'] }}">
-
-                            <div class="product-info">
-
-                                <h5>
-
-                                    {{ $product['name'] }}
-
-                                </h5>
-
-                                <small>
-
-                                    Producto del catálogo
-
-                                </small>
-
-                                <div class="progress mt-2"
-                                    style="height:8px;">
-
-                                    <div
-                                        class="progress-bar bg-danger"
-                                        style="width:{{ min(($product['orders']*10),100) }}%">
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                            <div class="product-total">
-
-                                <strong>
-
-                                    {{ $product['orders'] }}
-
-                                </strong>
-
-                                <span>
-
-                                    Ventas
-
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    @endforeach
-
-                </div>
-
-            @else
-
-                <div class="empty-state">
-
-                    <i class="bi bi-cup-hot"></i>
-
-                    <p>
-
-                        Todavía no existen productos vendidos.
-
-                    </p>
-
-                </div>
-
-            @endif
-
-        </div>
-
-        {{-- ======================================================
-            STOCK BAJO
-        ======================================================= --}}
-
-        <div class="dashboard-card">
-
-            <div class="card-header-custom">
-
-                <div>
-
-                    <span class="section-badge">
-
-                        <i class="bi bi-box-seam-fill"></i>
-
-                        Inventario
-
-                    </span>
-
-                    <h3>
-
-                        Stock Bajo
-
-                    </h3>
-
-                </div>
-
-            </div>
-
-            @if(count($stock))
-
-                <div class="activity-list">
-
-                    @foreach($stock as $item)
-
-                        <div class="activity-item">
-
-                            <i
-                                class="bi bi-exclamation-circle-fill text-danger">
-
-                            </i>
-
-                            <div class="flex-grow-1">
-
-                                <strong>
-
-                                    {{ $item['name'] }}
-
-                                </strong>
-
-                                <small>
-
-                                    Stock actual:
-                                    {{ $item['stock'] }}
-
-                                </small>
-
-                            </div>
-
-                            <span
-                                class="badge bg-danger">
-
-                                Crítico
-
-                            </span>
-
-                        </div>
-
-                    @endforeach
-
-                </div>
-
-            @else
-
-                <div class="empty-state">
-
-                    <i
-                        class="bi bi-check-circle-fill text-success">
-
-                    </i>
-
-                    <h5>
-
-                        Inventario saludable
-
-                    </h5>
-
-                    <p>
-
-                        Todos los productos tienen suficiente stock.
-
-                    </p>
-
-                </div>
-
-            @endif
-
-        </div>
-
-    </section>
-        {{-- ==========================================================
-        REPORTES + ACTIVIDAD
-    =========================================================== --}}
-
-    <section class="dashboard-bottom">
-
-        {{-- ======================================================
-            REPORTES RÁPIDOS
-        ======================================================= --}}
-
-        <div class="dashboard-card">
-
-            <div class="card-header-custom">
-
-                <div>
-
-                    <span class="section-badge">
-
-                        <i class="bi bi-file-earmark-bar-graph-fill"></i>
-
-                        Reportes
-
-                    </span>
-
-                    <h3>
-
-                        Reportes rápidos
-
-                    </h3>
-
-                    <p>
-
-                        Accede rápidamente a los principales reportes del sistema.
-
-                    </p>
-
-                </div>
-
-            </div>
-
-            <div class="report-links">
-
-                <a href="#">
-
-                    <i class="bi bi-file-earmark-excel-fill"></i>
-
-                    <div>
-
-                        <strong>
-
-                            Reporte de Ventas
-
-                        </strong>
-
-                        <small>
-
-                            Exportar información de ventas.
-
-                        </small>
-
-                    </div>
-
-                </a>
-
-                <a href="#">
-
-                    <i class="bi bi-box-seam-fill"></i>
-
-                    <div>
-
-                        <strong>
-
-                            Inventario
-
-                        </strong>
-
-                        <small>
-
-                            Productos y existencias.
-
-                        </small>
-
-                    </div>
-
-                </a>
-
-                <a href="#">
-
-                    <i class="bi bi-people-fill"></i>
-
-                    <div>
-
-                        <strong>
-
-                            Clientes
-
-                        </strong>
-
-                        <small>
-
-                            Clientes registrados.
-
-                        </small>
-
-                    </div>
-
-                </a>
-
-                <a href="#">
-
-                    <i class="bi bi-cup-hot-fill"></i>
-
-                    <div>
-
-                        <strong>
-
-                            Productos
-
-                        </strong>
-
-                        <small>
-
-                            Catálogo de productos.
-
-                        </small>
-
-                    </div>
-
-                </a>
-
-            </div>
-
-        </div>
-
-
-
-
-
-        {{-- ======================================================
-            ACTIVIDAD RECIENTE
-        ======================================================= --}}
-
-        <div class="dashboard-card">
-
-            <div class="card-header-custom">
-
-                <div>
-
-                    <span class="section-badge">
-
-                        <i class="bi bi-clock-history"></i>
-
-                        Actividad
-
-                    </span>
-
-                    <h3>
-
-                        Actividad reciente
-
-                    </h3>
-
-                    <p>
-
-                        Últimos movimientos registrados en el sistema.
-
-                    </p>
-
-                </div>
-
-            </div>
-
-            @if(count($activities))
-
-                <div class="activity-list">
-
-                    @foreach($activities as $activity)
-
-                        <div class="activity-item">
-
-                            <i class="bi bi-receipt-cutoff text-danger"></i>
-
-                            <div class="flex-grow-1">
-
-                                <strong>
-
-                                    Pedido #{{ $activity['number'] }}
-
-                                </strong>
-
-                                <small>
-
-                                    Cliente:
-                                    {{ $activity['customer'] }}
-
-                                </small>
-
-                            </div>
-
-                            <div class="text-end">
-
-                                <strong>
-
-                                    S/
-                                    {{ number_format($activity['total'],2) }}
-
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-                    @endforeach
-
-                </div>
-
-            @else
-
-                <div class="empty-state">
-
-                    <i class="bi bi-clock-history"></i>
-
-                    <h5>
-
-                        Sin actividad reciente
-
-                    </h5>
-
-                    <p>
-
-                        Todavía no existen movimientos registrados.
-
-                    </p>
-
-                </div>
-
-            @endif
-
-        </div>
-
-    </section>
-    {{-- ==========================================================
-    FIN DEL DASHBOARD
-========================================================== --}}
+        </section>
 
 </div>
 
@@ -987,6 +594,75 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const reportForm = document.getElementById("reportForm");
+        const reportType = document.getElementById("reportType");
+
+        const fromGroup = document.getElementById("fromGroup");
+        const toGroup   = document.getElementById("toGroup");
+
+        function updateForm() {
+
+            const value = reportType.value;
+
+            switch (value) {
+
+                case "sales":
+                    reportForm.action = "{{ route('admin.reports.sales') }}";
+                    break;
+
+                case "best-sellers":
+                    reportForm.action = "{{ route('admin.reports.best-sellers') }}";
+                    break;
+
+                case "least-sellers":
+                    reportForm.action = "{{ route('admin.reports.least-sellers') }}";
+                    break;
+
+                case "inventory":
+                    reportForm.action = "{{ route('admin.reports.inventory') }}";
+                    break;
+
+                case "categories":
+                    reportForm.action = "{{ route('admin.reports.categories') }}";
+                    break;
+
+                case "products":
+                    reportForm.action = "{{ route('admin.reports.products') }}";
+                    break;
+
+                case "orders":
+                    reportForm.action = "{{ route('admin.reports.orders') }}";
+                    break;
+            }
+
+            const reportsWithDates = [
+                "sales",
+                "best-sellers",
+                "least-sellers",
+                "categories",
+                "orders"
+            ];
+
+            if (reportsWithDates.includes(value)) {
+                fromGroup.style.display = "";
+                toGroup.style.display = "";
+            } else {
+                fromGroup.style.display = "none";
+                toGroup.style.display = "none";
+            }
+
+        }
+
+        updateForm();
+
+        reportType.addEventListener("change", updateForm);
+
+    });
 </script>
 
 @endpush

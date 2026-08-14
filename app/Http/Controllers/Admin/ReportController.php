@@ -16,6 +16,10 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
+    public function index()
+    {
+        return view('admin.reports.index');
+    }
     /**
      * Devuelve el nombre de la columna de total en orders.
      */
@@ -59,19 +63,29 @@ class ReportController extends Controller
     }
 
     // ===== Productos más vendidos (Top 100) =====
-    public function bestSellersExcel(): BinaryFileResponse
+    public function bestSellers(Request $request): BinaryFileResponse
     {
         $productPk   = Schema::hasColumn('products','product_id') ? 'product_id' : 'id';
         $oiProductFk = Schema::hasColumn('order_items','product_id') ? 'product_id'
                     : (Schema::hasColumn('order_items','products_id') ? 'products_id' : null);
         $unitPrice   = Schema::hasColumn('order_items','unit_price') ? 'unit_price'
                     : (Schema::hasColumn('order_items','price') ? 'price' : null);
+        $from = $request->filled('from')
+            ? Carbon::parse($request->from)->startOfDay()
+            : now()->subMonth()->startOfMonth();
+
+        $to = $request->filled('to')
+            ? Carbon::parse($request->to)->endOfDay()
+            : now()->endOfDay();
 
         $rows = [['ProductoID','Producto','Unidades','Importe (S/)']];
 
         if ($oiProductFk && $unitPrice) {
             $items = DB::table('order_items as oi')
                 ->join('products as p', "p.$productPk", '=', "oi.$oiProductFk")
+                ->join('orders as o', 'o.id', '=', 'oi.order_id')
+                ->whereBetween('o.created_at', [$from, $to])
+                ->whereIn('o.status', $this->paidStatuses())
                 ->select([
                     "p.$productPk as product_id",
                     'p.name',
@@ -93,11 +107,11 @@ class ReportController extends Controller
             }
         }
 
-        return $this->downloadExcel('best_sellers.xlsx', $rows);
+        return $this->downloadExcel("productos_mas_vendidos_{$from->format('Ymd')}_{$to->format('Ymd')}.xlsx", $rows);
     }
 
     // ===== Inventario de productos =====
-    public function productsCsv(): BinaryFileResponse
+    public function products(Request $request): BinaryFileResponse
     {
         $pk    = Schema::hasColumn('products','product_id') ? 'product_id' : 'id';
         $cols  = ['name','slug','price','stock','brand_id','category_id','created_at'];
@@ -120,17 +134,25 @@ class ReportController extends Controller
     }
 
     // ===== Órdenes por rango (YYYY-MM-DD a YYYY-MM-DD) =====
-    public function ordersCsv(Request $request): BinaryFileResponse
+    public function orders(Request $request): BinaryFileResponse
     {
-        $from = $request->query('from', Carbon::now()->subDays(30)->toDateString());
-        $to   = $request->query('to',   Carbon::now()->toDateString());
+        $from = $request->filled('from')
+            ? Carbon::parse($request->from)->startOfDay()
+            : now()->subMonth()->startOfMonth();
+
+        $to = $request->filled('to')
+            ? Carbon::parse($request->to)->endOfDay()
+            : now()->endOfDay();
 
         $total = $this->orderTotalField();
 
         $rows = [['OrderID','Status','Total','Fecha']];
 
         Order::query()
-            ->when($from && $to, fn($q) => $q->whereBetween('created_at', [$from.' 00:00:00', $to.' 23:59:59']))
+            ->when($from && $to, fn($q) => $q->whereBetween('created_at', [
+                $from,
+                $to
+            ]))
             ->orderByDesc('created_at')
             ->chunk(500, function ($chunk) use (&$rows, $total) {
                 foreach ($chunk as $o) {
@@ -150,14 +172,15 @@ class ReportController extends Controller
      * Ventas por rango de fechas (YYYY-MM-DD a YYYY-MM-DD)
      * GET /admin/reports/sales.csv?from=YYYY-MM-DD&to=
      */
-        public function salesByDate(): BinaryFileResponse
+        public function sales(Request $request): BinaryFileResponse
         {
-            $from = now()
-                ->subMonths(11)
-                ->startOfMonth();
+            $from = $request->filled('from')
+                ? Carbon::parse($request->from)->startOfDay()
+                : now()->subMonth()->startOfMonth();
 
-            $to = now()
-                ->endOfMonth();
+            $to = $request->filled('to')
+                ? Carbon::parse($request->to)->endOfDay()
+                : now()->endOfDay();
 
             $sales = DB::table('orders as o')
                 ->join(
@@ -190,10 +213,7 @@ class ReportController extends Controller
                     $from,
                     $to
                 ])
-                ->whereIn('o.status', [
-                    'paid',
-                    'shipped'
-                ])
+                ->whereIn('o.status', $this->paidStatuses())
                 ->orderByDesc('o.created_at')
                 ->get();
 
@@ -244,7 +264,7 @@ class ReportController extends Controller
             ];
 
             return $this->downloadExcel(
-                'ventas_detalladas.xlsx',
+                "ventas_{$from->format('Ymd')}_{$to->format('Ymd')}.xlsx",
                 $rows
             );
         }
@@ -254,7 +274,7 @@ class ReportController extends Controller
      * Top 100 productos por cantidad vendida en un rango de fechas (YYYY-MM-DD a YYYY-MM-DD)
      * GET /admin/reports/best-sellers.csv?from=YYYY-MM-DD&
      */
-        public function leastSellers(): BinaryFileResponse
+        public function leastSellers(Request $request): BinaryFileResponse
         {
             $productPk = Schema::hasColumn(
                 'products',
@@ -267,7 +287,13 @@ class ReportController extends Controller
             )
             ? 'product_id'
             : 'products_id';
+            $from = $request->filled('from')
+                ? Carbon::parse($request->from)->startOfDay()
+                : now()->subMonth()->startOfMonth();
 
+            $to = $request->filled('to')
+                ? Carbon::parse($request->to)->endOfDay()
+                : now()->endOfDay();
             $rows = [[
                 'ProductoID',
                 'Producto',
@@ -281,6 +307,9 @@ class ReportController extends Controller
                     '=',
                     "oi.$oiProductFk"
                 )
+                ->join('orders as o', 'o.id', '=', 'oi.order_id')
+                ->whereBetween('o.created_at', [$from, $to])
+                ->whereIn('o.status', $this->paidStatuses())
                 ->select([
                     "p.$productPk as product_id",
                     'p.name',
@@ -316,7 +345,7 @@ class ReportController extends Controller
             ];
 
             return $this->downloadExcel(
-                'productos_menos_vendidos.xlsx',
+                "productos_menos_vendidos_{$from->format('Ymd')}_{$to->format('Ymd')}.xlsx",
                 $rows
             );
         }
@@ -324,7 +353,7 @@ class ReportController extends Controller
     /**
      * Inventario critico de productos
      */
-        public function criticalInventory(): BinaryFileResponse
+        public function inventory(Request $request): BinaryFileResponse
         {
             $rows = [[
                 'Producto',
@@ -371,7 +400,7 @@ class ReportController extends Controller
      * Ventas por categoría
      * Total vendido por cada categoría en un rango de fechas (YYYY-MM-DD a YYYY-MM
      */
-        public function salesByCategory(): BinaryFileResponse
+        public function categories(Request $request): BinaryFileResponse
         {
             $productPk = Schema::hasColumn(
                 'products',
@@ -398,6 +427,14 @@ class ReportController extends Controller
                 'unit_price'
             ) ? 'unit_price' : 'price';
 
+            $from = $request->filled('from')
+                ? Carbon::parse($request->from)->startOfDay()
+                : now()->subMonth()->startOfMonth();
+
+            $to = $request->filled('to')
+                ? Carbon::parse($request->to)->endOfDay()
+                : now()->endOfDay();
+                
             $rows = [[
                 'Categoría',
                 'Unidades vendidas',
@@ -417,6 +454,9 @@ class ReportController extends Controller
                     '=',
                     "p.$productCategoryFk"
                 )
+                ->join('orders as o', 'o.id', '=', 'oi.order_id')
+                ->whereBetween('o.created_at', [$from, $to])
+                ->whereIn('o.status', $this->paidStatuses())
                 ->select([
                     'c.name',
                     DB::raw(
@@ -462,7 +502,7 @@ class ReportController extends Controller
             ];
 
             return $this->downloadExcel(
-                'ventas_categoria.xlsx',
+                "ventas_por_categoria_{$from->format('Ymd')}_{$to->format('Ymd')}.xlsx",
                 $rows
             );
         }

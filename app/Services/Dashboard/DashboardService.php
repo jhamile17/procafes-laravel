@@ -73,13 +73,15 @@ class DashboardService
 
         ]);
     }
-
+    
     /**
      * Obtiene los filtros enviados desde la vista.
      */
     private function getFilters(Request $request): array
     {
-        $year = (int) $request->get('year', now()->year);
+        $currentYear = now()->year;
+
+        $year = (int) $request->get('year', $currentYear);
 
         $month = $request->get('month');
 
@@ -91,12 +93,26 @@ class DashboardService
 
             'categoryId' => (int) $request->query('category_id', 0),
 
-            'availableYears' => Order::selectRaw('YEAR(created_at) as year')
-                ->distinct()
-                ->orderByDesc('year')
-                ->pluck('year'),
+            // Mostrar un rango de años aunque no existan ventas
+            'availableYears' => collect(
+                range($currentYear - 2, $currentYear + 2)
+            )->sortDesc()->values(),
 
         ];
+    }
+
+    /**
+     * Consulta base para las ventas válidas del dashboard.
+     */
+    private function dashboardSalesQuery()
+    {
+        return Order::query()
+            ->whereHas('estadoPedido', function ($query) {
+                $query->whereIn('codigo', [
+                    \App\Models\EstadoPedido::CONFIRMADO,
+                    \App\Models\EstadoPedido::ENTREGADO,
+                ]);
+            });
     }
 
     /*
@@ -141,7 +157,8 @@ class DashboardService
 
             for ($m = 1; $m <= 12; $m++) {
 
-                $revenue[] = Order::whereYear('created_at', $year)
+                $revenue[] = $this->dashboardSalesQuery()
+                    ->whereYear('created_at', $year)
                     ->whereMonth('created_at', $m)
                     ->sum('total_price');
 
@@ -160,11 +177,11 @@ class DashboardService
 
         for ($d = 1; $d <= $days; $d++) {
 
-            $revenue[] = Order::whereYear('created_at', $year)
+            $revenue[] = $this->dashboardSalesQuery()
+                ->whereYear('created_at', $year)
                 ->whereMonth('created_at', $month)
                 ->whereDay('created_at', $d)
                 ->sum('total_price');
-
         }
 
         return $revenue;
@@ -181,7 +198,7 @@ class DashboardService
      */
     private function getStats(int $year, ?int $month): array
     {
-        $query = Order::query()
+        $query = $this->dashboardSalesQuery()
             ->whereYear('created_at', $year);
 
         if (!empty($month)) {
@@ -274,6 +291,12 @@ class DashboardService
 
         return DB::table('order_items as oi')
             ->join('products as p', 'p.id', '=', 'oi.product_id')
+            ->join('orders as o', 'o.id', '=', 'oi.order_id')
+            ->join('estados_pedido as ep', 'ep.id', '=', 'o.estado_pedido_id')
+            ->whereIn('ep.codigo', [
+                \App\Models\EstadoPedido::CONFIRMADO,
+                \App\Models\EstadoPedido::ENTREGADO,
+            ])
             ->select(
                 'p.id',
                 'p.name',
@@ -366,7 +389,13 @@ class DashboardService
      */
     private function getRecentActivity(): array
     {
-        return Order::with('user')
+        return Order::with(['user', 'estadoPedido'])
+            ->whereHas('estadoPedido', function ($query) {
+                $query->whereIn('codigo', [
+                    \App\Models\EstadoPedido::CONFIRMADO,
+                    \App\Models\EstadoPedido::ENTREGADO,
+                ]);
+            })
             ->latest()
             ->limit(5)
             ->get()
@@ -401,10 +430,12 @@ class DashboardService
     {
         $today = now()->toDateString();
 
-        $salesToday = Order::whereDate('created_at', $today)
+        $salesToday = $this->dashboardSalesQuery()
+            ->whereDate('created_at', $today)
             ->sum('total_price');
 
-        $ordersToday = Order::whereDate('created_at', $today)
+        $ordersToday = $this->dashboardSalesQuery()
+            ->whereDate('created_at', $today)
             ->count();
 
         $customersToday = User::whereDate('created_at', $today)
@@ -418,7 +449,12 @@ class DashboardService
         ) {
             $productsSoldToday = DB::table('order_items as oi')
                 ->join('orders as o', 'o.id', '=', 'oi.order_id')
+                ->join('estados_pedido as ep', 'ep.id', '=', 'o.estado_pedido_id')
                 ->whereDate('o.created_at', $today)
+                ->whereIn('ep.codigo', [
+                    \App\Models\EstadoPedido::CONFIRMADO,
+                    \App\Models\EstadoPedido::ENTREGADO,
+                ])
                 ->sum('oi.quantity');
         }
 

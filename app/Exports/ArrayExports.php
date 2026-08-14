@@ -4,13 +4,15 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithStyles;
+
 use Maatwebsite\Excel\Events\AfterSheet;
 
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class ArrayExports implements
     FromArray,
@@ -30,92 +32,103 @@ class ArrayExports implements
         return $this->rows;
     }
 
-    /**
-     * Estilos generales
-     */
     public function styles(Worksheet $sheet)
     {
         return [
 
-            // Encabezados
             1 => [
 
                 'font' => [
                     'bold' => true,
+                    'size' => 12,
                     'color' => [
                         'rgb' => 'FFFFFF'
                     ],
-                    'size' => 12,
                 ],
 
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
-
                     'startColor' => [
                         'rgb' => '6F4E37'
                     ]
                 ],
+
             ],
+
         ];
     }
 
-    /**
-     * Eventos del Excel
-     */
     public function registerEvents(): array
     {
         return [
 
-            AfterSheet::class => function (
-                AfterSheet $event
-            ) {
+            AfterSheet::class => function (AfterSheet $event) {
 
-                $sheet = $event
-                    ->sheet
-                    ->getDelegate();
+                $sheet = $event->sheet->getDelegate();
+
+                $highestColumn = $sheet->getHighestColumn();
+                $highestRow    = $sheet->getHighestRow();
 
                 // Bordes
                 $sheet->getStyle(
-                    'A1:' . $sheet->getHighestColumn() . $sheet->getHighestRow()
+                    "A1:{$highestColumn}{$highestRow}"
                 )->applyFromArray([
 
                     'borders' => [
 
                         'allBorders' => [
-
-                            'borderStyle' =>
-                                Border::BORDER_THIN,
+                            'borderStyle' => Border::BORDER_THIN,
                         ],
+
                     ],
+
                 ]);
 
-                // Centrar encabezados
-                $sheet->getStyle('A1:F1')
-                    ->getAlignment()
-                    ->setHorizontal('center');
-
-                // Fila TOTAL
-                $lastRow = $sheet->getHighestRow();
-
+                // Centrar encabezado
                 $sheet->getStyle(
-                    'A' . $lastRow . ':' . $sheet->getHighestColumn() . $lastRow
-                )->applyFromArray([
+                    "A1:{$highestColumn}1"
+                )->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-                    'font' => [
-                        'bold' => true,
-                    ],
+                // Congelar primera fila
+                $sheet->freezePane('A2');
 
-                    'fill' => [
+                // Filtros automáticos
+                $sheet->setAutoFilter(
+                    "A1:{$highestColumn}1"
+                );
 
-                        'fillType' =>
-                            Fill::FILL_SOLID,
+                // Buscar si la última fila contiene TOTAL
+                $lastValue = strtoupper(
+                    (string)$sheet->getCell("A{$highestRow}")->getValue()
+                );
 
-                        'startColor' => [
-                            'rgb' => 'FFF2CC'
+                if (str_contains($lastValue, 'TOTAL')) {
+
+                    $sheet->getStyle(
+                        "A{$highestRow}:{$highestColumn}{$highestRow}"
+                    )->applyFromArray([
+
+                        'font' => [
+                            'bold' => true,
+                        ],
+
+                        'fill' => [
+
+                            'fillType' => Fill::FILL_SOLID,
+
+                            'startColor' => [
+                                'rgb' => 'FFF2CC'
+                            ]
+
                         ]
-                    ]
-                ]);
+
+                    ]);
+
+                }
+
             },
+
         ];
     }
 }

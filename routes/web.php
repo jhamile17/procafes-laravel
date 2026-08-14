@@ -335,10 +335,29 @@ Route::prefix('admin')
 
         Route::get('/reports', [ReportController::class, 'index'])
             ->name('reports.index');
-        Route::get(
-                '/reports/sales',
-                [ReportController::class, 'salesByDate']
-            )->name('reports.sales');
+        Route::prefix('reports')->name('reports.')->group(function () {
+
+        Route::get('/sales', [ReportController::class, 'sales'])
+            ->name('sales');
+
+        Route::get('/best-sellers', [ReportController::class, 'bestSellers'])
+            ->name('best-sellers');
+
+        Route::get('/least-sellers', [ReportController::class, 'leastSellers'])
+            ->name('least-sellers');
+
+        Route::get('/inventory', [ReportController::class, 'inventory'])
+            ->name('inventory');
+
+        Route::get('/categories', [ReportController::class, 'categories'])
+            ->name('categories');
+
+        Route::get('/products', [ReportController::class, 'products'])
+            ->name('products');
+
+        Route::get('/orders', [ReportController::class, 'orders'])
+            ->name('orders');
+        });
         Route::get('/billing', [BillingController::class, 'index'])
             ->name('billing.index');
         Route::post('/billing/lookup', [BillingController::class, 'lookup'])

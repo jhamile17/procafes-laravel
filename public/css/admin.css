@@ -1076,435 +1076,169 @@ textarea{
 
 }
 /*==============================================================================
-    SALES SECTION
+    DASHBOARD PRINCIPAL
 ==============================================================================*/
 
 .dashboard-main{
-
     display:grid;
-
-    grid-template-columns:2.3fr 1fr;
-
+    grid-template-columns:2fr 380px;
     gap:28px;
-
     align-items:start;
-
 }
 
-/*==============================================================================
-    CARD BASE
-==============================================================================*/
+.dashboard-left,
+.dashboard-right{
+    display:flex;
+    flex-direction:column;
+}
 
 .dashboard-card{
-
-    background:#FFFFFF;
-
+    background:#fff;
     border:1px solid var(--border);
-
     border-radius:22px;
-
     box-shadow:var(--shadow-sm);
-
     overflow:hidden;
-
 }
 
 /*==============================================================================
-    CARD HEADER
+    CABECERA CARD
 ==============================================================================*/
 
 .card-header-custom{
-
     display:flex;
-
     justify-content:space-between;
-
     align-items:flex-start;
-
     gap:24px;
-
     padding:28px;
-
     border-bottom:1px solid var(--border);
-
 }
 
 .card-header-custom h3{
-
-    margin:10px 0 6px;
-
+    margin:10px 0;
     font-size:1.45rem;
-
     font-weight:700;
-
-    color:var(--color-text);
-
 }
 
 .card-header-custom p{
-
-    margin:0;
-
     color:var(--color-muted);
-
-    font-size:.90rem;
-
-}
-
-.section-badge{
-
-    display:inline-flex;
-
-    align-items:center;
-
-    gap:8px;
-
-    padding:8px 16px;
-
-    border-radius:999px;
-
-    background:rgba(214,40,40,.08);
-
-    color:var(--color-primary);
-
-    font-size:.78rem;
-
-    font-weight:700;
-
+    margin:0;
 }
 
 /*==============================================================================
-    ACTIONS
+    BADGE
+==============================================================================*/
+
+.section-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 16px;
+    border-radius:999px;
+    background:rgba(214,40,40,.08);
+    color:var(--color-primary);
+    font-size:.8rem;
+    font-weight:700;
+}
+
+/*==============================================================================
+    FILTROS
 ==============================================================================*/
 
 .card-actions{
-
     display:flex;
-
-    align-items:center;
-
-    gap:14px;
-
+    flex-direction:column;
+    gap:12px;
+    width:180px;
 }
 
-.card-actions select{
-
-    min-width:130px;
-
-    height:44px;
-
-    padding:0 14px;
-
-    border:1px solid var(--border);
-
-    border-radius:14px;
-
-    background:#FFFFFF;
-
-    font-size:.88rem;
-
-    transition:var(--transition);
-
+.card-actions .form-select,
+.card-actions .btn{
+    width:100%;
 }
 
-.card-actions select:focus{
-
-    outline:none;
-
-    border-color:var(--color-primary);
-
-    box-shadow:0 0 0 4px rgba(214,40,40,.08);
-
+.card-actions .btn{
+    height:45px;
 }
 
 /*==============================================================================
-    METRICAS
-==============================================================================*/
-
-.metrics-row{
-
-    display:grid;
-
-    grid-template-columns:repeat(3,1fr);
-
-    gap:18px;
-
-    padding:24px 28px;
-
-}
-
-.metric-box{
-
-    background:#FAFAFA;
-
-    border:1px solid #EFEFEF;
-
-    border-radius:18px;
-
-    padding:20px;
-
-    transition:var(--transition);
-
-}
-
-.metric-box:hover{
-
-    background:#FFFFFF;
-
-    transform:translateY(-4px);
-
-    box-shadow:var(--shadow-sm);
-
-}
-
-.metric-box span{
-
-    display:block;
-
-    color:var(--color-muted);
-
-    font-size:.82rem;
-
-    margin-bottom:8px;
-
-}
-
-.metric-box h4{
-
-    margin:0;
-
-    font-size:1.55rem;
-
-    font-weight:700;
-
-    color:var(--color-text);
-
-}
-
-/*==============================================================================
-    CHART
+    GRAFICO
 ==============================================================================*/
 
 .chart-wrapper{
-
+    position:relative;
     height:430px;
-
-    padding:0 28px 28px;
-
+    padding:25px;
 }
 
 .chart-wrapper canvas{
-
-    width:100% !important;
-
-    height:100% !important;
-
+    width:100%!important;
+    height:100%!important;
 }
 
 /*==============================================================================
-    SIDEBAR PANEL
+    MENSAJE VACIO
 ==============================================================================*/
 
-.stats-panel{
-
+.empty-chart-message{
+    position:absolute;
+    inset:0;
     display:flex;
-
     flex-direction:column;
-
-    gap:22px;
-
-}
-
-.stats-card{
-
-    background:#FFFFFF;
-
-    border:1px solid var(--border);
-
-    border-radius:22px;
-
-    padding:24px;
-
-    box-shadow:var(--shadow-sm);
-
-}
-
-.stats-card h4{
-
-    font-size:1rem;
-
-    font-weight:700;
-
-    margin-bottom:20px;
-
-}
-
-.stats-list{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:14px;
-
-}
-
-.stats-item{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    padding:12px 0;
-
-    border-bottom:1px solid #F2F2F2;
-
-}
-
-.stats-item:last-child{
-
-    border:none;
-
-}
-
-.stats-item span{
-
-    color:var(--color-muted);
-
-}
-
-.stats-item strong{
-
-    font-weight:700;
-
-    color:var(--color-text);
-
-}
-
-/*==============================================================================
-    EXPORT BUTTON
-==============================================================================*/
-
-.export-button{
-
-    display:flex;
-
     justify-content:center;
-
     align-items:center;
-
-    gap:10px;
-
-    width:100%;
-
-    margin-top:18px;
-
-    padding:14px;
-
-    border-radius:16px;
-
-    background:linear-gradient(
-        135deg,
-        var(--color-primary),
-        var(--color-primary-dark)
-    );
-
-    color:#FFFFFF;
-
-    font-weight:600;
-
-    transition:var(--transition);
-
+    background:rgba(255,255,255,.94);
+    text-align:center;
 }
 
-.export-button:hover{
-
-    color:#FFFFFF;
-
-    transform:translateY(-3px);
-
-    box-shadow:0 15px 30px rgba(214,40,40,.25);
-
+.empty-chart-message i{
+    font-size:3rem;
+    color:#D62828;
+    margin-bottom:15px;
 }
 
-/*==============================================================================
-    RIGHT PANEL MINI CARDS
-==============================================================================*/
-
-.mini-stat{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    padding:16px;
-
-    border-radius:16px;
-
-    background:#FAFAFA;
-
-    border:1px solid #EFEFEF;
-
-    margin-bottom:14px;
-
-}
-
-.mini-stat:last-child{
-
-    margin-bottom:0;
-
-}
-
-.mini-stat div{
-
-    display:flex;
-
-    flex-direction:column;
-
-}
-
-.mini-stat small{
-
-    color:var(--color-muted);
-
-    font-size:.80rem;
-
-}
-
-.mini-stat strong{
-
-    margin-top:4px;
-
-    font-size:1.15rem;
-
-    color:var(--color-text);
-
-}
-
-.mini-stat i{
-
-    width:48px;
-
-    height:48px;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    border-radius:14px;
-
-    background:rgba(214,40,40,.08);
-
-    color:var(--color-primary);
-
+.empty-chart-message h5{
     font-size:1.2rem;
+    margin-bottom:8px;
+}
 
+.empty-chart-message p{
+    color:#777;
+    max-width:260px;
+}
+
+/*==============================================================================
+    REPORTES
+==============================================================================*/
+
+.reports-card{
+    padding:28px;
+}
+
+.reports-card h3{
+    margin:18px 0 8px;
+    font-size:1.3rem;
+}
+
+.reports-card p{
+    color:#777;
+    margin-bottom:25px;
+}
+
+.reports-card .form-label{
+    font-weight:600;
+    margin-bottom:6px;
+}
+
+.reports-card .form-control,
+.reports-card .form-select{
+    border-radius:14px;
+    height:46px;
+}
+
+.reports-card .btn{
+    border-radius:14px;
+    padding:13px;
+    font-weight:600;
 }
 /*==============================================================================
     DASHBOARD BOTTOM
