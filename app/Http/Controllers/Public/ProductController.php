@@ -16,34 +16,36 @@ class ProductController extends Controller
     }
 
     public function index(Request $request)
-    {
-        $search = trim(
-            (string) $request->input('search', '')
-        );
+{
+    $search = trim(
+        (string) $request->input('search', '')
+    );
 
-        if ($search !== '') {
+    $categoria = $request->integer('categoria');
 
-            $products = $this->productService
-                ->buscarCliente($search, 12);
+    $filtros = [];
 
-        } else {
-
-            $products = $this->productService
-                ->paginar([], 12)
-                ->withQueryString();
-
-        }
-
-        return view('products', [
-
-            'products' => $products,
-
-            'categories' => $this->categoryService
-                ->obtenerActivas(),
-
-            'counts' => $this->productService
-                ->contarPorCategorias(),
-
-        ]);
+    if ($search !== '') {
+        $filtros['buscar'] = $search;
     }
+
+    if ($categoria) {
+        $filtros['categoria'] = $categoria;
+    }
+
+    $products = $this->productService
+        ->paginar($filtros, 12);
+
+    return view('products', [
+
+        'products' => $products,
+
+        'categories' => $this->categoryService
+            ->obtenerActivas(),
+
+        'counts' => $this->productService
+            ->contarPorCategorias(),
+
+    ]);
+}
 }
