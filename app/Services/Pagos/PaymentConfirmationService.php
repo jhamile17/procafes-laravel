@@ -8,6 +8,7 @@ use App\Models\Payment;
 use App\Services\Ventas\CartService;
 use App\Services\Facturacion\NubeFactService;
 use App\Services\Ventas\OrderService;
+use App\Notifications\PedidoRealizadoNotification;
 use Illuminate\Support\Facades\DB;
 
 final class PaymentConfirmationService
@@ -85,7 +86,11 @@ final class PaymentConfirmationService
                 $payment->order->user_id
             );
 
-
+            $payment->order->user->notify(
+                new PedidoRealizadoNotification(
+                    $payment->order
+                )
+            );
             /*
             |--------------------------------------------------------------------------
             | Retornar información actualizada

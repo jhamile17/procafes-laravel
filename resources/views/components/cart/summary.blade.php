@@ -32,6 +32,8 @@
 
         <a
             href="{{ route('checkout.index') }}"
+            data-href="{{ route('checkout.index') }}"
+            id="checkoutBtn"
             class="customer-btn">
 
             <i class="bi bi-bag-check-fill me-2"></i>

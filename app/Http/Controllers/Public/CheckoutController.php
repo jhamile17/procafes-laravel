@@ -27,14 +27,25 @@ class CheckoutController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function index(): View
+    public function index()
     {
-        return view(
-            'checkout.index',
-            $this->checkoutService->obtenerResumen(
+        try {
+
+            $data = $this->checkoutService->obtenerResumen(
                 auth()->id()
-            )
-        );
+            );
+
+            return view('checkout.index', $data);
+
+        } catch (\RuntimeException $e) {
+
+            return redirect()
+                ->route('cart.index')
+                ->with(
+                    'warning',
+                    'Tu carrito está vacío. Agrega productos para continuar con tu compra.'
+                );
+        }
     }
    
     /*

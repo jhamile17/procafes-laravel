@@ -61,7 +61,7 @@ function renderEmpty() {
             </div>
         `;
 
-    renderTotals({ subtotal: 0 });
+    renderTotals({ total: 0 });
 
     if (clearBtn) {
         clearBtn.classList.add('d-none');
@@ -246,6 +246,21 @@ function render(cart = {}) {
         : Object.values(cart.items ?? {});
 
     renderItems(items);
+    const checkoutBtn = document.getElementById('checkoutBtn');
+
+    if (checkoutBtn) {
+        const disabled = Number(cart.total ?? 0) <= 0;
+
+        checkoutBtn.classList.toggle('disabled', disabled);
+        checkoutBtn.style.pointerEvents = disabled ? 'none' : 'auto';
+        checkoutBtn.style.opacity = disabled ? '0.6' : '1';
+
+        if (disabled) {
+            checkoutBtn.removeAttribute('href');
+        } else {
+            checkoutBtn.href = checkoutBtn.dataset.href;
+        }
+    }
 }
 
 function renderRecommendations(html) {
@@ -259,7 +274,6 @@ function renderRecommendations(html) {
         container.innerHTML = html;
     }
 }
-
 export {
     render,
     renderBadge,
@@ -268,4 +282,5 @@ export {
     renderItem,
     renderItems,
     renderRecommendations,
+
 };

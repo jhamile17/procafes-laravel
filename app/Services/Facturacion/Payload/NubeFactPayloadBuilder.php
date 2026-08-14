@@ -118,7 +118,7 @@ final class NubeFactPayloadBuilder
 
                 'unidad_de_medida' => 'NIU',
 
-                'codigo' => (string) $item->product->id,
+                'codigo' => '',
 
                 'descripcion' => $item->product->name,
 

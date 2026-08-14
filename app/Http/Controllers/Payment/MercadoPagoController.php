@@ -66,22 +66,14 @@ class MercadoPagoController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    private function redirectToProfile(
-        string $type,
-        string $message
+    private function redirectToOrders(
+    string $type,
+    string $message
     ): RedirectResponse {
 
         return redirect()
-
-            ->route('customer.profile')
-
-            ->with(
-
-                $type,
-
-                $message
-
-            );
+            ->route('customer.orders')
+            ->with($type, $message);
 
     }
 }
