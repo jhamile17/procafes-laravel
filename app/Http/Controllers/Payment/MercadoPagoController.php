@@ -17,7 +17,7 @@ class MercadoPagoController extends Controller
 
     public function success(): RedirectResponse
     {
-        return $this->redirectToProfile(
+        return $this->redirectToOrders(
 
             'success',
             '¡Pago realizado correctamente! Tu pedido fue registrado y hemos enviado el número de pedido a tu correo electrónico.'
@@ -33,7 +33,7 @@ class MercadoPagoController extends Controller
 
     public function pending(): RedirectResponse
     {
-        return $this->redirectToProfile(
+        return $this->redirectToOrders(
 
             'warning',
 
@@ -50,7 +50,7 @@ class MercadoPagoController extends Controller
 
     public function failure(): RedirectResponse
     {
-        return $this->redirectToProfile(
+        return $this->redirectToOrders(
 
             'error',
 
