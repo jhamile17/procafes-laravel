@@ -102,30 +102,34 @@ final class NubeFactPayloadBuilder
         $items = [];
 
         foreach ($comprobante->order->items as $item) {
+            $precioUnitario = round((float) $item->unit_price, 2);
+            $valorUnitario = round($precioUnitario / 1.18, 2);
 
-            $valorUnitario = round((float)$item->unit_price, 2);
+            $subtotal = round($valorUnitario * $item->quantity, 2 );
 
-            $subtotal = round((float)$item->subtotal, 2);
+            $igv = round(
+            ($precioUnitario - $valorUnitario) * $item->quantity,
+            2);
 
-            $igv = round($subtotal * 0.18, 2);
-
-            $total = round($subtotal + $igv, 2);
+            $total = round($precioUnitario * $item->quantity,
+            2);
 
             $items[] = [
 
                 'unidad_de_medida' => 'NIU',
 
-                'codigo' => (string)$item->product->id,
+                'codigo' => (string) $item->product->id,
 
                 'descripcion' => $item->product->name,
 
-                'cantidad' => (float)$item->quantity,
+                'cantidad' => (float) $item->quantity,
 
+                // SIN IGV
                 'valor_unitario' => $valorUnitario,
 
-                'precio_unitario' => round($valorUnitario * 1.18, 2),
+                // CON IGV
+                'precio_unitario' => $precioUnitario,
 
-                // Para venta gravada
                 'tipo_de_igv' => 1,
 
                 'subtotal' => $subtotal,
@@ -134,9 +138,9 @@ final class NubeFactPayloadBuilder
 
                 'total' => $total,
 
-            ];
-        }
+        ];
+    }
 
-        return $items;
+    return $items;
     }
 }
