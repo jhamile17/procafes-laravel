@@ -10,7 +10,18 @@
     content="{{ csrf_token() }}"
 >
 
-<title>@yield('title', 'PROCÁFES')</title>
+{{-- =========================================================
+    TÍTULO
+========================================================= --}}
+
+<title>
+    @yield('title', 'PROCÁFES')
+</title>
+
+
+{{-- =========================================================
+    DESCRIPCIÓN SEO
+========================================================= --}}
 
 <meta
     name="description"
@@ -20,12 +31,21 @@
     )"
 >
 
+
+{{-- =========================================================
+    URL CANÓNICA
+========================================================= --}}
+
 <link
     rel="canonical"
     href="{{ url()->current() }}"
 >
 
-{{-- FAVICON --}}
+
+{{-- =========================================================
+    FAVICON
+========================================================= --}}
+
 <link
     rel="icon"
     href="{{ asset('favicon.ico') }}"
@@ -36,7 +56,11 @@
     href="{{ asset('images/logo.jpg') }}"
 >
 
-{{-- OPEN GRAPH --}}
+
+{{-- =========================================================
+    OPEN GRAPH
+========================================================= --}}
+
 <meta
     property="og:type"
     content="website"
@@ -70,7 +94,11 @@
     content="{{ asset('images/logo.jpg') }}"
 >
 
-{{-- TWITTER --}}
+
+{{-- =========================================================
+    TWITTER / X
+========================================================= --}}
+
 <meta
     name="twitter:card"
     content="summary"
@@ -82,11 +110,23 @@
 >
 
 <meta
+    name="twitter:description"
+    content="@yield(
+        'description',
+        'En PROCÁFES compartimos el aroma y la tradición del café peruano.'
+    )"
+>
+
+<meta
     name="twitter:image"
     content="{{ asset('images/logo.jpg') }}"
 >
 
-{{-- DATOS ESTRUCTURADOS --}}
+
+{{-- =========================================================
+    DATOS ESTRUCTURADOS
+========================================================= --}}
+
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
@@ -97,9 +137,12 @@
 }
 </script>
 
+
+{{-- =========================================================
+    VITE
+========================================================= --}}
+
 @vite([
     'resources/css/app.css',
     'resources/js/app.js'
 ])
-
-@stack('styles')
