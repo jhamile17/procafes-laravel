@@ -25,8 +25,8 @@
 {{-- FAVICON --}}
 <link
     rel="icon"
-    type="image/jpeg"
-    href="{{ asset('images/logo.jpg') }}"
+    type="image/x-icon"
+    href="{{ asset('favicon.ico') }}"
 >
 
 <link
