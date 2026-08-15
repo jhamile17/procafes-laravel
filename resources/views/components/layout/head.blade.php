@@ -48,12 +48,19 @@
 
 <link
     rel="icon"
-    href="{{ asset('favicon.ico') }}"
+    type="image/png"
+    href="{{ asset('images/logo.png') }}"
+>
+
+<link
+    rel="shortcut icon"
+    type="image/png"
+    href="{{ asset('images/logo.png') }}"
 >
 
 <link
     rel="apple-touch-icon"
-    href="{{ asset('images/logo.jpg') }}"
+    href="{{ asset('images/logo.png') }}"
 >
 
 
@@ -91,7 +98,7 @@
 
 <meta
     property="og:image"
-    content="{{ asset('images/logo.jpg') }}"
+    content="{{ asset('images/logo.png') }}"
 >
 
 
@@ -119,7 +126,7 @@
 
 <meta
     name="twitter:image"
-    content="{{ asset('images/logo.jpg') }}"
+    content="{{ asset('images/logo.png') }}"
 >
 
 
@@ -133,7 +140,7 @@
     "@type": "Organization",
     "name": "PROCÁFES",
     "url": "{{ url('/') }}",
-    "logo": "{{ asset('images/logo.jpg') }}"
+    "logo": "{{ asset('images/logo.png') }}"
 }
 </script>
 
@@ -146,3 +153,10 @@
     'resources/css/app.css',
     'resources/js/app.js'
 ])
+
+
+{{-- =========================================================
+    ESTILOS ADICIONALES
+========================================================= --}}
+
+@stack('styles')
