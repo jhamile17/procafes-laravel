@@ -1,51 +1,19 @@
 <meta charset="utf-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1"
->
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<meta
-    name="csrf-token"
-    content="{{ csrf_token() }}"
->
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
-{{-- =========================================================
-    TÍTULO
-========================================================= --}}
-
-<title>
-    @yield('title', 'PROCÁFES')
-</title>
-
-
-{{-- =========================================================
-    DESCRIPCIÓN SEO
-========================================================= --}}
+<title>@yield('title', 'PROCÁFES')</title>
 
 <meta
     name="description"
-    content="@yield(
-        'description',
-        'En PROCÁFES compartimos el aroma y la tradición del café peruano con bebidas preparadas para disfrutar cada momento.'
-    )"
+    content="@yield('description', 'En PROCÁFES compartimos el aroma y la tradición del café peruano con bebidas preparadas para disfrutar cada momento.')"
 >
 
+<link rel="canonical" href="{{ url()->current() }}">
 
-{{-- =========================================================
-    URL CANÓNICA
-========================================================= --}}
-
-<link
-    rel="canonical"
-    href="{{ url()->current() }}"
->
-
-
-{{-- =========================================================
-    FAVICON
-========================================================= --}}
-
+{{-- FAVICON --}}
 <link
     rel="icon"
     type="image/png"
@@ -63,20 +31,10 @@
     href="{{ asset('images/logo.png') }}"
 >
 
+{{-- OPEN GRAPH --}}
+<meta property="og:type" content="website">
 
-{{-- =========================================================
-    OPEN GRAPH
-========================================================= --}}
-
-<meta
-    property="og:type"
-    content="website"
->
-
-<meta
-    property="og:site_name"
-    content="PROCÁFES"
->
+<meta property="og:site_name" content="PROCÁFES">
 
 <meta
     property="og:title"
@@ -85,10 +43,7 @@
 
 <meta
     property="og:description"
-    content="@yield(
-        'description',
-        'En PROCÁFES compartimos el aroma y la tradición del café peruano.'
-    )"
+    content="@yield('description', 'En PROCÁFES compartimos el aroma y la tradición del café peruano.')"
 >
 
 <meta
@@ -101,15 +56,8 @@
     content="{{ asset('images/logo.png') }}"
 >
 
-
-{{-- =========================================================
-    TWITTER / X
-========================================================= --}}
-
-<meta
-    name="twitter:card"
-    content="summary"
->
+{{-- TWITTER --}}
+<meta name="twitter:card" content="summary">
 
 <meta
     name="twitter:title"
@@ -118,10 +66,7 @@
 
 <meta
     name="twitter:description"
-    content="@yield(
-        'description',
-        'En PROCÁFES compartimos el aroma y la tradición del café peruano.'
-    )"
+    content="@yield('description', 'En PROCÁFES compartimos el aroma y la tradición del café peruano.')"
 >
 
 <meta
@@ -129,11 +74,7 @@
     content="{{ asset('images/logo.png') }}"
 >
 
-
-{{-- =========================================================
-    DATOS ESTRUCTURADOS
-========================================================= --}}
-
+{{-- DATOS ESTRUCTURADOS --}}
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
@@ -144,19 +85,10 @@
 }
 </script>
 
-
-{{-- =========================================================
-    VITE
-========================================================= --}}
-
+{{-- VITE --}}
 @vite([
     'resources/css/app.css',
     'resources/js/app.js'
 ])
-
-
-{{-- =========================================================
-    ESTILOS ADICIONALES
-========================================================= --}}
 
 @stack('styles')
