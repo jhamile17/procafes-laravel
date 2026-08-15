@@ -19,7 +19,7 @@ use App\Http\Controllers\Public\WishlistController;
 use App\Http\Controllers\Public\CheckoutController;
 use App\Http\Controllers\Public\ChatbotController;
 use App\Http\Controllers\Public\UbicanosController;
-
+use App\Http\Controllers\Public\SitemapController;
 // Auth
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\CompleteRegistrationController;
@@ -375,7 +375,7 @@ Route::prefix('admin')
         Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])
             ->name('orders.status');
 
-         Route::get(
+        Route::get(
             '/configuracion-empresa',
             [ConfiguracionEmpresaController::class, 'index']
         )->name('configuracion.index');
@@ -385,6 +385,8 @@ Route::prefix('admin')
             [ConfiguracionEmpresaController::class, 'update']
         )->name('configuracion.update');
     });
+    Route::get('/sitemap.xml', [SitemapController::class, 'index'])
+    ->name('sitemap');
 /*
 |--------------------------------------------------------------------------
 | AUTH SYSTEM
