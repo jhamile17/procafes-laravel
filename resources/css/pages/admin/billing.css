@@ -1,0 +1,580 @@
+/* =========================================================
+   PROCÁFES | FACTURACIÓN ELECTRÓNICA
+========================================================= */
+
+.admin-billing-page {
+    width: 100%;
+}
+
+
+/* =========================================================
+   ENCABEZADO
+========================================================= */
+
+.admin-billing-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 1.5rem;
+}
+
+.admin-billing-heading {
+    display: flex;
+    align-items: center;
+
+    gap: .85rem;
+}
+
+.admin-billing-heading-icon {
+    width: 46px;
+    height: 46px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+
+    border-radius: var(--radius-md);
+
+    font-size: 1.1rem;
+}
+
+.admin-billing-title {
+    margin: 0;
+
+    color: var(--color-coffee);
+
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.admin-billing-subtitle {
+    margin: .2rem 0 0;
+
+    color: var(--color-text-muted);
+
+    font-size: .75rem;
+}
+
+
+/* =========================================================
+   MENSAJES
+========================================================= */
+
+.admin-billing-message {
+    display: flex;
+    align-items: center;
+
+    gap: .6rem;
+
+    margin-bottom: 1rem;
+    padding: .75rem 1rem;
+
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+
+    font-size: .75rem;
+    font-weight: 500;
+}
+
+.admin-billing-message-success {
+    color: var(--color-success);
+    background: var(--color-success-soft);
+
+    border-color: rgba(34, 197, 94, .15);
+}
+
+.admin-billing-message-error {
+    color: var(--color-danger);
+    background: var(--color-danger-soft);
+
+    border-color: rgba(239, 68, 68, .15);
+}
+
+
+/* =========================================================
+   FILTRO / BÚSQUEDA
+========================================================= */
+
+.admin-billing-filter {
+    margin-bottom: 1rem;
+    padding: 1rem;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-xs);
+}
+
+.admin-billing-filter-form {
+    display: grid;
+
+    grid-template-columns: minmax(0, 1fr) 110px;
+
+    align-items: center;
+
+    gap: .75rem;
+}
+
+.admin-billing-search {
+    position: relative;
+}
+
+.admin-billing-search > i {
+    position: absolute;
+
+    top: 50%;
+    left: .75rem;
+
+    color: var(--color-text-muted);
+
+    font-size: .8rem;
+
+    transform: translateY(-50%);
+}
+
+.admin-billing-search-input {
+    width: 100%;
+    height: 38px;
+
+    padding: .5rem .75rem .5rem 2.1rem;
+
+    color: var(--color-text);
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+
+    font-size: .74rem;
+
+    outline: none;
+
+    transition: var(--transition);
+}
+
+.admin-billing-search-input::placeholder {
+    color: var(--color-text-disabled);
+}
+
+.admin-billing-search-input:focus {
+    border-color: var(--color-primary);
+
+    box-shadow: 0 0 0 3px var(--color-primary-focus);
+}
+
+.admin-billing-search-button {
+    width: 100%;
+    height: 38px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: .4rem;
+
+    padding: .5rem .75rem;
+
+    color: var(--color-white);
+
+    background: var(--color-admin);
+
+    border: 1px solid var(--color-admin);
+    border-radius: var(--radius-sm);
+
+    font-size: .73rem;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: var(--transition);
+}
+
+.admin-billing-search-button:hover {
+    color: var(--color-white);
+
+    background: var(--color-admin-hover);
+    border-color: var(--color-admin-hover);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   TARJETA DE TABLA
+========================================================= */
+
+.admin-billing-card {
+    overflow: hidden;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-xs);
+}
+
+.admin-billing-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.admin-billing-table {
+    width: 100%;
+
+    margin: 0;
+
+    border-collapse: collapse;
+}
+
+
+/* =========================================================
+   CABECERA TABLA
+========================================================= */
+
+.admin-billing-table thead th {
+    padding: .8rem 1rem;
+
+    color: var(--color-text-muted);
+
+    background: var(--color-surface-alt);
+
+    border-bottom: 1px solid var(--color-border-light);
+
+    font-size: .67rem;
+    font-weight: 600;
+
+    text-align: left;
+
+    white-space: nowrap;
+}
+
+.admin-billing-table thead th.text-end {
+    text-align: right;
+}
+
+
+/* =========================================================
+   FILAS
+========================================================= */
+
+.admin-billing-table tbody tr {
+    transition: var(--transition);
+}
+
+.admin-billing-table tbody tr:hover {
+    background: var(--color-surface-alt);
+}
+
+.admin-billing-table tbody td {
+    padding: .85rem 1rem;
+
+    color: var(--color-text);
+
+    border-bottom: 1px solid var(--color-border-light);
+
+    font-size: .73rem;
+
+    vertical-align: middle;
+}
+
+.admin-billing-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+/* =========================================================
+   PEDIDO
+========================================================= */
+
+.admin-billing-order {
+    color: var(--color-coffee);
+
+    font-size: .75rem;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   CLIENTE
+========================================================= */
+
+.admin-billing-client {
+    display: flex;
+    flex-direction: column;
+
+    gap: .15rem;
+
+    min-width: 150px;
+}
+
+.admin-billing-client strong {
+    color: var(--color-text);
+
+    font-size: .74rem;
+    font-weight: 600;
+}
+
+.admin-billing-client span {
+    color: var(--color-text-muted);
+
+    font-size: .67rem;
+}
+
+
+/* =========================================================
+   PAGO
+========================================================= */
+
+.admin-billing-payment {
+    display: flex;
+    flex-direction: column;
+
+    gap: .15rem;
+}
+
+.admin-billing-payment strong {
+    color: var(--color-text);
+
+    font-size: .72rem;
+    font-weight: 600;
+}
+
+.admin-billing-payment span {
+    color: var(--color-text-muted);
+
+    font-size: .65rem;
+}
+
+.admin-billing-muted {
+    color: var(--color-text-disabled);
+
+    font-size: .7rem;
+}
+
+
+/* =========================================================
+   COMPROBANTE
+========================================================= */
+
+.admin-billing-document {
+    display: flex;
+    flex-direction: column;
+
+    gap: .2rem;
+}
+
+.admin-billing-document-type {
+    color: var(--color-text-muted);
+
+    font-size: .64rem;
+    font-weight: 500;
+
+    text-transform: uppercase;
+}
+
+.admin-billing-document strong {
+    color: var(--color-coffee);
+
+    font-size: .75rem;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   ESTADO
+========================================================= */
+
+.admin-billing-status {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 25px;
+
+    padding: .3rem .6rem;
+
+    color: var(--color-info);
+    background: var(--color-info-soft);
+
+    border-radius: var(--radius-pill);
+
+    font-size: .65rem;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.admin-billing-status-warning {
+    color: var(--color-warning);
+    background: var(--color-warning-soft);
+}
+
+
+/* =========================================================
+   FECHA
+========================================================= */
+
+.admin-billing-date {
+    color: var(--color-text-muted);
+
+    font-size: .69rem;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   ACCIONES
+========================================================= */
+
+.admin-billing-actions-column {
+    width: 125px;
+
+    text-align: right !important;
+}
+
+.admin-billing-actions {
+    text-align: right;
+}
+
+.admin-billing-actions .admin-actions {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: .35rem;
+}
+
+
+/* =========================================================
+   ESTADO VACÍO
+========================================================= */
+
+.admin-billing-empty {
+    padding: 3.5rem 1rem !important;
+
+    text-align: center;
+}
+
+.admin-billing-empty-icon {
+    width: 52px;
+    height: 52px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: .75rem;
+
+    color: var(--color-text-disabled);
+    background: var(--color-surface-alt);
+
+    border-radius: var(--radius-md);
+
+    font-size: 1.25rem;
+}
+
+.admin-billing-empty strong {
+    display: block;
+
+    margin-bottom: .25rem;
+
+    color: var(--color-text);
+
+    font-size: .78rem;
+}
+
+.admin-billing-empty span {
+    display: block;
+
+    color: var(--color-text-muted);
+
+    font-size: .68rem;
+}
+
+
+/* =========================================================
+   PAGINACIÓN
+========================================================= */
+
+.admin-billing-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    padding: .85rem 1rem;
+
+    border-top: 1px solid var(--color-border-light);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 992px) {
+
+    .admin-billing-table {
+        min-width: 900px;
+    }
+
+}
+
+
+@media (max-width: 768px) {
+
+    .admin-billing-filter-form {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-billing-search-button {
+        width: 100%;
+    }
+
+    .admin-billing-table {
+        min-width: 900px;
+    }
+
+    .admin-billing-header {
+        align-items: flex-start;
+    }
+
+}
+
+
+@media (max-width: 576px) {
+
+    .admin-billing-heading {
+        gap: .65rem;
+    }
+
+    .admin-billing-heading-icon {
+        width: 40px;
+        height: 40px;
+
+        font-size: 1rem;
+    }
+
+    .admin-billing-title {
+        font-size: 1.3rem;
+    }
+
+    .admin-billing-subtitle {
+        font-size: .7rem;
+    }
+
+}

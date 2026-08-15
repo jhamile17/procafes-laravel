@@ -2,13 +2,13 @@
 
 @if($product->stock > 0)
 
-    <span class="product-badge badge-success">
+    <span class="procafe-product-badge procafe-badge-success">
         Disponible
     </span>
 
 @else
 
-    <span class="product-badge badge-secondary">
+    <span class="procafe-product-badge procafe-badge-secondary">
         Sin stock
     </span>
 

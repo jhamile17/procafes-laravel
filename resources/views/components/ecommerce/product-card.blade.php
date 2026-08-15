@@ -1,46 +1,56 @@
 @props(['product'])
 
-<div class="product-card">
+<div class="procafe-product-card">
 
-    <div class="product-image">
+    <div class="procafe-product-image">
 
         <img
             src="{{ $product->image_url }}"
-            alt="Producto {{ $product->name }}">
+            alt="{{ $product->name }}"
+        >
 
         <x-ecommerce.product.badge
-            :product="$product"/>
+            :product="$product"
+        />
 
         <x-ecommerce.product.wishlist-button
-            :product="$product"/>
+            :product="$product"
+        />
 
     </div>
 
     <div class="card-body d-flex flex-column">
 
         @if($product->category)
-            <small class="product-category">
+
+            <small class="procafe-product-category">
                 {{ $product->category->name }}
             </small>
+
         @endif
 
-        <h5 class="product-title">
+        <h5 class="procafe-product-title">
             {{ $product->name }}
         </h5>
 
         @if($product->brand)
-            <small class="product-brand">
+
+            <small class="procafe-product-brand">
                 {{ $product->brand->name }}
             </small>
+
         @endif
+
         <div class="mt-auto">
 
             <x-ecommerce.product.price
-                :product="$product"/>
+                :product="$product"
+            />
 
             <x-ecommerce.product.add-cart-button
                 :product="$product"
-                :image="$product->image_url"/>
+                :image="$product->image_url"
+            />
 
         </div>
 

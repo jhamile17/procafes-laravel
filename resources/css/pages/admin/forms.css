@@ -1,0 +1,718 @@
+/* ============================================================
+   PROCÁFES
+   ADMIN - PRODUCT FORMS
+   CREATE + EDIT
+   ============================================================ */
+
+
+/* ============================================================
+   CONTENEDOR
+   ============================================================ */
+
+.admin-form-page {
+    width: 100%;
+    max-width: 1180px;
+
+    margin: 0 auto;
+    padding: .75rem 0 1.5rem;
+
+    color: var(--color-text);
+    font-family: var(--font-body);
+}
+
+
+/* ============================================================
+   ENCABEZADO
+   ============================================================ */
+
+.admin-form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.admin-form-heading {
+    display: flex;
+    align-items: center;
+
+    gap: .7rem;
+}
+
+.admin-form-heading-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    color: var(--color-primary);
+    background: var(--color-danger-soft);
+
+    border-radius: var(--radius-sm);
+}
+
+.admin-form-heading-icon i {
+    font-size: 1.05rem;
+}
+
+.admin-form-title {
+    margin: 0;
+
+    color: var(--color-coffee);
+
+    font-family: var(--font-heading);
+    font-size: 1.55rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.admin-form-subtitle {
+    margin: .15rem 0 0;
+
+    color: var(--color-text-light);
+
+    font-size: .76rem;
+    line-height: 1.35;
+}
+
+
+/* ============================================================
+   BOTÓN VOLVER
+   ============================================================ */
+
+.admin-form-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: .4rem;
+
+    padding: .5rem .8rem;
+
+    color: var(--color-coffee);
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+
+    font-size: .75rem;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition:
+        color var(--transition),
+        background var(--transition),
+        border-color var(--transition),
+        transform var(--transition);
+}
+
+.admin-form-back:hover {
+    color: var(--color-primary);
+
+    background: var(--color-primary-soft);
+
+    border-color: var(--color-primary);
+
+    transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   ALERTAS
+   ============================================================ */
+
+.admin-form-alert {
+    margin-bottom: 1rem;
+    padding: .75rem .9rem;
+
+    color: var(--color-danger);
+    background: var(--color-danger-soft);
+
+    border: 1px solid rgba(220, 53, 69, .15);
+    border-radius: var(--radius-sm);
+}
+
+.admin-form-alert-title {
+    display: flex;
+    align-items: center;
+
+    gap: .4rem;
+
+    margin-bottom: .3rem;
+
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+.admin-form-alert-list {
+    margin: 0;
+    padding-left: 1.1rem;
+
+    font-size: .7rem;
+}
+
+.admin-form-alert-list li + li {
+    margin-top: .15rem;
+}
+
+
+/* ============================================================
+   TARJETAS
+   ============================================================ */
+
+.admin-form-card {
+    margin-bottom: 1rem;
+
+    overflow: hidden;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-xs);
+}
+
+.admin-form-card-header {
+    display: flex;
+    align-items: center;
+
+    gap: .65rem;
+
+    padding: .75rem .9rem;
+
+    background: var(--color-surface);
+
+    border-bottom: 1px solid var(--color-border);
+}
+
+.admin-form-section-icon {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    color: var(--color-primary);
+    background: var(--color-danger-soft);
+
+    border-radius: var(--radius-sm);
+}
+
+.admin-form-section-icon i {
+    font-size: .95rem;
+}
+
+.admin-form-section-icon-gold {
+    color: #A97900;
+    background: var(--color-warning-soft);
+}
+
+.admin-form-card-title {
+    margin: 0;
+
+    color: var(--color-coffee);
+
+    font-size: .9rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.admin-form-card-subtitle {
+    margin: .12rem 0 0;
+
+    color: var(--color-text-light);
+
+    font-size: .68rem;
+    line-height: 1.3;
+}
+
+.admin-form-card-body {
+    padding: .9rem;
+}
+
+
+/* ============================================================
+   GRID
+   ============================================================ */
+
+.admin-form-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: .9rem;
+}
+
+.admin-form-grid-four {
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+}
+
+.admin-form-field {
+    min-width: 0;
+}
+
+.admin-form-field-wide {
+    grid-column: span 2;
+}
+
+.admin-form-field-full {
+    grid-column: 1 / -1;
+}
+
+
+/* ============================================================
+   LABEL
+   ============================================================ */
+
+.admin-form-label {
+    display: block;
+
+    margin-bottom: .3rem;
+
+    color: var(--color-coffee);
+
+    font-size: .73rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.admin-form-label span {
+    color: var(--color-danger);
+}
+
+
+/* ============================================================
+   INPUTS
+   ============================================================ */
+
+.admin-form-input {
+    display: block;
+
+    width: 100%;
+    min-height: 37px;
+
+    padding: .5rem .65rem;
+
+    color: var(--color-text);
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-sm);
+
+    font-family: var(--font-body);
+    font-size: .75rem;
+
+    line-height: 1.4;
+
+    outline: none;
+
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        background var(--transition);
+}
+
+.admin-form-input::placeholder {
+    color: var(--color-placeholder);
+}
+
+.admin-form-input:hover {
+    border-color: var(--color-border-hover);
+}
+
+.admin-form-input:focus {
+    color: var(--color-text);
+    background: var(--color-surface);
+
+    border-color: var(--color-primary);
+
+    box-shadow:
+        0 0 0 3px var(--color-primary-focus);
+
+    outline: none;
+}
+
+select.admin-form-input {
+    cursor: pointer;
+}
+
+textarea.admin-form-input {
+    min-height: 90px;
+
+    resize: vertical;
+}
+
+
+/* ============================================================
+   ERROR
+   ============================================================ */
+
+.admin-form-input.is-invalid {
+    border-color: var(--color-danger);
+}
+
+.admin-form-input.is-invalid:focus {
+    border-color: var(--color-danger);
+
+    box-shadow:
+        0 0 0 3px rgba(220, 53, 69, .10);
+}
+
+.admin-form-error {
+    margin-top: .25rem;
+
+    color: var(--color-danger);
+
+    font-size: .68rem;
+    line-height: 1.3;
+}
+
+
+/* ============================================================
+   AYUDA
+   ============================================================ */
+
+.admin-form-help {
+    display: block;
+
+    margin-top: .3rem;
+
+    color: var(--color-text-muted);
+
+    font-size: .66rem;
+    line-height: 1.4;
+}
+
+
+/* ============================================================
+   PRECIO
+   ============================================================ */
+
+.admin-form-price {
+    display: flex;
+    align-items: stretch;
+
+    width: 100%;
+}
+
+.admin-form-price-prefix {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 36px;
+
+    padding: 0 .45rem;
+
+    color: var(--color-coffee);
+    background: var(--color-cream);
+
+    border: 1px solid var(--color-border);
+    border-right: 0;
+
+    border-radius:
+        var(--radius-sm)
+        0
+        0
+        var(--radius-sm);
+
+    font-size: .74rem;
+    font-weight: 600;
+}
+
+.admin-form-price-input {
+    border-radius:
+        0
+        var(--radius-sm)
+        var(--radius-sm)
+        0;
+}
+
+
+/* ============================================================
+   IMAGEN
+   ============================================================ */
+
+.admin-form-image-layout {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        230px;
+
+    gap: 1.25rem;
+
+    align-items: center;
+}
+
+.admin-form-upload {
+    min-width: 0;
+}
+
+.admin-form-preview-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.admin-form-preview {
+    width: 170px;
+    height: 170px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    margin-top: .35rem;
+
+    background: var(--color-surface-alt);
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-xs);
+}
+
+.admin-form-preview img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+    object-position: center;
+
+    background: var(--color-surface);
+
+    transition:
+        transform var(--transition);
+}
+
+.admin-form-preview:hover img {
+    transform: scale(1.03);
+}
+
+
+/* ============================================================
+   ACCIONES
+   ============================================================ */
+
+.admin-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: .5rem;
+
+    margin-top: .25rem;
+}
+
+.admin-form-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: .4rem;
+
+    min-height: 37px;
+
+    padding: .5rem .9rem;
+
+    border-radius: var(--radius-sm);
+
+    font-family: var(--font-body);
+    font-size: .74rem;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        color var(--transition),
+        background var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition),
+        transform var(--transition);
+}
+
+.admin-form-btn i {
+    font-size: .78rem;
+}
+
+
+/* Cancelar */
+
+.admin-form-btn-cancel {
+    color:#4b5563;
+    background:#e5e7eb;
+    cursor:pointer;
+    border: 1px solid var(--color-border);
+}
+
+.admin-form-btn-cancel:hover {
+    color:#374151;
+    background:#d1d5db;
+    border-color:#9ca3af;
+    transform: translateY(-1px);
+}
+
+
+/* Guardar */
+
+.admin-form-btn-save {
+    color: var(--color-white);
+
+    background: var(--color-primary);
+
+    border: 1px solid var(--color-primary);
+
+    box-shadow: var(--shadow-xs);
+}
+
+.admin-form-btn-save:hover {
+    color: var(--color-white);
+
+    background: var(--color-primary-hover);
+
+    border-color: var(--color-primary-hover);
+
+    box-shadow: var(--shadow-sm);
+
+    transform: translateY(-1px);
+}
+
+.admin-form-btn-save:focus {
+    color: var(--color-white);
+
+    background: var(--color-primary-hover);
+
+    border-color: var(--color-primary-hover);
+
+    box-shadow:
+        0 0 0 3px var(--color-primary-focus);
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 992px) {
+
+    .admin-form-page {
+        padding-right: .75rem;
+        padding-left: .75rem;
+    }
+
+    .admin-form-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-form-grid-four {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-form-image-layout {
+        grid-template-columns:
+            minmax(0, 1fr)
+            200px;
+    }
+
+}
+
+
+@media (max-width: 768px) {
+
+    .admin-form-header {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+    .admin-form-back {
+        align-self: flex-start;
+    }
+
+    .admin-form-grid,
+    .admin-form-grid-four {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-form-field-wide,
+    .admin-form-field-full {
+        grid-column: auto;
+    }
+
+    .admin-form-image-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-form-preview-wrapper {
+        align-items: flex-start;
+    }
+
+}
+
+
+@media (max-width: 576px) {
+
+    .admin-form-page {
+        padding:
+            .5rem
+            .5rem
+            1rem;
+    }
+
+    .admin-form-card {
+        border-radius: var(--radius-sm);
+    }
+
+    .admin-form-card-header,
+    .admin-form-card-body {
+        padding: .75rem;
+    }
+
+    .admin-form-title {
+        font-size: 1.3rem;
+    }
+
+    .admin-form-subtitle {
+        font-size: .7rem;
+    }
+
+    .admin-form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .admin-form-btn {
+        width: 100%;
+    }
+
+    .admin-form-preview {
+        width: 150px;
+        height: 150px;
+    }
+
+}

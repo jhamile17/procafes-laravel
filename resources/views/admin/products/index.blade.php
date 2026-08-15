@@ -1,219 +1,251 @@
 @extends('layouts.admin')
 
-@section('title', 'Productos')
+@section('title', 'Productos | PROCÁFES')
 
 @section('content')
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="products-page">
 
-    <div>
+    {{-- =====================================================
+         ENCABEZADO
+    ====================================================== --}}
 
-        <h2 class="fw-bold mb-1">
+    <div class="products-header d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
 
-            Productos
+        <div>
 
-        </h2>
+            <h2 class="products-title fw-bold mb-1">
+                Productos
+            </h2>
 
-        <p class="text-muted mb-0">
+            <p class="products-subtitle mb-0">
+                Administra el catálogo de productos de PROCÁFES.
+            </p>
 
-            Administra el catálogo de productos de PROCAFES.
+        </div>
 
-        </p>
+        <a
+            href="{{ route('admin.products.create') }}"
+            class="admin-form-btn admin-form-btn-save">
 
-    </div>
+            <i class="bi bi-plus-circle me-2"></i>
 
-    <a
-        href="{{ route('admin.products.create') }}"
-        class="btn btn-warning rounded-3 px-4">
+            Nuevo producto
 
-        <i class="bi bi-plus-circle me-2"></i>
-
-        Nuevo Producto
-
-    </a>
-
-</div>
-
-{{-- Mensajes --}}
-
-@if(session('success'))
-
-    <div class="alert alert-success alert-dismissible fade show">
-
-        <i class="bi bi-check-circle-fill me-2"></i>
-
-        {{ session('success') }}
-
-        <button
-            class="btn-close"
-            data-bs-dismiss="alert">
-        </button>
+        </a>
 
     </div>
 
-@endif
 
-@if(session('error'))
+    {{-- =====================================================
+         MENSAJES
+    ====================================================== --}}
 
-    <div class="alert alert-danger alert-dismissible fade show">
+    @if(session('success'))
 
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <div
+            class="alert alert-success alert-dismissible fade show"
+            role="alert">
 
-        {{ session('error') }}
+            <i class="bi bi-check-circle-fill me-2"></i>
 
-        <button
-            class="btn-close"
-            data-bs-dismiss="alert">
-        </button>
+            {{ session('success') }}
 
-    </div>
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+            </button>
 
-@endif
+        </div>
 
-<div class="card border-0 shadow-sm rounded-4">
+    @endif
 
-    <div class="card-body">
 
-        <form
-            method="GET"
-            action="{{ route('admin.products.index') }}">
+    @if(session('error'))
 
-            <div class="row g-3 mb-4">
+        <div
+            class="alert alert-danger alert-dismissible fade show"
+            role="alert">
 
-                {{-- Buscar --}}
-                <div class="col-lg-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
 
-                    <label class="form-label">
+            {{ session('error') }}
 
-                        Buscar
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+            </button>
 
-                    </label>
+        </div>
 
-                    <input
-                        type="text"
-                        name="buscar"
-                        value="{{ request('buscar') }}"
-                        class="form-control"
-                        placeholder="Nombre, SKU o código de barras">
+    @endif
 
-                </div>
 
-                {{-- Categoría --}}
-                <div class="col-lg-2">
+    {{-- =====================================================
+         FILTROS
+    ====================================================== --}}
 
-                    <label class="form-label">
+    <div class="card products-filter-card mb-3">
 
-                        Categoría
+        <div class="card-body">
 
-                    </label>
+            <form
+                method="GET"
+                action="{{ route('admin.products.index') }}">
 
-                    <select
-                        name="categoria"
-                        class="form-select">
+                <div class="row g-3 align-items-end">
 
-                        <option value="">
+                    {{-- Buscar --}}
 
-                            Todas
+                    <div class="col-lg-4">
 
-                        </option>
+                        <label
+                            for="buscar"
+                            class="form-label">
 
-                        @foreach($categories ?? [] as $category)
+                            Buscar
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="buscar"
+                            id="buscar"
+                            value="{{ request('buscar') }}"
+                            class="form-control"
+                            placeholder="Nombre, SKU o código de barras"
+                            autocomplete="off">
+
+                    </div>
+
+
+                    {{-- Categoría --}}
+
+                    <div class="col-lg-2">
+
+                        <label
+                            for="categoria"
+                            class="form-label">
+
+                            Categoría
+
+                        </label>
+
+                        <select
+                            name="categoria"
+                            id="categoria"
+                            class="form-select">
+
+                            <option value="">
+                                Todas
+                            </option>
+
+                            @foreach($categories ?? [] as $category)
+
+                                <option
+                                    value="{{ $category->id }}"
+                                    @selected(request('categoria') == $category->id)>
+
+                                    {{ $category->name }}
+
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- Marca --}}
+
+                    <div class="col-lg-2">
+
+                        <label
+                            for="marca"
+                            class="form-label">
+
+                            Marca
+
+                        </label>
+
+                        <select
+                            name="marca"
+                            id="marca"
+                            class="form-select">
+
+                            <option value="">
+                                Todas
+                            </option>
+
+                            @foreach($brands ?? [] as $brand)
+
+                                <option
+                                    value="{{ $brand->id }}"
+                                    @selected(request('marca') == $brand->id)>
+
+                                    {{ $brand->name }}
+
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- Estado --}}
+
+                    <div class="col-lg-2">
+
+                        <label
+                            for="estado"
+                            class="form-label">
+
+                            Estado
+
+                        </label>
+
+                        <select
+                            name="estado"
+                            id="estado"
+                            class="form-select">
+
+                            <option value="">
+                                Todos
+                            </option>
 
                             <option
-                                value="{{ $category->id }}"
-                                @selected(request('categoria') == $category->id)>
+                                value="1"
+                                @selected(request('estado') === '1')>
 
-                                {{ $category->name }}
+                                Activos
 
                             </option>
 
-                        @endforeach
-
-                    </select>
-
-                </div>
-
-                {{-- Marca --}}
-                <div class="col-lg-2">
-
-                    <label class="form-label">
-
-                        Marca
-
-                    </label>
-
-                    <select
-                        name="marca"
-                        class="form-select">
-
-                        <option value="">
-
-                            Todas
-
-                        </option>
-
-                        @foreach($brands ?? [] as $brand)
-
                             <option
-                                value="{{ $brand->id }}"
-                                @selected(request('marca') == $brand->id)>
+                                value="0"
+                                @selected(request('estado') === '0')>
 
-                                {{ $brand->name }}
+                                Inactivos
 
                             </option>
 
-                        @endforeach
+                        </select>
 
-                    </select>
+                    </div>
 
-                </div>
 
-                {{-- Estado --}}
-                <div class="col-lg-2">
+                    {{-- Buscar --}}
 
-                    <label class="form-label">
-
-                        Estado
-
-                    </label>
-
-                    <select
-                        name="estado"
-                        class="form-select">
-
-                        <option value="">
-
-                            Todos
-
-                        </option>
-
-                        <option
-                            value="1"
-                            @selected(request('estado') === '1')>
-
-                            Activos
-
-                        </option>
-
-                        <option
-                            value="0"
-                            @selected(request('estado') === '0')>
-
-                            Inactivos
-
-                        </option>
-
-                    </select>
-
-                </div>
-
-                {{-- Botones --}}
-                <div class="col-lg-2 d-flex align-items-end">
-
-                    <div class="d-grid w-100">
+                    <div class="col-lg-2">
 
                         <button
-                            class="btn btn-dark">
+                            type="submit"
+                            class="btn btn-dark w-100">
 
                             <i class="bi bi-search me-2"></i>
 
@@ -225,315 +257,318 @@
 
                 </div>
 
-            </div>
-
-        </form>
-
-        <div class="table-responsive">
-
-        <table class="table table-hover align-middle">
-
-    <thead class="table-light">
-
-        <tr>
-
-            <th width="80">
-
-                Imagen
-
-            </th>
-
-            <th>
-
-                Producto
-
-            </th>
-
-            <th>
-                Descripción
-            </th>
-
-            <th>
-
-                Categoría
-
-            </th>
-
-            <th>
-
-                Marca
-
-            </th>
-
-            <th>
-
-                Tipo
-
-            </th>
-
-            <th>
-
-                Precio Venta
-
-            </th>
-
-            <th>
-
-                Stock
-
-            </th>
-
-            <th>
-
-                Estado
-
-            </th>
-
-            <th class="text-end">
-
-                Acciones
-
-            </th>
-
-        </tr>
-
-    </thead>
-
-    <tbody>
-
-        @forelse($products as $product)
-
-            <tr>
-
-                {{-- Imagen --}}
-                <td>
-
-                  @if($product->image)
-
-                      <img
-                          src="{{ asset('storage/' . $product->image) }}"
-                          alt="{{ $product->name }}"
-                          class="rounded"
-                          style="width:60px;height:60px;object-fit:cover;">
-
-                  @else
-
-                      <div class="bg-light d-flex align-items-center justify-content-center rounded"
-                          style="width:60px;height:60px;">
-
-                          <i class="bi bi-image text-muted"></i>
-
-                      </div>
-
-                  @endif
-
-              </td>
-
-                {{-- Producto --}}
-                <td>
-
-                    <div class="fw-semibold">
-
-                        {{ $product->name }}
-
-                    </div>
-
-                    <small class="text-muted">
-
-                        SKU:
-
-                        {{ $product->sku }}
-
-                    </small>
-
-                    @if($product->barcode)
-
-                        <br>
-
-                        <small class="text-muted">
-
-                            Código:
-
-                            {{ $product->barcode }}
-
-                        </small>
-
-                    @endif
-
-                </td>
-
-                <td style="max-width:250px;">
-                    <small class="text-muted">
-                        {{ \Illuminate\Support\Str::limit($product->description, 80) }}
-                    </small>
-                </td>
-
-                {{-- Categoría --}}
-                <td>
-
-                    {{ $product->category?->name ?? '-' }}
-
-                </td>
-
-                {{-- Marca --}}
-                <td>
-
-                    {{ $product->brand?->name ?? '-' }}
-
-                </td>
-
-                {{-- Tipo consumo --}}
-                <td>
-
-                    {{ $product->tipoConsumo?->nombre ?? '-' }}
-
-                </td>
-
-                {{-- Precio --}}
-                <td>
-
-                    <span class="fw-bold text-success">
-
-                        {{ $product->precio_formateado }}
-
-                    </span>
-
-                    <br>
-
-                    <small class="text-muted">
-
-                        Costo:
-
-                        S/
-
-                        {{ number_format($product->cost_price,2) }}
-
-                    </small>
-
-                </td>
-
-                {{-- Stock --}}
-                <td>
-
-                    <span
-
-                        class="badge bg-{{ $product->stock_badge }}">
-
-                        {{ $product->stock }}
-
-                    </span>
-
-                    <br>
-
-                    <small class="text-muted">
-
-                        {{ $product->stock_status }}
-
-                    </small>
-
-                </td>
-
-                {{-- Estado --}}
-                <td>
-
-                    @if($product->status)
-
-                        <span class="badge bg-success">
-
-                            Activo
-
-                        </span>
-
-                    @else
-
-                        <span class="badge bg-danger">
-
-                            Inactivo
-
-                        </span>
-
-                    @endif
-
-                </td>
-
-                {{-- Acciones --}}
-                <td class="text-end">
-
-                    <a
-
-                        href="{{ route('admin.products.edit',$product) }}"
-
-                        class="btn btn-sm btn-outline-primary">
-
-                        <i class="bi bi-pencil-square"></i>
-
-                    </a>
-
-                    <form
-
-                        action="{{ route('admin.products.destroy',$product) }}"
-
-                        method="POST"
-
-                        class="d-inline"
-
-                        onsubmit="return confirm('¿Eliminar este producto?')">
-
-                        @csrf
-
-                        @method('DELETE')
-
-                        <button
-
-                            class="btn btn-sm btn-outline-danger">
-
-                            <i class="bi bi-trash"></i>
-
-                        </button>
-
-                    </form>
-
-                </td>
-
-            </tr>
-
-        @empty
-
-            <tr>
-
-                <td
-
-                    colspan="9"
-
-                    class="text-center py-5">
-
-                    <i
-
-                        class="bi bi-box-seam"
-
-                        style="font-size:50px;"></i>
-
-                    <br><br>
-
-                    No existen productos registrados.
-
-                </td>
-
-            </tr>
-
-        @endforelse
-
-    </tbody>
-
-</table>
+            </form>
 
         </div>
 
+    </div>
+
+
+    {{-- =====================================================
+         TABLA
+    ====================================================== --}}
+
+    <div class="card products-table-card">
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive products-table-wrapper">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th class="ps-4">
+                                Imagen
+                            </th>
+
+                            <th>
+                                Producto
+                            </th>
+
+                            <th>
+                                Categoría
+                            </th>
+
+                            <th>
+                                Marca
+                            </th>
+
+                            <th>
+                                Tipo
+                            </th>
+
+                            <th>
+                                Precio
+                            </th>
+
+                            <th>
+                                Stock
+                            </th>
+
+                            <th>
+                                Estado
+                            </th>
+
+                            <th class="text-end pe-4">
+                                Acciones
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @forelse($products as $product)
+
+                            <tr>
+
+                                {{-- =================================================
+                                     IMAGEN
+                                ================================================== --}}
+
+                                <td class="ps-4">
+
+                                    @if($product->image)
+
+                                        <img
+                                            src="{{ asset('storage/' . $product->image) }}"
+                                            alt="{{ $product->name }}"
+                                            class="product-image">
+
+                                    @else
+
+                                        <div class="product-image-placeholder">
+
+                                            <i class="bi bi-image"></i>
+
+                                        </div>
+
+                                    @endif
+
+                                </td>
+
+
+                                {{-- =================================================
+                                     PRODUCTO
+                                ================================================== --}}
+
+                                <td>
+
+                                    <div class="product-name">
+
+                                        {{ $product->name }}
+
+                                    </div>
+
+                                    <small class="text-muted">
+
+                                        SKU: {{ $product->sku }}
+
+                                    </small>
+
+                                    @if($product->barcode)
+
+                                        <small class="d-block text-muted">
+
+                                            {{ $product->barcode }}
+
+                                        </small>
+
+                                    @endif
+
+                                </td>
+
+
+                                {{-- =================================================
+                                     CATEGORÍA
+                                ================================================== --}}
+
+                                <td>
+
+                                    {{ $product->category?->name ?? '-' }}
+
+                                </td>
+
+
+                                {{-- =================================================
+                                     MARCA
+                                ================================================== --}}
+
+                                <td>
+
+                                    {{ $product->brand?->name ?? '-' }}
+
+                                </td>
+
+
+                                {{-- =================================================
+                                     TIPO
+                                ================================================== --}}
+
+                                <td>
+
+                                    {{ $product->tipoConsumo?->nombre ?? '-' }}
+
+                                </td>
+
+
+                                {{-- =================================================
+                                     PRECIO
+                                ================================================== --}}
+
+                                <td>
+
+                                    <span class="product-price">
+
+                                        {{ $product->precio_formateado }}
+
+                                    </span>
+
+                                </td>
+
+
+                                {{-- =================================================
+                                     STOCK
+                                ================================================== --}}
+
+                                <td>
+
+                                    <span class="badge bg-{{ $product->stock_badge }}">
+
+                                        {{ $product->stock }}
+
+                                    </span>
+
+                                </td>
+
+
+                                {{-- =================================================
+                                     ESTADO
+                                ================================================== --}}
+
+                                <td>
+
+                                    @if($product->status)
+
+                                        <span class="badge bg-success">
+
+                                            Activo
+
+                                        </span>
+
+                                    @else
+
+                                        <span class="badge bg-danger">
+
+                                            Inactivo
+
+                                        </span>
+
+                                    @endif
+
+                                </td>
+
+
+                                {{-- =================================================
+                                     ACCIONES
+                                ================================================== --}}
+
+                                <td class="text-end pe-4">
+
+                                    <div class="d-flex justify-content-end gap-1">
+                                    <div class="admin-actions">
+                                        <a
+                                            href="{{ route('admin.products.edit', $product) }}"
+                                            class="admin-action admin-action-edit"
+                                            title="Editar producto">
+
+                                            <i class="bi bi-pencil-square"></i>
+
+                                        </a>
+
+
+                                        <form
+                                            action="{{ route('admin.products.destroy', $product) }}"
+                                            method="POST"
+                                            class="d-inline"
+                                            onsubmit="return confirm('¿Eliminar este producto?')">
+
+                                            @csrf
+
+                                            @method('DELETE')
+
+                                            <button
+                                                type="submit"
+                                                class="admin-action admin-action-delete"
+                                                title="Eliminar producto">
+
+                                                <i class="bi bi-trash"></i>
+
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                        @empty
+
+                            <tr>
+
+                                <td
+                                    colspan="9"
+                                    class="text-center py-5">
+
+                                    <i class="bi bi-box-seam product-empty-icon"></i>
+
+                                    <h6 class="mt-3 mb-1">
+
+                                        No hay productos
+
+                                    </h6>
+
+                                    <small class="text-muted">
+
+                                        No existen productos registrados.
+
+                                    </small>
+
+                                </td>
+
+                            </tr>
+
+                        @endforelse
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        {{-- =====================================================
+             PAGINACIÓN
+        ====================================================== --}}
+
         @if($products->hasPages())
 
-            <div class="d-flex justify-content-center mt-4">
+            <div class="card-footer bg-white border-0 py-2">
 
-                {{ $products->withQueryString()->links() }}
+                <div class="d-flex justify-content-center">
+
+                    {{ $products->withQueryString()->links() }}
+
+                </div>
 
             </div>
 
@@ -544,116 +579,3 @@
 </div>
 
 @endsection
-
-
-@push('styles')
-
-<style>
-
-.table>tbody>tr:hover{
-
-    background:#faf7ea;
-
-    transition:.25s;
-
-}
-
-.table td{
-
-    vertical-align:middle;
-
-}
-
-.table thead th{
-
-    background:#f8f9fa;
-
-    color:#3E350E;
-
-    font-weight:600;
-
-    border-bottom:2px solid #F2DD6C;
-
-}
-
-.badge{
-
-    font-size:.78rem;
-
-    padding:.45rem .7rem;
-
-}
-
-.btn-outline-primary{
-
-    border-radius:10px;
-
-}
-
-.btn-outline-danger{
-
-    border-radius:10px;
-
-}
-
-.card{
-
-    border-radius:18px;
-
-}
-
-.form-control,
-
-.form-select{
-
-    border-radius:12px;
-
-}
-
-.btn-warning{
-
-    background:#DAAD29;
-
-    border:none;
-
-    color:white;
-
-}
-
-.btn-warning:hover{
-
-    background:#C89C1C;
-
-    color:white;
-
-}
-
-img{
-
-    border:1px solid #eee;
-
-}
-
-.pagination{
-
-    margin-bottom:0;
-
-}
-
-.page-link{
-
-    color:#794515;
-
-}
-
-.page-item.active .page-link{
-
-    background:#DAAD29;
-
-    border-color:#DAAD29;
-
-}
-
-</style>
-
-@endpush

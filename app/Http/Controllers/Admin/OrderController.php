@@ -4,76 +4,170 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use App\Models\EstadoPedido;
+use Illuminate\Http\Request;
 use App\Services\Ventas\OrderService;
 use App\Services\Facturacion\NubeFactService;
 
 class OrderController extends Controller
 {
     public function __construct(
-          protected OrderService $orderService,
-          protected NubeFactService $nubeFactService,
-
+        protected OrderService $orderService,
+        protected NubeFactService $nubeFactService,
     ) {
     }
-    /**
-     * Listado de órdenes
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Listado de órdenes
+    |--------------------------------------------------------------------------
+    */
+
     public function index(Request $request)
     {
         $q = trim($request->get('q', ''));
+
         $status = $request->get('status');
 
-        $orders = Order::with([
+        /*
+        |--------------------------------------------------------------------------
+        | Estados activos
+        |--------------------------------------------------------------------------
+        |
+        | Una sola consulta.
+        |
+        */
+
+        $estados = EstadoPedido::query()
+            ->where('status', true)
+            ->orderBy('id')
+            ->get([
+                'id',
+                'codigo',
+                'nombre',
+            ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Órdenes
+        |--------------------------------------------------------------------------
+        */
+
+        $orders = Order::query()
+
+            ->with([
                 'user',
                 'estadoPedido',
             ])
-            ->when($q, function ($query) use ($q) {
 
-                $query->where('numero_pedido', 'like', "%{$q}%")
-                    ->orWhereHas('user', function ($q2) use ($q) {
+            ->when($q !== '', function ($query) use ($q) {
 
-                        $q2->where('name', 'like', "%{$q}%")
-                            ->orWhere('email', 'like', "%{$q}%");
+                $query->where(function ($query) use ($q) {
+
+                    $query->where(
+                        'numero_pedido',
+                        'like',
+                        "%{$q}%"
+                    )
+
+                    ->orWhereHas('user', function ($query) use ($q) {
+
+                        $query
+                            ->where('name', 'like', "%{$q}%")
+                            ->orWhere(
+                                'email',
+                                'like',
+                                "%{$q}%"
+                            );
 
                     });
-
-            })
-            ->when($status, function ($query) use ($status) {
-
-                $query->whereHas('estadoPedido', function ($q) use ($status) {
-
-                    $q->where('codigo', $status);
 
                 });
 
             })
+
+            ->when($status !== null && $status !== '', function ($query) use ($status) {
+
+                $query->whereHas(
+                    'estadoPedido',
+                    function ($query) use ($status) {
+
+                        $query->where(
+                            'codigo',
+                            $status
+                        );
+
+                    }
+                );
+
+            })
+
             ->latest()
+
             ->paginate(12)
+
             ->withQueryString();
 
-        $statuses = EstadoPedido::where('status', true)
-            ->orderBy('id')
-            ->pluck('codigo');
 
-        $statusLabel = EstadoPedido::where('status', true)
-            ->pluck('nombre', 'codigo')
-            ->toArray();
+        /*
+        |--------------------------------------------------------------------------
+        | Datos preparados para la vista
+        |--------------------------------------------------------------------------
+        */
 
-        return view('admin.orders.index', compact(
-            'orders',
-            'q',
-            'status',
-            'statuses',
-            'statusLabel'
-        ));
+        $orders->getCollection()->transform(
+            function (Order $order) {
+
+                $order->delivery_label = match (
+                    strtoupper((string) $order->delivery_type)
+                ) {
+
+                    'RECOJO',
+                    'PICKUP',
+                    'RECOJO_EN_TIENDA'
+                        => 'Recojo en tienda',
+
+                    'DELIVERY',
+                    'ENVIO',
+                    'ENVÍO'
+                        => 'Delivery',
+
+                    default
+                        => 'Delivery',
+
+                };
+
+
+                $order->created_at_formatted =
+                    $order->created_at?->format(
+                        'd/m/Y H:i'
+                    );
+
+
+                return $order;
+            }
+        );
+
+
+        return view(
+            'admin.orders.index',
+            compact(
+                'orders',
+                'q',
+                'status',
+                'estados'
+            )
+        );
     }
-    /**
-     * Detalle de orden
-     */
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Detalle de orden
+    |--------------------------------------------------------------------------
+    */
+
     public function show(Order $order)
     {
         $order->load([
@@ -82,54 +176,101 @@ class OrderController extends Controller
             'items.product',
             'shippingAddress',
         ]);
+         $order->delivery_label = match (
+        strtoupper((string) $order->delivery_type)
+            ) {
+                'RECOJO',
+                'PICKUP',
+                'RECOJO_EN_TIENDA' => 'Recojo en tienda',
 
-        $items = $order->items;
+                'DELIVERY',
+                'ENVIO',
+                'ENVÍO' => 'Delivery',
 
-        $totals = [
-            'items_subtotal' => $items->sum('subtotal'),
-            'order_total' => $order->total_price,
-        ];
+                default => 'Delivery',
+            };
+            $order->created_at_formatted =
+            $order->created_at?->format('d/m/Y H:i');
 
-        return view('admin.orders.show', compact(
-            'order',
-            'items',
-            'totals'
-        ));
-    }
+            $items = $order->items;
 
-    /**
-     * Actualizar estado
-     */
-    public function updateStatus(Request $request, Order $order)
-    {
+            $totals = [
+                'items_subtotal' => $items->sum('subtotal'),
+                'order_total' => $order->total_price,
+            ];
+
+            return view(
+                'admin.orders.show',
+                compact(
+                    'order',
+                    'items',
+                    'totals'
+                )
+            );
+        }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Actualizar estado
+    |--------------------------------------------------------------------------
+    */
+
+    public function updateStatus(
+        Request $request,
+        Order $order
+    ) {
         $request->validate([
-            'estado_pedido_id' => 'required|exists:estados_pedido,id',
+            'estado_pedido_id' => [
+                'required',
+                'exists:estados_pedido,id',
+            ],
         ]);
 
-        if ($order->estado_pedido_id == $request->estado_pedido_id) {
-            return back()->with('info', 'La orden ya tiene ese estado.');
+        if (
+            $order->estado_pedido_id ==
+            $request->estado_pedido_id
+        ) {
+
+            return back()->with(
+                'info',
+                'La orden ya tiene ese estado.'
+            );
         }
 
         $order->update([
-            'estado_pedido_id' => $request->estado_pedido_id
+            'estado_pedido_id' =>
+                $request->estado_pedido_id,
         ]);
+
         $order->load([
-                'estadoPedido',
-                'comprobante.electronicDocument',
-            ]);
+            'estadoPedido',
+            'comprobante.electronicDocument',
+        ]);
+
+        if (
+            $order->estadoPedido?->esConfirmado()
+        ) {
+
+            $this->orderService
+                ->confirmarPedido($order);
+
+            $comprobante =
+                $order->comprobante;
 
             if (
-                $order->estadoPedido?->esConfirmado()) {
+                $comprobante &&
+                ! $comprobante->yaFueEmitido()
+            ) {
 
-                $this->orderService->confirmarPedido($order);
-
-                $comprobante = $order->comprobante;
-
-                if ($comprobante && ! $comprobante->yaFueEmitido()) {
-                    $this->nubeFactService->emitir($comprobante);
-                }
+                $this->nubeFactService
+                    ->emitir($comprobante);
             }
-          
-        return back()->with('success', 'Estado actualizado correctamente.');
+        }
+
+        return back()->with(
+            'success',
+            'Estado actualizado correctamente.'
+        );
     }
+    
 }

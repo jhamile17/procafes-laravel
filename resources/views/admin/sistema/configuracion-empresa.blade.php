@@ -2,150 +2,334 @@
 
 @section('title', 'Configuración de la empresa')
 
-@section('content')
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/admin/configuracion.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/form.css') }}">
 @endpush
-<div class="config-page">
 
-    {{--=========================================
+@section('content')
+
+<div class="admin-form-page">
+
+    {{-- =====================================================
         ENCABEZADO
-    ==========================================--}}
+    ====================================================== --}}
 
-    <div class="config-header">
+    <div class="admin-form-header">
 
-        <div>
+        <div class="admin-form-heading">
 
-            <h1 class="config-title">
-                Configuración de la empresa
-            </h1>
+            <div class="admin-form-heading-icon">
+                <i class="bi bi-building"></i>
+            </div>
 
-            <p class="config-subtitle">
-                Administra la información institucional utilizada en la tienda y en la facturación electrónica.
-            </p>
+            <div>
+
+                <h1 class="admin-form-title">
+                    Configuración de la empresa
+                </h1>
+
+                <p class="admin-form-subtitle">
+                    Administra la información institucional utilizada
+                    en la tienda y en la facturación electrónica.
+                </p>
+
+            </div>
 
         </div>
 
     </div>
 
+
+    {{-- =====================================================
+        ERRORES DE VALIDACIÓN
+    ====================================================== --}}
+
+    @if ($errors->any())
+
+        <div class="admin-form-alert">
+
+            <div class="admin-form-alert-title">
+
+                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                <span>
+                    Revisa los siguientes campos
+                </span>
+
+            </div>
+
+            <ul class="admin-form-alert-list">
+
+                @foreach ($errors->all() as $error)
+
+                    <li>
+                        {{ $error }}
+                    </li>
+
+                @endforeach
+
+            </ul>
+
+        </div>
+
+    @endif
+
+
+    {{-- =====================================================
+        MENSAJE DE ÉXITO
+    ====================================================== --}}
+
+    @if (session('success'))
+
+        <div
+            class="admin-form-alert"
+            style="
+                color: var(--color-success);
+                background: var(--color-success-soft);
+                border-color: rgba(24, 165, 88, .15);
+            "
+        >
+
+            <div class="admin-form-alert-title">
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                <span>
+                    {{ session('success') }}
+                </span>
+
+            </div>
+
+        </div>
+
+    @endif
+
+
+    {{-- =====================================================
+        MENSAJE DE ERROR
+    ====================================================== --}}
+
+    @if (session('error'))
+
+        <div class="admin-form-alert">
+
+            <div class="admin-form-alert-title">
+
+                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                <span>
+                    {{ session('error') }}
+                </span>
+
+            </div>
+
+        </div>
+
+    @endif
+
+
+    {{-- =====================================================
+        FORMULARIO
+    ====================================================== --}}
+
     <form
         action="{{ route('admin.configuracion.update') }}"
         method="POST"
-        enctype="multipart/form-data"
     >
 
         @csrf
         @method('PUT')
 
-        {{--=========================================
-            DATOS DE EMPRESA
-        ==========================================--}}
 
-        <div class="config-card">
+        {{-- =================================================
+            DATOS DE LA EMPRESA
+        ================================================== --}}
 
-            <div class="config-card-header">
+        <div class="admin-form-card">
 
-                <h3 class="config-card-title">
-                    Datos de la empresa
-                </h3>
+            <div class="admin-form-card-header">
+
+                <div class="admin-form-section-icon">
+
+                    <i class="bi bi-building"></i>
+
+                </div>
+
+                <div>
+
+                    <h3 class="admin-form-card-title">
+                        Datos de la empresa
+                    </h3>
+
+                    <p class="admin-form-card-subtitle">
+                        Información institucional de PROCÁFES.
+                    </p>
+
+                </div>
 
             </div>
 
-            <div class="config-card-body">
 
-                <div class="row g-4">
+            <div class="admin-form-card-body">
 
-                    <div class="col-md-6">
+                <div class="admin-form-grid">
 
-                        <label class="form-label">
+
+                    {{-- NOMBRE DE EMPRESA --}}
+
+                    <div class="admin-form-field admin-form-field-wide">
+
+                        <label
+                            for="nombre_empresa"
+                            class="admin-form-label"
+                        >
                             Nombre de la empresa
+                            <span>*</span>
                         </label>
 
                         <input
                             type="text"
+                            id="nombre_empresa"
                             name="nombre_empresa"
-                            class="form-control"
                             value="{{ old('nombre_empresa', $configuracion->nombre_empresa) }}"
+                            class="admin-form-input @error('nombre_empresa') is-invalid @enderror"
+                            placeholder="Nombre de la empresa"
                         >
 
                         @error('nombre_empresa')
-                            <small class="text-danger">{{ $message }}</small>
+
+                            <div class="admin-form-error">
+                                {{ $message }}
+                            </div>
+
                         @enderror
 
                     </div>
 
-                    <div class="col-md-6">
 
-                        <label class="form-label">
+                    {{-- RUC --}}
+
+                    <div class="admin-form-field">
+
+                        <label
+                            for="ruc"
+                            class="admin-form-label"
+                        >
                             RUC
+                            <span>*</span>
                         </label>
 
                         <input
                             type="text"
+                            id="ruc"
                             name="ruc"
-                            class="form-control"
                             value="{{ old('ruc', $configuracion->ruc) }}"
+                            class="admin-form-input @error('ruc') is-invalid @enderror"
+                            placeholder="20123456789"
+                            maxlength="11"
                         >
 
                         @error('ruc')
-                            <small class="text-danger">{{ $message }}</small>
+
+                            <div class="admin-form-error">
+                                {{ $message }}
+                            </div>
+
                         @enderror
 
                     </div>
 
-                    <div class="col-md-6">
 
-                        <label class="form-label">
+                    {{-- CORREO --}}
+
+                    <div class="admin-form-field">
+
+                        <label
+                            for="correo"
+                            class="admin-form-label"
+                        >
                             Correo electrónico
+                            <span>*</span>
                         </label>
 
                         <input
                             type="email"
+                            id="correo"
                             name="correo"
-                            class="form-control"
                             value="{{ old('correo', $configuracion->correo) }}"
+                            class="admin-form-input @error('correo') is-invalid @enderror"
+                            placeholder="correo@procafes.com"
                         >
 
                         @error('correo')
-                            <small class="text-danger">{{ $message }}</small>
+
+                            <div class="admin-form-error">
+                                {{ $message }}
+                            </div>
+
                         @enderror
 
                     </div>
 
-                    <div class="col-md-6">
 
-                        <label class="form-label">
+                    {{-- TELÉFONO --}}
+
+                    <div class="admin-form-field">
+
+                        <label
+                            for="telefono"
+                            class="admin-form-label"
+                        >
                             Teléfono
                         </label>
 
                         <input
                             type="text"
+                            id="telefono"
                             name="telefono"
-                            class="form-control"
                             value="{{ old('telefono', $configuracion->telefono) }}"
+                            class="admin-form-input @error('telefono') is-invalid @enderror"
+                            placeholder="999 999 999"
                         >
 
                         @error('telefono')
-                            <small class="text-danger">{{ $message }}</small>
+
+                            <div class="admin-form-error">
+                                {{ $message }}
+                            </div>
+
                         @enderror
 
                     </div>
 
-                    <div class="col-12">
 
-                        <label class="form-label">
+                    {{-- DIRECCIÓN --}}
+
+                    <div class="admin-form-field-full">
+
+                        <label
+                            for="direccion"
+                            class="admin-form-label"
+                        >
                             Dirección fiscal
+                            <span>*</span>
                         </label>
 
                         <input
                             type="text"
+                            id="direccion"
                             name="direccion"
-                            class="form-control"
                             value="{{ old('direccion', $configuracion->direccion) }}"
+                            class="admin-form-input @error('direccion') is-invalid @enderror"
+                            placeholder="Dirección fiscal de la empresa"
                         >
 
                         @error('direccion')
-                            <small class="text-danger">{{ $message }}</small>
+
+                            <div class="admin-form-error">
+                                {{ $message }}
+                            </div>
+
                         @enderror
 
                     </div>
@@ -156,135 +340,131 @@
 
         </div>
 
-        {{--=========================================
-            REDES
-        ==========================================--}}
 
-        <div class="config-card mt-4">
+        {{-- =================================================
+            REDES SOCIALES
+        ================================================== --}}
 
-            <div class="config-card-header">
+        <div class="admin-form-card">
 
-                <h3 class="config-card-title">
-                    Redes sociales
-                </h3>
+            <div class="admin-form-card-header">
+
+                <div class="admin-form-section-icon admin-form-section-icon-gold">
+
+                    <i class="bi bi-share"></i>
+
+                </div>
+
+                <div>
+
+                    <h3 class="admin-form-card-title">
+                        Redes sociales
+                    </h3>
+
+                    <p class="admin-form-card-subtitle">
+                        Enlaces oficiales de las redes sociales de PROCÁFES.
+                    </p>
+
+                </div>
 
             </div>
 
-            <div class="config-card-body">
 
-                <div class="row g-4">
+            <div class="admin-form-card-body">
 
-                    <div class="col-md-4">
+                <div class="admin-form-grid">
 
-                        <label class="form-label">
+
+                    {{-- FACEBOOK --}}
+
+                    <div class="admin-form-field">
+
+                        <label
+                            for="facebook"
+                            class="admin-form-label"
+                        >
                             Facebook
                         </label>
 
                         <input
                             type="url"
+                            id="facebook"
                             name="facebook"
-                            class="form-control"
                             value="{{ old('facebook', $configuracion->facebook) }}"
+                            class="admin-form-input @error('facebook') is-invalid @enderror"
+                            placeholder="https://facebook.com/..."
                         >
+
+                        @error('facebook')
+
+                            <div class="admin-form-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
 
                     </div>
 
-                    <div class="col-md-4">
 
-                        <label class="form-label">
+                    {{-- INSTAGRAM --}}
+
+                    <div class="admin-form-field">
+
+                        <label
+                            for="instagram"
+                            class="admin-form-label"
+                        >
                             Instagram
                         </label>
 
                         <input
                             type="url"
+                            id="instagram"
                             name="instagram"
-                            class="form-control"
                             value="{{ old('instagram', $configuracion->instagram) }}"
+                            class="admin-form-input @error('instagram') is-invalid @enderror"
+                            placeholder="https://instagram.com/..."
                         >
+
+                        @error('instagram')
+
+                            <div class="admin-form-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
 
                     </div>
 
-                    <div class="col-md-4">
 
-                        <label class="form-label">
+                    {{-- TIKTOK --}}
+
+                    <div class="admin-form-field">
+
+                        <label
+                            for="tiktok"
+                            class="admin-form-label"
+                        >
                             TikTok
                         </label>
 
                         <input
                             type="url"
+                            id="tiktok"
                             name="tiktok"
-                            class="form-control"
                             value="{{ old('tiktok', $configuracion->tiktok) }}"
+                            class="admin-form-input @error('tiktok') is-invalid @enderror"
+                            placeholder="https://tiktok.com/@..."
                         >
 
-                    </div>
+                        @error('tiktok')
 
-                </div>
+                            <div class="admin-form-error">
+                                {{ $message }}
+                            </div>
 
-            </div>
-
-        </div>
-
-        {{--=========================================
-            LOGO
-        ==========================================--}}
-
-        <div class="config-card mt-4">
-
-            <div class="config-card-header">
-
-                <h3 class="config-card-title">
-                    Logo institucional
-                </h3>
-
-            </div>
-
-            <div class="config-card-body">
-
-                <div class="row align-items-center g-4">
-
-                    <div class="col-lg-4">
-
-                        <div class="config-logo">
-
-                            @if($configuracion->logo)
-
-                                <img
-                                    src="{{ asset('storage/'.$configuracion->logo) }}"
-                                    alt="Logo empresa"
-                                >
-
-                            @else
-
-                                <i class="bi bi-building"></i>
-
-                            @endif
-
-                        </div>
-
-                    </div>
-
-                    <div class="col-lg-8">
-
-                        <label class="form-label">
-                            Seleccionar nuevo logo
-                        </label>
-
-                        <input
-                            type="file"
-                            name="logo"
-                            class="form-control"
-                            accept=".jpg,.jpeg,.png,.webp"
-                        >
-
-                        @error('logo')
-                            <small class="text-danger">{{ $message }}</small>
                         @enderror
 
-                        <small class="text-muted d-block mt-2">
-                            Formatos permitidos: JPG, PNG y WEBP (Máximo 2 MB).
-                        </small>
-
                     </div>
 
                 </div>
@@ -293,17 +473,27 @@
 
         </div>
 
-        <div class="config-actions">
+
+        {{-- =================================================
+            ACCIONES
+        ================================================== --}}
+
+        <div class="admin-form-actions">
+
+            <a
+                href="{{ route('admin.dashboard') }}"
+                class="admin-form-btn admin-form-btn-cancel"
+            >
+                <i class="bi bi-arrow-left"></i>
+                Cancelar
+            </a>
 
             <button
                 type="submit"
-                class="btn-config-save"
+                class="admin-form-btn admin-form-btn-save"
             >
-
-                <i class="bi bi-check-circle-fill me-2"></i>
-
+                <i class="bi bi-check-circle-fill"></i>
                 Guardar configuración
-
             </button>
 
         </div>

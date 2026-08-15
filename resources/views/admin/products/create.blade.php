@@ -4,105 +4,127 @@
 
 @section('content')
 
-<div class="container-fluid">
+<div class="admin-form-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    {{-- =====================================================
+         ENCABEZADO
+    ====================================================== --}}
 
-        <div>
+    <div class="admin-form-header">
 
-            <h2 class="fw-bold mb-1">
-                Registrar Producto
-            </h2>
+        <div class="admin-form-heading">
 
-            <p class="text-muted mb-0">
-                Agrega un nuevo producto al catálogo de PROCAFES.
-            </p>
+            <div class="admin-form-heading-icon">
+                <i class="bi bi-cup-hot-fill"></i>
+            </div>
+
+            <div>
+
+                <h1 class="admin-form-title">
+                    Registrar producto
+                </h1>
+
+                <p class="admin-form-subtitle">
+                    Agrega un nuevo producto al catálogo de PROCÁFES.
+                </p>
+
+            </div>
 
         </div>
 
+
         <a
             href="{{ route('admin.products.index') }}"
-            class="btn btn-outline-secondary">
+            class="admin-form-btn admin-form-btn-save"
+        >
 
-            <i class="bi bi-arrow-left me-2"></i>
+            <i class="bi bi-arrow-left"></i>
 
-            Volver
+            Volver a productos
 
         </a>
 
     </div>
 
-    @if ($errors->any())
-
-        <div class="alert alert-danger">
-
-            <strong>
-
-                Se encontraron errores.
-
-            </strong>
-
-            <ul class="mb-0 mt-2">
-
-                @foreach ($errors->all() as $error)
-
-                    <li>{{ $error }}</li>
-
-                @endforeach
-
-            </ul>
-
-        </div>
-
-    @endif
+    {{-- =====================================================
+         FORMULARIO
+    ====================================================== --}}
 
     <form
         action="{{ route('admin.products.store') }}"
         method="POST"
-        enctype="multipart/form-data">
+        enctype="multipart/form-data"
+        class="admin-form"
+    >
 
         @csrf
 
-        <div class="card border-0 shadow rounded-4">
 
-            <div class="card-header bg-white">
+        {{-- =================================================
+             INFORMACIÓN DEL PRODUCTO
+        ================================================== --}}
 
-                <h5 class="mb-0">
+        <section class="admin-form-card">
 
-                    Información General
+            <div class="admin-form-card-header">
 
-                </h5>
+                <div class="admin-form-section-icon">
+
+                    <i class="bi bi-cup-hot-fill"></i>
+
+                </div>
+
+                <div>
+
+                    <h2 class="admin-form-card-title">
+                        Información del producto
+                    </h2>
+
+                    <p class="admin-form-card-subtitle">
+                        Datos principales del producto.
+                    </p>
+
+                </div>
 
             </div>
 
-            <div class="card-body">
 
-                <div class="row g-4">
+            <div class="admin-form-card-body">
 
-                    {{-- Categoría --}}
-                    <div class="col-md-4">
+                <div class="admin-form-grid">
 
-                        <label class="form-label">
+                    {{-- CATEGORÍA --}}
 
-                            Categoría <span class="text-danger">*</span>
+                    <div class="admin-form-field">
+
+                        <label
+                            for="categories_id"
+                            class="admin-form-label"
+                        >
+
+                            Categoría
+                            <span>*</span>
 
                         </label>
 
                         <select
+                            id="categories_id"
                             name="categories_id"
-                            class="form-select @error('categories_id') is-invalid @enderror">
+                            class="admin-form-input @error('categories_id') is-invalid @enderror"
+                        >
 
                             <option value="">
-
                                 Seleccione una categoría
-
                             </option>
 
                             @foreach($categories as $category)
 
                                 <option
                                     value="{{ $category->id }}"
-                                    @selected(old('categories_id') == $category->id)>
+                                    @selected(
+                                        old('categories_id') == $category->id
+                                    )
+                                >
 
                                     {{ $category->name }}
 
@@ -114,40 +136,44 @@
 
                         @error('categories_id')
 
-                            <div class="invalid-feedback">
-
+                            <div class="admin-form-error">
                                 {{ $message }}
-
                             </div>
 
                         @enderror
 
                     </div>
 
-                    {{-- Marca --}}
-                    <div class="col-md-4">
 
-                        <label class="form-label">
+                    {{-- MARCA --}}
 
+                    <div class="admin-form-field">
+
+                        <label
+                            for="brand_id"
+                            class="admin-form-label"
+                        >
                             Marca
-
                         </label>
 
                         <select
+                            id="brand_id"
                             name="brand_id"
-                            class="form-select @error('brand_id') is-invalid @enderror">
+                            class="admin-form-input @error('brand_id') is-invalid @enderror"
+                        >
 
                             <option value="">
-
                                 Seleccione una marca
-
                             </option>
 
                             @foreach($brands as $brand)
 
                                 <option
                                     value="{{ $brand->id }}"
-                                    @selected(old('brand_id') == $brand->id)>
+                                    @selected(
+                                        old('brand_id') == $brand->id
+                                    )
+                                >
 
                                     {{ $brand->name }}
 
@@ -159,40 +185,44 @@
 
                         @error('brand_id')
 
-                            <div class="invalid-feedback">
-
+                            <div class="admin-form-error">
                                 {{ $message }}
-
                             </div>
 
                         @enderror
 
                     </div>
 
-                    {{-- Tipo de consumo --}}
-                    <div class="col-md-4">
 
-                        <label class="form-label">
+                    {{-- TIPO DE CONSUMO --}}
 
+                    <div class="admin-form-field">
+
+                        <label
+                            for="tipo_consumo_id"
+                            class="admin-form-label"
+                        >
                             Tipo de consumo
-
                         </label>
 
                         <select
+                            id="tipo_consumo_id"
                             name="tipo_consumo_id"
-                            class="form-select @error('tipo_consumo_id') is-invalid @enderror">
+                            class="admin-form-input @error('tipo_consumo_id') is-invalid @enderror"
+                        >
 
                             <option value="">
-
                                 Seleccione un tipo
-
                             </option>
 
                             @foreach($tiposConsumo as $tipo)
 
                                 <option
                                     value="{{ $tipo->id }}"
-                                    @selected(old('tipo_consumo_id') == $tipo->id)>
+                                    @selected(
+                                        old('tipo_consumo_id') == $tipo->id
+                                    )
+                                >
 
                                     {{ $tipo->nombre }}
 
@@ -204,382 +234,396 @@
 
                         @error('tipo_consumo_id')
 
-                            <div class="invalid-feedback">
-
+                            <div class="admin-form-error">
                                 {{ $message }}
-
                             </div>
 
                         @enderror
 
                     </div>
 
-                                        {{-- Nombre del producto --}}
-                    <div class="col-md-8">
 
-                        <label class="form-label">
+                    {{-- NOMBRE --}}
+
+                    <div class="admin-form-field admin-form-field-wide">
+
+                        <label
+                            for="name"
+                            class="admin-form-label"
+                        >
 
                             Nombre del producto
-                            <span class="text-danger">*</span>
+                            <span>*</span>
 
                         </label>
 
                         <input
                             type="text"
+                            id="name"
                             name="name"
                             value="{{ old('name') }}"
-                            class="form-control @error('name') is-invalid @enderror"
-                            placeholder="Ej. Café Americano">
+                            class="admin-form-input @error('name') is-invalid @enderror"
+                            placeholder="Ej. Café Americano"
+                        >
 
                         @error('name')
 
-                            <div class="invalid-feedback">
-
+                            <div class="admin-form-error">
                                 {{ $message }}
-
                             </div>
 
                         @enderror
 
                     </div>
 
+
                     {{-- SKU --}}
-                    <div class="col-md-4">
 
-                        <label class="form-label">
+                    <div class="admin-form-field">
 
+                        <label
+                            for="sku"
+                            class="admin-form-label"
+                        >
                             SKU
-
                         </label>
 
                         <input
                             type="text"
+                            id="sku"
                             name="sku"
                             value="{{ old('sku') }}"
-                            class="form-control @error('sku') is-invalid @enderror"
-                            placeholder="Se genera automáticamente">
+                            class="admin-form-input @error('sku') is-invalid @enderror"
+                            placeholder="Ej. CAF-001"
+                        >
 
-                        <small class="text-muted">
-
+                        <small class="admin-form-help">
                             Puede dejarse vacío.
-
                         </small>
 
                         @error('sku')
 
-                            <div class="invalid-feedback">
-
+                            <div class="admin-form-error">
                                 {{ $message }}
-
                             </div>
 
                         @enderror
 
                     </div>
 
-                    {{-- Código de barras --}}
-                    <div class="col-md-6">
 
-                        <label class="form-label">
+                    {{-- DESCRIPCIÓN --}}
 
-                            Código de barras
+                    <div class="admin-form-field admin-form-field-full">
 
-                        </label>
-
-                        <input
-                            type="text"
-                            name="barcode"
-                            value="{{ old('barcode') }}"
-                            class="form-control @error('barcode') is-invalid @enderror"
-                            placeholder="Opcional">
-
-                        @error('barcode')
-
-                            <div class="invalid-feedback">
-
-                                {{ $message }}
-
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-                    {{-- Slug --}}
-                    <div class="col-md-6">
-
-                        <label class="form-label">
-
-                            Slug
-
-                        </label>
-
-                        <input
-                            type="text"
-                            name="slug"
-                            value="{{ old('slug') }}"
-                            class="form-control @error('slug') is-invalid @enderror"
-                            placeholder="Se genera automáticamente">
-
-                        <small class="text-muted">
-
-                            Puede dejarse vacío.
-
-                        </small>
-
-                        @error('slug')
-
-                            <div class="invalid-feedback">
-
-                                {{ $message }}
-
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-                    {{-- Descripción --}}
-                    <div class="col-12">
-
-                        <label class="form-label">
-
+                        <label
+                            for="description"
+                            class="admin-form-label"
+                        >
                             Descripción
-
                         </label>
 
                         <textarea
-                            rows="5"
+                            id="description"
                             name="description"
-                            class="form-control @error('description') is-invalid @enderror"
-                            placeholder="Describe el producto...">{{ old('description') }}</textarea>
+                            rows="4"
+                            class="admin-form-input @error('description') is-invalid @enderror"
+                            placeholder="Describe el producto..."
+                        >{{ old('description') }}</textarea>
 
                         @error('description')
 
-                            <div class="invalid-feedback">
-
+                            <div class="admin-form-error">
                                 {{ $message }}
-
                             </div>
 
                         @enderror
 
                     </div>
 
-                                        {{-- Precio de costo --}}
-                    <div class="col-md-3">
+                </div>
 
-                        <label class="form-label">
+            </div>
 
-                            Precio de costo
-                            <span class="text-danger">*</span>
+        </section>
 
-                        </label>
 
-                        <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            name="cost_price"
-                            value="{{ old('cost_price') }}"
-                            class="form-control @error('cost_price') is-invalid @enderror"
-                            placeholder="0.00">
+        {{-- =================================================
+             PRECIO E INVENTARIO
+        ================================================== --}}
 
-                        @error('cost_price')
+        <section class="admin-form-card">
 
-                            <div class="invalid-feedback">
+            <div class="admin-form-card-header">
 
-                                {{ $message }}
+                <div class="admin-form-section-icon admin-form-section-icon-gold">
 
-                            </div>
+                    <i class="bi bi-box-seam"></i>
 
-                        @enderror
+                </div>
 
-                    </div>
+                <div>
 
-                    {{-- Precio de venta --}}
-                    <div class="col-md-3">
+                    <h2 class="admin-form-card-title">
+                        Precio e inventario
+                    </h2>
 
-                        <label class="form-label">
+                    <p class="admin-form-card-subtitle">
+                        Define el precio y la disponibilidad inicial.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="admin-form-card-body">
+
+                <div class="admin-form-grid admin-form-grid-four">
+
+                    {{-- PRECIO DE VENTA --}}
+
+                    <div class="admin-form-field">
+
+                        <label
+                            for="sale_price"
+                            class="admin-form-label"
+                        >
 
                             Precio de venta
-                            <span class="text-danger">*</span>
+                            <span>*</span>
 
                         </label>
 
-                        <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            name="sale_price"
-                            value="{{ old('sale_price') }}"
-                            class="form-control @error('sale_price') is-invalid @enderror"
-                            placeholder="0.00">
+                        <div class="admin-form-price">
+
+                            <span class="admin-form-price-prefix">
+                                S/
+                            </span>
+
+                            <input
+                                type="number"
+                                id="sale_price"
+                                name="sale_price"
+                                step="0.01"
+                                min="0"
+                                value="{{ old('sale_price') }}"
+                                class="admin-form-input admin-form-price-input @error('sale_price') is-invalid @enderror"
+                                placeholder="0.00"
+                            >
+
+                        </div>
 
                         @error('sale_price')
 
-                            <div class="invalid-feedback">
-
+                            <div class="admin-form-error">
                                 {{ $message }}
-
                             </div>
 
                         @enderror
 
                     </div>
 
-                    {{-- Stock --}}
-                    <div class="col-md-2">
 
-                        <label class="form-label">
+                    {{-- STOCK --}}
+
+                    <div class="admin-form-field">
+
+                        <label
+                            for="stock"
+                            class="admin-form-label"
+                        >
 
                             Stock
-                            <span class="text-danger">*</span>
+                            <span>*</span>
 
                         </label>
 
                         <input
                             type="number"
-                            min="0"
+                            id="stock"
                             name="stock"
-                            value="{{ old('stock',0) }}"
-                            class="form-control @error('stock') is-invalid @enderror">
+                            min="0"
+                            value="{{ old('stock', 0) }}"
+                            class="admin-form-input @error('stock') is-invalid @enderror"
+                        >
 
                         @error('stock')
 
-                            <div class="invalid-feedback">
-
+                            <div class="admin-form-error">
                                 {{ $message }}
-
                             </div>
 
                         @enderror
 
                     </div>
 
-                    {{-- Stock mínimo --}}
-                    <div class="col-md-2">
 
-                        <label class="form-label">
+                    {{-- STOCK MÍNIMO --}}
 
+                    <div class="admin-form-field">
+
+                        <label
+                            for="stock_minimo"
+                            class="admin-form-label"
+                        >
                             Stock mínimo
-
                         </label>
 
                         <input
                             type="number"
-                            min="0"
+                            id="stock_minimo"
                             name="stock_minimo"
-                            value="{{ old('stock_minimo',5) }}"
-                            class="form-control @error('stock_minimo') is-invalid @enderror">
+                            min="0"
+                            value="{{ old('stock_minimo', 5) }}"
+                            class="admin-form-input @error('stock_minimo') is-invalid @enderror"
+                        >
 
                         @error('stock_minimo')
 
-                            <div class="invalid-feedback">
-
+                            <div class="admin-form-error">
                                 {{ $message }}
-
                             </div>
 
                         @enderror
 
                     </div>
 
-                    {{-- Estado --}}
-                    <div class="col-md-2">
 
-                        <label class="form-label">
+                    {{-- ESTADO --}}
 
+                    <div class="admin-form-field">
+
+                        <label
+                            for="status"
+                            class="admin-form-label"
+                        >
                             Estado
-
                         </label>
 
                         <select
+                            id="status"
                             name="status"
-                            class="form-select @error('status') is-invalid @enderror">
+                            class="admin-form-input @error('status') is-invalid @enderror"
+                        >
 
-                            <option value="1"
-                                @selected(old('status',1)==1)>
-
+                            <option
+                                value="1"
+                                @selected(old('status', 1) == 1)
+                            >
                                 Activo
-
                             </option>
 
-                            <option value="0"
-                                @selected(old('status')==='0')>
-
+                            <option
+                                value="0"
+                                @selected(old('status') === '0')
+                            >
                                 Inactivo
-
                             </option>
 
                         </select>
 
                         @error('status')
 
-                            <div class="invalid-feedback">
-
+                            <div class="admin-form-error">
                                 {{ $message }}
-
                             </div>
 
                         @enderror
 
                     </div>
 
-                                        {{-- Imagen --}}
-                    <div class="col-md-6">
+                </div>
 
-                        <label class="form-label">
+            </div>
 
+        </section>
+
+
+        {{-- =================================================
+             IMAGEN
+        ================================================== --}}
+
+        <section class="admin-form-card">
+
+            <div class="admin-form-card-header">
+
+                <div class="admin-form-section-icon">
+
+                    <i class="bi bi-image"></i>
+
+                </div>
+
+                <div>
+
+                    <h2 class="admin-form-card-title">
+                        Imagen del producto
+                    </h2>
+
+                    <p class="admin-form-card-subtitle">
+                        Agrega una imagen representativa del producto.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="admin-form-card-body">
+
+                <div class="admin-form-image-layout">
+
+                    {{-- ARCHIVO --}}
+
+                    <div class="admin-form-upload">
+
+                        <label
+                            for="image"
+                            class="admin-form-label"
+                        >
                             Imagen del producto
-
                         </label>
 
                         <input
                             type="file"
-                            name="image"
                             id="image"
+                            name="image"
                             accept=".jpg,.jpeg,.png,.webp"
-                            class="form-control @error('image') is-invalid @enderror">
+                            class="admin-form-input @error('image') is-invalid @enderror"
+                        >
 
                         @error('image')
 
-                            <div class="invalid-feedback">
-
+                            <div class="admin-form-error">
                                 {{ $message }}
-
                             </div>
 
                         @enderror
 
-                        <small class="text-muted">
-
-                            Formatos permitidos:
-                            JPG, PNG y WEBP.
-                            Máximo 2 MB.
-
+                        <small class="admin-form-help">
+                            JPG, PNG o WEBP. Máximo 2 MB.
                         </small>
 
                     </div>
 
-                    {{-- Vista previa --}}
-                    <div class="col-md-6 text-center">
 
-                        <label class="form-label d-block">
+                    {{-- VISTA PREVIA --}}
 
+                    <div class="admin-form-preview-wrapper">
+
+                        <span class="admin-form-label">
                             Vista previa
+                        </span>
 
-                        </label>
+                        <div class="admin-form-preview">
 
-                        <img
+                            <img
+                                id="preview-image"
+                                src="{{ asset('images/no-image.png') }}"
+                                alt="Vista previa del producto"
+                            >
 
-                            id="preview-image"
-
-                            src="{{ asset('images/no-image.png') }}"
-
-                            class="img-thumbnail shadow-sm"
-
-                            style="max-width:220px;max-height:220px;object-fit:cover;">
+                        </div>
 
                     </div>
 
@@ -587,35 +631,36 @@
 
             </div>
 
-            <div class="card-footer bg-white">
+        </section>
 
-                <div class="d-flex justify-content-end gap-2">
 
-                    <a
+        {{-- =================================================
+             ACCIONES
+        ================================================== --}}
 
-                        href="{{ route('admin.products.index') }}"
+        <div class="admin-form-actions">
 
-                        class="btn btn-outline-secondary">
+            <a
+                href="{{ route('admin.products.index') }}"
+                class="admin-form-btn admin-form-btn-cancel"
+            >
 
-                        Cancelar
+                <i class="bi bi-x-lg"></i>
 
-                    </a>
+                Cancelar
 
-                    <button
+            </a>
 
-                        type="submit"
+            <button
+                type="submit"
+                class="admin-form-btn admin-form-btn-save"
+            >
 
-                        class="btn btn-warning px-4">
+                <i class="bi bi-check-circle-fill"></i>
 
-                        <i class="bi bi-check-circle me-2"></i>
+                Guardar producto
 
-                        Guardar Producto
-
-                    </button>
-
-                </div>
-
-            </div>
+            </button>
 
         </div>
 
@@ -630,29 +675,32 @@
 
 <script>
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function () {
 
     const input = document.getElementById('image');
-
     const preview = document.getElementById('preview-image');
 
-    input.addEventListener('change', function(e){
+    if (!input || !preview) {
+        return;
+    }
 
-        if(!e.target.files.length){
+    input.addEventListener('change', function (event) {
 
+        const file = event.target.files[0];
+
+        if (!file) {
             return;
-
         }
 
         const reader = new FileReader();
 
-        reader.onload = function(event){
+        reader.onload = function (event) {
 
             preview.src = event.target.result;
 
-        }
+        };
 
-        reader.readAsDataURL(e.target.files[0]);
+        reader.readAsDataURL(file);
 
     });
 

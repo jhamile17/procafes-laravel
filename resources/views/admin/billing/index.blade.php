@@ -1,50 +1,34 @@
 @extends('layouts.admin')
 
-@section('title', 'Facturación electrónica | PROCÁFES')
+@section('title', 'Facturación | PROCÁFES')
 
 @section('content')
 
-<div class="container-fluid py-2">
+<div class="admin-billing-page">
 
     {{-- =====================================================
          ENCABEZADO
     ====================================================== --}}
 
-    <div class="d-flex flex-column flex-md-row
-                justify-content-between
-                align-items-md-center
-                gap-3 mb-4">
+    <div class="admin-billing-header">
 
-        <div>
+        <div class="admin-billing-heading">
 
-            <div class="d-flex align-items-center gap-2 mb-1">
+            <div class="admin-billing-heading-icon">
+                <i class="bi bi-receipt-cutoff"></i>
+            </div>
 
-                <div
-                    class="rounded-3 p-2"
-                    style="
-                        background:#FDECEC;
-                        color:#D62828;
-                    "
-                >
-                    <i class="bi bi-receipt-cutoff fs-5"></i>
-                </div>
+            <div>
 
-                <h1
-                    class="h4 fw-bold mb-0"
-                    style="color:#3D2C2E;"
-                >
+                <h1 class="admin-billing-title">
                     Facturación electrónica
                 </h1>
 
-            </div>
+                <p class="admin-billing-subtitle">
+                    Consulta y gestiona los comprobantes electrónicos de PROCÁFES.
+                </p>
 
-            <p
-                class="mb-0 small"
-                style="color:#777777;"
-            >
-                Consulta y administra los comprobantes electrónicos
-                generados para los pedidos.
-            </p>
+            </div>
 
         </div>
 
@@ -52,59 +36,33 @@
 
 
     {{-- =====================================================
-         MENSAJE ÉXITO
+         MENSAJES
     ====================================================== --}}
 
     @if(session('success'))
 
-        <div
-            class="alert alert-dismissible fade show border-0 shadow-sm"
-            role="alert"
-            style="
-                background:#E9F8EF;
-                color:#18A558;
-            "
-        >
+        <div class="admin-billing-message admin-billing-message-success">
 
-            <i class="bi bi-check-circle-fill me-2"></i>
+            <i class="bi bi-check-circle-fill"></i>
 
-            {{ session('success') }}
-
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-            ></button>
+            <span>
+                {{ session('success') }}
+            </span>
 
         </div>
 
     @endif
 
-
-    {{-- =====================================================
-         MENSAJE ERROR
-    ====================================================== --}}
 
     @if(session('error'))
 
-        <div
-            class="alert alert-dismissible fade show border-0 shadow-sm"
-            role="alert"
-            style="
-                background:#FDECEC;
-                color:#DC3545;
-            "
-        >
+        <div class="admin-billing-message admin-billing-message-error">
 
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <i class="bi bi-exclamation-triangle-fill"></i>
 
-            {{ session('error') }}
-
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-            ></button>
+            <span>
+                {{ session('error') }}
+            </span>
 
         </div>
 
@@ -112,374 +70,67 @@
 
 
     {{-- =====================================================
-         BÚSQUEDA
+         FILTROS
     ====================================================== --}}
 
-    <div
-        class="card border-0 shadow-sm mb-4"
-        style="border-radius:14px;"
-    >
+    <div class="admin-billing-filter">
 
-        <div
-            class="card-header bg-white py-3"
-            style="
-                border-bottom:1px solid #ECE7E2;
-                border-radius:14px 14px 0 0;
-            "
+        <form
+            action="{{ route('admin.billing.index') }}"
+            method="GET"
+            class="admin-billing-filter-form"
         >
 
-            <div class="d-flex align-items-center">
+            <div class="admin-billing-search">
 
-                <div
-                    class="rounded-3 p-2 me-3"
-                    style="
-                        background:#FDECEC;
-                        color:#D62828;
-                    "
+                <i class="bi bi-search"></i>
+
+                <input
+                    type="text"
+                    name="numero_pedido"
+                    value="{{ $numeroPedido }}"
+                    class="admin-billing-search-input"
+                    placeholder="Buscar por número de pedido"
                 >
-                    <i class="bi bi-search"></i>
-                </div>
 
-                <div>
+            </div>
 
-                    <h5
-                        class="mb-0 fw-semibold"
-                        style="color:#3D2C2E;"
+
+            <select
+                name="estado"
+                class="admin-billing-filter-select"
+            >
+
+                <option value="">
+                    Todos los estados
+                </option>
+
+                @foreach($estados as $estadoComprobante)
+
+                    <option
+                        value="{{ $estadoComprobante->codigo }}"
+                        @selected($estado === $estadoComprobante->codigo)
                     >
-                        Buscar pedido
-                    </h5>
+                        {{ $estadoComprobante->nombre }}
+                    </option>
 
-                    <small style="color:#777777;">
-                        Busca un pedido por su número.
-                    </small>
+                @endforeach
 
-                </div>
-
-            </div>
-
-        </div>
+            </select>
 
 
-        <div class="card-body">
-
-            <form
-                action="{{ route('admin.billing.lookup') }}"
-                method="POST"
+            <button
+                type="submit"
+                class="admin-billing-search-button"
             >
 
-                @csrf
+                <i class="bi bi-search"></i>
 
-                <div class="row g-3 align-items-end">
+                Buscar
 
-                    <div class="col-md-6 col-lg-5">
+            </button>
 
-                        <label
-                            for="numero_pedido"
-                            class="form-label fw-semibold"
-                            style="color:#3D2C2E;"
-                        >
-                            Número de pedido
-                        </label>
-
-                        <input
-                            type="text"
-                            name="numero_pedido"
-                            id="numero_pedido"
-                            class="form-control"
-                            placeholder="Ej. PED-20260808-UTDSMS"
-                            value="{{ request('numero_pedido') }}"
-                            autocomplete="off"
-                        >
-
-                        @error('numero_pedido')
-
-                            <div class="text-danger small mt-1">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-
-                    {{-- Buscar --}}
-
-                    <div class="col-md-auto">
-
-                        <button
-                            type="submit"
-                            class="btn px-4"
-                            style="
-                                background:#D62828;
-                                color:#FFFFFF;
-                                border-radius:10px;
-                            "
-                        >
-
-                            <i class="bi bi-search me-1"></i>
-
-                            Buscar pedido
-
-                        </button>
-
-                    </div>
-
-
-                    {{-- Limpiar --}}
-
-                    @if(request()->filled('numero_pedido'))
-
-                        <div class="col-md-auto">
-
-                            <a
-                                href="{{ route('admin.billing.index') }}"
-                                class="btn btn-outline-secondary"
-                            >
-
-                                <i class="bi bi-x-lg me-1"></i>
-
-                                Limpiar
-
-                            </a>
-
-                        </div>
-
-                    @endif
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-
-    {{-- =====================================================
-         RESUMEN
-    ====================================================== --}}
-
-    <div class="row g-3 mb-4">
-
-        {{-- Total pedidos --}}
-
-        <div class="col-sm-6 col-xl-3">
-
-            <div
-                class="card border-0 shadow-sm h-100"
-                style="border-radius:14px;"
-            >
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between">
-
-                        <div>
-
-                            <small style="color:#777777;">
-                                Pedidos
-                            </small>
-
-                            <h4
-                                class="fw-bold mt-1 mb-0"
-                                style="color:#3D2C2E;"
-                            >
-                                {{ $orders->total() }}
-                            </h4>
-
-                        </div>
-
-                        <div
-                            class="rounded-3 p-2"
-                            style="
-                                background:#FDECEC;
-                                color:#D62828;
-                            "
-                        >
-
-                            <i class="bi bi-cart-check fs-5"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- Comprobantes emitidos --}}
-
-        <div class="col-sm-6 col-xl-3">
-
-            <div
-                class="card border-0 shadow-sm h-100"
-                style="border-radius:14px;"
-            >
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between">
-
-                        <div>
-
-                            <small style="color:#777777;">
-                                Comprobantes emitidos
-                            </small>
-
-                            <h4
-                                class="fw-bold mt-1 mb-0"
-                                style="color:#3D2C2E;"
-                            >
-
-                                {{
-                                    $orders->filter(
-                                        fn ($order) =>
-                                            $order->comprobante?->electronicDocument
-                                    )->count()
-                                }}
-
-                            </h4>
-
-                        </div>
-
-                        <div
-                            class="rounded-3 p-2"
-                            style="
-                                background:#E9F8EF;
-                                color:#18A558;
-                            "
-                        >
-
-                            <i class="bi bi-file-earmark-check fs-5"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- Pendientes --}}
-
-        <div class="col-sm-6 col-xl-3">
-
-            <div
-                class="card border-0 shadow-sm h-100"
-                style="border-radius:14px;"
-            >
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between">
-
-                        <div>
-
-                            <small style="color:#777777;">
-                                Pendientes
-                            </small>
-
-                            <h4
-                                class="fw-bold mt-1 mb-0"
-                                style="color:#3D2C2E;"
-                            >
-
-                                {{
-                                    $orders->filter(
-                                        fn ($order) =>
-                                            !$order->comprobante?->electronicDocument
-                                    )->count()
-                                }}
-
-                            </h4>
-
-                        </div>
-
-                        <div
-                            class="rounded-3 p-2"
-                            style="
-                                background:#FFF8E8;
-                                color:#F59E0B;
-                            "
-                        >
-
-                            <i class="bi bi-clock-history fs-5"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- SUNAT --}}
-
-        <div class="col-sm-6 col-xl-3">
-
-            <div
-                class="card border-0 shadow-sm h-100"
-                style="border-radius:14px;"
-            >
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between">
-
-                        <div>
-
-                            <small style="color:#777777;">
-                                Aceptados SUNAT
-                            </small>
-
-                            <h4
-                                class="fw-bold mt-1 mb-0"
-                                style="color:#3D2C2E;"
-                            >
-
-                                {{
-                                    $orders->filter(
-                                        fn ($order) =>
-                                            strtolower(
-                                                $order->comprobante
-                                                    ?->electronicDocument
-                                                    ?->estado ?? ''
-                                            ) === 'aceptado'
-                                    )->count()
-                                }}
-
-                            </h4>
-
-                        </div>
-
-                        <div
-                            class="rounded-3 p-2"
-                            style="
-                                background:#E9F8EF;
-                                color:#18A558;
-                            "
-                        >
-
-                            <i class="bi bi-shield-check fs-5"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
+        </form>
 
     </div>
 
@@ -488,616 +139,373 @@
          TABLA
     ====================================================== --}}
 
-    <div
-        class="card border-0 shadow-sm"
-        style="border-radius:14px;"
-    >
+    <div class="admin-billing-card">
 
-        <div
-            class="card-header bg-white py-3"
-            style="
-                border-bottom:1px solid #ECE7E2;
-                border-radius:14px 14px 0 0;
-            "
-        >
+        <div class="admin-billing-table-wrapper">
 
-            <div
-                class="d-flex flex-column flex-md-row
-                       justify-content-between
-                       align-items-md-center gap-2"
-            >
+            <table class="admin-billing-table">
 
-                <div>
+                <thead>
 
-                    <h5
-                        class="mb-0 fw-semibold"
-                        style="color:#3D2C2E;"
-                    >
+                    <tr>
 
-                        <i
-                            class="bi bi-receipt me-2"
-                            style="color:#D62828;"
-                        ></i>
+                        <th>
+                            Pedido
+                        </th>
 
-                        Pedidos para facturación
+                        <th>
+                            Cliente
+                        </th>
 
-                    </h5>
-                </div>
+                        <th>
+                            Pago
+                        </th>
 
+                        <th>
+                            Comprobante
+                        </th>
 
-                <span
-                    class="badge rounded-pill px-3 py-2"
-                    style="
-                        background:#FAF8F5;
-                        color:#3D2C2E;
-                        border:1px solid #ECE7E2;
-                    "
-                >
+                        <th>
+                            Estado
+                        </th>
 
-                    {{ $orders->total() }} registros
+                        <th>
+                            Fecha
+                        </th>
 
-                </span>
+                        <th class="admin-billing-actions-column">
+                            Acciones
+                        </th>
 
-            </div>
+                    </tr>
 
-        </div>
+                </thead>
 
 
-        <div class="card-body p-0">
+                <tbody>
 
-            <div class="table-responsive">
+                    @forelse($orders as $order)
 
-                <table class="table table-hover align-middle mb-0">
+                        <tr>
 
-                    <thead>
+                            {{-- =================================================
+                                 PEDIDO
+                            ================================================== --}}
 
-                        <tr
-                            style="
-                                background:#FAF8F5;
-                                color:#3D2C2E;
-                            "
-                        >
+                            <td>
 
-                            <th class="ps-4">
-                                Pedido
-                            </th>
+                                <strong class="admin-billing-order">
+                                    {{ $order->numero_pedido }}
+                                </strong>
 
-                            <th>
-                                Cliente
-                            </th>
-
-                            <th>
-                                Fecha
-                            </th>
-
-                            <th>
-                                Comprobante
-                            </th>
-
-                            <th>
-                                Estado
-                            </th>
-
-                            <th class="text-end pe-4">
-                                Documentos
-                            </th>
-
-                        </tr>
-
-                    </thead>
+                            </td>
 
 
-                    <tbody>
+                            {{-- =================================================
+                                 CLIENTE
+                            ================================================== --}}
 
-                        @forelse($orders as $order)
+                            <td>
 
-                            <tr>
+                                <div class="admin-billing-client">
 
-                                {{-- PEDIDO --}}
-
-                                <td class="ps-4">
-
-                                    <strong style="color:#3D2C2E;">
-
-                                        #{{ $order->numero_pedido }}
-
+                                    <strong>
+                                        {{ $order->user?->name ?? 'Sin cliente' }}
                                     </strong>
 
-                                    <small
-                                        class="d-block"
-                                        style="color:#888888;"
-                                    >
-
-                                        Pedido #{{ $order->id }}
-
-                                    </small>
-
-                                </td>
-
-
-                                {{-- CLIENTE --}}
-
-                                <td>
-
-                                    <strong style="color:#2B2B2B;">
-
-                                        {{ $order->user?->name ?? 'Cliente' }}
-
-                                    </strong>
-
-                                    @if($order->user?->email)
-
-                                        <small
-                                            class="d-block"
-                                            style="color:#888888;"
-                                        >
-
-                                            {{ $order->user->email }}
-
-                                        </small>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- FECHA --}}
-
-                                <td>
-
-                                    <span style="color:#2B2B2B;">
-
-                                        {{ $order->created_at->format('d/m/Y') }}
-
+                                    <span>
+                                        {{ $order->user?->email ?? '—' }}
                                     </span>
 
-                                    <small
-                                        class="d-block"
-                                        style="color:#888888;"
-                                    >
+                                </div>
 
-                                        {{ $order->created_at->format('H:i') }}
-
-                                    </small>
-
-                                </td>
+                            </td>
 
 
-                                {{-- COMPROBANTE --}}
+                            {{-- =================================================
+                                 PAGO
+                            ================================================== --}}
 
-                                <td>
+                            <td>
 
-                                    @if($order->comprobante)
+                                @if($order->payment)
 
-                                        <strong style="color:#3D2C2E;">
+                                    <div class="admin-billing-payment">
 
-                                            {{
-                                                ucfirst(
-                                                    $order->comprobante
-                                                        ->tipo_comprobante
-                                                )
+                                        <strong>
+                                            {{ $order->payment->paymentMethod?->nombre ?? '—' }}
+                                        </strong>
+
+                                        <span>
+                                            {{ $order->payment->estadoPago?->nombre ?? '—' }}
+                                        </span>
+
+                                    </div>
+
+                                @else
+
+                                    <span class="admin-billing-muted">
+                                        Sin pago
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- =================================================
+                                 COMPROBANTE
+                            ================================================== --}}
+
+                            <td>
+
+                                @if($order->comprobante)
+
+                                    <div class="admin-billing-document">
+
+                                        <span class="admin-billing-document-type">
+
+                                            {{ $order->comprobante->tipo
+                                                ? ucfirst($order->comprobante->tipo)
+                                                : 'Comprobante'
                                             }}
+
+                                        </span>
+
+                                        <strong>
+
+                                            {{ $order->comprobante->serie ?? '—' }}
+
+                                            -
+
+                                            {{ $order->comprobante->numero ?? '—' }}
 
                                         </strong>
 
-                                        @if(
-                                            $order->comprobante
-                                                ->electronicDocument
-                                        )
+                                    </div>
 
-                                            <small
-                                                class="d-block"
-                                                style="color:#888888;"
-                                            >
+                                @else
 
-                                                {{
-                                                    $order->comprobante
-                                                        ->electronicDocument
-                                                        ->numeroCompleto()
-                                                }}
+                                    <span class="admin-billing-muted">
+                                        Sin comprobante
+                                    </span>
 
-                                            </small>
+                                @endif
 
-                                        @endif
-
-                                    @else
-
-                                        <span style="color:#888888;">
-                                            Sin comprobante
-                                        </span>
-
-                                    @endif
-
-                                </td>
+                            </td>
 
 
-                                {{-- ESTADO --}}
+                            {{-- =================================================
+                                 ESTADO
+                            ================================================== --}}
 
-                                <td>
+                            <td>
+
+                                @if($order->comprobante?->estadoComprobante)
+
+                                    @php
+                                        $estadoCodigo = strtolower(
+                                            $order->comprobante->estadoComprobante->codigo
+                                        );
+
+                                        $estadoClase = match ($estadoCodigo) {
+                                            'aceptado' => 'success',
+                                            'rechazado' => 'danger',
+                                            'anulado' => 'secondary',
+                                            'pendiente' => 'warning',
+                                            default => 'info',
+                                        };
+                                    @endphp
+
+                                    <span
+                                        class="admin-billing-status admin-billing-status-{{ $estadoClase }}"
+                                    >
+                                        {{ $order->comprobante->estadoComprobante->nombre }}
+                                    </span>
+
+                                @else
+
+                                    <span class="admin-billing-status admin-billing-status-warning">
+                                        Pendiente
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- =================================================
+                                 FECHA
+                            ================================================== --}}
+
+                            <td>
+
+                                <span class="admin-billing-date">
+
+                                    {{ $order->created_at->format('d/m/Y H:i') }}
+
+                                </span>
+
+                            </td>
+
+
+                            {{-- =================================================
+                                 ACCIONES
+                            ================================================== --}}
+
+                            <td class="admin-billing-actions">
+
+                                <div class="admin-actions">
+
+
+                                    {{-- APROBAR PAGO EN TIENDA --}}
 
                                     @if(
-                                        $order->comprobante?->electronicDocument
+                                        $order->payment &&
+                                        $order->payment->paymentMethod &&
+                                        $order->payment->paymentMethod->codigo === 'PAGO_TIENDA' &&
+                                        $order->payment->isPendiente()
                                     )
 
-                                        @php
-
-                                            $estado = strtolower(
-                                                $order->comprobante
-                                                    ->electronicDocument
-                                                    ->estado ?? ''
-                                            );
-
-                                        @endphp
-
-
-                                        @if($estado === 'aceptado')
-
-                                            <span
-                                                class="badge rounded-pill"
-                                                style="
-                                                    background:#E9F8EF;
-                                                    color:#18A558;
-                                                "
-                                            >
-
-                                                <i
-                                                    class="bi bi-check-circle me-1"
-                                                ></i>
-
-                                                Aceptado
-
-                                            </span>
-
-
-                                        @elseif($estado === 'rechazado')
-
-                                            <span
-                                                class="badge rounded-pill"
-                                                style="
-                                                    background:#FDECEC;
-                                                    color:#DC3545;
-                                                "
-                                            >
-
-                                                <i
-                                                    class="bi bi-x-circle me-1"
-                                                ></i>
-
-                                                Rechazado
-
-                                            </span>
-
-
-                                        @elseif($estado === 'anulado')
-
-                                            <span
-                                                class="badge rounded-pill"
-                                                style="
-                                                    background:#F5F5F5;
-                                                    color:#666666;
-                                                "
-                                            >
-
-                                                Anulado
-
-                                            </span>
-
-
-                                        @else
-
-                                            <span
-                                                class="badge rounded-pill"
-                                                style="
-                                                    background:#FFF8E8;
-                                                    color:#F59E0B;
-                                                "
-                                            >
-
-                                                <i
-                                                    class="bi bi-clock me-1"
-                                                ></i>
-
-                                                {{ ucfirst($estado ?: 'Pendiente') }}
-
-                                            </span>
-
-                                        @endif
-
-                                    @else
-
-                                        <span
-                                            class="badge rounded-pill"
-                                            style="
-                                                background:#F5F5F5;
-                                                color:#777777;
-                                            "
+                                        <form
+                                            action="{{ route(
+                                                'admin.billing.approve-payment',
+                                                $order->id
+                                            ) }}"
+                                            method="POST"
+                                            class="d-inline"
                                         >
 
-                                            Pendiente
+                                            @csrf
 
-                                        </span>
+                                            <button
+                                                type="submit"
+                                                class="admin-action admin-action-success"
+                                                title="Aprobar pago"
+                                            >
+
+                                                <i class="bi bi-check-circle"></i>
+
+                                            </button>
+
+                                        </form>
 
                                     @endif
 
-                                </td>
 
-
-                                {{-- DOCUMENTOS --}}
-
-                                <td class="text-end pe-4">
+                                    {{-- PDF --}}
 
                                     @if(
-                                        $order->comprobante?->electronicDocument
+                                        $order->comprobante?->electronicDocument?->pdf_url
                                     )
 
-                                        @php
-
-                                            $document =
-                                                $order->comprobante
-                                                    ->electronicDocument;
-
-                                        @endphp
-
-
-                                        <div
-                                            class="d-flex
-                                                   justify-content-end
-                                                   flex-wrap
-                                                   gap-1"
+                                        <a
+                                            href="{{ $order->comprobante->electronicDocument->pdf_url }}"
+                                            target="_blank"
+                                            class="admin-action admin-action-view"
+                                            title="Ver comprobante PDF"
+                                            aria-label="Ver comprobante PDF"
                                         >
 
-                                            {{-- PDF --}}
+                                            <i class="bi bi-file-earmark-pdf-fill"></i>
 
-                                            @if($document->pdf_url)
-
-                                                <a
-                                                    href="{{ $document->pdf_url }}"
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    class="btn btn-sm"
-                                                    style="
-                                                        background:#D62828;
-                                                        color:#FFFFFF;
-                                                    "
-                                                    title="Ver PDF"
-                                                >
-
-                                                    <i
-                                                        class="bi bi-file-earmark-pdf"
-                                                    ></i>
-
-                                                    <span
-                                                        class="d-none d-lg-inline"
-                                                    >
-                                                        PDF
-                                                    </span>
-
-                                                </a>
-
-                                            @endif
-
-
-                                            {{-- XML --}}
-
-                                            @if($document->xml_url)
-
-                                                <a
-                                                    href="{{ $document->xml_url }}"
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    class="btn btn-sm"
-                                                    style="
-                                                        background:#FAF8F5;
-                                                        color:#3D2C2E;
-                                                        border:1px solid #ECE7E2;
-                                                    "
-                                                    title="Ver XML"
-                                                >
-
-                                                    <i
-                                                        class="bi bi-filetype-xml"
-                                                    ></i>
-
-                                                    <span
-                                                        class="d-none d-lg-inline"
-                                                    >
-                                                        XML
-                                                    </span>
-
-                                                </a>
-
-                                            @endif
-
-
-                                            {{-- CDR --}}
-
-                                            @if($document->cdr_url)
-
-                                                <a
-                                                    href="{{ $document->cdr_url }}"
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    class="btn btn-sm"
-                                                    style="
-                                                        background:#E9F8EF;
-                                                        color:#18A558;
-                                                        border:1px solid #18A558;
-                                                    "
-                                                    title="Ver CDR"
-                                                >
-
-                                                    <i
-                                                        class="bi bi-file-earmark-check"
-                                                    ></i>
-
-                                                    <span
-                                                        class="d-none d-lg-inline"
-                                                    >
-                                                        CDR
-                                                    </span>
-
-                                                </a>
-
-                                            @endif
-
-
-                                            @if(
-                                                !$document->pdf_url &&
-                                                !$document->xml_url &&
-                                                !$document->cdr_url
-                                            )
-
-                                                <small
-                                                    style="color:#888888;"
-                                                >
-
-                                                    Procesando...
-
-                                                </small>
-
-                                            @endif
-
-                                        </div>
-
-                                    @else
-
-                                        <small style="color:#888888;">
-
-                                            No generado
-
-                                        </small>
+                                        </a>
 
                                     @endif
 
-                                </td>
 
-                            </tr>
+                                    {{-- XML --}}
+
+                                    @if(
+                                        $order->comprobante?->electronicDocument?->xml_url
+                                    )
+
+                                        <a
+                                            href="{{ $order->comprobante->electronicDocument->xml_url }}"
+                                            target="_blank"
+                                            class="admin-action admin-action-success"
+                                            title="Descargar XML"
+                                            aria-label="Descargar XML"
+                                        >
+
+                                            <i class="bi bi-file-earmark-code-fill"></i>
+
+                                        </a>
+
+                                    @endif
 
 
-                        @empty
+                                    {{-- CDR --}}
 
-                            <tr>
+                                    @if(
+                                        $order->comprobante?->electronicDocument?->cdr_url
+                                    )
 
-                                <td
-                                    colspan="6"
-                                    class="text-center py-5"
-                                >
+                                        <a
+                                            href="{{ $order->comprobante->electronicDocument->cdr_url }}"
+                                            target="_blank"
+                                            class="admin-action admin-action-warning"
+                                            title="Descargar CDR"
+                                            aria-label="Descargar CDR"
+                                        >
 
-                                    <i
-                                        class="bi bi-receipt display-6"
-                                        style="color:#D9D2CB;"
-                                    ></i>
+                                            <i class="bi bi-file-earmark-check-fill"></i>
 
-                                    <h5
-                                        class="mt-3 mb-1"
-                                        style="color:#3D2C2E;"
-                                    >
+                                        </a>
 
-                                        @if(request()->filled('numero_pedido'))
+                                    @endif
 
-                                            No se encontró el pedido
+                                </div>
 
-                                        @else
+                            </td>
 
-                                            No hay pedidos
+                        </tr>
 
-                                        @endif
+                    @empty
 
-                                    </h5>
+                        <tr>
 
-                                    <p
-                                        class="mb-0"
-                                        style="color:#888888;"
-                                    >
+                            <td
+                                colspan="7"
+                                class="admin-billing-empty"
+                            >
 
-                                        @if(request()->filled('numero_pedido'))
+                                <div class="admin-billing-empty-icon">
 
-                                            No existe un pedido que coincida
-                                            con "{{ request('numero_pedido') }}".
+                                    <i class="bi bi-receipt"></i>
 
-                                        @else
+                                </div>
 
-                                            No existen pedidos disponibles
-                                            para facturación.
+                                <strong>
+                                    No existen pedidos registrados
+                                </strong>
 
-                                        @endif
+                                <span>
+                                    No se encontraron pedidos con los filtros seleccionados.
+                                </span>
 
-                                    </p>
+                            </td>
 
-                                </td>
+                        </tr>
 
-                            </tr>
+                    @endforelse
 
-                        @endforelse
+                </tbody>
 
-                    </tbody>
-
-                </table>
-
-            </div>
+            </table>
 
         </div>
 
 
-        {{-- =================================================
+        {{-- =====================================================
              PAGINACIÓN
-        ================================================== --}}
+        ====================================================== --}}
 
         @if($orders->hasPages())
 
-            <div
-                class="card-footer bg-white border-0 py-3"
-                style="
-                    border-top:1px solid #ECE7E2 !important;
-                    border-radius:0 0 14px 14px;
-                "
-            >
+            <div class="admin-billing-pagination">
 
-                <div
-                    class="d-flex
-                           flex-column flex-md-row
-                           justify-content-between
-                           align-items-center
-                           gap-3"
-                >
-
-                    {{-- Información --}}
-
-                    <small style="color:#777777;">
-
-                        Mostrando
-
-                        <strong style="color:#3D2C2E;">
-                            {{ $orders->firstItem() }}
-                        </strong>
-
-                        a
-
-                        <strong style="color:#3D2C2E;">
-                            {{ $orders->lastItem() }}
-                        </strong>
-
-                        de
-
-                        <strong style="color:#3D2C2E;">
-                            {{ $orders->total() }}
-                        </strong>
-
-                        pedidos
-
-                    </small>
-
-
-                    {{-- Paginación personalizada PROCÁFES --}}
-
-                    <div>
-
-                           {{ $orders->withQueryString()->links() }}
-
-
-                    </div>
-
-                </div>
+                {{ $orders->links() }}
 
             </div>
 

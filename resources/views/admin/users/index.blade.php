@@ -1,249 +1,348 @@
 @extends('layouts.admin')
 
-@section('title', 'Usuarios')
+@section('title', 'Usuarios | PROCÁFES')
 
 @section('content')
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="admin-list-page">
 
-    <div>
+    {{-- =====================================================
+         ENCABEZADO
+    ====================================================== --}}
 
-        <h2 class="fw-bold mb-1">
+    <div class="admin-list-header">
 
-            Usuarios
+        <div class="admin-list-heading">
 
-        </h2>
+            <div class="admin-list-heading-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
 
-        <p class="text-muted mb-0">
+            <div>
 
-            Administra los usuarios registrados en PROCÁFES.
+                <h1 class="admin-list-title">
+                    Usuarios
+                </h1>
 
-        </p>
+                <p class="admin-list-subtitle">
+                    Administra los usuarios registrados en PROCÁFES.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <a
+            href="{{ route('admin.users.create') }}"
+            class="admin-list-new"
+        >
+
+            <i class="bi bi-plus-circle"></i>
+
+            Nuevo usuario
+
+        </a>
 
     </div>
 
-    <a
-        href="{{ route('admin.users.create') }}"
-        class="btn btn-warning">
 
-        <i class="bi bi-plus-circle me-2"></i>
+    {{-- =====================================================
+         MENSAJES
+    ====================================================== --}}
 
-        Nuevo Usuario
+    @if(session('success'))
 
-    </a>
+        <div class="admin-list-message admin-list-message-success">
 
-</div>
+            <i class="bi bi-check-circle-fill"></i>
 
-@if(session('success'))
+            <span>
+                {{ session('success') }}
+            </span>
 
-<div class="alert alert-success">
+        </div>
 
-    <i class="bi bi-check-circle-fill me-2"></i>
+    @endif
 
-    {{ session('success') }}
 
-</div>
+    @if(session('error'))
 
-@endif
+        <div class="admin-list-message admin-list-message-error">
 
-@if(session('error'))
+            <i class="bi bi-exclamation-triangle-fill"></i>
 
-<div class="alert alert-danger">
+            <span>
+                {{ session('error') }}
+            </span>
 
-    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        </div>
 
-    {{ session('error') }}
+    @endif
 
-</div>
 
-@endif
+    {{-- =====================================================
+         TABLA
+    ====================================================== --}}
 
-<div class="card">
+    <div class="admin-list-card">
 
-    <div class="card-body p-0">
+        <div class="admin-list-table-wrapper">
 
-        <div class="table-responsive">
-
-            <table class="table table-hover align-middle mb-0">
+            <table class="admin-list-table">
 
                 <thead>
 
                     <tr>
 
-                        <th>Nombre</th>
+                        <th>
+                            Usuario
+                        </th>
 
-                        <th>Correo</th>
+                        <th>
+                            Correo
+                        </th>
 
-                        <th>Celular</th>
+                        <th>
+                            Celular
+                        </th>
 
-                        <th>Documento</th>
+                        <th>
+                            Documento
+                        </th>
 
-                        <th>Rol</th>
+                        <th>
+                            Rol
+                        </th>
 
-                        <th>Estado</th>
+                        <th>
+                            Estado
+                        </th>
 
-                        <th>Verificado</th>
+                        <th>
+                            Verificado
+                        </th>
 
-                        <th class="text-end">
-
+                        <th class="admin-list-actions-column">
                             Acciones
-
                         </th>
 
                     </tr>
 
                 </thead>
 
+
                 <tbody>
 
-                @forelse($users as $user)
+                    @forelse($users as $user)
 
-                    <tr>
+                        <tr>
 
-                        <td>
+                            {{-- USUARIO --}}
 
-                            <strong>
+                            <td>
 
-                                {{ $user->nombre_completo }}
+                                <div class="admin-list-name">
 
-                            </strong>
+                                    <div class="admin-list-icon">
 
-                        </td>
+                                        <i class="bi bi-person-fill"></i>
 
-                        <td>
+                                    </div>
 
-                            {{ $user->email }}
+                                    <strong>
+                                        {{ $user->nombre_completo }}
+                                    </strong>
 
-                        </td>
+                                </div>
 
-                        <td>
+                            </td>
 
-                            {{ $user->celular ?? '-' }}
 
-                        </td>
+                            {{-- CORREO --}}
 
-                        <td>
+                            <td>
 
-                            {{ $user->tipo_documento }}
+                                {{ $user->email }}
 
-                            <br>
+                            </td>
 
-                            <small class="text-muted">
 
-                                {{ $user->numero_documento }}
+                            {{-- CELULAR --}}
 
-                            </small>
+                            <td>
 
-                        </td>
+                                {{ $user->celular ?? '—' }}
 
-                        <td>
+                            </td>
 
-                            <span class="badge bg-primary">
 
-                                {{ $user->role?->nombre ?? 'Sin rol' }}
+                            {{-- DOCUMENTO --}}
 
-                            </span>
+                            <td>
 
-                        </td>
+                                <strong>
+                                    {{ $user->tipo_documento }}
+                                </strong>
 
-                        <td>
+                                <br>
 
-                            @if($user->estado)
+                                <small>
+                                    {{ $user->numero_documento }}
+                                </small>
 
-                                <span class="badge bg-success">
+                            </td>
 
-                                    Activo
 
+                            {{-- ROL --}}
+
+                            <td>
+
+                                <span class="admin-list-status">
+                                    {{ $user->role?->nombre ?? 'Sin rol' }}
                                 </span>
 
-                            @else
+                            </td>
 
-                                <span class="badge bg-danger">
 
-                                    Inactivo
+                            {{-- ESTADO --}}
 
+                            <td>
+
+                                @if($user->estado)
+
+                                    <span class="admin-list-status admin-list-status-success">
+                                        Activo
+                                    </span>
+
+                                @else
+
+                                    <span class="admin-list-status admin-list-status-danger">
+                                        Inactivo
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- VERIFICADO --}}
+
+                            <td>
+
+                                @if($user->email_verified_at)
+
+                                    <span class="admin-list-status admin-list-status-success">
+                                        Sí
+                                    </span>
+
+                                @else
+
+                                    <span class="admin-list-status admin-list-status-warning">
+                                        No
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- ACCIONES --}}
+
+                            <td class="admin-list-actions">
+
+                                <div class="admin-actions">
+
+                                    <a
+                                        href="{{ route(
+                                            'admin.users.edit',
+                                            $user
+                                        ) }}"
+                                        class="admin-action admin-action-edit"
+                                        title="Editar usuario"
+                                        aria-label="Editar usuario"
+                                    >
+
+                                        <i class="bi bi-pencil-square"></i>
+
+                                    </a>
+
+
+                                    <form
+                                        action="{{ route(
+                                            'admin.users.destroy',
+                                            $user
+                                        ) }}"
+                                        method="POST"
+                                        class="d-inline"
+                                        onsubmit="return confirm(
+                                            '¿Eliminar este usuario?'
+                                        )"
+                                    >
+
+                                        @csrf
+
+                                        @method('DELETE')
+
+                                        <button
+                                            type="submit"
+                                            class="admin-action admin-action-delete"
+                                            title="Eliminar usuario"
+                                            aria-label="Eliminar usuario"
+                                        >
+
+                                            <i class="bi bi-trash3"></i>
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td
+                                colspan="8"
+                                class="admin-list-empty"
+                            >
+
+                                <div class="admin-list-empty-icon">
+
+                                    <i class="bi bi-people"></i>
+
+                                </div>
+
+                                <strong>
+                                    No existen usuarios registrados
+                                </strong>
+
+                                <span>
+                                    Registra un usuario para comenzar a
+                                    administrar las cuentas de PROCÁFES.
                                 </span>
 
-                            @endif
+                                <a
+                                    href="{{ route('admin.users.create') }}"
+                                    class="admin-list-empty-btn"
+                                >
 
-                        </td>
+                                    <i class="bi bi-plus-circle"></i>
 
-                        <td>
+                                    Crear usuario
 
-                            @if($user->email_verified_at)
+                                </a>
 
-                                <span class="badge bg-success">
+                            </td>
 
-                                    Sí
+                        </tr>
 
-                                </span>
-
-                            @else
-
-                                <span class="badge bg-warning text-dark">
-
-                                    No
-
-                                </span>
-
-                            @endif
-
-                        </td>
-
-                        <td class="text-end">
-
-                            <a
-                                href="{{ route('admin.users.edit',$user) }}"
-                                class="btn btn-sm btn-outline-primary">
-
-                                <i class="bi bi-pencil-square"></i>
-
-                            </a>
-
-                            <form
-                                action="{{ route('admin.users.destroy',$user) }}"
-                                method="POST"
-                                class="d-inline"
-                                onsubmit="return confirm('¿Eliminar este usuario?')">
-
-                                @csrf
-
-                                @method('DELETE')
-
-                                <button
-                                    class="btn btn-sm btn-outline-danger">
-
-                                    <i class="bi bi-trash"></i>
-
-                                </button>
-
-                            </form>
-
-                        </td>
-
-                    </tr>
-
-                @empty
-
-                    <tr>
-
-                        <td
-                            colspan="8"
-                            class="text-center py-5">
-
-                            <i
-                                class="bi bi-people"
-                                style="font-size:55px;"></i>
-
-                            <br><br>
-
-                            No existen usuarios registrados.
-
-                        </td>
-
-                    </tr>
-
-                @endforelse
+                    @endforelse
 
                 </tbody>
 
@@ -251,17 +350,22 @@
 
         </div>
 
+
+        {{-- =====================================================
+             PAGINACIÓN
+        ====================================================== --}}
+
+        @if(method_exists($users, 'links'))
+
+            <div class="admin-list-pagination">
+
+                {{ $users->onEachSide(1)->links() }}
+
+            </div>
+
+        @endif
+
     </div>
-
-    @if(method_exists($users,'links'))
-
-        <div class="card-footer bg-white">
-
-            {{ $users->onEachSide(1)->links() }}
-
-        </div>
-
-    @endif
 
 </div>
 

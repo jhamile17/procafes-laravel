@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\ElectronicDocument;
+use App\Models\EstadoComprobante;
 use App\Services\Pagos\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,6 +23,25 @@ class BillingController extends Controller
      */
     public function index(Request $request): View
     {
+        /*
+        |--------------------------------------------------------------------------
+        | Filtros
+        |--------------------------------------------------------------------------
+        */
+
+        $numeroPedido = trim(
+            $request->get('numero_pedido', '')
+        );
+
+        $estado = $request->get('estado');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pedidos
+        |--------------------------------------------------------------------------
+        */
+
         $orders = Order::query()
             ->with([
                 'user',
@@ -33,23 +53,78 @@ class BillingController extends Controller
                 'comprobante.electronicDocument',
             ])
 
-            // Buscar por número de pedido
+            /*
+            |--------------------------------------------------------------------------
+            | Buscar por número de pedido
+            |--------------------------------------------------------------------------
+            */
+
             ->when(
-                $request->filled('numero_pedido'),
-                function ($query) use ($request) {
+                $numeroPedido !== '',
+                function ($query) use ($numeroPedido) {
 
                     $query->where(
                         'numero_pedido',
                         'like',
-                        '%' . trim($request->numero_pedido) . '%'
+                        '%' . $numeroPedido . '%'
                     );
                 }
             )
 
+            /*
+            |--------------------------------------------------------------------------
+            | Filtrar por estado del comprobante
+            |--------------------------------------------------------------------------
+            */
+
+            ->when(
+                $estado !== null && $estado !== '',
+                function ($query) use ($estado) {
+
+                    $query->whereHas(
+                        'comprobante.estadoComprobante',
+                        function ($query) use ($estado) {
+
+                            $query->where(
+                                'codigo',
+                                $estado
+                            );
+                        }
+                    );
+                }
+            )
+
+            /*
+            |--------------------------------------------------------------------------
+            | Orden y paginación
+            |--------------------------------------------------------------------------
+            */
+
             ->latest()
             ->paginate(8)
             ->withQueryString();
-            
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Estados disponibles
+        |--------------------------------------------------------------------------
+        |
+        | estados_comprobante NO tiene columna status.
+        |
+        */
+
+        $estados = EstadoComprobante::query()
+            ->orderBy('id')
+            ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Estadísticas existentes
+        |--------------------------------------------------------------------------
+        */
+
         $totalPedidos = Order::count();
 
         $totalEmitidos = ElectronicDocument::count();
@@ -63,15 +138,28 @@ class BillingController extends Controller
             'aceptado'
         )->count();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Vista
+        |--------------------------------------------------------------------------
+        */
+
         return view(
             'admin.billing.index',
-            compact('orders',
-            'totalPedidos',
-            'totalEmitidos',
-            'totalPendientes',
-            'totalAceptados')
+            compact(
+                'orders',
+                'numeroPedido',
+                'estado',
+                'estados',
+                'totalPedidos',
+                'totalEmitidos',
+                'totalPendientes',
+                'totalAceptados'
+            )
         );
     }
+
 
     /**
      * Buscar pedido.
@@ -105,6 +193,7 @@ class BillingController extends Controller
         );
     }
 
+
     /**
      * Aprobar manualmente un pago realizado en tienda.
      */
@@ -119,32 +208,65 @@ class BillingController extends Controller
             ])
             ->findOrFail($order);
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validar existencia del pago
+        |--------------------------------------------------------------------------
+        */
+
         if (! $order->payment) {
+
             return back()->with(
                 'error',
                 'El pedido no tiene un pago registrado.'
             );
         }
 
+
         $payment = $order->payment;
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validar pago en tienda
+        |--------------------------------------------------------------------------
+        */
+
         if (! $this->paymentService->esPagoEnTienda($payment)) {
+
             return back()->with(
                 'error',
                 'Este pago no corresponde al método Pago en tienda.'
             );
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validar estado pendiente
+        |--------------------------------------------------------------------------
+        */
+
         if (! $payment->isPendiente()) {
+
             return back()->with(
                 'error',
                 'El pago ya no se encuentra pendiente.'
             );
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Confirmar pago
+        |--------------------------------------------------------------------------
+        */
+
         $this->paymentService->confirmarPago(
             payment: $payment
         );
+
 
         return back()->with(
             'success',

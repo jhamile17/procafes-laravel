@@ -53,125 +53,145 @@
     box-shadow:var(--shadow-md);
 
 }
+/* =========================================================
+   PROCÁFES | TARJETA DE PRODUCTO
+========================================================= */
 
-/*==========================================================================
-    PRODUCT IMAGE
-==========================================================================*/
+.procafe-product-card {
+    position: relative;
 
-.product-image{
+    display: flex;
+    flex-direction: column;
 
-    position:relative;
+    height: 100%;
+    max-width: 285px;
 
-    display:flex;
+    margin: auto;
 
-    justify-content:center;
+    overflow: hidden;
 
-    align-items:center;
+    background: var(--color-white);
 
-    height:170px;
+    border: 1px solid var(--color-border-light);
 
-    padding:1rem;
+    border-radius: 18px;
 
-    overflow:hidden;
+    box-shadow: var(--shadow-xs);
 
-    background:var(--color-surface-alt);
-
+    transition:
+        transform var(--transition),
+        box-shadow var(--transition);
 }
 
-.product-image img{
-
-    max-width:100%;
-
-    max-height:100%;
-
-    object-fit:contain;
-
-    transition:transform var(--transition);
-
+.procafe-product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-md);
 }
 
-.product-card:hover .product-image img{
+/* =========================================================
+   IMAGEN DEL PRODUCTO
+========================================================= */
 
-    transform:scale(1.05);
+.procafe-product-image {
+    position: relative;
 
+    width: 100%;
+    height: 205px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    background: var(--color-surface-alt);
+
+    border-radius: var(--radius-md);
 }
+
+
+/* Imagen ocupa todo el bloque */
+
+.procafe-product-image img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    transition: transform var(--transition);
+}
+
+
+/* Hover */
+
+.procafe-product-card:hover .procafe-product-image img {
+    transform: scale(1.04);
+}
+
 
 /*==========================================================================
     PRODUCT CONTENT
 ==========================================================================*/
 
-.product-card .card-body{
+.procafe-product-card .card-body {
+    display: flex;
+    flex-direction: column;
 
-    display:flex;
-
-    flex-direction:column;
-
-    padding:1rem;
-
+    padding: .85rem;
 }
 
-.product-category{
+.procafe-product-category {
+    margin-bottom: .25rem;
 
-    margin-bottom:.35rem;
+    font-size: .72rem;
+    font-weight: 600;
 
-    font-size:.80rem;
+    color: var(--color-gold);
 
-    font-weight:600;
+    text-transform: uppercase;
+}
+.procafe-product-title {
+    margin-bottom: .25rem;
 
-    color:var(--color-gold);
+    font-size: .98rem;
+    font-weight: 600;
 
-    text-transform:uppercase;
+    line-height: 1.3;
 
+    color: var(--color-coffee);
+}
+.procafe-product-brand {
+    margin-bottom: .5rem;
+
+    font-size: .75rem;
+
+    color: var(--color-text-muted);
 }
 
-.product-title{
+.procafe-product-price {
+    margin-top: .25rem;
+    margin-bottom: .35rem;
 
-    margin-bottom:.35rem;
+    font-size: 1.25rem;
+    font-weight: 700;
 
-    font-size:1.05rem;
-
-    font-weight:600;
-
-    line-height:1.3;
-
-    color:var(--color-coffee);
-
+    color: var(--color-coffee);
 }
 
-.product-brand{
 
-    margin-bottom:.75rem;
+/* Precio anterior */
 
-    font-size:.82rem;
+.procafe-product-price-old {
+    margin-left: .25rem;
 
-    color:var(--color-text-muted);
+    font-size: .8rem;
 
-}
+    color: var(--color-text-disabled);
 
-.product-price{
-
-    margin-top:.4rem;
-
-    margin-bottom:.35rem;
-
-    font-size:1.65rem;
-
-    font-weight:700;
-
-    color:var(--color-coffee);
-
-}
-
-.product-price-old{
-
-    margin-left:.35rem;
-
-    font-size:.9rem;
-
-    color:var(--color-text-disabled);
-
-    text-decoration:line-through;
-
+    text-decoration: line-through;
 }
 
 /*==========================================================================
@@ -239,25 +259,41 @@
 /*==========================================================================
     BADGE
 ==========================================================================*/
+.procafe-product-badge {
+    position: absolute;
 
-.product-badge{
+    top: 10px;
+    left: 10px;
 
-    position:absolute;
+    z-index: 20;
 
-    top:12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-    left:12px;
+    padding: .35rem .65rem;
 
-    padding:.35rem .8rem;
+    border-radius: var(--radius-pill);
 
-    border-radius:999px;
+    font-family: var(--font-body);
+    font-size: .68rem;
+    font-weight: 600;
 
-    font-size:.72rem;
+    line-height: 1;
 
-    font-weight:600;
+    white-space: nowrap;
 
-    box-shadow:var(--shadow-xs);
+    box-shadow: var(--shadow-xs);
+}
 
+.procafe-badge-success {
+    color: var(--color-success);
+    background: var(--color-success-soft);
+}
+
+.procafe-badge-secondary {
+    color: var(--color-text-light);
+    background: var(--color-disabled);
 }
 
 /*==============================================================================

@@ -1,97 +1,116 @@
 @extends('layouts.admin')
 
-@section('title', 'Categorías')
+@section('title', 'Categorías | PROCÁFES')
 
 @section('content')
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="admin-list-page">
 
-    <div>
+    {{-- =====================================================
+         ENCABEZADO
+    ====================================================== --}}
 
-        <h2 class="fw-bold mb-1">
+    <div class="admin-list-header">
 
-            Categorías
+        <div class="admin-list-heading">
 
-        </h2>
+            <div class="admin-list-heading-icon">
+                <i class="bi bi-grid-fill"></i>
+            </div>
 
-        <p class="text-muted mb-0">
+            <div>
 
-            Administra las categorías de los productos de PROCÁFES.
+                <h1 class="admin-list-title">
+                    Categorías
+                </h1>
 
-        </p>
+                <p class="admin-list-subtitle">
+                    Administra las categorías de los productos de PROCÁFES.
+                </p>
 
-    </div>
+            </div>
 
-    <a
-        href="{{ route('admin.categories.create') }}"
-        class="btn btn-warning">
+        </div>
 
-        <i class="bi bi-plus-circle me-2"></i>
 
-        Nueva categoría
+        <a
+            href="{{ route('admin.categories.create') }}"
+            class="admin-list-new"
+        >
 
-    </a>
+            <i class="bi bi-plus-circle"></i>
 
-</div>
+            Nueva categoría
 
-@if(session('success'))
-
-    <div class="alert alert-success">
-
-        <i class="bi bi-check-circle-fill me-2"></i>
-
-        {{ session('success') }}
-
-    </div>
-
-@endif
-
-@if(session('error'))
-
-    <div class="alert alert-danger">
-
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-
-        {{ session('error') }}
+        </a>
 
     </div>
 
-@endif
 
-<div class="card">
+    {{-- =====================================================
+         MENSAJES
+    ====================================================== --}}
 
-    <div class="card-body p-0">
+    @if(session('success'))
 
-        <div class="table-responsive">
+        <div class="admin-list-message admin-list-message-success">
 
-            <table class="table table-hover align-middle mb-0">
+            <i class="bi bi-check-circle-fill"></i>
+
+            <span>
+                {{ session('success') }}
+            </span>
+
+        </div>
+
+    @endif
+
+
+    @if(session('error'))
+
+        <div class="admin-list-message admin-list-message-error">
+
+            <i class="bi bi-exclamation-triangle-fill"></i>
+
+            <span>
+                {{ session('error') }}
+            </span>
+
+        </div>
+
+    @endif
+
+
+    {{-- =====================================================
+         LISTADO
+    ====================================================== --}}
+
+    <div class="admin-list-card">
+
+        <div class="admin-list-table-wrapper">
+
+            <table class="admin-list-table">
 
                 <thead>
 
                     <tr>
 
                         <th>
-
-                            Nombre
-
+                            Categoría
                         </th>
 
                         <th>
-
                             Descripción
-
                         </th>
 
-                        <th width="160"
-                            class="text-end">
-
+                        <th class="admin-list-actions-column">
                             Acciones
-
                         </th>
 
                     </tr>
 
                 </thead>
+
 
                 <tbody>
 
@@ -99,50 +118,92 @@
 
                         <tr>
 
-                            <td>
-
-                                <strong>
-
-                                    {{ $category->name }}
-
-                                </strong>
-
-                            </td>
+                            {{-- CATEGORÍA --}}
 
                             <td>
 
-                                {{ \Illuminate\Support\Str::limit($category->description,70) }}
+                                <div class="admin-list-name">
+
+                                    <div class="admin-list-icon">
+
+                                        <i class="bi bi-tag-fill"></i>
+
+                                    </div>
+
+                                    <strong>
+                                        {{ $category->name }}
+                                    </strong>
+
+                                </div>
 
                             </td>
 
-                            <td class="text-end">
 
-                                <a
-                                    href="{{ route('admin.categories.edit',$category) }}"
-                                    class="btn btn-sm btn-outline-primary">
+                            {{-- DESCRIPCIÓN --}}
 
-                                    <i class="bi bi-pencil-square"></i>
+                            <td>
 
-                                </a>
+                                <span class="admin-list-description">
 
-                                <form
-                                    action="{{ route('admin.categories.destroy',$category) }}"
-                                    method="POST"
-                                    class="d-inline"
-                                    onsubmit="return confirm('¿Eliminar esta categoría?')">
+                                    {{ \Illuminate\Support\Str::limit(
+                                        $category->description,
+                                        80
+                                    ) }}
 
-                                    @csrf
+                                </span>
 
-                                    @method('DELETE')
+                            </td>
 
-                                    <button
-                                        class="btn btn-sm btn-outline-danger">
 
-                                        <i class="bi bi-trash"></i>
+                            {{-- ACCIONES --}}
 
-                                    </button>
+                            <td class="admin-list-actions">
 
-                                </form>
+                                <div class="admin-actions">
+
+                                    <a
+                                        href="{{ route(
+                                            'admin.categories.edit',
+                                            $category
+                                        ) }}"
+                                        class="admin-action admin-action-edit"
+                                        title="Editar categoría"
+                                    >
+
+                                        <i class="bi bi-pencil-square"></i>
+
+                                    </a>
+
+
+                                    <form
+                                        action="{{ route(
+                                            'admin.categories.destroy',
+                                            $category
+                                        ) }}"
+                                        method="POST"
+                                        class="d-inline"
+                                        onsubmit="return confirm(
+                                            '¿Eliminar esta categoría?'
+                                        )"
+                                    >
+
+                                        @csrf
+
+                                        @method('DELETE')
+
+                                        <button
+                                            type="submit"
+                                            class="admin-action admin-action-delete"
+                                            title="Eliminar categoría"
+                                        >
+
+                                            <i class="bi bi-trash3"></i>
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
 
                             </td>
 
@@ -154,15 +215,36 @@
 
                             <td
                                 colspan="3"
-                                class="text-center py-5">
+                                class="admin-list-empty"
+                            >
 
-                                <i
-                                    class="bi bi-tags"
-                                    style="font-size:55px;"></i>
+                                <div class="admin-list-empty-icon">
 
-                                <br><br>
+                                    <i class="bi bi-tags"></i>
 
-                                No existen categorías registradas.
+                                </div>
+
+                                <strong>
+                                    No existen categorías registradas
+                                </strong>
+
+                                <span>
+                                    Crea una categoría para comenzar a organizar
+                                    tus productos.
+                                </span>
+
+                                <a
+                                    href="{{ route(
+                                        'admin.categories.create'
+                                    ) }}"
+                                    class="admin-list-empty-btn"
+                                >
+
+                                    <i class="bi bi-plus-circle"></i>
+
+                                    Crear categoría
+
+                                </a>
 
                             </td>
 
@@ -176,17 +258,22 @@
 
         </div>
 
+
+        {{-- =====================================================
+             PAGINACIÓN
+        ====================================================== --}}
+
+        @if(method_exists($categories, 'links'))
+
+            <div class="admin-list-pagination">
+
+                {{ $categories->onEachSide(1)->links() }}
+
+            </div>
+
+        @endif
+
     </div>
-
-    @if(method_exists($categories,'links'))
-
-        <div class="card-footer bg-white">
-
-            {{ $categories->onEachSide(1)->links() }}
-
-        </div>
-
-    @endif
 
 </div>
 

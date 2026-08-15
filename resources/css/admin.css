@@ -1,0 +1,571 @@
+/*
+|--------------------------------------------------------------------------
+| ADMIN LAYOUT
+|--------------------------------------------------------------------------
+*/
+
+.admin-layout{
+    display:flex;
+    min-height:100vh;
+    background:var(--color-background);
+    font-family:var(--font-body);
+}
+
+.main-content{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+}
+
+/*
+|--------------------------------------------------------------------------
+| SIDEBAR
+|--------------------------------------------------------------------------
+*/
+
+.sidebar{
+
+    width:290px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #3D2C2E 0%,
+            #342625 45%,
+            #2F2624 100%
+        );
+
+    color:#fff;
+
+    display:flex;
+
+    flex-direction:column;
+
+    box-shadow:var(--shadow-md);
+
+    position:sticky;
+
+    top:0;
+
+    height:100vh;
+
+    z-index:1000;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| LOGO
+|--------------------------------------------------------------------------
+*/
+
+.sidebar-brand{
+
+    padding:2rem 1.8rem;
+
+    text-align:center;
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+
+}
+
+.brand-logo{
+
+    width:78px;
+
+    height:78px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    border:4px solid rgba(255,255,255,.12);
+
+    margin-bottom:1rem;
+
+    box-shadow:var(--shadow-sm);
+
+}
+
+.sidebar-brand h2{
+
+    margin:0;
+
+    color:#fff;
+
+    font-family:var(--font-heading);
+
+    font-size:1.65rem;
+
+}
+
+.sidebar-brand span{
+
+    display:block;
+
+    margin-top:.45rem;
+
+    color:rgba(255,255,255,.75);
+
+    font-size:.82rem;
+
+    letter-spacing:.5px;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| MENU
+|--------------------------------------------------------------------------
+*/
+.sidebar-menu{
+    display:flex;
+    flex-direction:column;
+    gap:.45rem;
+    padding:1.5rem;
+}
+
+.sidebar-section{
+
+    display:block;
+
+    margin:1.5rem .8rem .75rem;
+
+    font-size:.70rem;
+
+    font-weight:700;
+
+    color:rgba(255,255,255,.45);
+
+    text-transform:uppercase;
+
+    letter-spacing:1.5px;
+
+}
+
+.sidebar-menu a{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.9rem;
+
+    padding:.95rem 1rem;
+
+    margin-bottom:.45rem;
+
+    border-radius:14px;
+
+    color:rgba(255,255,255,.85);
+
+    text-decoration:none;
+
+    transition:all .25s ease;
+
+}
+
+.sidebar-menu a i{
+
+    width:22px;
+
+    font-size:1.15rem;
+
+    text-align:center;
+
+}
+
+.sidebar-menu a span{
+
+    font-weight:500;
+
+}
+
+.sidebar-menu a:hover{
+
+    background:rgba(255,255,255,.08);
+
+    color:#fff;
+
+    transform:translateX(4px);
+
+}
+
+.sidebar-menu a.active{
+
+    background:var(--color-primary);
+
+    color:#fff;
+
+    box-shadow:0 12px 30px rgba(214,40,40,.30);
+
+}
+
+.sidebar-menu a.active i{
+
+    color:#fff;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| FOOTER SIDEBAR
+|--------------------------------------------------------------------------
+*/
+
+.sidebar-footer{
+
+    padding:1.5rem;
+
+    border-top:1px solid rgba(255,255,255,.08);
+
+}
+
+.logout-button{
+
+    width:100%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:.7rem;
+
+    border:none;
+
+    border-radius:var(--radius-md);
+
+    padding:.95rem;
+
+    background:rgba(255,255,255,.08);
+
+    color:#fff;
+
+    font-weight:600;
+
+    transition:var(--transition);
+
+}
+
+.logout-button:hover{
+
+    background:var(--color-primary);
+
+}
+
+.logout-button i{
+
+    font-size:1.1rem;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| TOPBAR
+|--------------------------------------------------------------------------
+*/
+
+.topbar{
+
+    height:82px;
+
+    background:#fff;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:0 2rem;
+
+    border-bottom:1px solid var(--color-border);
+
+    box-shadow:0 3px 18px rgba(0,0,0,.04);
+
+}
+
+.topbar-left h3{
+
+    margin:0;
+
+    font-size:1.55rem;
+
+    font-family:var(--font-heading);
+
+    color:var(--color-coffee);
+
+}
+
+.topbar-right{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:1.2rem;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| BOTON TIENDA
+|--------------------------------------------------------------------------
+*/
+
+.btn-admin{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.6rem;
+
+    padding:.75rem 1.25rem;
+
+    border-radius:999px;
+
+    text-decoration:none;
+
+    background:var(--color-primary);
+
+    color:#fff;
+
+    font-weight:600;
+
+    transition:var(--transition);
+
+}
+
+.btn-admin:hover{
+
+    background:var(--color-primary-hover);
+
+    color:#fff;
+
+    transform:translateY(-2px);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| PERFIL
+|--------------------------------------------------------------------------
+*/
+
+.top-profile{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.8rem;
+
+    padding:.45rem .9rem;
+
+    border-radius:999px;
+
+    background:#fff;
+
+    border:1px solid var(--color-border);
+
+}
+
+.top-avatar{
+
+    width:46px;
+
+    height:46px;
+
+    border-radius:50%;
+
+    overflow:hidden;
+
+    background:var(--color-primary-soft);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.top-avatar img{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+}
+
+.top-avatar i{
+
+    font-size:1.2rem;
+
+    color:var(--color-primary);
+
+}
+
+.top-profile-info{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.top-profile-info strong{
+
+    font-size:.92rem;
+
+    color:var(--color-text);
+
+}
+
+.top-profile-info small{
+
+    color:var(--color-text-light);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| CONTENIDO
+|--------------------------------------------------------------------------
+*/
+
+.dashboard-container{
+
+    flex:1;
+
+    padding:2rem;
+
+    background:linear-gradient(
+        180deg,
+        var(--color-background-start),
+        var(--color-background-end)
+    );
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| FOOTER
+|--------------------------------------------------------------------------
+*/
+
+.admin-footer{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:1rem 2rem;
+
+    border-top:1px solid var(--color-border);
+
+    background:#fff;
+
+    color:var(--color-text-light);
+
+    font-size:.85rem;
+
+}
+
+.admin-footer strong{
+
+    color:var(--color-coffee);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| SCROLLBAR
+|--------------------------------------------------------------------------
+*/
+
+.sidebar::-webkit-scrollbar{
+
+    width:6px;
+
+}
+
+.sidebar::-webkit-scrollbar-thumb{
+
+    background:rgba(255,255,255,.15);
+
+    border-radius:999px;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| RESPONSIVE
+|--------------------------------------------------------------------------
+*/
+
+@media(max-width:992px){
+
+    .sidebar{
+
+        width:240px;
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    .admin-layout{
+
+        flex-direction:column;
+
+    }
+
+    .sidebar{
+
+        position:relative;
+
+        width:100%;
+
+        height:auto;
+
+    }
+
+    .topbar{
+
+        flex-direction:column;
+
+        gap:1rem;
+
+        height:auto;
+
+        padding:1.2rem;
+
+    }
+
+    .dashboard-container{
+
+        padding:1.25rem;
+
+    }
+
+    .admin-footer{
+
+        flex-direction:column;
+
+        gap:.5rem;
+
+        text-align:center;
+
+    }
+
+}

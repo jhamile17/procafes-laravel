@@ -41,3 +41,12 @@
 @import './componentes/messages.css';
 @import './componentes/offcanvas-cart.css';
 
+@import './admin';
+@import './pages/admin/forms.css';
+@import './pages/admin/actions.css';
+@import './pages/admin/dashboard.css';
+@import './pages/admin/configuracion.css';
+@import './pages/admin/products.css';
+@import './pages/admin/orders.css';
+@import './pages/admin/lists.css';
+@import './pages/admin/billing.css';

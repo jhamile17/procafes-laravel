@@ -1,75 +1,149 @@
 @extends('layouts.admin')
 
-@section('title', 'Órdenes | PROCAFES')
+@section('title', 'Órdenes | PROCÁFES')
 
 @section('content')
 
-<div class="container-fluid">
+<div class="admin-list-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    {{-- =====================================================
+         ENCABEZADO
+    ====================================================== --}}
 
-        <div>
+    <div class="admin-list-header">
 
-            <h2 class="fw-bold mb-1">
-                Gestión de Órdenes
-            </h2>
+        <div class="admin-list-heading">
 
-            <p class="text-muted mb-0">
-                Administra los pedidos realizados por los clientes.
-            </p>
+            <div class="admin-list-heading-icon">
+
+                <i class="bi bi-cart-check-fill"></i>
+
+            </div>
+
+            <div>
+
+                <h1 class="admin-list-title">
+                    Órdenes
+                </h1>
+
+                <p class="admin-list-subtitle">
+                    Administra los pedidos realizados por los clientes.
+                </p>
+
+            </div>
 
         </div>
 
     </div>
 
+
+    {{-- =====================================================
+         MENSAJES
+    ====================================================== --}}
+
     @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
+
+        <div class="admin-list-message admin-list-message-success">
+
+            <i class="bi bi-check-circle-fill"></i>
+
+            <span>
+                {{ session('success') }}
+            </span>
+
         </div>
+
     @endif
+
 
     @if(session('info'))
-        <div class="alert alert-info">
-            {{ session('info') }}
+
+        <div class="admin-list-message">
+
+            <i class="bi bi-info-circle-fill"></i>
+
+            <span>
+                {{ session('info') }}
+            </span>
+
         </div>
+
     @endif
 
-    <div class="card shadow-sm border-0 mb-4">
 
-        <div class="card-body">
+    {{-- =====================================================
+         FILTROS
+    ====================================================== --}}
 
-            <form method="GET">
+    <div class="admin-list-card admin-order-filter-card">
 
-                <div class="row g-3">
+        <div class="admin-order-filter-body">
 
-                    <div class="col-md-6">
+            <form
+                action="{{ route('admin.orders.index') }}"
+                method="GET"
+            >
 
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="q"
-                            value="{{ $q }}"
-                            placeholder="Buscar por número de pedido, cliente o correo">
+                <div class="admin-order-filter-grid">
+
+                    {{-- BUSCAR --}}
+
+                    <div>
+
+                        <label
+                            for="order-search"
+                            class="admin-order-filter-label"
+                        >
+                            Buscar
+                        </label>
+
+                        <div class="admin-order-search">
+
+                            <i class="bi bi-search"></i>
+
+                            <input
+                                id="order-search"
+                                type="text"
+                                name="q"
+                                value="{{ $q }}"
+                                class="admin-order-search-input"
+                                placeholder="Número de pedido, cliente o correo"
+                            >
+
+                        </div>
 
                     </div>
 
-                    <div class="col-md-4">
+
+                    {{-- ESTADO --}}
+
+                    <div>
+
+                        <label
+                            for="order-status"
+                            class="admin-order-filter-label"
+                        >
+                            Estado
+                        </label>
 
                         <select
+                            id="order-status"
                             name="status"
-                            class="form-select">
+                            class="admin-order-select"
+                        >
 
                             <option value="">
                                 Todos los estados
                             </option>
 
-                            @foreach($statuses as $codigo)
+                            @foreach($estados as $estado)
 
                                 <option
-                                    value="{{ $codigo }}"
-                                    @selected($status==$codigo)>
+                                    value="{{ $estado->codigo }}"
+                                    @selected($status === $estado->codigo)
+                                >
 
-                                    {{ $statusLabel[$codigo] }}
+                                    {{ $estado->nombre }}
 
                                 </option>
 
@@ -79,11 +153,17 @@
 
                     </div>
 
-                    <div class="col-md-2 d-grid">
 
-                        <button class="btn btn-dark">
+                    {{-- BUSCAR --}}
 
-                            <i class="bi bi-search me-2"></i>
+                    <div>
+
+                        <button
+                            type="submit"
+                            class="admin-order-search-button"
+                        >
+
+                            <i class="bi bi-search"></i>
 
                             Buscar
 
@@ -99,154 +179,233 @@
 
     </div>
 
-    <div class="card shadow-sm border-0">
 
-        <div class="table-responsive">
+    {{-- =====================================================
+         TABLA
+    ====================================================== --}}
 
-            <table class="table table-hover align-middle mb-0">
+    <div class="admin-list-card">
 
-                <thead class="table-light">
+        <div class="admin-list-table-wrapper">
+
+            <table class="admin-list-table admin-order-table">
+
+                <thead>
 
                     <tr>
 
-                        <th># Pedido</th>
+                        <th>
+                            Pedido
+                        </th>
 
-                        <th>Cliente</th>
+                        <th>
+                            Cliente
+                        </th>
 
-                        <th>Estado</th>
+                        <th>
+                            Estado
+                        </th>
 
-                        <th>Total</th>
+                        <th>
+                            Total
+                        </th>
 
-                        <th>Tipo entrega</th>
+                        <th>
+                            Entrega
+                        </th>
 
-                        <th>Fecha</th>
+                        <th>
+                            Fecha
+                        </th>
 
-                        <th width="100">
-
+                        <th class="admin-list-actions-column">
                             Acciones
-
                         </th>
 
                     </tr>
 
                 </thead>
 
+
                 <tbody>
 
-                @forelse($orders as $order)
+                    @forelse($orders as $order)
 
-                    <tr>
+                        <tr>
 
-                        <td>
+                            {{-- PEDIDO --}}
 
-                            <strong>
+                            <td>
 
-                                {{ $order->numero_pedido }}
+                                <strong class="admin-order-number">
+                                    {{ $order->numero_pedido }}
+                                </strong>
 
-                            </strong>
+                            </td>
 
-                        </td>
 
-                        <td>
+                            {{-- CLIENTE --}}
 
-                            <div class="fw-semibold">
+                            <td>
 
-                                {{ $order->user?->name }}
+                                <div class="admin-order-client">
 
-                            </div>
+                                    <strong>
+                                        {{ $order->user?->name ?? 'Cliente' }}
+                                    </strong>
 
-                            <small class="text-muted">
+                                    <small>
+                                        {{ $order->user?->email }}
+                                    </small>
 
-                                {{ $order->user?->email }}
+                                </div>
 
-                            </small>
+                            </td>
 
-                        </td>
 
-                        <td>
+                            {{-- ESTADO --}}
 
-                            <form
-                                action="{{ route('admin.orders.status',$order) }}"
-                                method="POST">
+                            <td>
 
-                                @csrf
+                                <form
+                                    action="{{ route(
+                                        'admin.orders.status',
+                                        $order
+                                    ) }}"
+                                    method="POST"
+                                    class="admin-order-status-form"
+                                >
 
-                                @method('PATCH')
+                                    @csrf
 
-                                <select
-                                    name="estado_pedido_id"
-                                    class="form-select form-select-sm"
-                                    onchange="this.form.submit()">
+                                    @method('PATCH')
 
-                                    @foreach(\App\Models\EstadoPedido::where('status',1)->get() as $estado)
+                                    <select
+                                        name="estado_pedido_id"
+                                        class="admin-order-status"
+                                        onchange="this.form.submit()"
+                                    >
 
-                                        <option
-                                            value="{{ $estado->id }}"
-                                            @selected($estado->id==$order->estado_pedido_id)>
+                                        @foreach($estados as $estado)
 
-                                            {{ $estado->nombre }}
+                                            <option
+                                                value="{{ $estado->id }}"
+                                                @selected(
+                                                    $estado->id ===
+                                                    $order->estado_pedido_id
+                                                )
+                                            >
 
-                                        </option>
+                                                {{ $estado->nombre }}
 
-                                    @endforeach
+                                            </option>
 
-                                </select>
+                                        @endforeach
 
-                            </form>
+                                    </select>
 
-                        </td>
+                                </form>
 
-                        <td>
+                            </td>
 
-                            S/
 
-                            {{ number_format($order->total_price,2) }}
+                            {{-- TOTAL --}}
 
-                        </td>
+                            <td>
 
-                        <td>
+                                <strong class="admin-order-total">
 
-                            {{ ucfirst($order->delivery_type) }}
+                                    S/
+                                    {{ number_format(
+                                        $order->total_price,
+                                        2
+                                    ) }}
 
-                        </td>
+                                </strong>
 
-                        <td>
+                            </td>
 
-                            {{ $order->created_at->format('d/m/Y H:i') }}
 
-                        </td>
+                            {{-- TIPO DE ENTREGA --}}
 
-                        <td>
+                            <td>
 
-                            <a
-                                href="{{ route('admin.orders.show',$order) }}"
-                                class="btn btn-primary btn-sm">
+                                <span class="admin-order-delivery">
 
-                                <i class="bi bi-eye"></i>
+                                    {{ $order->delivery_label }}
 
-                            </a>
+                                </span>
 
-                        </td>
+                            </td>
 
-                    </tr>
 
-                @empty
+                            {{-- FECHA --}}
 
-                    <tr>
+                            <td>
 
-                        <td
-                            colspan="7"
-                            class="text-center py-5">
+                                <span class="admin-order-date">
 
-                            <i class="bi bi-inbox fs-1 d-block mb-3 text-secondary"></i>
+                                    {{ $order->created_at_formatted }}
 
-                            No existen órdenes registradas.
+                                </span>
 
-                        </td>
+                            </td>
 
-                    </tr>
 
-                @endforelse
+                            {{-- ACCIONES --}}
+
+                            <td class="admin-list-actions">
+
+                                <div class="admin-actions">
+
+                                    <a
+                                        href="{{ route(
+                                            'admin.orders.show',
+                                            $order
+                                        ) }}"
+                                        class="admin-action admin-action-view"
+                                        title="Ver pedido"
+                                    >
+
+                                        <i class="bi bi-eye-fill"></i>
+
+                                    </a>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="admin-list-empty"
+                            >
+
+                                <div class="admin-list-empty-icon">
+
+                                    <i class="bi bi-inbox"></i>
+
+                                </div>
+
+                                <strong>
+                                    No existen órdenes registradas
+                                </strong>
+
+                                <span>
+                                    Los pedidos realizados por los clientes
+                                    aparecerán aquí.
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    @endforelse
 
                 </tbody>
 
@@ -254,9 +413,14 @@
 
         </div>
 
+
+        {{-- =====================================================
+             PAGINACIÓN
+        ====================================================== --}}
+
         @if($orders->hasPages())
 
-            <div class="card-footer">
+            <div class="admin-list-pagination">
 
                 {{ $orders->links() }}
 

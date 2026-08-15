@@ -1,0 +1,517 @@
+/* =========================================================
+   PROCÁFES | LISTADOS ADMINISTRATIVOS
+   Categorías | Marcas | CRUD simples
+========================================================= */
+
+
+/* =========================================================
+   CONTENEDOR
+========================================================= */
+
+.admin-list-page {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   ENCABEZADO
+========================================================= */
+
+.admin-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+}
+
+.admin-list-heading {
+    display: flex;
+    align-items: center;
+
+    gap: .85rem;
+}
+
+.admin-list-heading-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+
+    border-radius: var(--radius-sm);
+
+    font-size: 1rem;
+}
+
+.admin-list-title {
+    margin: 0;
+
+    color: var(--color-coffee);
+
+    font-family: var(--font-heading);
+    font-size: 1.65rem;
+    font-weight: 700;
+
+    line-height: 1.2;
+}
+
+.admin-list-subtitle {
+    margin: .2rem 0 0;
+
+    color: var(--color-text-light);
+
+    font-family: var(--font-body);
+    font-size: .78rem;
+}
+
+
+/* =========================================================
+   BOTÓN NUEVO
+========================================================= */
+
+.admin-list-new {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: .45rem;
+
+    min-height: 42px;
+
+    padding: .6rem 1rem;
+
+    color: var(--color-white);
+    background: var(--color-primary);
+
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+
+    font-family: var(--font-body);
+    font-size: .78rem;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    box-shadow: var(--shadow-xs);
+
+    transition:
+        background var(--transition),
+        border-color var(--transition),
+        transform var(--transition),
+        box-shadow var(--transition);
+}
+
+.admin-list-new i {
+    font-size: .9rem;
+}
+
+.admin-list-new:hover {
+    color: var(--color-white);
+
+    background: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+
+    transform: translateY(-1px);
+
+    box-shadow: var(--shadow-sm);
+}
+
+
+/* =========================================================
+   MENSAJES
+========================================================= */
+
+.admin-list-message {
+    display: flex;
+    align-items: center;
+
+    gap: .55rem;
+
+    margin-bottom: var(--space-sm);
+    padding: .7rem .9rem;
+
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+
+    font-size: .78rem;
+    font-weight: 500;
+}
+
+.admin-list-message-success {
+    color: var(--color-success);
+
+    background: var(--color-success-soft);
+
+    border-color: rgba(24, 165, 88, .18);
+}
+
+.admin-list-message-error {
+    color: var(--color-danger);
+
+    background: var(--color-danger-soft);
+
+    border-color: rgba(220, 53, 69, .18);
+}
+
+
+/* =========================================================
+   TARJETA DEL LISTADO
+========================================================= */
+
+.admin-list-card {
+    overflow: hidden;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    box-shadow: var(--shadow-xs);
+}
+
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.admin-list-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.admin-list-table {
+    width: 100%;
+    margin: 0;
+
+    border-collapse: collapse;
+
+    font-family: var(--font-body);
+}
+
+.admin-list-table thead {
+    background: var(--color-surface-alt);
+}
+
+.admin-list-table th {
+    padding: .8rem 1rem;
+
+    color: var(--color-coffee);
+
+    border-bottom: 1px solid var(--color-border);
+
+    font-size: .72rem;
+    font-weight: 600;
+
+    text-align: left;
+
+    white-space: nowrap;
+}
+
+.admin-list-table td {
+    padding: .75rem 1rem;
+
+    color: var(--color-text);
+
+    border-bottom: 1px solid var(--color-border-light);
+
+    font-size: .78rem;
+
+    vertical-align: middle;
+}
+
+.admin-list-table tbody tr {
+    transition: background var(--transition);
+}
+
+.admin-list-table tbody tr:hover {
+    background: var(--color-surface-alt);
+}
+
+.admin-list-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+/* =========================================================
+   IDENTIFICACIÓN DEL REGISTRO
+========================================================= */
+
+.admin-list-name {
+    display: flex;
+    align-items: center;
+
+    gap: .7rem;
+}
+
+.admin-list-icon {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+
+    border-radius: var(--radius-sm);
+
+    font-size: .8rem;
+}
+
+.admin-list-name strong {
+    color: var(--color-coffee);
+
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   DESCRIPCIÓN
+========================================================= */
+
+.admin-list-description {
+    display: block;
+
+    max-width: 520px;
+
+    overflow: hidden;
+
+    color: var(--color-text-light);
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   COLUMNA DE ACCIONES
+   Las acciones reales pertenecen a actions.css
+========================================================= */
+
+.admin-list-actions-column {
+    width: 120px;
+
+    text-align: right !important;
+}
+
+.admin-list-actions {
+    width: 120px;
+
+    text-align: right;
+}
+
+
+/* =========================================================
+   ESTADO VACÍO
+========================================================= */
+
+.admin-list-empty {
+    padding: 3rem 1rem !important;
+
+    text-align: center;
+}
+
+.admin-list-empty-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto .8rem;
+
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+
+    border-radius: var(--radius-md);
+
+    font-size: 1.2rem;
+}
+
+.admin-list-empty strong {
+    display: block;
+
+    margin-bottom: .25rem;
+
+    color: var(--color-coffee);
+
+    font-size: .82rem;
+}
+
+.admin-list-empty span {
+    display: block;
+
+    margin-bottom: .9rem;
+
+    color: var(--color-text-light);
+
+    font-size: .74rem;
+}
+
+.admin-list-empty-btn {
+    display: inline-flex;
+    align-items: center;
+
+    gap: .4rem;
+
+    padding: .5rem .85rem;
+
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+
+    font-size: .74rem;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: var(--transition);
+}
+
+.admin-list-empty-btn:hover {
+    color: var(--color-white);
+
+    background: var(--color-primary);
+}
+
+
+/* =========================================================
+   PAGINACIÓN
+========================================================= */
+
+.admin-list-pagination {
+    display: flex;
+    justify-content: flex-end;
+
+    padding: .75rem 1rem;
+
+    border-top: 1px solid var(--color-border-light);
+}
+
+.admin-list-pagination .pagination {
+    margin: 0;
+
+    gap: .2rem;
+}
+
+.admin-list-pagination .page-link {
+    min-width: 32px;
+    min-height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: .35rem .55rem;
+
+    color: var(--color-coffee);
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-sm);
+
+    font-size: .72rem;
+
+    box-shadow: none;
+}
+
+.admin-list-pagination .page-link:hover {
+    color: var(--color-primary);
+
+    background: var(--color-primary-soft);
+
+    border-color: var(--color-primary);
+}
+
+.admin-list-pagination .page-item.active .page-link {
+    color: var(--color-white);
+
+    background: var(--color-primary);
+
+    border-color: var(--color-primary);
+}
+
+.admin-list-pagination .page-item.disabled .page-link {
+    color: var(--color-text-disabled);
+
+    background: var(--color-disabled);
+
+    border-color: var(--color-border);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .admin-list-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .admin-list-new {
+        width: 100%;
+    }
+
+    .admin-list-title {
+        font-size: 1.45rem;
+    }
+
+    .admin-list-table th,
+    .admin-list-table td {
+        padding: .65rem .75rem;
+    }
+
+    .admin-list-description {
+        max-width: 280px;
+    }
+
+    .admin-list-pagination {
+        justify-content: center;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .admin-list-heading-icon {
+        width: 38px;
+        height: 38px;
+    }
+
+    .admin-list-title {
+        font-size: 1.3rem;
+    }
+
+    .admin-list-subtitle {
+        font-size: .72rem;
+    }
+
+    .admin-list-description {
+        max-width: 180px;
+    }
+
+}
