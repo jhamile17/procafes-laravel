@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\ElectronicDocument;
 use App\Services\Pagos\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -48,10 +49,27 @@ class BillingController extends Controller
             ->latest()
             ->paginate(8)
             ->withQueryString();
+            
+        $totalPedidos = Order::count();
+
+        $totalEmitidos = ElectronicDocument::count();
+
+        $totalPendientes = Order::doesntHave(
+            'comprobante.electronicDocument'
+        )->count();
+
+        $totalAceptados = ElectronicDocument::where(
+            'estado',
+            'aceptado'
+        )->count();
 
         return view(
             'admin.billing.index',
-            compact('orders')
+            compact('orders',
+            'totalPedidos',
+            'totalEmitidos',
+            'totalPendientes',
+            'totalAceptados')
         );
     }
 

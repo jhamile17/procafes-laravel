@@ -35,7 +35,7 @@
 
     {{-- CSS --}}
     <link rel="stylesheet"
-        href="{{ asset('css/admin.css') }}">
+        href="{{ asset('css/admin/admin.css') }}">
 
     @stack('styles')
 
@@ -195,11 +195,12 @@
 
             </a>
 
-            <a href="#">
+            <a href="{{ route('admin.configuracion.index') }}"
+                class="{{ request()->routeIs('admin.configuracion.*') ? 'active' : '' }}">
 
-                <i class="bi bi-bar-chart-fill"></i>
+                <i class="bi bi-gear-fill"></i>
 
-                <span>Reportes</span>
+                <span>Configuración</span>
 
             </a>
 

@@ -8,9 +8,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use App\Models\EstadoPedido;
+use App\Services\Ventas\OrderService;
+use App\Services\Facturacion\NubeFactService;
 
 class OrderController extends Controller
 {
+    public function __construct(
+          protected OrderService $orderService,
+          protected NubeFactService $nubeFactService,
+
+    ) {
+    }
     /**
      * Listado de órdenes
      */
@@ -105,7 +113,23 @@ class OrderController extends Controller
         $order->update([
             'estado_pedido_id' => $request->estado_pedido_id
         ]);
+        $order->load([
+                'estadoPedido',
+                'comprobante.electronicDocument',
+            ]);
 
+            if (
+                $order->estadoPedido?->esConfirmado()) {
+
+                $this->orderService->confirmarPedido($order);
+
+                $comprobante = $order->comprobante;
+
+                if ($comprobante && ! $comprobante->yaFueEmitido()) {
+                    $this->nubeFactService->emitir($comprobante);
+                }
+            }
+          
         return back()->with('success', 'Estado actualizado correctamente.');
     }
 }
