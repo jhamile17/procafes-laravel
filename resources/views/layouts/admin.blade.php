@@ -12,7 +12,11 @@
     <title>
         @yield('title', 'Panel Administrativo | PROCÁFES')
     </title>
-
+        {{-- Favicon PROCÁFES --}}
+    <link
+        rel="icon"
+        type="image/jpeg"
+        href="{{ asset('images/logo.jpg') }}">
     {{-- Bootstrap --}}
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
