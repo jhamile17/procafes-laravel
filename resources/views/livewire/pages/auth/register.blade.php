@@ -21,6 +21,17 @@
             o regístrate con tu correo
         </span>
     </div>
+    @if ($errors->has('form.email'))
+    <div class="auth-alert auth-alert-error">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <div>
+            <strong>No se pudo crear la cuenta</strong>
+        </div>
+        <span>
+            {{$errors->first('form.email')}}
+        </span>
+    </div>
+    @endif
     <form
         wire:submit="register"
         class="auth-form">

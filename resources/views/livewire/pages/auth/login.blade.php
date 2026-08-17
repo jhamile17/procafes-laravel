@@ -1,5 +1,9 @@
 <x-auth.card>
-    {{-- Encabezado --}}
+
+    {{-- =========================================================
+        ENCABEZADO
+    ========================================================== --}}
+
     <div class="auth-header">
 
         <span class="auth-badge">
@@ -16,7 +20,11 @@
 
     </div>
 
-    {{-- Mensaje de sesión --}}
+
+    {{-- =========================================================
+        MENSAJE DE SESIÓN
+    ========================================================== --}}
+
     @if(session('status'))
 
         <div class="auth-alert auth-alert-success">
@@ -27,7 +35,38 @@
 
     @endif
 
-    {{-- Google --}}
+
+    {{-- =========================================================
+        MENSAJES DE ERROR
+    ========================================================== --}}
+
+    @if($errors->has('form.email'))
+
+        <div class="auth-alert auth-alert-error">
+
+            <i class="bi bi-exclamation-circle-fill"></i>
+
+            <div>
+
+                <strong>
+                    No se pudo iniciar sesión
+                </strong>
+
+                <div>
+                    {{ $errors->first('form.email') }}
+                </div>
+
+            </div>
+
+        </div>
+
+    @endif
+
+
+    {{-- =========================================================
+        GOOGLE
+    ========================================================== --}}
+
     <a
         href="{{ route('auth.google.login') }}"
         class="auth-google-btn">
@@ -35,25 +74,29 @@
         <i class="bi bi-google"></i>
 
         <span>
-
             Continuar con Google
-
         </span>
 
     </a>
 
-    {{-- Separador --}}
+
+    {{-- =========================================================
+        SEPARADOR
+    ========================================================== --}}
+
     <div class="auth-divider">
 
         <span>
-
             o continúa con correo
-
         </span>
 
     </div>
 
-    {{-- Formulario --}}
+
+    {{-- =========================================================
+        FORMULARIO
+    ========================================================== --}}
+
     <form
         wire:submit="login"
         class="auth-form">
@@ -67,7 +110,8 @@
             wire:model.blur="form.email"
             autocomplete="email"
             autofocus
-            :error="$errors->first('form.email')" />
+            :error="$errors->first('form.email')"
+        />
 
         <x-auth.input
             label="Contraseña"
@@ -77,7 +121,13 @@
             icon="bi-lock"
             wire:model.blur="form.password"
             autocomplete="current-password"
-            :error="$errors->first('form.password')" />
+            :error="$errors->first('form.password')"
+        />
+
+
+        {{-- =====================================================
+            OPCIONES
+        ====================================================== --}}
 
         <div class="auth-options">
 
@@ -85,12 +135,11 @@
 
                 <input
                     type="checkbox"
-                    wire:model="form.remember">
+                    wire:model="form.remember"
+                >
 
                 <span>
-
                     Recordarme
-
                 </span>
 
             </label>
@@ -105,21 +154,28 @@
 
         </div>
 
+
+        {{-- =====================================================
+            BOTÓN LOGIN
+        ====================================================== --}}
+
         <button
             type="submit"
             class="auth-submit"
             wire:loading.attr="disabled"
             wire:target="login">
 
-            <span wire:loading.remove
-            wire:target="login">
+            <span
+                wire:loading.remove
+                wire:target="login">
 
                 Iniciar sesión
 
             </span>
 
-            <span wire:loading
-            wire:target="login">
+            <span
+                wire:loading
+                wire:target="login">
 
                 <span class="spinner-border spinner-border-sm me-2"></span>
 
@@ -131,19 +187,19 @@
 
     </form>
 
-    {{-- Footer --}}
+
+    {{-- =========================================================
+        FOOTER
+    ========================================================== --}}
+
     <div class="auth-footer">
 
         <span>
-
             ¿No tienes una cuenta?
-
         </span>
 
         <a href="{{ route('register') }}">
-
             Regístrate
-
         </a>
 
     </div>

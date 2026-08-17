@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -41,6 +42,55 @@ class LoginForm extends Form
 
         $this->ensureIsNotRateLimited();
 
+        /*
+        |--------------------------------------------------------------------------
+        | Buscar usuario
+        |--------------------------------------------------------------------------
+        */
+
+        $user = User::where('email', $this->email)->first();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Correo no registrado
+        |--------------------------------------------------------------------------
+        */
+
+        if (! $user) {
+
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'form.email' =>
+                    'No existe una cuenta registrada con este correo. Puedes registrarte para crear una cuenta.',
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cuenta sin contraseña local
+        |--------------------------------------------------------------------------
+        */
+
+        if (! $user->has_local_password) {
+
+            if ($user->provider === User::PROVIDER_GOOGLE) {
+
+                RateLimiter::hit($this->throttleKey());
+
+                throw ValidationException::withMessages([
+                    'form.email' =>
+                        'Esta cuenta fue registrada con Google. Inicia sesión usando "Continuar con Google".',
+                ]);
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Login tradicional
+        |--------------------------------------------------------------------------
+        */
+
         if (! Auth::attempt([
             'email' => $this->email,
             'password' => $this->password,
@@ -49,9 +99,16 @@ class LoginForm extends Form
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'form.email' => __('auth.failed'),
+                'form.email' =>
+                    'La contraseña ingresada es incorrecta.',
             ]);
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Login correcto
+        |--------------------------------------------------------------------------
+        */
 
         RateLimiter::clear($this->throttleKey());
     }

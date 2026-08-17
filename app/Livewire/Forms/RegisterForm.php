@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Livewire\Forms;
-
+use App\Models\User;
 use App\Services\Auth\PendingRegistrationService;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Form;
 
@@ -162,7 +163,6 @@ class RegisterForm extends Form
                 'required',
                 'email',
                 'max:255',
-                'unique:users,email',
             ],
 
             'celular' => [
@@ -243,8 +243,6 @@ class RegisterForm extends Form
 
             'email.email' => 'Ingrese un correo electrónico válido.',
 
-            'email.unique' => 'Este correo electrónico ya está registrado.',
-
             'celular.regex' => 'Ingrese un numero valido.El celular debe tener 9 dígitos y comenzar con 9',
 
             /*
@@ -305,10 +303,9 @@ class RegisterForm extends Form
     public function register(
         PendingRegistrationService $pendingService
     ): void {
-
-        $this->validate();
-
         $this->normalizarDatos();
+        $this->validate();
+        $this->comprobarCorreoExistente();
 
         $pendingService->registrar([
 
@@ -331,7 +328,29 @@ class RegisterForm extends Form
         ]);
     }
 
-    /*
+    protected function comprobarCorreoExistente(): void 
+    {
+        $usuario = User::where(
+            'email',
+            $this->email
+        )->first();
+
+        if(! $usuario){
+            return;
+        }
+        if($usuario->provider === User::PROVIDER_GOOGLE
+             && ! $usuario->has_local_password)
+             {
+                throw ValidationException::withMessages([
+                    'form.email'=>'Este correo ya esta registrado con Google. Inicia Sesión usando "Continuar con Google".',
+                ]);
+             }
+                throw ValidationException::withMessages([
+                'form.email' =>
+                    'Este correo electrónico ya está registrado. Si ya tienes una cuenta, inicia sesión.',
+        ]);
+    }
+        /*
     |--------------------------------------------------------------------------
     | Normalizar datos
     |--------------------------------------------------------------------------

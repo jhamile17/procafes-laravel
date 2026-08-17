@@ -1,16 +1,17 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
+
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\Auth\UserRegistrationService;
+use App\Services\Ventas\CartService;
+use App\Services\Ventas\SessionCartService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Facades\Socialite;
-use App\Services\Ventas\CartService;
-use App\Services\Ventas\SessionCartService;
 
 class GoogleController extends Controller
 {
@@ -19,11 +20,13 @@ class GoogleController extends Controller
     | Redirección Login
     |--------------------------------------------------------------------------
     */
+
     public function redirectLogin(): RedirectResponse
     {
         session([
             'google_flow' => 'login',
         ]);
+
         return $this->googleProvider()
             ->scopes([
                 'openid',
@@ -31,15 +34,17 @@ class GoogleController extends Controller
                 'email',
             ])
             ->with([
-                'prompt'=>'select_account'
+                'prompt' => 'select_account',
             ])
             ->redirect();
     }
+
     /*
     |--------------------------------------------------------------------------
     | Redirección Registro
     |--------------------------------------------------------------------------
     */
+
     public function redirectRegister(): RedirectResponse
     {
         session([
@@ -53,62 +58,137 @@ class GoogleController extends Controller
                 'email',
             ])
             ->with([
-                'prompt' => 'select_account'
+                'prompt' => 'select_account',
             ])
             ->redirect();
     }
+
     /*
     |--------------------------------------------------------------------------
     | Callback Google
     |--------------------------------------------------------------------------
     */
+
     public function callback(
         UserRegistrationService $registrationService,
         CartService $cartService,
         SessionCartService $sessionCartService
     ): RedirectResponse {
+
         try {
 
+            /*
+            |--------------------------------------------------------------------------
+            | Obtener usuario de Google
+            |--------------------------------------------------------------------------
+            */
+
             $googleUser = $this->googleProvider()->user();
+
             $email = strtolower(
                 trim((string) $googleUser->getEmail())
             );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Validar correo
+            |--------------------------------------------------------------------------
+            */
+
             if ($email === '') {
+
                 return redirect()
                     ->route('login')
                     ->withErrors([
-                        'google' => 'Google no devolvió un correo electrónico válido.',
+                        'form.email' =>
+                            'Google no devolvió un correo electrónico válido.',
                     ]);
             }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Obtener flujo
+            |--------------------------------------------------------------------------
+            */
+
             $flow = session()->pull(
                 'google_flow',
-                'login');
-            log::info('GOOGLE CALLBACK', [
-                 'flow' => $flow,
+                'login'
+            );
+
+            Log::info('GOOGLE CALLBACK', [
+                'flow' => $flow,
                 'session_id' => session()->getId(),
                 'email' => $email,
             ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Buscar usuario
+            |--------------------------------------------------------------------------
+            */
+
             $user = User::query()
                 ->whereRaw(
                     'LOWER(email) = ?',
                     [$email]
                 )
                 ->first();
+
             /*
             |--------------------------------------------------------------------------
-            | Registro con Google
+            | REGISTRO CON GOOGLE
             |--------------------------------------------------------------------------
             */
+
             if ($flow === 'register') {
 
+                /*
+                |------------------------------------------------------------------
+                | El correo ya existe
+                |------------------------------------------------------------------
+                */
+
                 if ($user) {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Cuenta Google
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        $user->provider === User::PROVIDER_GOOGLE
+                        && ! $user->has_local_password
+                    ) {
+
+                        return redirect()
+                            ->route('register')
+                            ->withErrors([
+                                'form.email' =>
+                                    'Este correo ya está registrado con Google. Inicia sesión usando "Continuar con Google".',
+                            ]);
+                    }
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Cuenta tradicional
+                    |--------------------------------------------------------------------------
+                    */
 
                     return redirect()
                         ->route('register')
                         ->withErrors([
-                            'email' => 'Este correo ya se encuentra registrado.',
+                            'form.email' =>
+                                'Este correo electrónico ya está registrado. Si ya tienes una cuenta, inicia sesión.',
                         ]);
                 }
+
+                /*
+                |--------------------------------------------------------------------------
+                | Crear nueva cuenta Google
+                |--------------------------------------------------------------------------
+                */
 
                 $fullName = trim(
                     (string) (
@@ -135,25 +215,44 @@ class GoogleController extends Controller
 
                 $user = $registrationService->register([
                     'nombres' => $nombres,
-                    'apellido_paterno' => $apellidoPaterno,
-                    'apellido_materno' => $apellidoMaterno,
+
+                    'apellido_paterno' =>
+                        $apellidoPaterno,
+
+                    'apellido_materno' =>
+                        $apellidoMaterno,
+
                     'tipo_documento' => null,
+
                     'numero_documento' => null,
+
                     'email' => $email,
-                    'password' => bin2hex(random_bytes(32)),
-                    'has_local_password'=> false,
-                    'provider' => User::PROVIDER_GOOGLE,
-                    'provider_id' => $googleUser->getId(),
+
+                    'password' =>
+                        bin2hex(random_bytes(32)),
+
+                    'has_local_password' => false,
+
+                    'provider' =>
+                        User::PROVIDER_GOOGLE,
+
+                    'provider_id' =>
+                        $googleUser->getId(),
+
                     'celular' => '',
+
                     'direccion' => '',
-                    'foto_perfil' => $googleUser->getAvatar(),
+
+                    'foto_perfil' =>
+                        $googleUser->getAvatar(),
+
                     'email_verified_at' => now(),
                 ]);
             }
 
             /*
             |--------------------------------------------------------------------------
-            | Login
+            | LOGIN CON GOOGLE
             |--------------------------------------------------------------------------
             */
 
@@ -162,13 +261,33 @@ class GoogleController extends Controller
                 return redirect()
                     ->route('login')
                     ->withErrors([
-                        'email' => 'No existe una cuenta registrada con este correo.',
+                        'form.email' =>
+                            'No existe una cuenta registrada con este correo. Puedes registrarte primero.',
                     ]);
             }
 
             /*
             |--------------------------------------------------------------------------
-            | Vincular proveedor
+            | Cuenta Google
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $user->provider === User::PROVIDER_GOOGLE
+                && $user->provider_id !== $googleUser->getId()
+            ) {
+
+                return redirect()
+                    ->route('login')
+                    ->withErrors([
+                        'form.email' =>
+                            'Esta cuenta está vinculada a otro perfil de Google.',
+                    ]);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Vincular Google con cuenta local
             |--------------------------------------------------------------------------
             */
 
@@ -178,29 +297,10 @@ class GoogleController extends Controller
             ) {
 
                 $user = $registrationService->linkProvider(
-
                     $user,
-
                     User::PROVIDER_GOOGLE,
-
                     $googleUser->getId()
-
                 );
-
-            } elseif (
-
-                $user->provider === User::PROVIDER_GOOGLE
-
-                && $user->provider_id !== $googleUser->getId()
-
-            ) {
-
-                return redirect()
-                    ->route('login')
-                    ->withErrors([
-                        'google' => 'La cuenta de Google no coincide con el proveedor registrado.',
-                    ]);
-
             }
 
             /*
@@ -223,15 +323,16 @@ class GoogleController extends Controller
                 $user,
                 true
             );
+
             $sessionCartService->sincronizar(
                 request(),
                 $cartService,
                 $user->id
             );
+
             request()
                 ->session()
                 ->regenerate();
-    
 
             /*
             |--------------------------------------------------------------------------
@@ -249,35 +350,50 @@ class GoogleController extends Controller
             return redirect()->intended(
                 route('products')
             );
+
         } catch (\Throwable $exception) {
+
             Log::error(
                 'Google Login Error',
                 [
-                    'message' => $exception->getMessage(),
-                    'file' => $exception->getFile(),
-                    'line' => $exception->getLine(),
-                    'trace' => $exception->getTraceAsString(),
+                    'message' =>
+                        $exception->getMessage(),
+
+                    'file' =>
+                        $exception->getFile(),
+
+                    'line' =>
+                        $exception->getLine(),
+
+                    'trace' =>
+                        $exception->getTraceAsString(),
                 ]
             );
+
             return redirect()
                 ->route('login')
                 ->withErrors([
-                    'google' => 'No fue posible iniciar sesión con Google.',
+                    'form.email' =>
+                        'No fue posible iniciar sesión con Google. Inténtalo nuevamente.',
                 ]);
         }
     }
+
     /*
     |--------------------------------------------------------------------------
     | Provider
     |--------------------------------------------------------------------------
     */
+
     protected function googleProvider(): Provider
     {
         $provider = Socialite::driver('google');
 
         if (app()->environment('local')) {
+
             $provider->stateless();
         }
+
         return $provider;
     }
 }
