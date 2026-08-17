@@ -13,7 +13,7 @@
             </p>
             <a
                 href="{{ route('products') }}"
-                class="btn btn-primary">
+                class="customer-btn">
                 <i class="bi bi-cup-hot me-2"></i>
                 Explorar productos
             </a>
