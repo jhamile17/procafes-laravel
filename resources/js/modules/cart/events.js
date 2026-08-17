@@ -1,34 +1,114 @@
-import { MAX_QTY } from './config';
+// resources/js/modules/cart/events.js
 
 import {
     addProduct,
     updateProduct,
     removeProduct,
-    clearCart
+    clearCart,
 } from './api';
 
-function showButtonAlert(button, message) {
+import {
+    render,
+    showLoading,
+    hideLoading,
+} from './render';
 
-    const old = button.parentNode.querySelector('.product-alert');
 
-    if (old) {
-        old.remove();
+/*=========================================================
+    ABRIR OFFCANVAS
+=========================================================*/
+
+function showCart() {
+
+    if (
+        document.body.classList.contains(
+            'cart-page'
+        )
+    ) {
+        return;
     }
 
-    const alert = document.createElement('div');
 
-    alert.className = 'product-alert';
+    const offcanvas =
+        document.getElementById(
+            'cartOffcanvas'
+        );
+
+
+    if (
+        !offcanvas ||
+        typeof bootstrap === 'undefined'
+    ) {
+        return;
+    }
+
+
+    bootstrap.Offcanvas
+        .getOrCreateInstance(
+            offcanvas
+        )
+        .show();
+
+}
+
+
+/*=========================================================
+    ALERTA DEL PRODUCTO
+=========================================================*/
+
+function showButtonAlert(
+    button,
+    message
+) {
+
+    const parent =
+        button.parentNode;
+
+
+    const old =
+        parent.querySelector(
+            '.product-alert'
+        );
+
+
+    if (old) {
+
+        old.remove();
+
+    }
+
+
+    const alert =
+        document.createElement('div');
+
+
+    alert.className =
+        'product-alert';
+
 
     alert.innerHTML = `
+
         <i class="bi bi-exclamation-triangle-fill"></i>
-        <span>${message}</span>
+
+        <span>
+            ${message}
+        </span>
+
     `;
 
-    button.insertAdjacentElement('afterend', alert);
+
+    button.insertAdjacentElement(
+        'afterend',
+        alert
+    );
+
 
     setTimeout(() => {
 
-        alert.classList.add('hide');
+        alert.classList.add(
+            'hide'
+        );
+
 
         setTimeout(() => {
 
@@ -39,246 +119,428 @@ function showButtonAlert(button, message) {
     }, 2500);
 
 }
-/*Mostrar Offcanvas*/
-function showCart() {
-    
-    if (document.body.classList.contains('cart-page')) {
+
+
+/*=========================================================
+    AGREGAR PRODUCTO
+=========================================================*/
+
+async function handleAdd(
+    button
+) {
+
+    if (button.dataset.processing === 'true') {
         return;
     }
 
-    const offcanvas = document.getElementById('cartOffcanvas');
-    
-    if (!offcanvas || typeof bootstrap === 'undefined') {
+
+    button.dataset.processing =
+        'true';
+
+
+    button.disabled =
+        true;
+
+
+    const originalHtml =
+        button.innerHTML;
+
+
+    button.innerHTML = `
+
+        <span
+            class="spinner-border spinner-border-sm me-2">
+        </span>
+
+        Agregando...
+
+    `;
+
+
+    try {
+
+        const response =
+            await addProduct(
+                Number(
+                    button.dataset.productId
+                ),
+                Number(
+                    button.dataset.quantity ?? 1
+                )
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Laravel ya devuelve el carrito completo
+        |--------------------------------------------------------------------------
+        */
+
+        render(response);
+
+
+        showCart();
+
+
+    } catch (error) {
+
+        console.error(
+            'Error agregando producto:',
+            error
+        );
+
+
+        showButtonAlert(
+            button,
+            error.message ||
+            'No se pudo agregar el producto.'
+        );
+
+    } finally {
+
+        button.disabled =
+            false;
+
+
+        button.dataset.processing =
+            'false';
+
+
+        button.innerHTML =
+            originalHtml;
+
+    }
+
+}
+
+
+/*=========================================================
+    INCREMENTAR
+=========================================================*/
+
+async function handleIncrement(
+    button
+) {
+
+    if (button.disabled) {
         return;
     }
 
-    bootstrap.Offcanvas
-        .getOrCreateInstance(offcanvas)
-        .show();
 
-}
+    button.disabled =
+        true;
 
-/*
-|--------------------------------------------------------------------------
-| Agregar producto
-|--------------------------------------------------------------------------
-*/
 
-export function bindAddToCart(onUpdate) {
+    try {
 
-    document.addEventListener('click', async (e) => {
-
-        const button = e.target.closest('.btn-add-to-cart');
-
-        if (!button) return;
-
-        e.preventDefault();
-
-        if (button.disabled) return;
-
-        button.disabled = true;
-
-        const html = button.innerHTML;
-
-        button.innerHTML = `
-            <span class="spinner-border spinner-border-sm me-2"></span>
-            Agregando...
-        `;
-
-        try {
-            const cart = await addProduct(
-                Number(button.dataset.productId),
-                Number(button.dataset.quantity ?? 1)
+        const id =
+            Number(
+                button.dataset.productId
             );
 
-            onUpdate(cart);
-            showCart();
 
-        }
+        const quantity =
+            Number(
+                button.dataset.quantity
+            ) + 1;
 
-        catch (error) {
 
-            console.error(error);
-            if(
-                error.message &&
-                error.message.includes('8 unidades')
-            ){
-                showCart();
-                showButtonAlert(
-                    button,
-                    error.message
-                 );
-            return;
-        }
-         alert(
-            error.message || 'No se puo agregar el producto'
-         );
-        }
-
-        finally {
-
-            button.disabled = false;
-
-            button.innerHTML = html;
-
-        }
-
-    });
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Incrementar
-|--------------------------------------------------------------------------
-*/
-
-async function increment(button, onUpdate) {
-
-    const id = Number(button.dataset.productId);
-
-    const quantity = Number(button.dataset.quantity) + 1;
-    try{
-        const cart = await updateProduct(id, quantity);
-         await onUpdate(cart);
-        }
-        catch (error){
-            console.error(error);
-            showButtonAlert(
-                button,
-                error.message || 'Solo puedes comprar hasta 8 unidades de este producto.'
+        const response =
+            await updateProduct(
+                id,
+                quantity
             );
-            
-        
+
+
+        render(response);
+
+
+    } catch (error) {
+
+        console.error(
+            'Error aumentando cantidad:',
+            error
+        );
+
+
+        showButtonAlert(
+            button,
+            error.message ||
+            'No se pudo aumentar la cantidad.'
+        );
+
+    } finally {
+
+        button.disabled =
+            false;
+
+    }
+
 }
-}
-/*
-|--------------------------------------------------------------------------
-| Disminuir
-|--------------------------------------------------------------------------
-*/
 
-async function decrement(button, onUpdate) {
 
-    const id = Number(button.dataset.productId);
+/*=========================================================
+    DECREMENTAR
+=========================================================*/
 
-    const quantity = Number(button.dataset.quantity) - 1;
+async function handleDecrement(
+    button
+) {
+
+    if (button.disabled) {
+        return;
+    }
+
+
+    const id =
+        Number(
+            button.dataset.productId
+        );
+
+
+    const quantity =
+        Number(
+            button.dataset.quantity
+        ) - 1;
+
 
     if (quantity < 1) {
         return;
     }
 
-    const cart = await updateProduct(id, quantity);
 
-    await onUpdate(cart);
+    button.disabled =
+        true;
+
+
+    try {
+
+        const response =
+            await updateProduct(
+                id,
+                quantity
+            );
+
+
+        render(response);
+
+
+    } catch (error) {
+
+        console.error(
+            'Error disminuyendo cantidad:',
+            error
+        );
+
+
+        showButtonAlert(
+            button,
+            error.message ||
+            'No se pudo actualizar la cantidad.'
+        );
+
+    } finally {
+
+        button.disabled =
+            false;
+
+    }
 
 }
 
-/*
-|--------------------------------------------------------------------------
-| Eliminar
-|--------------------------------------------------------------------------
-*/
 
-async function remove(button, onUpdate) {
+/*=========================================================
+    ELIMINAR
+=========================================================*/
 
-    const cart = await removeProduct(
-        Number(button.dataset.productId)
+async function handleRemove(
+    button
+) {
+
+    if (button.disabled) {
+        return;
+    }
+
+
+    button.disabled =
+        true;
+
+
+    try {
+
+        const response =
+            await removeProduct(
+                Number(
+                    button.dataset.productId
+                )
+            );
+
+
+        render(response);
+
+
+    } catch (error) {
+
+        console.error(
+            'Error eliminando producto:',
+            error
+        );
+
+
+        button.disabled =
+            false;
+
+    }
+
+}
+
+
+/*=========================================================
+    VACIAR CARRITO
+=========================================================*/
+
+async function handleClear(
+    button
+) {
+
+    if (button.disabled) {
+        return;
+    }
+
+
+    button.disabled =
+        true;
+
+
+    try {
+
+        const response =
+            await clearCart();
+
+
+        render(response);
+
+
+    } catch (error) {
+
+        console.error(
+            'Error vaciando carrito:',
+            error
+        );
+
+    } finally {
+
+        button.disabled =
+            false;
+
+    }
+
+}
+
+
+/*=========================================================
+    LISTENER PRINCIPAL
+=========================================================*/
+
+export function initializeCartEvents() {
+
+    document.addEventListener(
+        'click',
+        async (event) => {
+
+            const addButton =
+                event.target.closest(
+                    '.btn-add-to-cart'
+                );
+
+
+            if (addButton) {
+
+                event.preventDefault();
+
+                await handleAdd(
+                    addButton
+                );
+
+                return;
+
+            }
+
+
+            const increase =
+                event.target.closest(
+                    '.btn-inc'
+                );
+
+
+            if (increase) {
+
+                event.preventDefault();
+
+                await handleIncrement(
+                    increase
+                );
+
+                return;
+
+            }
+
+
+            const decrease =
+                event.target.closest(
+                    '.btn-dec'
+                );
+
+
+            if (decrease) {
+
+                event.preventDefault();
+
+                await handleDecrement(
+                    decrease
+                );
+
+                return;
+
+            }
+
+
+            const remove =
+                event.target.closest(
+                    '.btn-remove'
+                );
+
+
+            if (remove) {
+
+                event.preventDefault();
+
+                await handleRemove(
+                    remove
+                );
+
+                return;
+
+            }
+
+
+            const clear =
+                event.target.closest(
+                    '.btn-clear-cart'
+                );
+
+
+            if (clear) {
+
+                event.preventDefault();
+
+                await handleClear(
+                    clear
+                );
+
+            }
+
+        }
     );
-
-    await onUpdate(cart);
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Eventos del carrito
-|--------------------------------------------------------------------------
-*/
-
-export function bindCartActions(onUpdate) {
-
-    document.addEventListener('click', async (e) => {
-
-        const inc = e.target.closest('.btn-inc');
-        const dec = e.target.closest('.btn-dec');
-        const del = e.target.closest('.btn-remove');
-
-        try {
-
-            if (inc) {
-
-                await increment(inc, onUpdate);
-
-                return;
-
-            }
-
-            if (dec) {
-
-                await decrement(dec, onUpdate);
-
-                return;
-
-            }
-
-            if (del) {
-
-                await remove(del, onUpdate);
-
-            }
-
-        }
-
-        catch (error) {
-
-            console.error(error);
-
-        }
-
-    });
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Vaciar carrito
-|--------------------------------------------------------------------------
-*/
-
-export function bindClearCart(onUpdate) {
-
-    document.addEventListener('click', async (e) => {
-
-        const button = e.target.closest('.btn-clear-cart');
-
-        if (!button) {
-            return;
-        }
-
-        e.preventDefault();
-        button.disabled = true;
-
-        try {
-
-            const cart = await clearCart();
-
-            await onUpdate(cart);
-
-        }
-
-        catch (error) {
-
-            console.error(error);
-
-        }
-
-        finally {
-
-            button.disabled = false;
-
-        }
-
-    });
 
 }

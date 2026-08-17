@@ -491,3 +491,7 @@
     border-color:var(--color-primary-hover);
 
 }
+.cart-page-item-actions button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}

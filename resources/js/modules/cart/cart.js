@@ -1,81 +1,121 @@
+// resources/js/modules/cart/cart.js
+
 import {
     getCart,
-    getRecommendations
+    getRecommendations,
 } from './api';
 
 import {
     render,
-    renderRecommendations
+    renderRecommendations,
+    showLoading,
 } from './render';
 
 import {
-    bindAddToCart,
-    bindCartActions,
-    bindClearCart
+    initializeCartEvents,
 } from './events';
+
 
 class Cart {
 
     constructor() {
-        this.version = 0;
-        this.isCartPage = document.body.classList.contains('cart-page');
+
+        this.initialized =
+            false;
+
     }
 
-    reload() {
-        return this.refresh();
-    }
 
-    async refresh() {
-        const version = ++this.version;
+    /*=====================================================
+        CARGAR CARRITO
+    =====================================================*/
+
+    async load() {
 
         try {
-            const cart = await getCart();
 
-            // Ignore a response that started before a more recent cart action.
-            if (version !== this.version) {
-                return;
-            }
+            const cart =
+                await getCart();
+
 
             render(cart);
-            void this.loadRecommendations(version);
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Recomendaciones solamente en página carrito
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                document.body.classList.contains(
+                    'cart-page'
+                )
+            ) {
+
+                try {
+
+                    const html =
+                        await getRecommendations();
+
+
+                    renderRecommendations(
+                        html
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        'Error cargando recomendaciones:',
+                        error
+                    );
+
+                }
+
+            }
 
         } catch (error) {
-            console.error(error);
+
+            console.error(
+                'Error cargando carrito:',
+                error
+            );
+
         }
+
     }
 
-    async loadRecommendations(version = this.version) {
-        if (!this.isCartPage) {
+
+    /*=====================================================
+        INICIALIZAR
+    =====================================================*/
+
+    init() {
+
+        if (this.initialized) {
             return;
         }
 
-        try {
-            const html = await getRecommendations();
 
-            if (version === this.version) {
-                renderRecommendations(html);
-            }
+        this.initialized =
+            true;
 
-        } catch (error) {
-            console.error(error);
-        }
-    }
 
-    update(cart) {
-        const version = ++this.version;
+        initializeCartEvents();
 
-        render(cart);
-        void this.loadRecommendations(version);
-    }
 
-    init() {
-        bindAddToCart(this.update.bind(this));
-        bindCartActions(this.update.bind(this));
-        bindClearCart(this.update.bind(this));
+        void this.load();
 
-        void this.refresh();
     }
 
 }
 
-export default new Cart();
+
+const cart =
+    new Cart();
+
+
+cart.init();
+
+
+export default cart;

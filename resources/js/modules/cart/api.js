@@ -1,13 +1,12 @@
-// resources/js/cart/api.js
+// resources/js/modules/cart/api.js
 
 import { ROUTES } from './config';
 import { csrfToken } from './helpers';
 
-/*
-|--------------------------------------------------------------------------
-| Petición HTTP
-|--------------------------------------------------------------------------
-*/
+
+/*=========================================================
+    PETICIÓN HTTP
+=========================================================*/
 
 async function request(
     url,
@@ -16,91 +15,94 @@ async function request(
     responseType = 'json'
 ) {
 
-    const response = await fetch(url, {
+    const options = {
         method,
         credentials: 'same-origin',
         cache: 'no-store',
 
         headers: {
-            Accept: responseType === 'text'
-                ? 'text/html'
-                : 'application/json',
+            Accept:
+                responseType === 'text'
+                    ? 'text/html'
+                    : 'application/json',
+
+            'X-Requested-With': 'XMLHttpRequest',
 
             'X-CSRF-TOKEN': csrfToken(),
-
-            ...(data
-                ? {
-                    'Content-Type': 'application/json',
-                }
-                : {}),
         },
+    };
 
-        body: data
-            ? JSON.stringify(data)
-            : null,
-    });
+
+    if (data !== null) {
+
+        options.headers['Content-Type'] =
+            'application/json';
+
+        options.body =
+            JSON.stringify(data);
+
+    }
+
+
+    const response =
+        await fetch(url, options);
+
+
+    let result;
+
+
+    try {
+
+        result =
+            responseType === 'text'
+                ? await response.text()
+                : await response.json();
+
+    } catch (error) {
+
+        throw new Error(
+            'El servidor devolvió una respuesta inválida.'
+        );
+
+    }
+
 
     if (!response.ok) {
 
-        let message = `HTTP ${response.status}`;
-
-        try {
-            const error = await response.json();
-            message =
-             error.message ?? 
-             error.error ??
-             message;
-
-        } catch (_) {}
+        const message =
+            result?.message ??
+            result?.error ??
+            `HTTP ${response.status}`;
 
         throw new Error(message);
 
     }
 
-    return responseType === 'text'
-        ? await response.text()
-        : await response.json();
+
+    return result;
 
 }
 
-/*
-|--------------------------------------------------------------------------
-| Recomendaciones
-|--------------------------------------------------------------------------
-*/
 
-export function getRecommendations() {
+/*=========================================================
+    OBTENER CARRITO
+=========================================================*/
+
+export async function getCart() {
 
     return request(
-        ROUTES.recommendations,
-        'GET',
-        null,
-        'text'
+        ROUTES.data,
+        'GET'
     );
 
 }
 
-/*
-|--------------------------------------------------------------------------
-| Obtener carrito
-|--------------------------------------------------------------------------
-*/
 
-export function getCart() {
+/*=========================================================
+    AGREGAR PRODUCTO
+=========================================================*/
 
-    return request(
-        ROUTES.data
-    );
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Agregar producto
-|--------------------------------------------------------------------------
-*/
-
-export function addProduct(
+export async function addProduct(
     productId,
     quantity = 1
 ) {
@@ -109,20 +111,19 @@ export function addProduct(
         ROUTES.add,
         'POST',
         {
-            product_id: productId,
-            cantidad: quantity,
+            product_id: Number(productId),
+            cantidad: Number(quantity),
         }
     );
 
 }
 
-/*
-|--------------------------------------------------------------------------
-| Actualizar cantidad
-|--------------------------------------------------------------------------
-*/
 
-export function updateProduct(
+/*=========================================================
+    ACTUALIZAR PRODUCTO
+=========================================================*/
+
+export async function updateProduct(
     productId,
     quantity
 ) {
@@ -131,19 +132,18 @@ export function updateProduct(
         `${ROUTES.base}/${productId}`,
         'PATCH',
         {
-            cantidad: quantity,
+            cantidad: Number(quantity),
         }
     );
 
 }
 
-/*
-|--------------------------------------------------------------------------
-| Eliminar producto
-|--------------------------------------------------------------------------
-*/
 
-export function removeProduct(
+/*=========================================================
+    ELIMINAR PRODUCTO
+=========================================================*/
+
+export async function removeProduct(
     productId
 ) {
 
@@ -154,17 +154,32 @@ export function removeProduct(
 
 }
 
-/*
-|--------------------------------------------------------------------------
-| Vaciar carrito
-|--------------------------------------------------------------------------
-*/
 
-export function clearCart() {
+/*=========================================================
+    VACIAR CARRITO
+=========================================================*/
+
+export async function clearCart() {
 
     return request(
         ROUTES.clear,
         'DELETE'
+    );
+
+}
+
+
+/*=========================================================
+    RECOMENDACIONES
+=========================================================*/
+
+export async function getRecommendations() {
+
+    return request(
+        ROUTES.recommendations,
+        'GET',
+        null,
+        'text'
     );
 
 }
