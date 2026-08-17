@@ -16,7 +16,9 @@ use Illuminate\Support\Str;
 class DashboardService
 {
     /**
-     * Obtiene toda la información del dashboard.
+     * =========================================================
+     * DATOS COMPLETOS DEL DASHBOARD
+     * =========================================================
      */
     public function getDashboardData(Request $request): array
     {
@@ -43,47 +45,60 @@ class DashboardService
 
         $chips = $this->getCategoryChips();
 
-        $best = $this->getTopProducts();
+        $topProducts = $this->getTopProducts();
 
-        $stock = $this->getLowStockProducts();
+        $lowStock = $this->getLowStockProducts();
 
         $activities = $this->getRecentActivity();
 
         $dailySummary = $this->getDailySummary();
 
-        return array_merge($filters, [
+        return array_merge(
+            $filters,
+            [
 
-            'labels' => $labels,
+                'labels' => $labels,
 
-            'revenue' => $revenue,
+                'revenue' => $revenue,
 
-            'stats' => $stats,
+                'stats' => $stats,
 
-            'categories' => $categories,
+                'categories' => $categories,
 
-            'chips' => $chips,
+                'chips' => $chips,
 
-            'best' => $best,
+                'topProducts' => $topProducts,
 
-            'stock' => $stock,
+                'lowStock' => $lowStock,
 
-            'activities' => $activities,
+                'activities' => $activities,
 
-            'dailySummary' => $dailySummary,
+                'dailySummary' => $dailySummary,
 
-        ]);
+            ]
+        );
     }
-    
+
+
     /**
-     * Obtiene los filtros enviados desde la vista.
+     * =========================================================
+     * FILTROS
+     * =========================================================
      */
     private function getFilters(Request $request): array
     {
         $currentYear = now()->year;
 
-        $year = (int) $request->get('year', $currentYear);
+        $year = (int) $request->query(
+            'year',
+            $currentYear
+        );
 
-        $month = $request->get('month');
+        $month = $request->query('month');
+
+        $month = !empty($month)
+            ? (int) $month
+            : null;
 
         return [
 
@@ -91,250 +106,410 @@ class DashboardService
 
             'month' => $month,
 
-            'categoryId' => (int) $request->query('category_id', 0),
+            'categoryId' => (int) $request->query(
+                'category_id',
+                0
+            ),
 
-            // Mostrar un rango de años aunque no existan ventas
             'availableYears' => collect(
-                range($currentYear - 2, $currentYear + 2)
-            )->sortDesc()->values(),
+                range(
+                    $currentYear - 2,
+                    $currentYear + 2
+                )
+            )
+                ->sortDesc()
+                ->values()
+                ->all(),
 
         ];
     }
 
+
     /**
-     * Consulta base para las ventas válidas del dashboard.
+     * =========================================================
+     * CONSULTA BASE DE VENTAS
+     * =========================================================
+     *
+     * Se utilizan los estados reales del sistema:
+     *
+     * CONFIRMADO
+     * ENTREGADO
+     *
+     * No usamos orders.status.
      */
     private function dashboardSalesQuery()
     {
         return Order::query()
-            ->whereHas('estadoPedido', function ($query) {
-                $query->whereIn('codigo', [
-                    \App\Models\EstadoPedido::CONFIRMADO,
-                    \App\Models\EstadoPedido::ENTREGADO,
-                ]);
-            });
-    }
+            ->whereHas(
+                'estadoPedido',
+                function ($query) {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Gráfico
-    |--------------------------------------------------------------------------
-    */
-
-    private function getChartLabels(int $year, ?int $month): array
-    {
-        if (empty($month)) {
-
-            return collect(range(1, 12))
-                ->map(function ($m) {
-
-                    return ucfirst(
-                        Carbon::create()
-                            ->month($m)
-                            ->translatedFormat('M')
+                    $query->whereIn(
+                        'codigo',
+                        [
+                            \App\Models\EstadoPedido::CONFIRMADO,
+                            \App\Models\EstadoPedido::ENTREGADO,
+                        ]
                     );
 
-                })
-                ->toArray();
-        }
-
-        $days = Carbon::create($year, $month)->daysInMonth;
-
-        return collect(range(1, $days))->toArray();
+                }
+            );
     }
 
-    private function getRevenue(int $year, ?int $month): array
-    {
-        $revenue = [];
+
+    /**
+     * =========================================================
+     * GRÁFICO - ETIQUETAS
+     * =========================================================
+     */
+    private function getChartLabels(
+        int $year,
+        ?int $month
+    ): array {
 
         /*
-        |--------------------------------------------------------------------------
-        | Vista anual
-        |--------------------------------------------------------------------------
-        */
+         * TODO EL AÑO
+         */
+        if (empty($month)) {
 
+            $labels = [];
+
+            for ($m = 1; $m <= 12; $m++) {
+
+                $labels[] = ucfirst(
+                    Carbon::create(
+                        $year,
+                        $m,
+                        1
+                    )->translatedFormat('M')
+                );
+            }
+
+            return $labels;
+        }
+
+
+        /*
+         * UN MES
+         */
+        $days = Carbon::create(
+            $year,
+            $month,
+            1
+        )->daysInMonth;
+
+        return collect(
+            range(1, $days)
+        )->map(
+            fn ($day) => (string) $day
+        )->toArray();
+    }
+
+
+    /**
+     * =========================================================
+     * GRÁFICO - INGRESOS
+     * =========================================================
+     */
+    private function getRevenue(
+        int $year,
+        ?int $month
+    ): array {
+
+        $revenue = [];
+
+
+        /*
+         * TODO EL AÑO
+         */
         if (empty($month)) {
 
             for ($m = 1; $m <= 12; $m++) {
 
-                $revenue[] = $this->dashboardSalesQuery()
-                    ->whereYear('created_at', $year)
-                    ->whereMonth('created_at', $m)
+                $revenue[] = (float) $this
+                    ->dashboardSalesQuery()
+                    ->whereYear(
+                        'created_at',
+                        $year
+                    )
+                    ->whereMonth(
+                        'created_at',
+                        $m
+                    )
                     ->sum('total_price');
-
             }
 
             return $revenue;
         }
 
+
         /*
-        |--------------------------------------------------------------------------
-        | Vista mensual
-        |--------------------------------------------------------------------------
-        */
+         * UN MES
+         */
+        $days = Carbon::create(
+            $year,
+            $month,
+            1
+        )->daysInMonth;
 
-        $days = Carbon::create($year, $month)->daysInMonth;
 
-        for ($d = 1; $d <= $days; $d++) {
+        for ($day = 1; $day <= $days; $day++) {
 
-            $revenue[] = $this->dashboardSalesQuery()
-                ->whereYear('created_at', $year)
-                ->whereMonth('created_at', $month)
-                ->whereDay('created_at', $d)
+            $revenue[] = (float) $this
+                ->dashboardSalesQuery()
+                ->whereYear(
+                    'created_at',
+                    $year
+                )
+                ->whereMonth(
+                    'created_at',
+                    $month
+                )
+                ->whereDay(
+                    'created_at',
+                    $day
+                )
                 ->sum('total_price');
         }
+
 
         return $revenue;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Estadísticas
-    |--------------------------------------------------------------------------
-    */
 
     /**
-     * Obtiene las estadísticas principales del dashboard.
+     * =========================================================
+     * ESTADÍSTICAS PRINCIPALES
+     * =========================================================
      */
-    private function getStats(int $year, ?int $month): array
-    {
-        $query = $this->dashboardSalesQuery()
-            ->whereYear('created_at', $year);
+    private function getStats(
+        int $year,
+        ?int $month
+    ): array {
+
+        $query = $this
+            ->dashboardSalesQuery()
+            ->whereYear(
+                'created_at',
+                $year
+            );
+
 
         if (!empty($month)) {
-            $query->whereMonth('created_at', $month);
+
+            $query->whereMonth(
+                'created_at',
+                $month
+            );
         }
+
 
         return [
 
             /*
-            |--------------------------------------------------------------------------
-            | Estadísticas del período seleccionado
-            |--------------------------------------------------------------------------
-            */
+             * Ventas del período
+             */
+            'revenue' => (float) (clone $query)
+                ->sum('total_price'),
 
-            'revenue' => (clone $query)->sum('total_price'),
-
-            'orders' => (clone $query)->count(),
 
             /*
-            |--------------------------------------------------------------------------
-            | Totales generales del sistema
-            |--------------------------------------------------------------------------
-            */
+             * Pedidos del período
+             */
+            'orders' => (int) (clone $query)
+                ->count(),
 
-            'products' => Product::count(),
 
-            'customers' => User::whereHas('role', function ($query) {
+            /*
+             * Productos generales
+             */
+            'products' => (int) Product::count(),
 
-                $query->where('codigo', 'CUSTOMER');
 
-            })->count(),
+            /*
+             * Clientes
+             */
+            'customers' => (int) User::whereHas(
+                'role',
+                function ($query) {
+
+                    $query->where(
+                        'codigo',
+                        'CUSTOMER'
+                    );
+
+                }
+            )->count(),
 
         ];
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Categorías
-    |--------------------------------------------------------------------------
-    */
 
     /**
-     * Obtiene todas las categorías.
+     * =========================================================
+     * CATEGORÍAS
+     * =========================================================
      */
     private function getCategories()
     {
-        return Category::orderBy('name')->get();
+        return Category::query()
+            ->orderBy('name')
+            ->get();
     }
 
+
     /**
-     * Obtiene las categorías mostradas como chips.
+     * Categorías para chips.
      */
     private function getCategoryChips(): array
     {
-        return Category::orderBy('name')
+        return Category::query()
+            ->orderBy('name')
             ->take(10)
             ->get()
-            ->map(function ($category) {
+            ->map(
+                function ($category) {
 
-                return [
+                    return [
 
-                    'i' => 'bi-tag',
+                        'i' => 'bi-tag',
 
-                    't' => $category->name,
+                        't' => $category->name,
 
-                ];
-
-            })
+                    ];
+                }
+            )
             ->values()
             ->all();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Productos
-    |--------------------------------------------------------------------------
-    */
 
     /**
-     * Obtiene los productos más vendidos.
+     * =========================================================
+     * PRODUCTOS MÁS VENDIDOS
+     * =========================================================
      */
     private function getTopProducts(): array
     {
-        if (
-            !Schema::hasTable('order_items') ||
-            !Schema::hasColumn('order_items', 'quantity')
-        ) {
+        /*
+         * Verificamos que exista order_items.
+         */
+        if (!Schema::hasTable('order_items')) {
             return [];
         }
 
+
+        /*
+         * Verificamos quantity.
+         */
+        if (!Schema::hasColumn(
+            'order_items',
+            'quantity'
+        )) {
+            return [];
+        }
+
+
+        /*
+         * Verificamos product_id.
+         */
+        if (!Schema::hasColumn(
+            'order_items',
+            'product_id'
+        )) {
+            return [];
+        }
+
+
         return DB::table('order_items as oi')
-            ->join('products as p', 'p.id', '=', 'oi.product_id')
-            ->join('orders as o', 'o.id', '=', 'oi.order_id')
-            ->join('estados_pedido as ep', 'ep.id', '=', 'o.estado_pedido_id')
-            ->whereIn('ep.codigo', [
-                \App\Models\EstadoPedido::CONFIRMADO,
-                \App\Models\EstadoPedido::ENTREGADO,
-            ])
+
+            ->join(
+                'products as p',
+                'p.id',
+                '=',
+                'oi.product_id'
+            )
+
+            ->join(
+                'orders as o',
+                'o.id',
+                '=',
+                'oi.order_id'
+            )
+
+            ->join(
+                'estados_pedido as ep',
+                'ep.id',
+                '=',
+                'o.estado_pedido_id'
+            )
+
+            ->whereIn(
+                'ep.codigo',
+                [
+                    \App\Models\EstadoPedido::CONFIRMADO,
+                    \App\Models\EstadoPedido::ENTREGADO,
+                ]
+            )
+
             ->select(
+
                 'p.id',
+
                 'p.name',
+
                 'p.image',
-                DB::raw('SUM(oi.quantity) as qty_sold')
+
+                DB::raw(
+                    'SUM(oi.quantity) as qty_sold'
+                )
+
             )
+
             ->groupBy(
+
                 'p.id',
+
                 'p.name',
+
                 'p.image'
+
             )
-            ->orderByDesc('qty_sold')
+
+            ->orderByDesc(
+                'qty_sold'
+            )
+
             ->limit(5)
+
             ->get()
-            ->map(function ($row) {
 
-                $image = $this->getImageUrl($row->image);
+            ->map(
+                function ($row) {
 
-                return [
+                    return (object) [
 
-                    'id' => $row->id,
+                        'id' => $row->id,
 
-                    'name' => $row->name,
+                        'name' => $row->name,
 
-                    'orders' => (int) $row->qty_sold,
+                        'image' => $this->getImageUrl(
+                            $row->image
+                        ),
 
-                    'total' => 0,
+                        'qty_sold' => (int) $row->qty_sold,
 
-                    'img' => $image,
+                    ];
+                }
+            )
 
-                ];
-
-            })
             ->toArray();
     }
 
     /**
-     * Devuelve la URL pública de una imagen.
+     * =========================================================
+     * IMAGEN DEL PRODUCTO
+     * =========================================================
      */
     private function getImageUrl(?string $image): string
     {
@@ -342,133 +517,254 @@ class DashboardService
             return asset('images/no-image.png');
         }
 
-        if (Str::startsWith($image, ['http://', 'https://'])) {
+        /*
+        * Si ya es una URL completa
+        */
+        if (
+            Str::startsWith(
+                $image,
+                [
+                    'http://',
+                    'https://'
+                ]
+            )
+        ) {
             return $image;
         }
 
+        /*
+        * Si existe en storage/app/public
+        */
         if (Storage::disk('public')->exists($image)) {
             return Storage::url($image);
         }
 
+        /*
+        * Imagen por defecto
+        */
         return asset('images/no-image.png');
     }
 
+
     /**
-     * Obtiene los productos con stock bajo.
+     * =========================================================
+     * STOCK BAJO
+     * =========================================================
      */
     private function getLowStockProducts(): array
     {
-        return Product::stockBajo()
+        /*
+         * Usamos el scope existente del modelo Product.
+         */
+        return Product::query()
+            ->stockBajo()
             ->orderBy('stock')
             ->limit(5)
             ->get()
-            ->map(function ($product) {
+            ->map(
+                function ($product) {
 
-                return [
+                    return (object) [
 
-                    'name'  => $product->name,
+                        'id' => $product->id,
 
-                    'stock' => $product->stock,
+                        'name' => $product->name,
 
-                    'img'   => $this->getImageUrl($product->image),
+                        'stock' => (int) $product->stock,
 
-                ];
+                        'stock_minimo' => (int) (
+                            $product->stock_minimo ?? 10
+                        ),
 
-            })
+                        'image' => $this->getImageUrl(
+                            $product->image
+                        ),
+
+                    ];
+                }
+            )
             ->toArray();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Actividad
-    |--------------------------------------------------------------------------
-    */
 
     /**
-     * Obtiene la actividad reciente del sistema.
+     * =========================================================
+     * ACTIVIDAD RECIENTE
+     * =========================================================
      */
     private function getRecentActivity(): array
     {
-        return Order::with(['user', 'estadoPedido'])
-            ->whereHas('estadoPedido', function ($query) {
-                $query->whereIn('codigo', [
-                    \App\Models\EstadoPedido::CONFIRMADO,
-                    \App\Models\EstadoPedido::ENTREGADO,
-                ]);
-            })
+        return Order::query()
+
+            ->with([
+                'user',
+                'estadoPedido'
+            ])
+
+            ->whereHas(
+                'estadoPedido',
+                function ($query) {
+
+                    $query->whereIn(
+                        'codigo',
+                        [
+                            \App\Models\EstadoPedido::CONFIRMADO,
+                            \App\Models\EstadoPedido::ENTREGADO,
+                        ]
+                    );
+
+                }
+            )
+
             ->latest()
+
             ->limit(5)
+
             ->get()
-            ->map(function ($order) {
 
-                return [
+            ->map(
+                function ($order) {
 
-                    'number' => $order->numero_pedido,
+                    $customer = optional(
+                        $order->user
+                    )->name ?? 'Cliente';
 
-                    'customer' => optional($order->user)->name ?? 'Cliente',
 
-                    'total' => $order->total_price,
+                    return (object) [
 
-                    'date' => $order->created_at?->format('d/m/Y H:i'),
+                        'title' =>
+                            'Pedido #' .
+                            ($order->numero_pedido ?? $order->id),
 
-                ];
 
-            })
+                        'description' =>
+                            $customer .
+                            ' realizó un pedido por S/ ' .
+                            number_format(
+                                (float) $order->total_price,
+                                2
+                            ),
+
+
+                        'created_at' =>
+                            $order->created_at,
+
+                    ];
+                }
+            )
+
             ->toArray();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Resumen del día
-    |--------------------------------------------------------------------------
-    */
 
-    /****
-     * Obtiene el resumen del día.
+    /**
+     * =========================================================
+     * RESUMEN DEL DÍA
+     * =========================================================
      */
     private function getDailySummary(): array
     {
         $today = now()->toDateString();
 
-        $salesToday = $this->dashboardSalesQuery()
-            ->whereDate('created_at', $today)
+
+        /*
+         * Ventas de hoy
+         */
+        $salesToday = $this
+            ->dashboardSalesQuery()
+            ->whereDate(
+                'created_at',
+                $today
+            )
             ->sum('total_price');
 
-        $ordersToday = $this->dashboardSalesQuery()
-            ->whereDate('created_at', $today)
+
+        /*
+         * Pedidos de hoy
+         */
+        $ordersToday = $this
+            ->dashboardSalesQuery()
+            ->whereDate(
+                'created_at',
+                $today
+            )
             ->count();
 
-        $customersToday = User::whereDate('created_at', $today)
+
+        /*
+         * Clientes registrados hoy
+         */
+        $customersToday = User::query()
+            ->whereDate(
+                'created_at',
+                $today
+            )
             ->count();
 
+
+        /*
+         * Productos vendidos hoy
+         */
         $productsSoldToday = 0;
+
 
         if (
             Schema::hasTable('order_items') &&
-            Schema::hasColumn('order_items', 'quantity')
+            Schema::hasColumn(
+                'order_items',
+                'quantity'
+            ) &&
+            Schema::hasColumn(
+                'order_items',
+                'product_id'
+            )
         ) {
-            $productsSoldToday = DB::table('order_items as oi')
-                ->join('orders as o', 'o.id', '=', 'oi.order_id')
-                ->join('estados_pedido as ep', 'ep.id', '=', 'o.estado_pedido_id')
-                ->whereDate('o.created_at', $today)
-                ->whereIn('ep.codigo', [
-                    \App\Models\EstadoPedido::CONFIRMADO,
-                    \App\Models\EstadoPedido::ENTREGADO,
-                ])
+
+            $productsSoldToday = DB::table(
+                'order_items as oi'
+            )
+
+                ->join(
+                    'orders as o',
+                    'o.id',
+                    '=',
+                    'oi.order_id'
+                )
+
+                ->join(
+                    'estados_pedido as ep',
+                    'ep.id',
+                    '=',
+                    'o.estado_pedido_id'
+                )
+
+                ->whereDate(
+                    'o.created_at',
+                    $today
+                )
+
+                ->whereIn(
+                    'ep.codigo',
+                    [
+                        \App\Models\EstadoPedido::CONFIRMADO,
+                        \App\Models\EstadoPedido::ENTREGADO,
+                    ]
+                )
+
                 ->sum('oi.quantity');
         }
 
+
         return [
 
-            'sales' => $salesToday,
+            'sales' => (float) $salesToday,
 
-            'orders' => $ordersToday,
+            'orders' => (int) $ordersToday,
 
-            'customers' => $customersToday,
+            'customers' => (int) $customersToday,
 
-            'productsSold' => $productsSoldToday,
+            'productsSold' => (int) $productsSoldToday,
 
         ];
     }
-    
 }

@@ -307,19 +307,19 @@ class Product extends Model
             : 'bi-x-circle';
     }
     public function getImageUrlAttribute(): string
-        {
-            if (!filled($this->image)) {
+    {
+        if (!filled($this->image)) {
             return asset('images/no-image.png');
         }
 
-        $imagePath = 'storage/' . ltrim($this->image, '/');
+        $path = 'storage/' . ltrim($this->image, '/');
 
-        if (file_exists(public_path($imagePath))) {
-            return asset($imagePath);
+        if (file_exists(public_path($path))) {
+            return asset($path);
         }
 
         return asset('images/no-image.png');
-        }
+    }
 
     public function getPrecioFormateadoAttribute(): string
     {

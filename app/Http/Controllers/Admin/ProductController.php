@@ -48,9 +48,13 @@ class ProductController extends Controller
             perPage: 10
         );
 
-        $categories = Category::orderBy('name')->get();
+        $categories = Category::query()
+            ->orderBy('name')
+            ->get();
 
-        $brands = Brand::orderBy('name')->get();
+        $brands = Brand::query()
+            ->orderBy('name')
+            ->get();
 
         return view(
             'admin.products.index',
@@ -92,7 +96,7 @@ class ProductController extends Controller
         );
     }
 
-        /*
+    /*
     |--------------------------------------------------------------------------
     | Guardar producto
     |--------------------------------------------------------------------------
@@ -106,6 +110,12 @@ class ProductController extends Controller
 
             $datos = $request->validated();
 
+            /*
+            |--------------------------------------------------------------------------
+            | Imagen
+            |--------------------------------------------------------------------------
+            */
+
             if ($request->hasFile('image')) {
 
                 $datos['image'] = $request
@@ -114,15 +124,18 @@ class ProductController extends Controller
                         'products',
                         'public'
                     );
-
             }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Crear producto
+            |--------------------------------------------------------------------------
+            */
 
             $this->productService->crear($datos);
 
             return redirect()
-
                 ->route('admin.products.index')
-
                 ->with(
                     'success',
                     'Producto registrado correctamente.'
@@ -133,19 +146,15 @@ class ProductController extends Controller
             report($e);
 
             return back()
-
                 ->withInput()
-
                 ->with(
                     'error',
                     'No fue posible registrar el producto.'
                 );
-
         }
-
     }
 
-        /*
+    /*
     |--------------------------------------------------------------------------
     | Formulario Editar
     |--------------------------------------------------------------------------
@@ -199,19 +208,12 @@ class ProductController extends Controller
                     $product->image &&
                     Storage::disk('public')->exists($product->image)
                 ) {
-
-                    Storage::disk('public')
-                        ->delete($product->image);
-
+                    Storage::disk('public')->delete($product->image);
                 }
 
                 $datos['image'] = $request
                     ->file('image')
-                    ->store(
-                        'products',
-                        'public'
-                    );
-
+                    ->store('products', 'public');
             }
 
             $this->productService->actualizar(
@@ -220,9 +222,7 @@ class ProductController extends Controller
             );
 
             return redirect()
-
                 ->route('admin.products.index')
-
                 ->with(
                     'success',
                     'Producto actualizado correctamente.'
@@ -233,16 +233,12 @@ class ProductController extends Controller
             report($e);
 
             return back()
-
                 ->withInput()
-
                 ->with(
                     'error',
                     'No fue posible actualizar el producto.'
                 );
-
         }
-
     }
 
     /*
@@ -259,22 +255,31 @@ class ProductController extends Controller
 
             $product = $this->productService->obtener($id);
 
+            /*
+            |--------------------------------------------------------------------------
+            | Eliminar imagen
+            |--------------------------------------------------------------------------
+            */
+
             if (
-                $product->image &&
+                !empty($product->image) &&
                 Storage::disk('public')->exists($product->image)
             ) {
 
                 Storage::disk('public')
                     ->delete($product->image);
-
             }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Eliminar producto
+            |--------------------------------------------------------------------------
+            */
 
             $this->productService->eliminar($product);
 
             return redirect()
-
                 ->route('admin.products.index')
-
                 ->with(
                     'success',
                     'Producto eliminado correctamente.'
@@ -285,16 +290,11 @@ class ProductController extends Controller
             report($e);
 
             return redirect()
-
                 ->route('admin.products.index')
-
                 ->with(
                     'error',
                     'No se pudo eliminar el producto.'
                 );
-
         }
-
     }
-
 }

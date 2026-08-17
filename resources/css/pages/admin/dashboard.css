@@ -1,8 +1,9 @@
 /*==============================================================================
     PROCÁFES ADMIN PANEL
-    PARTE 1
-    Variables - Reset - Layout - Sidebar
+    ADMIN.CSS COMPLETO
+    Layout + Sidebar + Topbar + Dashboard
 ==============================================================================*/
+
 
 /*==============================================================================
     VARIABLES
@@ -10,32 +11,56 @@
 
 :root{
 
+    /* COLORES PRINCIPALES */
     --color-primary:#D62828;
+    --color-primary-hover:#B71C1C;
     --color-primary-dark:#B71C1C;
+    --color-primary-soft:rgba(214,40,40,.08);
+
     --color-secondary:#F4B400;
+
     --color-success:#16A34A;
     --color-info:#2563EB;
 
+    /* COLORES GENERALES */
+    --color-coffee:#3D2C2E;
     --color-dark:#1E1E1E;
-    --color-sidebar:#121212;
 
     --color-background:#F6F7FB;
+    --color-background-start:#F8F9FC;
+    --color-background-end:#F3F4F8;
+
     --color-card:#FFFFFF;
 
     --color-text:#202020;
+    --color-text-light:#6B7280;
     --color-muted:#6B7280;
 
+    --color-border:#E9ECEF;
+
+    /* COMPATIBILIDAD CON ESTILOS EXISTENTES */
     --border:#E9ECEF;
 
+    /* SIDEBAR */
+    --color-sidebar:#3D2C2E;
+
+    /* TIPOGRAFÍA */
+    --font-body:'Poppins',sans-serif;
+    --font-heading:'Poppins',sans-serif;
+
+    /* SOMBRAS */
     --shadow-sm:0 8px 20px rgba(0,0,0,.04);
     --shadow-md:0 14px 35px rgba(0,0,0,.07);
     --shadow-lg:0 20px 45px rgba(0,0,0,.10);
 
+    /* RADIOS */
     --radius:20px;
+    --radius-md:14px;
 
-    --transition:.30s ease;
-
+    /* TRANSICIÓN */
+    --transition:.25s ease;
 }
+
 
 /*==============================================================================
     RESET
@@ -48,35 +73,27 @@
 }
 
 html{
-
     scroll-behavior:smooth;
-
 }
 
 body{
 
-    font-family:'Poppins',sans-serif;
+    font-family:var(--font-body);
 
     background:var(--color-background);
 
     color:var(--color-text);
 
     overflow-x:hidden;
-
 }
 
 img{
-
     max-width:100%;
-
     display:block;
-
 }
 
 a{
-
     text-decoration:none;
-
 }
 
 button{
@@ -88,7 +105,6 @@ button{
     cursor:pointer;
 
     font-family:inherit;
-
 }
 
 input,
@@ -96,11 +112,11 @@ select,
 textarea{
 
     font-family:inherit;
-
 }
 
+
 /*==============================================================================
-    LAYOUT
+    LAYOUT PRINCIPAL
 ==============================================================================*/
 
 .admin-layout{
@@ -109,6 +125,9 @@ textarea{
 
     min-height:100vh;
 
+    background:var(--color-background);
+
+    font-family:var(--font-body);
 }
 
 .main-content{
@@ -119,19 +138,24 @@ textarea{
 
     flex-direction:column;
 
-    margin-left:300px;
+    min-width:0;
 
     min-height:100vh;
-
 }
 
 .dashboard-container{
 
     flex:1;
 
-    padding:32px;
+    padding:2rem;
 
+    background:linear-gradient(
+        180deg,
+        var(--color-background-start),
+        var(--color-background-end)
+    );
 }
+
 
 /*==============================================================================
     SIDEBAR
@@ -139,17 +163,15 @@ textarea{
 
 .sidebar{
 
-    position:fixed;
+    width:290px;
 
-    top:0;
-
-    left:0;
-
-    width:300px;
-
-    height:100vh;
-
-    background:var(--color-sidebar);
+    background:
+        linear-gradient(
+            180deg,
+            #3D2C2E 0%,
+            #342625 45%,
+            #2F2624 100%
+        );
 
     color:#fff;
 
@@ -157,27 +179,36 @@ textarea{
 
     flex-direction:column;
 
-    overflow-y:auto;
-
     box-shadow:var(--shadow-md);
+
+    position:sticky;
+
+    top:0;
+
+    height:100vh;
 
     z-index:1000;
 
+    overflow-y:auto;
+
+    flex-shrink:0;
 }
+
+
+/* SCROLLBAR */
 
 .sidebar::-webkit-scrollbar{
 
     width:6px;
-
 }
 
 .sidebar::-webkit-scrollbar-thumb{
 
-    background:#2A2A2A;
+    background:rgba(255,255,255,.15);
 
-    border-radius:20px;
-
+    border-radius:999px;
 }
+
 
 /*==============================================================================
     LOGO
@@ -185,42 +216,60 @@ textarea{
 
 .sidebar-brand{
 
-    padding:16px 16px 12px;
+    padding:2rem 1.8rem;
 
     text-align:center;
 
+    border-bottom:1px solid rgba(255,255,255,.08);
 }
 
 .brand-logo{
 
-    width:90px;
-    height:90px;
+    width:78px;
 
-    margin:0 auto 12px;
+    height:78px;
 
-    object-fit:contain;
+    border-radius:50%;
 
+    object-fit:cover;
+
+    border:4px solid rgba(255,255,255,.12);
+
+    margin:0 auto 1rem;
+
+    box-shadow:var(--shadow-sm);
 }
 
 .sidebar-brand h2{
 
-    font-size:2rem;
+    margin:0;
+
+    color:#fff;
+
+    font-family:var(--font-heading);
+
+    font-size:1.65rem;
 
     font-weight:700;
-
-    color:#FFFFFF;
-
-    margin-bottom:8px;
-
 }
 
 .sidebar-brand span{
 
-    color:#F4B400;
+    display:block;
 
-    font-size:.95rem;
+    margin-top:.45rem;
 
+    color:rgba(255,255,255,.75);
+
+    font-size:.82rem;
+
+    letter-spacing:.5px;
 }
+
+
+/*==============================================================================
+    SEPARADOR SIDEBAR
+==============================================================================*/
 
 .sidebar-separator{
 
@@ -229,34 +278,33 @@ textarea{
     height:1px;
 
     background:rgba(255,255,255,.08);
-
 }
 
+
 /*==============================================================================
-    PERFIL
+    PERFIL SIDEBAR
 ==============================================================================*/
 
 .sidebar-profile{
 
-    padding:26px;
+    padding:1.4rem 1.5rem;
 
     display:flex;
 
-    gap:16px;
-
     align-items:center;
 
+    gap:.9rem;
 }
 
 .profile-avatar{
 
-    width:64px;
+    width:52px;
 
-    height:64px;
+    height:52px;
 
     border-radius:50%;
 
-    background:#FFFFFF;
+    background:#fff;
 
     display:flex;
 
@@ -267,7 +315,6 @@ textarea{
     overflow:hidden;
 
     flex-shrink:0;
-
 }
 
 .profile-avatar img{
@@ -277,39 +324,52 @@ textarea{
     height:100%;
 
     object-fit:cover;
-
 }
 
 .profile-avatar i{
 
-    font-size:1.8rem;
+    font-size:1.35rem;
 
     color:var(--color-dark);
+}
 
+.profile-content{
+
+    min-width:0;
+
+    flex:1;
 }
 
 .profile-content h5{
 
-    font-size:1rem;
+    margin:0 0 4px;
 
-    margin-bottom:4px;
+    font-size:.9rem;
 
     font-weight:600;
 
-    color:#FFFFFF;
+    color:#fff;
 
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
 }
 
 .profile-content p{
 
-    margin-bottom:10px;
+    margin:0 0 7px;
 
-    font-size:.83rem;
+    font-size:.75rem;
 
-    color:#BDBDBD;
+    color:rgba(255,255,255,.65);
 
-    word-break:break-word;
+    white-space:nowrap;
 
+    overflow:hidden;
+
+    text-overflow:ellipsis;
 }
 
 .profile-content span{
@@ -320,22 +380,22 @@ textarea{
 
     justify-content:center;
 
-    padding:6px 14px;
+    padding:4px 10px;
 
     border-radius:999px;
 
-    background:var(--color-secondary);
+    background:rgba(255,255,255,.10);
 
-    color:#1E1E1E;
+    color:rgba(255,255,255,.85);
 
-    font-size:.75rem;
+    font-size:.68rem;
 
-    font-weight:700;
-
+    font-weight:600;
 }
 
+
 /*==============================================================================
-    MENÚ
+    MENÚ SIDEBAR
 ==============================================================================*/
 
 .sidebar-menu{
@@ -344,10 +404,26 @@ textarea{
 
     flex-direction:column;
 
-    gap:8px;
+    gap:.45rem;
 
-    padding:26px 18px;
+    padding:1.5rem;
+}
 
+.sidebar-section{
+
+    display:block;
+
+    margin:1.5rem .8rem .75rem;
+
+    font-size:.70rem;
+
+    font-weight:700;
+
+    color:rgba(255,255,255,.45);
+
+    text-transform:uppercase;
+
+    letter-spacing:1.5px;
 }
 
 .sidebar-menu a{
@@ -356,49 +432,61 @@ textarea{
 
     align-items:center;
 
-    gap:14px;
+    gap:.9rem;
 
-    padding:14px 18px;
+    padding:.95rem 1rem;
 
-    border-radius:16px;
+    margin-bottom:.05rem;
 
-    color:#E5E7EB;
+    border-radius:14px;
 
-    font-size:.96rem;
+    color:rgba(255,255,255,.85);
 
-    font-weight:500;
+    text-decoration:none;
 
-    transition:var(--transition);
-
+    transition:all .25s ease;
 }
 
 .sidebar-menu a i{
 
-    font-size:1.15rem;
+    width:22px;
 
-    width:24px;
+    font-size:1.15rem;
 
     text-align:center;
 
+    flex-shrink:0;
+}
+
+.sidebar-menu a span{
+
+    font-weight:500;
 }
 
 .sidebar-menu a:hover{
 
     background:rgba(255,255,255,.08);
 
-    color:#FFFFFF;
+    color:#fff;
 
+    transform:translateX(4px);
 }
 
 .sidebar-menu a.active{
 
-    background:linear-gradient(135deg,var(--color-primary),var(--color-primary-dark));
+    background:var(--color-primary);
 
-    color:#FFFFFF;
+    color:#fff;
 
-    box-shadow:0 12px 25px rgba(214,40,40,.28);
-
+    box-shadow:
+        0 12px 30px rgba(214,40,40,.30);
 }
+
+.sidebar-menu a.active i{
+
+    color:#fff;
+}
+
 
 /*==============================================================================
     FOOTER SIDEBAR
@@ -408,8 +496,9 @@ textarea{
 
     margin-top:auto;
 
-    padding:24px;
+    padding:1.5rem;
 
+    border-top:1px solid rgba(255,255,255,.08);
 }
 
 .logout-button{
@@ -422,34 +511,38 @@ textarea{
 
     justify-content:center;
 
-    gap:10px;
+    gap:.7rem;
 
-    padding:14px;
+    border:none;
 
-    border-radius:16px;
+    border-radius:var(--radius-md);
 
-    background:#FFFFFF;
+    padding:.95rem;
 
-    color:#202020;
+    background:rgba(255,255,255,.08);
+
+    color:#fff;
 
     font-weight:600;
 
     transition:var(--transition);
-
 }
 
 .logout-button:hover{
 
     background:var(--color-primary);
 
-    color:#FFFFFF;
+    color:#fff;
+}
 
+.logout-button i{
+
+    font-size:1.1rem;
 }
 
 .coffee-image{
 
-    margin-top:24px;
-
+    margin-top:1.2rem;
 }
 
 .coffee-image img{
@@ -457,8 +550,9 @@ textarea{
     width:100%;
 
     opacity:.95;
-
 }
+
+
 /*==============================================================================
     TOPBAR
 ==============================================================================*/
@@ -467,9 +561,7 @@ textarea{
 
     height:82px;
 
-    background:#FFFFFF;
-
-    border-bottom:1px solid var(--border);
+    background:#fff;
 
     display:flex;
 
@@ -477,14 +569,28 @@ textarea{
 
     align-items:center;
 
-    padding:0 32px;
+    padding:0 2rem;
+
+    border-bottom:1px solid var(--color-border);
+
+    box-shadow:0 3px 18px rgba(0,0,0,.04);
 
     position:sticky;
 
     top:0;
 
     z-index:100;
+}
 
+.topbar-left h3{
+
+    margin:0;
+
+    font-size:1.55rem;
+
+    font-family:var(--font-heading);
+
+    color:var(--color-coffee);
 }
 
 .topbar-right{
@@ -493,9 +599,13 @@ textarea{
 
     align-items:center;
 
-    gap:16px;
-
+    gap:1.2rem;
 }
+
+
+/*==============================================================================
+    BOTÓN VER TIENDA
+==============================================================================*/
 
 .btn-admin{
 
@@ -503,33 +613,117 @@ textarea{
 
     align-items:center;
 
-    gap:10px;
+    gap:.6rem;
 
-    padding:12px 20px;
+    padding:.75rem 1.25rem;
 
-    border-radius:14px;
+    border-radius:999px;
 
-    background:linear-gradient(135deg,var(--color-primary),var(--color-primary-dark));
+    text-decoration:none;
 
-    color:#FFFFFF;
+    background:var(--color-primary);
+
+    color:#fff;
 
     font-weight:600;
 
     transition:var(--transition);
 
-    box-shadow:0 8px 20px rgba(214,40,40,.18);
-
+    box-shadow:0 8px 20px rgba(214,40,40,.15);
 }
 
 .btn-admin:hover{
 
+    background:var(--color-primary-hover);
+
+    color:#fff;
+
     transform:translateY(-2px);
 
-    color:#FFFFFF;
-
-    box-shadow:0 12px 24px rgba(214,40,40,.30);
-
+    box-shadow:0 12px 25px rgba(214,40,40,.25);
 }
+
+
+/*==============================================================================
+    PERFIL TOPBAR
+==============================================================================*/
+
+.top-profile{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.8rem;
+
+    padding:.45rem .9rem;
+
+    border-radius:999px;
+
+    background:#fff;
+
+    border:1px solid var(--color-border);
+}
+
+.top-avatar{
+
+    width:46px;
+
+    height:46px;
+
+    border-radius:50%;
+
+    overflow:hidden;
+
+    background:var(--color-primary-soft);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    flex-shrink:0;
+}
+
+.top-avatar img{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+}
+
+.top-avatar i{
+
+    font-size:1.2rem;
+
+    color:var(--color-primary);
+}
+
+.top-profile strong{
+
+    display:block;
+
+    font-size:.92rem;
+
+    color:var(--color-text);
+}
+
+.top-profile small{
+
+    display:block;
+
+    color:var(--color-text-light);
+
+    font-size:.78rem;
+}
+
+
+/*==============================================================================
+    ICONOS TOPBAR
+==============================================================================*/
 
 .top-icon{
 
@@ -543,102 +737,29 @@ textarea{
 
     align-items:center;
 
-    background:#FFFFFF;
+    background:#fff;
 
-    border:1px solid var(--border);
+    border:1px solid var(--color-border);
 
     border-radius:14px;
 
     color:var(--color-text);
 
     transition:var(--transition);
-
 }
 
 .top-icon:hover{
 
     background:var(--color-primary);
 
-    color:#FFFFFF;
+    color:#fff;
 
     border-color:var(--color-primary);
-
 }
 
-.top-profile{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:14px;
-
-    padding-left:10px;
-
-}
-
-.top-avatar{
-
-    width:52px;
-
-    height:52px;
-
-    border-radius:50%;
-
-    overflow:hidden;
-
-    background:#F3F4F6;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    flex-shrink:0;
-
-}
-
-.top-avatar img{
-
-    width:100%;
-
-    height:100%;
-
-    object-fit:cover;
-
-}
-
-.top-avatar i{
-
-    font-size:1.4rem;
-
-    color:#444;
-
-}
-
-.top-profile strong{
-
-    display:block;
-
-    font-size:.95rem;
-
-    color:var(--color-text);
-
-}
-
-.top-profile small{
-
-    display:block;
-
-    color:var(--color-muted);
-
-    font-size:.80rem;
-
-}
 
 /*==============================================================================
-    DASHBOARD HEADER
+    DASHBOARD GENERAL
 ==============================================================================*/
 
 .dashboard-page{
@@ -648,8 +769,12 @@ textarea{
     flex-direction:column;
 
     gap:28px;
-
 }
+
+
+/*==============================================================================
+    DASHBOARD HEADER
+==============================================================================*/
 
 .dashboard-header{
 
@@ -661,22 +786,20 @@ textarea{
 
     gap:40px;
 
-    background:#FFFFFF;
+    background:#fff;
 
     border-radius:24px;
 
-    border:1px solid var(--border);
+    border:1px solid var(--color-border);
 
     padding:34px;
 
     box-shadow:var(--shadow-sm);
-
 }
 
 .dashboard-header-left{
 
     flex:1;
-
 }
 
 .dashboard-badge{
@@ -691,7 +814,7 @@ textarea{
 
     border-radius:999px;
 
-    background:rgba(214,40,40,.08);
+    background:var(--color-primary-soft);
 
     color:var(--color-primary);
 
@@ -700,17 +823,19 @@ textarea{
     font-weight:700;
 
     margin-bottom:18px;
-
 }
 
 .dashboard-header h1{
 
-    font-size:1.4rem;
+    margin:0 0 12px;
 
-    font-weight:600;
+    font-size:1.65rem;
 
-    line-height:1.0;
+    font-weight:700;
 
+    line-height:1.2;
+
+    color:var(--color-text);
 }
 
 .dashboard-header p{
@@ -724,7 +849,6 @@ textarea{
     line-height:1.8;
 
     margin:0;
-
 }
 
 .dashboard-header-right{
@@ -734,8 +858,8 @@ textarea{
     justify-content:flex-end;
 
     align-items:center;
-
 }
+
 
 /*==============================================================================
     TODAY CARD
@@ -749,12 +873,11 @@ textarea{
 
     border-radius:20px;
 
-    background:#FFFFFF;
+    background:#fff;
 
-    border:1px solid var(--border);
+    border:1px solid var(--color-border);
 
     box-shadow:var(--shadow-sm);
-
 }
 
 .today-card span{
@@ -772,7 +895,6 @@ textarea{
     font-weight:600;
 
     color:var(--color-text);
-
 }
 
 .today-card i{
@@ -780,8 +902,9 @@ textarea{
     color:var(--color-primary);
 
     font-size:1.2rem;
-
 }
+
+
 /*==============================================================================
     KPI CARDS
 ==============================================================================*/
@@ -793,7 +916,6 @@ textarea{
     grid-template-columns:repeat(4,minmax(0,1fr));
 
     gap:24px;
-
 }
 
 .kpi-card{
@@ -804,7 +926,7 @@ textarea{
 
     background:var(--color-card);
 
-    border:1px solid var(--border);
+    border:1px solid var(--color-border);
 
     border-radius:22px;
 
@@ -813,7 +935,6 @@ textarea{
     box-shadow:var(--shadow-sm);
 
     transition:var(--transition);
-
 }
 
 .kpi-card:hover{
@@ -821,7 +942,6 @@ textarea{
     transform:translateY(-6px);
 
     box-shadow:var(--shadow-lg);
-
 }
 
 .kpi-card::before{
@@ -843,11 +963,11 @@ textarea{
         var(--color-primary),
         var(--color-secondary)
     );
-
 }
 
+
 /*==============================================================================
-    TOP
+    KPI TOP
 ==============================================================================*/
 
 .kpi-top{
@@ -859,7 +979,6 @@ textarea{
     align-items:flex-start;
 
     margin-bottom:22px;
-
 }
 
 .kpi-top span{
@@ -869,11 +988,11 @@ textarea{
     font-weight:600;
 
     color:var(--color-muted);
-
 }
 
+
 /*==============================================================================
-    ICON
+    KPI ICONOS
 ==============================================================================*/
 
 .kpi-icon{
@@ -896,6 +1015,7 @@ textarea{
 
     flex-shrink:0;
 
+    transition:.35s;
 }
 
 .kpi-icon.red{
@@ -905,7 +1025,6 @@ textarea{
         #D62828,
         #B71C1C
     );
-
 }
 
 .kpi-icon.blue{
@@ -915,7 +1034,6 @@ textarea{
         #2563EB,
         #1D4ED8
     );
-
 }
 
 .kpi-icon.gold{
@@ -925,7 +1043,6 @@ textarea{
         #F4B400,
         #D89A00
     );
-
 }
 
 .kpi-icon.green{
@@ -935,11 +1052,11 @@ textarea{
         #16A34A,
         #15803D
     );
-
 }
 
+
 /*==============================================================================
-    NUMBER
+    KPI NUMERO
 ==============================================================================*/
 
 .kpi-card h2{
@@ -951,7 +1068,6 @@ textarea{
     font-weight:700;
 
     color:var(--color-text);
-
 }
 
 .kpi-card p{
@@ -961,11 +1077,11 @@ textarea{
     color:var(--color-muted);
 
     font-size:.90rem;
-
 }
 
+
 /*==============================================================================
-    FOOTER
+    KPI FOOTER
 ==============================================================================*/
 
 .kpi-footer{
@@ -977,7 +1093,6 @@ textarea{
     justify-content:space-between;
 
     align-items:center;
-
 }
 
 .kpi-success{
@@ -999,13 +1114,11 @@ textarea{
     font-size:.78rem;
 
     font-weight:700;
-
 }
 
 .kpi-success i{
 
     font-size:.85rem;
-
 }
 
 .kpi-link{
@@ -1021,225 +1134,288 @@ textarea{
     font-size:.82rem;
 
     font-weight:600;
-
 }
 
 .kpi-link:hover{
 
     color:var(--color-primary-dark);
-
 }
 
+
 /*==============================================================================
-    HOVER EFFECT
+    KPI HOVER
 ==============================================================================*/
 
 .kpi-card:hover .kpi-icon{
 
     transform:rotate(-8deg) scale(1.08);
-
-}
-
-.kpi-icon{
-
-    transition:.35s;
-
 }
 
 .kpi-card:hover h2{
 
     color:var(--color-primary);
-
 }
 
-/*==============================================================================
-    RESPONSIVE KPI
-==============================================================================*/
 
-@media (max-width:1200px){
-
-    .dashboard-kpis{
-
-        grid-template-columns:repeat(2,1fr);
-
-    }
-
-}
-
-@media (max-width:768px){
-
-    .dashboard-kpis{
-
-        grid-template-columns:1fr;
-
-    }
-
-}
 /*==============================================================================
     DASHBOARD PRINCIPAL
 ==============================================================================*/
 
 .dashboard-main{
+
     display:grid;
-    grid-template-columns:2fr 380px;
+
+    grid-template-columns:minmax(0,2fr) 380px;
+
     gap:28px;
+
     align-items:start;
 }
 
 .dashboard-left,
 .dashboard-right{
+
     display:flex;
+
     flex-direction:column;
+
+    min-width:0;
 }
 
+
+/*==============================================================================
+    DASHBOARD CARD
+==============================================================================*/
+
 .dashboard-card{
+
     background:#fff;
-    border:1px solid var(--border);
+
+    border:1px solid var(--color-border);
+
     border-radius:22px;
+
     box-shadow:var(--shadow-sm);
+
     overflow:hidden;
 }
 
+
 /*==============================================================================
-    CABECERA CARD
+    CARD HEADER
 ==============================================================================*/
 
 .card-header-custom{
+
     display:flex;
+
     justify-content:space-between;
+
     align-items:flex-start;
+
     gap:24px;
+
     padding:28px;
-    border-bottom:1px solid var(--border);
+
+    border-bottom:1px solid var(--color-border);
 }
 
 .card-header-custom h3{
+
     margin:10px 0;
+
     font-size:1.45rem;
+
     font-weight:700;
 }
 
 .card-header-custom p{
+
     color:var(--color-muted);
+
     margin:0;
 }
 
+
 /*==============================================================================
-    BADGE
+    BADGE SECCIÓN
 ==============================================================================*/
 
 .section-badge{
+
     display:inline-flex;
+
     align-items:center;
+
     gap:8px;
+
     padding:8px 16px;
+
     border-radius:999px;
-    background:rgba(214,40,40,.08);
+
+    background:var(--color-primary-soft);
+
     color:var(--color-primary);
+
     font-size:.8rem;
+
     font-weight:700;
 }
+
 
 /*==============================================================================
     FILTROS
 ==============================================================================*/
 
 .card-actions{
+
     display:flex;
+
     flex-direction:column;
+
     gap:12px;
+
     width:180px;
 }
 
 .card-actions .form-select,
 .card-actions .btn{
+
     width:100%;
 }
 
 .card-actions .btn{
+
     height:45px;
 }
 
+
 /*==============================================================================
-    GRAFICO
+    GRÁFICO
 ==============================================================================*/
 
 .chart-wrapper{
+
     position:relative;
+
     height:430px;
+
     padding:25px;
 }
 
 .chart-wrapper canvas{
+
     width:100%!important;
+
     height:100%!important;
 }
 
+
 /*==============================================================================
-    MENSAJE VACIO
+    MENSAJE VACÍO
 ==============================================================================*/
 
 .empty-chart-message{
+
     position:absolute;
+
     inset:0;
+
     display:flex;
+
     flex-direction:column;
+
     justify-content:center;
+
     align-items:center;
+
     background:rgba(255,255,255,.94);
+
     text-align:center;
 }
 
 .empty-chart-message i{
+
     font-size:3rem;
-    color:#D62828;
+
+    color:var(--color-primary);
+
     margin-bottom:15px;
 }
 
 .empty-chart-message h5{
+
     font-size:1.2rem;
+
     margin-bottom:8px;
 }
 
 .empty-chart-message p{
+
     color:#777;
+
     max-width:260px;
 }
+
 
 /*==============================================================================
     REPORTES
 ==============================================================================*/
 
 .reports-card{
+
     padding:28px;
 }
 
 .reports-card h3{
+
     margin:18px 0 8px;
+
     font-size:1.3rem;
 }
 
 .reports-card p{
+
     color:#777;
+
     margin-bottom:25px;
 }
 
 .reports-card .form-label{
+
     font-weight:600;
+
     margin-bottom:6px;
 }
 
 .reports-card .form-control,
 .reports-card .form-select{
+
     border-radius:14px;
+
     height:46px;
+
+    border:1px solid var(--color-border);
+}
+
+.reports-card .form-control:focus,
+.reports-card .form-select:focus{
+
+    border-color:#9EC5FE;
+
+    box-shadow:0 0 0 .2rem rgba(13,110,253,.12);
 }
 
 .reports-card .btn{
+
     border-radius:14px;
+
     padding:13px;
+
     font-weight:600;
 }
+
+
 /*==============================================================================
     DASHBOARD BOTTOM
 ==============================================================================*/
@@ -1251,8 +1427,8 @@ textarea{
     grid-template-columns:repeat(2,minmax(0,1fr));
 
     gap:28px;
-
 }
+
 
 /*==============================================================================
     LISTAS
@@ -1268,8 +1444,8 @@ textarea{
     gap:18px;
 
     padding:26px;
-
 }
+
 
 /*==============================================================================
     PRODUCTOS
@@ -1285,14 +1461,13 @@ textarea{
 
     padding:18px;
 
-    border:1px solid var(--border);
+    border:1px solid var(--color-border);
 
     border-radius:18px;
 
     background:#fff;
 
     transition:var(--transition);
-
 }
 
 .product-item:hover{
@@ -1300,7 +1475,6 @@ textarea{
     transform:translateY(-4px);
 
     box-shadow:var(--shadow-sm);
-
 }
 
 .product-item img{
@@ -1314,7 +1488,6 @@ textarea{
     object-fit:cover;
 
     background:#fafafa;
-
 }
 
 .product-item strong{
@@ -1324,13 +1497,11 @@ textarea{
     margin-bottom:6px;
 
     font-size:.95rem;
-
 }
 
 .product-item small{
 
     color:var(--color-muted);
-
 }
 
 .product-item .badge{
@@ -1339,13 +1510,13 @@ textarea{
 
     border-radius:999px;
 
-    background:rgba(214,40,40,.08);
+    background:var(--color-primary-soft);
 
     color:var(--color-primary);
 
     font-weight:700;
-
 }
+
 
 /*==============================================================================
     STOCK
@@ -1360,7 +1531,6 @@ textarea{
     gap:16px;
 
     padding:26px;
-
 }
 
 .stock-item{
@@ -1375,10 +1545,9 @@ textarea{
 
     border-radius:18px;
 
-    border:1px solid var(--border);
+    border:1px solid var(--color-border);
 
     transition:var(--transition);
-
 }
 
 .stock-item:hover{
@@ -1386,13 +1555,11 @@ textarea{
     transform:translateY(-4px);
 
     box-shadow:var(--shadow-sm);
-
 }
 
 .stock-info{
 
     flex:1;
-
 }
 
 .stock-info strong{
@@ -1400,7 +1567,6 @@ textarea{
     display:block;
 
     margin-bottom:5px;
-
 }
 
 .stock-info span{
@@ -1408,7 +1574,6 @@ textarea{
     color:var(--color-muted);
 
     font-size:.82rem;
-
 }
 
 .stock-progress{
@@ -1422,7 +1587,6 @@ textarea{
     background:#EFEFEF;
 
     overflow:hidden;
-
 }
 
 .stock-progress div{
@@ -1434,7 +1598,6 @@ textarea{
         #F4B400,
         #D62828
     );
-
 }
 
 .stock-badge{
@@ -1450,195 +1613,98 @@ textarea{
     color:#D62828;
 
     font-weight:700;
-
 }
+
 
 /*==============================================================================
-    ACTIVIDAD
+    TABLAS / ELEMENTOS GENERALES DEL ADMIN
 ==============================================================================*/
 
-.activity-item{
+.table{
 
-    display:flex;
+    color:var(--color-text);
 
-    align-items:center;
-
-    gap:16px;
-
-    padding:18px;
-
-    border-radius:18px;
-
-    border:1px solid var(--border);
-
-    transition:var(--transition);
-
+    margin-bottom:0;
 }
 
-.activity-item:hover{
+.table thead th{
 
-    transform:translateY(-4px);
+    font-size:.82rem;
 
-    box-shadow:var(--shadow-sm);
-
-}
-
-.activity-item i{
-
-    width:50px;
-
-    height:50px;
-
-    border-radius:16px;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    background:rgba(214,40,40,.08);
-
-    color:var(--color-primary);
-
-    font-size:1.2rem;
-
-}
-
-.activity-item strong{
-
-    display:block;
-
-    margin-bottom:4px;
-
-}
-
-.activity-item small{
+    font-weight:600;
 
     color:var(--color-muted);
 
+    background:#F8F9FA;
+
+    border-bottom:1px solid var(--color-border);
+
+    padding:14px 16px;
 }
+
+.table tbody td{
+
+    padding:14px 16px;
+
+    vertical-align:middle;
+
+    border-color:var(--color-border);
+}
+
+.card{
+
+    border:1px solid var(--color-border);
+
+    border-radius:20px;
+
+    box-shadow:var(--shadow-sm);
+}
+
 
 /*==============================================================================
-    REPORTES
+    FORMULARIOS GENERALES
 ==============================================================================*/
 
-.report-links{
+.form-control,
+.form-select{
 
-    display:flex;
+    border:1px solid var(--color-border);
 
-    flex-direction:column;
+    border-radius:12px;
 
-    gap:18px;
-
-    padding:26px;
-
+    min-height:44px;
 }
 
-.report-links a{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:16px;
-
-    padding:18px;
-
-    border-radius:18px;
-
-    border:1px solid var(--border);
-
-    background:#fff;
-
-    color:inherit;
-
-    transition:var(--transition);
-
-}
-
-.report-links a:hover{
+.form-control:focus,
+.form-select:focus{
 
     border-color:var(--color-primary);
 
-    transform:translateY(-4px);
-
-    box-shadow:var(--shadow-sm);
-
+    box-shadow:0 0 0 .2rem rgba(214,40,40,.10);
 }
 
-.report-links i{
-
-    width:54px;
-
-    height:54px;
-
-    border-radius:16px;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    background:rgba(214,40,40,.08);
-
-    color:var(--color-primary);
-
-    font-size:1.25rem;
-
-}
-
-.report-links strong{
-
-    display:block;
-
-    margin-bottom:4px;
-
-}
-
-.report-links small{
-
-    color:var(--color-muted);
-
-}
 
 /*==============================================================================
-    EMPTY
+    BOTONES GENERALES
 ==============================================================================*/
 
-.empty-state{
+.btn-primary{
 
-    padding:60px 30px;
+    background:var(--color-primary);
 
-    text-align:center;
-
+    border-color:var(--color-primary);
 }
 
-.empty-state i{
+.btn-primary:hover{
 
-    font-size:3rem;
+    background:var(--color-primary-hover);
 
-    color:var(--color-primary);
-
-    margin-bottom:18px;
-
+    border-color:var(--color-primary-hover);
 }
 
-.empty-state h5{
-
-    margin-bottom:8px;
-
-}
-
-.empty-state p{
-
-    color:var(--color-muted);
-
-}
 
 /*==============================================================================
-    FOOTER
+    FOOTER ADMIN
 ==============================================================================*/
 
 .admin-footer{
@@ -1649,72 +1715,86 @@ textarea{
 
     align-items:center;
 
-    padding:24px 32px;
+    padding:1rem 2rem;
+
+    border-top:1px solid var(--color-border);
 
     background:#fff;
 
-    border-top:1px solid var(--border);
+    color:var(--color-text-light);
 
-    color:var(--color-muted);
+    font-size:.85rem;
+}
 
+.admin-footer strong{
+
+    color:var(--color-coffee);
+}
+
+.footer-left,
+.footer-right{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.35rem;
+}
+
+.footer-right{
+
+    gap:.8rem;
 }
 
 .version{
 
-    margin-left:10px;
-
-    padding:5px 10px;
+    padding:4px 9px;
 
     border-radius:999px;
 
     background:#F3F4F6;
 
-    font-size:.75rem;
+    color:#6B7280;
 
+    font-size:.72rem;
+
+    font-weight:600;
 }
+
 
 /*==============================================================================
     RESPONSIVE
 ==============================================================================*/
 
-@media(max-width:1400px){
+@media(max-width:1200px){
+
+    .sidebar{
+
+        width:250px;
+    }
 
     .dashboard-main{
 
         grid-template-columns:1fr;
-
     }
-
-}
-
-@media(max-width:1200px){
 
     .dashboard-kpis{
 
-        grid-template-columns:repeat(2,1fr);
-
+        grid-template-columns:repeat(2,minmax(0,1fr));
     }
-
-    .dashboard-bottom{
-
-        grid-template-columns:1fr;
-
-    }
-
 }
+
 
 @media(max-width:992px){
 
-    .main-content{
-
-        margin-left:0;
-
-    }
-
     .sidebar{
 
-        transform:translateX(-100%);
+        width:240px;
+    }
 
+    .dashboard-container{
+
+        padding:1.5rem;
     }
 
     .dashboard-header{
@@ -1722,6 +1802,732 @@ textarea{
         flex-direction:column;
 
         align-items:flex-start;
+    }
+
+    .dashboard-header-right{
+
+        width:100%;
+
+        justify-content:flex-start;
+    }
+
+    .today-card{
+
+        min-width:250px;
+    }
+}
+
+
+@media(max-width:768px){
+
+    .admin-layout{
+
+        flex-direction:column;
+    }
+
+    .sidebar{
+
+        position:relative;
+
+        width:100%;
+
+        height:auto;
+
+        max-height:none;
+    }
+
+    .main-content{
+
+        width:100%;
+
+        min-height:auto;
+    }
+
+    .topbar{
+
+        flex-direction:column;
+
+        gap:1rem;
+
+        height:auto;
+
+        padding:1.2rem;
+    }
+
+    .topbar-right{
+
+        width:100%;
+
+        justify-content:flex-end;
+
+        flex-wrap:wrap;
+    }
+
+    .dashboard-container{
+
+        padding:1.25rem;
+    }
+
+    .dashboard-kpis{
+
+        grid-template-columns:1fr;
+    }
+
+    .dashboard-bottom{
+
+        grid-template-columns:1fr;
+    }
+
+    .dashboard-header{
+
+        padding:24px;
+    }
+
+    .card-header-custom{
+
+        flex-direction:column;
+    }
+
+    .card-actions{
+
+        width:100%;
+    }
+
+    .chart-wrapper{
+
+        height:350px;
+    }
+
+    .admin-footer{
+
+        flex-direction:column;
+
+        gap:.5rem;
+
+        text-align:center;
+    }
+
+    .footer-left,
+    .footer-right{
+
+        justify-content:center;
+
+        flex-wrap:wrap;
+    }
+}
+
+
+@media(max-width:480px){
+
+    .dashboard-container{
+
+        padding:1rem;
+    }
+
+    .topbar-right{
+
+        flex-direction:column;
+
+        align-items:stretch;
+    }
+
+    .btn-admin{
+
+        justify-content:center;
+
+        width:100%;
+    }
+
+    .top-profile{
+
+        justify-content:center;
+    }
+
+    .dashboard-header h1{
+
+        font-size:1.35rem;
+    }
+
+    .dashboard-header p{
+
+        font-size:.9rem;
+    }
+
+    .kpi-card{
+
+        padding:20px;
+    }
+
+    .kpi-card h2{
+
+        font-size:2rem;
+    }
+
+    .chart-wrapper{
+
+        height:300px;
+
+        padding:15px;
+    }
+
+    .stock-item{
+
+        align-items:flex-start;
+
+        flex-direction:column;
+
+        gap:12px;
+    }
+
+    .stock-badge{
+
+        margin-left:0;
+    }
+}
+/*==============================================================================
+    ELEMENTOS VACÍOS
+==============================================================================*/
+
+.dashboard-empty{
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    padding:45px 25px;
+
+    text-align:center;
+
+    color:var(--color-muted);
+
+}
+
+.dashboard-empty i{
+
+    font-size:2.5rem;
+
+    margin-bottom:15px;
+
+    color:var(--color-primary);
+
+}
+
+.dashboard-empty h5{
+
+    margin:0 0 8px;
+
+    font-size:1.05rem;
+
+    font-weight:700;
+
+    color:var(--color-text);
+
+}
+
+.dashboard-empty p{
+
+    margin:0;
+
+    max-width:420px;
+
+    font-size:.9rem;
+
+    color:var(--color-muted);
+
+}
+
+
+/*==============================================================================
+    PRODUCTO SIN IMAGEN
+==============================================================================*/
+
+.product-placeholder{
+
+    width:72px;
+    height:72px;
+
+    border-radius:18px;
+
+    background:#FFF5F5;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    flex-shrink:0;
+
+}
+
+.product-placeholder i{
+
+    font-size:1.7rem;
+
+    color:var(--color-primary);
+
+}
+
+/*==============================================================
+    ACTIVIDAD RECIENTE
+==============================================================*/
+
+.dashboard-activity-card{
+    width:100%;
+    margin-top:28px;
+}
+
+
+/*--------------------------------------------------------------
+    HEADER
+--------------------------------------------------------------*/
+
+.dashboard-activity-card .activity-header{
+    padding:24px 28px;
+    min-height:auto;
+}
+
+.dashboard-activity-card .activity-header h3{
+    margin:10px 0 6px;
+    font-size:1.35rem;
+}
+
+.dashboard-activity-card .activity-header p{
+    margin:0;
+    font-size:.92rem;
+    color:var(--color-muted);
+}
+
+
+/*--------------------------------------------------------------
+    LISTA
+--------------------------------------------------------------*/
+
+.dashboard-activity-card .activity-list{
+
+    display:flex;
+    flex-direction:column;
+
+    gap:10px;
+
+    padding:16px 24px 20px;
+
+}
+
+
+/*--------------------------------------------------------------
+    ITEM
+--------------------------------------------------------------*/
+
+.dashboard-activity-card .activity-item{
+
+    display:flex;
+    align-items:center;
+
+    min-height:64px;
+
+    padding:10px 14px;
+
+    border:1px solid var(--border);
+
+    border-radius:14px;
+
+    background:#fff;
+
+    transition:var(--transition);
+
+}
+
+
+/*--------------------------------------------------------------
+    HOVER
+--------------------------------------------------------------*/
+
+.dashboard-activity-card .activity-item:hover{
+
+    transform:translateX(3px);
+
+    border-color:rgba(214,40,40,.15);
+
+    box-shadow:var(--shadow-sm);
+
+}
+
+
+/*--------------------------------------------------------------
+    ICONO
+--------------------------------------------------------------*/
+
+.dashboard-activity-card .activity-icon{
+
+    width:42px;
+    height:42px;
+
+    flex-shrink:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    margin-right:14px;
+
+    border-radius:12px;
+
+    background:rgba(214,40,40,.08);
+
+    color:var(--color-primary);
+
+}
+
+
+.dashboard-activity-card .activity-icon i{
+
+    font-size:1.05rem;
+
+}
+
+
+/*--------------------------------------------------------------
+    CONTENIDO
+--------------------------------------------------------------*/
+
+.dashboard-activity-card .activity-content{
+
+    display:flex;
+    flex-direction:column;
+
+    min-width:0;
+
+    gap:3px;
+
+}
+
+
+.dashboard-activity-card .activity-content strong{
+
+    font-size:.88rem;
+
+    font-weight:600;
+
+    color:var(--color-text);
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+}
+
+
+.dashboard-activity-card .activity-content small{
+
+    font-size:.78rem;
+
+    color:var(--color-muted);
+
+}
+
+
+/*--------------------------------------------------------------
+    SIN ACTIVIDAD
+--------------------------------------------------------------*/
+
+.dashboard-activity-card .dashboard-empty{
+
+    padding:30px 20px;
+
+    text-align:center;
+
+}
+
+
+.dashboard-activity-card .dashboard-empty i{
+
+    font-size:2rem;
+
+    color:var(--color-primary);
+
+    margin-bottom:10px;
+
+}
+
+
+.dashboard-activity-card .dashboard-empty h5{
+
+    margin-bottom:5px;
+
+    font-size:1rem;
+
+}
+
+
+.dashboard-activity-card .dashboard-empty p{
+
+    margin:0;
+
+    color:var(--color-muted);
+
+    font-size:.85rem;
+
+}
+
+
+/*--------------------------------------------------------------
+    RESPONSIVE
+--------------------------------------------------------------*/
+
+@media(max-width:768px){
+
+    .dashboard-activity-card .activity-header{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+        gap:15px;
+
+    }
+
+
+    .dashboard-activity-card .activity-list{
+
+        padding:12px;
+
+    }
+
+
+    .dashboard-activity-card .activity-item{
+
+        min-height:60px;
+
+    }
+
+
+    .dashboard-activity-card .activity-content strong{
+
+        white-space:normal;
+
+    }
+
+}
+
+
+/*==============================================================================
+    RESUMEN INFERIOR
+==============================================================================*/
+
+.dashboard-summary-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,minmax(0,1fr));
+
+    gap:24px;
+
+}
+
+
+/*==============================================================================
+    TARJETAS DE RESUMEN
+==============================================================================*/
+
+.summary-card{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+
+    min-height:110px;
+
+    padding:22px;
+
+    background:#fff;
+
+    border:1px solid var(--border);
+
+    border-radius:22px;
+
+    box-shadow:var(--shadow-sm);
+
+    transition:var(--transition);
+
+}
+
+.summary-card:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:var(--shadow-lg);
+
+}
+
+
+/*==============================================================================
+    ICONOS RESUMEN
+==============================================================================*/
+
+.summary-icon{
+
+    width:58px;
+    height:58px;
+
+    min-width:58px;
+
+    border-radius:18px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    color:#fff;
+
+    font-size:1.35rem;
+
+}
+
+.summary-icon.red{
+
+    background:linear-gradient(
+        135deg,
+        #D62828,
+        #B71C1C
+    );
+
+}
+
+.summary-icon.blue{
+
+    background:linear-gradient(
+        135deg,
+        #2563EB,
+        #1D4ED8
+    );
+
+}
+
+.summary-icon.green{
+
+    background:linear-gradient(
+        135deg,
+        #16A34A,
+        #15803D
+    );
+
+}
+
+
+/*==============================================================================
+    TEXTO RESUMEN
+==============================================================================*/
+
+.summary-card > div:last-child{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:5px;
+
+}
+
+.summary-card span{
+
+    color:var(--color-muted);
+
+    font-size:.86rem;
+
+    font-weight:500;
+
+}
+
+.summary-card strong{
+
+    color:var(--color-text);
+
+    font-size:1.45rem;
+
+    font-weight:700;
+
+}
+
+.summary-card:hover strong{
+
+    color:var(--color-primary);
+
+}
+
+
+/*==============================================================================
+    REPORTES
+==============================================================================*/
+
+.report-preview{
+
+    margin-bottom:20px;
+
+    padding:18px;
+
+    border-radius:18px;
+
+    background:#FAFAFA;
+
+    border:1px solid var(--border);
+
+}
+
+.report-preview h6{
+
+    margin:0 0 15px;
+
+    font-size:.95rem;
+
+    font-weight:700;
+
+    color:var(--color-text);
+
+}
+
+.preview-item{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:9px;
+
+    margin-bottom:10px;
+
+    font-size:.84rem;
+
+    color:var(--color-muted);
+
+}
+
+.preview-item:last-child{
+
+    margin-bottom:0;
+
+}
+
+.preview-item i{
+
+    font-size:1rem;
+
+}
+
+
+/*==============================================================================
+    RESPONSIVE ACTIVIDAD Y RESUMEN
+==============================================================================*/
+
+@media(max-width:992px){
+
+    .dashboard-summary-grid{
+
+        grid-template-columns:1fr;
 
     }
 
@@ -1729,111 +2535,59 @@ textarea{
 
 @media(max-width:768px){
 
-    .dashboard-container{
+    .activity-item{
+
+        padding:14px;
+
+    }
+
+    .activity-icon{
+
+        width:46px;
+        height:46px;
+
+        min-width:46px;
+
+        border-radius:14px;
+
+    }
+
+    .activity-content strong{
+
+        white-space:normal;
+
+    }
+
+}
+
+@media(max-width:576px){
+
+    .dashboard-summary-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .summary-card{
+
+        min-height:95px;
 
         padding:18px;
 
     }
 
-    .dashboard-kpis{
-
-        grid-template-columns:1fr;
-
-    }
-
-    .metrics-row{
-
-        grid-template-columns:1fr;
-
-    }
-
-    .card-header-custom{
-
-        flex-direction:column;
-
-    }
-
-    .card-actions{
-
-        width:100%;
-
-        flex-wrap:wrap;
-
-    }
-
-    .card-actions select{
-
-        width:100%;
-
-    }
-
-    .product-item,
-
-    .stock-item,
-
-    .activity-item,
-
-    .report-links a{
-
-        flex-direction:column;
-
-        text-align:center;
-
-    }
-
 }
 
-/*==============================================================================
-    SCROLL
-==============================================================================*/
-
-::-webkit-scrollbar{
-
-    width:10px;
-
+.dashboard-activity-card .card-header-custom {
+    padding: 24px 28px;
 }
 
-::-webkit-scrollbar-thumb{
-
-    background:var(--color-primary);
-
-    border-radius:999px;
-
+.dashboard-activity-card .activity-list {
+    gap: 10px;
+    padding: 18px 28px 24px;
 }
 
-::-webkit-scrollbar-track{
-
-    background:#F2F2F2;
-
-}
-
-/*==============================================================================
-    ANIMACIONES
-==============================================================================*/
-
-.dashboard-card,
-.kpi-card{
-
-    animation:fadeUp .45s ease;
-
-}
-
-@keyframes fadeUp{
-
-    from{
-
-        opacity:0;
-
-        transform:translateY(20px);
-
-    }
-
-    to{
-
-        opacity:1;
-
-        transform:translateY(0);
-
-    }
-
+.dashboard-activity-card .activity-item {
+    min-height: 70px;
+    padding: 14px 18px;
 }
