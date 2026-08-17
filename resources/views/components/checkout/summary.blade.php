@@ -1,4 +1,4 @@
-<div class="customer-card checkout-summary sticky-top">
+<div class="customer-card checkout-summary">
 
     {{-- ===========================
         HEADER

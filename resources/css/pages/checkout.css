@@ -974,113 +974,300 @@
 /*==================================================
 =            PRODUCTOS DEL RESUMEN
 ==================================================*/
-
-.checkout-summary-products{
-    display:flex;
-    flex-direction:column;
-    gap:.9rem;
-    margin-bottom:1rem;
-}
-
-.checkout-summary-item{
-
-    display:flex;
-    align-items:center;
-    gap:.8rem;
-
-}
-
-.checkout-summary-thumb{
-
-    width:58px;
-    height:58px;
-
-    border-radius:12px;
-
-    object-fit:cover;
-
-    border:1px solid var(--color-border);
-
-    flex-shrink:0;
-
-}
-
-.checkout-summary-details{
-
-    flex:1;
-
-}
-
-.checkout-summary-details h6{
-
-    margin:0 0 .2rem;
-
-    font-size:.95rem;
-
-    font-weight:600;
-
-    color:var(--color-coffee);
-
-}
-
-.checkout-summary-details small{
-
-    color:var(--color-text-light);
-
-}
-
-.checkout-summary-item strong{
-
-    font-size:.95rem;
-
-    color:var(--color-coffee);
-
-}
-
 /*==================================================
-=            RESUMEN
+=        RESUMEN DEL CHECKOUT
 ==================================================*/
 
-.checkout-summary-row{
+.checkout-summary {
 
-    display:flex;
+    max-height: 560px;
 
-    justify-content:space-between;
+    display: flex;
+    flex-direction: column;
 
-    margin-bottom:.65rem;
-
-}
-
-.checkout-summary-total{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    font-size:1.15rem;
-
-    font-weight:700;
+    overflow: hidden;
 
 }
 
-.checkout-summary-note{
 
-    display:flex;
+/*==================================================
+=        HEADER DEL RESUMEN
+==================================================*/
 
-    align-items:center;
+.checkout-summary .customer-card-header {
 
-    gap:.45rem;
-
-    margin-top:1rem;
-
-    color:var(--color-text-light);
-
-    font-size:.82rem;
+    flex-shrink: 0;
 
 }
 
+
+/*==================================================
+=        BODY DEL RESUMEN
+==================================================*/
+
+.checkout-summary .customer-card-body {
+
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+}
+
+
+/*==================================================
+=        PRODUCTOS
+==================================================*/
+
+.checkout-summary-products {
+
+    max-height: 250px;
+
+    overflow-y: auto;
+
+    padding-right: .4rem;
+
+    scrollbar-width: thin;
+
+    scrollbar-color:
+        #d14848
+        #f5f5f5;
+
+}
+
+
+/*==================================================
+=        SCROLLBAR
+==================================================*/
+
+.checkout-summary-products::-webkit-scrollbar {
+
+    width: 5px;
+
+}
+
+.checkout-summary-products::-webkit-scrollbar-track {
+
+    background: #f5f5f5;
+
+    border-radius: 999px;
+
+}
+
+.checkout-summary-products::-webkit-scrollbar-thumb {
+
+    background: #d14848;
+
+    border-radius: 999px;
+
+}
+
+.checkout-summary-products::-webkit-scrollbar-thumb:hover {
+
+    background: #b93636;
+
+}
+
+
+/*==================================================
+=        PRODUCTO
+==================================================*/
+
+.checkout-summary-item {
+
+    display: grid;
+
+    grid-template-columns: 45px 1fr auto;
+
+    align-items: center;
+
+    gap: .65rem;
+
+    padding: .55rem 0;
+
+    border-bottom: 1px solid #f1f1f1;
+
+}
+
+.checkout-summary-item:last-child {
+
+    border-bottom: none;
+
+}
+
+
+/*==================================================
+=        IMAGEN
+==================================================*/
+
+.checkout-summary-thumb {
+
+    width: 45px;
+
+    height: 45px;
+
+    border-radius: 8px;
+
+    object-fit: cover;
+
+    background: #f3f4f6;
+
+}
+
+
+/*==================================================
+=        DATOS
+==================================================*/
+
+.checkout-summary-details {
+
+    min-width: 0;
+
+}
+
+.checkout-summary-details h6 {
+
+    margin: 0;
+
+    font-size: .78rem;
+
+    font-weight: 600;
+
+    color: #111827;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+.checkout-summary-details small {
+
+    display: block;
+
+    margin-top: 2px;
+
+    font-size: .72rem;
+
+    color: #6b7280;
+
+}
+
+
+/*==================================================
+=        PRECIO
+==================================================*/
+
+.checkout-summary-item > strong {
+
+    font-size: .78rem;
+
+    color: #111827;
+
+    white-space: nowrap;
+
+}
+
+
+/*==================================================
+=        FILAS
+==================================================*/
+
+.checkout-summary-row {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: .3rem 0;
+
+    font-size: .82rem;
+
+}
+
+.checkout-summary-row span {
+
+    color: #6b7280;
+
+}
+
+.checkout-summary-row strong {
+
+    color: #111827;
+
+}
+
+
+/*==================================================
+=        TOTAL
+==================================================*/
+
+.checkout-summary-total {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-top: .5rem;
+
+    padding: .8rem;
+
+    border-radius: 10px;
+
+    background: #fff7f7;
+
+    border: 1px solid #f3d4d4;
+
+}
+
+.checkout-summary-total span {
+
+    font-size: .9rem;
+
+    color: #6b7280;
+
+}
+
+.checkout-summary-total strong {
+
+    font-size: 1.35rem;
+
+    color: var(--color-primary);
+
+}
+
+
+/*==================================================
+=        NOTA
+==================================================*/
+
+.checkout-summary-note {
+
+    margin-top: .65rem;
+
+    text-align: center;
+
+    font-size: .7rem;
+
+    color: #6b7280;
+
+}
+
+.checkout-summary-note i {
+
+    color: #16a34a;
+
+    margin-right: .25rem;
+
+}
 /*=========================================
 =                Estado                  =
 =========================================*/
@@ -1401,6 +1588,16 @@
         width:100%;
 
     }
+    .checkout-summary {
+        max-height: none;
+    }
+
+    .checkout-summary-products {
+        max-height: none;
+        overflow-y: visible;
+        padding-right: 0;
+    }
+
 
 }
 
