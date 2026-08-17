@@ -3,7 +3,6 @@
 @section('title', 'Mis pedidos')
 
 @section('content')
-
 <section class="customer-dashboard py-5">
 
     <div class="container">
@@ -24,6 +23,7 @@
                         title="Mis pedidos"
                         subtitle="Consulta el estado de tus compras y revisa el historial de pedidos."
                     />
+                    <x-ui.alert />
                     @if($orders->isNotEmpty())
 
                         <div class="orders-header">

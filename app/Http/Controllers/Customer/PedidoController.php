@@ -21,10 +21,8 @@ class PedidoController extends Controller
     public function index(): View
     {
         $orders = $this->pedidoService->getOrders(auth()->id());
-
         return view('customer.orders', compact('orders'));
     }
-
     /**
      * Mostrar el detalle de un pedido.
      */

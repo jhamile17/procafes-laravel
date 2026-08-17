@@ -92,7 +92,7 @@ class CheckoutController extends Controller
                 ->route('customer.orders')
                 ->with(
                     'success',
-                    'Pedido registrado correctamente. Revisa tu correo para ver el número de pedido.'
+                    '¡Pedido creado correctamente! Tu pedido fue registrado. Te enviamos los detalles a tu correo electrónico.'
                 );
 
         } catch (Throwable $e) {

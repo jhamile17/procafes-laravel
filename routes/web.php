@@ -387,6 +387,7 @@ Route::prefix('admin')
     });
     Route::get('/sitemap.xml', [SitemapController::class, 'index'])
     ->name('sitemap');
+    
 /*
 |--------------------------------------------------------------------------
 | AUTH SYSTEM

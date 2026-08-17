@@ -1,12 +1,58 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initAppAlert() {
 
     const overlay = document.getElementById('appAlert');
 
-    if (!overlay) return;
+    if (!overlay) {
+        return;
+    }
 
-    overlay.classList.add('show');
+    const closeButton = overlay.querySelector('.app-alert-close');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mostrar
+    |--------------------------------------------------------------------------
+    */
+
+    requestAnimationFrame(() => {
+        overlay.classList.add('show');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cerrar manualmente
+    |--------------------------------------------------------------------------
+    */
+
+    if (closeButton) {
+
+        closeButton.addEventListener('click', () => {
+
+            closeAlert();
+
+        });
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cerrar automáticamente
+    |--------------------------------------------------------------------------
+    */
 
     setTimeout(() => {
+
+        closeAlert();
+
+    }, 4000);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Función cerrar
+    |--------------------------------------------------------------------------
+    */
+
+    function closeAlert() {
 
         overlay.classList.remove('show');
 
@@ -14,8 +60,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
             overlay.remove();
 
-        }, 250);
+        }, 300);
 
-    }, 2500);
+    }
 
-});
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Página normal
+|--------------------------------------------------------------------------
+*/
+
+if (document.readyState === 'loading') {
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        initAppAlert
+    );
+
+} else {
+
+    initAppAlert();
+
+}

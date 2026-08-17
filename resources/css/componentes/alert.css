@@ -1,418 +1,465 @@
 /*=========================================================
     APP ALERT
+    Sistema global de alertas PROCÁFES
 =========================================================*/
 
-.app-alert-overlay{
-    position:fixed;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+.app-alert-overlay {
+    position: fixed;
 
-    background:rgba(0,0,0,.25);
-    backdrop-filter:blur(4px);
+    inset: 0;
 
-    opacity:0;
-    visibility:hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    transition:var(--transition);
+    padding: 20px;
 
-    z-index:9999;
+    background: rgba(0, 0, 0, .45);
+
+    backdrop-filter: blur(3px);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+        opacity .25s ease,
+        visibility .25s ease;
+
+    z-index: 999999;
 }
 
-.app-alert-overlay.show{
-    opacity:1;
-    visibility:visible;
-}
 
 /*=========================================================
-    CARD
+    ALERTA VISIBLE
 =========================================================*/
 
-.app-alert{
-
-    position:fixed;
-
-    top:25px;
-    right:25px;
-
-    width:340px;
-
-    background:#fff;
-
-    border-radius:14px;
-
-    box-shadow:0 12px 40px rgba(0,0,0,.18);
-
-    transform:translateX(120%);
-    opacity:0;
-
-    transition:.25s;
-
-    z-index:99999;
-
-    overflow:hidden;
-
+.app-alert-overlay.show {
+    opacity: 1;
+    visibility: visible;
 }
 
-.app-alert-overlay.show .app-alert{
-
-    transform:scale(1);
-    opacity:1;
-
-}
 
 /*=========================================================
-    ICONO
+    TARJETA PRINCIPAL
 =========================================================*/
 
-.app-alert-icon{
+.app-alert {
+    position: relative;
 
-    width:56px;
-    height:56px;
+    width: 420px;
+    max-width: calc(100vw - 40px);
 
-    margin:0 auto var(--space-sm);
+    padding: 38px 32px 32px;
 
-    border-radius:50%;
+    background: #ffffff;
 
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    border-radius: 18px;
 
-    color:var(--color-white);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, .25);
 
-    font-size:1.45rem;
+    text-align: center;
 
+    transform: scale(.85) translateY(20px);
+
+    opacity: 0;
+
+    transition:
+        transform .35s cubic-bezier(.34, 1.56, .64, 1),
+        opacity .25s ease;
+
+    overflow: hidden;
 }
 
-/* Estados */
-
-.app-alert-success .app-alert-icon{
-
-    background:var(--color-success);
-
-}
-
-.app-alert-error .app-alert-icon{
-
-    background:var(--color-danger);
-
-}
-
-.app-alert-warning .app-alert-icon{
-
-    background:var(--color-warning);
-
-}
-
-.app-alert-info .app-alert-icon{
-
-    background:var(--color-info);
-
-}
 
 /*=========================================================
-    TEXTO
+    ANIMACIÓN DE ENTRADA
 =========================================================*/
 
-.app-alert-title{
+.app-alert-overlay.show .app-alert {
+    transform: scale(1) translateY(0);
 
-    margin:0;
-
-    font-family:var(--font-body);
-
-    font-size:1rem;
-
-    font-weight:600;
-
-    color:var(--color-coffee-dark);
-
+    opacity: 1;
 }
 
-.app-alert-message{
-
-    margin-top:var(--space-xs);
-
-    margin-bottom:0;
-
-    font-family:var(--font-body);
-
-    font-size:.9rem;
-
-    line-height:1.6;
-
-    color:var(--color-text-light);
-
-}
-/*==============================================================================
-TOAST
-==============================================================================*/
-
-.app-toast{
-
-    position:fixed;
-
-    top:20px;
-
-    right:20px;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:.75rem;
-
-    padding:.90rem 1.1rem;
-
-    background:#16a34a;
-
-    color:#fff;
-
-    border-radius:12px;
-
-    box-shadow:0 12px 30px rgba(0,0,0,.18);
-
-    font-size:.90rem;
-
-    font-weight:500;
-
-    opacity:0;
-
-    transform:translateY(-20px);
-
-    transition:.25s;
-
-    z-index:99999;
-
-    pointer-events:none;
-
-}
-
-.app-toast.show{
-
-    opacity:1;
-
-    transform:translateY(0);
-
-}
-
-.app-toast i{
-
-    font-size:1rem;
-
-}
-/*=========================================================
-    APP ALERT
-=========================================================*/
-
-.app-alert-overlay{
-    position:fixed;
-    inset:0;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    background:rgba(0,0,0,.25);
-    backdrop-filter:blur(4px);
-
-    opacity:0;
-    visibility:hidden;
-
-    transition:var(--transition);
-
-    z-index:9999;
-}
-
-.app-alert-overlay.show{
-    opacity:1;
-    visibility:visible;
-}
-
-/*=========================================================
-    CARD
-=========================================================*/
-
-.app-alert{
-
-    position:fixed;
-
-    top:25px;
-    right:25px;
-
-    width:340px;
-
-    background:#fff;
-
-    border-radius:14px;
-
-    box-shadow:0 12px 40px rgba(0,0,0,.18);
-
-    transform:translateX(120%);
-    opacity:0;
-
-    transition:.25s;
-
-    z-index:99999;
-
-    overflow:hidden;
-
-}
-
-.app-alert-overlay.show .app-alert{
-
-    transform:scale(1);
-    opacity:1;
-
-}
 
 /*=========================================================
     ICONO
 =========================================================*/
 
-.app-alert-icon{
+.app-alert-icon {
+    width: 76px;
+    height: 76px;
 
-    width:56px;
-    height:56px;
+    margin: 0 auto 20px;
 
-    margin:0 auto var(--space-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    border-radius:50%;
+    border-radius: 50%;
 
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    color: #ffffff;
 
-    color:var(--color-white);
+    font-size: 2rem;
 
-    font-size:1.45rem;
+    box-shadow:
+        0 8px 22px rgba(0, 0, 0, .14);
 
+    animation: alertIconIn .4s ease .15s both;
 }
 
-/* Estados */
-
-.app-alert-success .app-alert-icon{
-
-    background:var(--color-success);
-
-}
-
-.app-alert-error .app-alert-icon{
-
-    background:var(--color-danger);
-
-}
-
-.app-alert-warning .app-alert-icon{
-
-    background:var(--color-warning);
-
-}
-
-.app-alert-info .app-alert-icon{
-
-    background:var(--color-info);
-
-}
 
 /*=========================================================
-    TEXTO
+    SUCCESS
 =========================================================*/
 
-.app-alert-title{
-
-    margin:0;
-
-    font-family:var(--font-body);
-
-    font-size:1rem;
-
-    font-weight:600;
-
-    color:var(--color-coffee-dark);
-
+.app-alert-success .app-alert-icon {
+    background: #16a34a;
 }
 
-.app-alert-message{
 
-    margin-top:var(--space-xs);
-
-    margin-bottom:0;
-
-    font-family:var(--font-body);
-
-    font-size:.9rem;
-
-    line-height:1.6;
-
-    color:var(--color-text-light);
-
-}
 /*=========================================================
-= MENSAJE DEL BOTÓN AGREGAR AL CARRITO
+    ERROR
 =========================================================*/
-.wishlist-actions{
-    position:relative;
+
+.app-alert-error .app-alert-icon {
+    background: #dc3545;
 }
 
-.wishlist-toast{
 
-    position:absolute;
+/*=========================================================
+    WARNING
+=========================================================*/
 
-    right:70px;
-    top:50%;
+.app-alert-warning .app-alert-icon {
+    background: #f59e0b;
 
-    transform:translateY(-50%) scale(.95);
-
-    display:flex;
-    align-items:center;
-    gap:.45rem;
-
-    padding:.45rem .8rem;
-
-    border-radius:12px;
-
-    background:#e8f8ef;
-
-    color:#1b6e3b;
-
-    font-size:.82rem;
-    font-weight:600;
-
-    white-space:nowrap;
-
-    box-shadow:0 8px 20px rgba(0,0,0,.08);
-
-    opacity:0;
-
-    pointer-events:none;
-
-    transition:all .25s ease;
+    color: #ffffff;
 }
 
-.wishlist-toast.show{
 
-    opacity:1;
+/*=========================================================
+    INFO
+=========================================================*/
 
-    transform:translateY(-50%) scale(1);
+.app-alert-info .app-alert-icon {
+    background: #0ea5e9;
 
+    color: #ffffff;
 }
 
-.wishlist-toast i{
 
-    font-size:.9rem;
+/*=========================================================
+    TITULO
+=========================================================*/
 
-    color:#28a745;
+.app-alert-title {
+    margin: 0;
 
+    font-family: var(--font-body, sans-serif);
+
+    font-size: 1.35rem;
+
+    font-weight: 700;
+
+    line-height: 1.3;
+
+    color: var(
+        --color-coffee-dark,
+        #3b2416
+    );
 }
-@keyframes productAlertIn{
-    from{
-        opacity:0;
-        transform:translateY(-8px);
 
+
+/*=========================================================
+    MENSAJE
+=========================================================*/
+
+.app-alert-message {
+    max-width: 340px;
+
+    margin: 12px auto 0;
+
+    font-family: var(--font-body, sans-serif);
+
+    font-size: .95rem;
+
+    font-weight: 400;
+
+    line-height: 1.6;
+
+    color: var(
+        --color-text-light,
+        #666666
+    );
+
+    word-break: break-word;
+}
+
+
+/*=========================================================
+    BOTÓN CERRAR
+=========================================================*/
+
+.app-alert-close {
+    position: absolute;
+
+    top: 12px;
+    right: 12px;
+
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: #999999;
+
+    font-size: 1rem;
+
+    cursor: pointer;
+
+    transition:
+        background .2s ease,
+        color .2s ease,
+        transform .2s ease;
+}
+
+
+.app-alert-close:hover {
+    background: #f1f1f1;
+
+    color: #333333;
+
+    transform: rotate(90deg);
+}
+
+
+/*=========================================================
+    ANIMACIÓN DEL ICONO
+=========================================================*/
+
+@keyframes alertIconIn {
+
+    from {
+        transform: scale(.5);
+
+        opacity: 0;
     }
-    to{
-        opacity:1;
-        transform:translateY(0);
+
+    to {
+        transform: scale(1);
+
+        opacity: 1;
     }
+
+}
+
+
+/*=========================================================
+    ANIMACIÓN DE SALIDA
+=========================================================*/
+
+.app-alert-overlay:not(.show) .app-alert {
+    transform: scale(.9) translateY(10px);
+
+    opacity: 0;
+}
+
+
+/*=========================================================
+    TOAST
+=========================================================*/
+
+.app-toast {
+    position: fixed;
+
+    top: 20px;
+    right: 20px;
+
+    display: flex;
+    align-items: center;
+
+    gap: .75rem;
+
+    padding: .90rem 1.1rem;
+
+    background: #16a34a;
+
+    color: #ffffff;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, .18);
+
+    font-size: .90rem;
+
+    font-weight: 500;
+
+    opacity: 0;
+
+    transform: translateY(-20px);
+
+    transition: .25s ease;
+
+    z-index: 999998;
+
+    pointer-events: none;
+}
+
+
+.app-toast.show {
+    opacity: 1;
+
+    transform: translateY(0);
+}
+
+
+.app-toast i {
+    font-size: 1rem;
+}
+
+
+/*=========================================================
+    WISHLIST TOAST
+=========================================================*/
+
+.wishlist-actions {
+    position: relative;
+}
+
+
+.wishlist-toast {
+    position: absolute;
+
+    right: 70px;
+    top: 50%;
+
+    display: flex;
+    align-items: center;
+
+    gap: .45rem;
+
+    padding: .45rem .8rem;
+
+    border-radius: 12px;
+
+    background: #e8f8ef;
+
+    color: #1b6e3b;
+
+    font-size: .82rem;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, .08);
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transform:
+        translateY(-50%)
+        scale(.95);
+
+    transition:
+        all .25s ease;
+}
+
+
+.wishlist-toast.show {
+    opacity: 1;
+
+    transform:
+        translateY(-50%)
+        scale(1);
+}
+
+
+.wishlist-toast i {
+    font-size: .9rem;
+
+    color: #28a745;
+}
+
+
+/*=========================================================
+    PRODUCT ALERT
+=========================================================*/
+
+@keyframes productAlertIn {
+
+    from {
+        opacity: 0;
+
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform: translateY(0);
+    }
+
+}
+
+
+/*=========================================================
+    RESPONSIVE
+=========================================================*/
+
+@media (max-width: 576px) {
+
+    .app-alert-overlay {
+        padding: 15px;
+    }
+
+
+    .app-alert {
+        width: 100%;
+
+        max-width: 100%;
+
+        padding:
+            32px
+            20px
+            28px;
+
+        border-radius: 16px;
+    }
+
+
+    .app-alert-icon {
+        width: 65px;
+        height: 65px;
+
+        margin-bottom: 18px;
+
+        font-size: 1.7rem;
+    }
+
+
+    .app-alert-title {
+        font-size: 1.2rem;
+    }
+
+
+    .app-alert-message {
+        font-size: .9rem;
+    }
+
 }

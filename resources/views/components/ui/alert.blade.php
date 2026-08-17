@@ -1,6 +1,7 @@
-@if (session('success') || session('error') || session('warning') || session('info'))
+@if(session('success') || session('error') || session('warning') || session('info'))
 
     @php
+
         $type = session('success')
             ? 'success'
             : (session('error')
@@ -24,22 +25,50 @@
             'warning' => 'bi-exclamation-lg',
             'info' => 'bi-info-lg',
         ];
+
     @endphp
 
-<div
-    id="appAlert"
-    style="
-        position:fixed;
-        top:20px;
-        right:20px;
-        background:#dc3545;
-        color:white;
-        padding:20px;
-        border-radius:10px;
-        z-index:999999;
-    "
->
-    ALERTA FUNCIONANDO
-</div>
+    <div
+        id="appAlert"
+        class="app-alert-overlay"
+    >
+
+        <div class="app-alert app-alert-{{ $type }}">
+
+            <div class="app-alert-icon">
+
+                <i class="bi {{ $icons[$type] }}"></i>
+
+            </div>
+
+            <div class="app-alert-content">
+
+                <div class="app-alert-title">
+
+                    {{ $titles[$type] }}
+
+                </div>
+
+                <div class="app-alert-message">
+
+                    {{ $message }}
+
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                class="app-alert-close"
+                aria-label="Cerrar"
+            >
+
+                <i class="bi bi-x"></i>
+
+            </button>
+
+        </div>
+
+    </div>
 
 @endif

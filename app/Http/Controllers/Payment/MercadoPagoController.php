@@ -20,7 +20,7 @@ class MercadoPagoController extends Controller
         return $this->redirectToOrders(
 
             'success',
-            '¡Pago realizado correctamente! Tu pedido fue registrado y hemos enviado el número de pedido a tu correo electrónico.'
+            '¡Pedido creado correctamente! Tu pedido fue registrado. Te enviamos los detalles a tu correo electrónico.'
 
         );
     }

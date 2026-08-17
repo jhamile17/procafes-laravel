@@ -46,7 +46,7 @@
 
     <x-ecommerce.cart-offcanvas />
 
-   <x-ui.alert/>
+   
 
     <x-ui.toast />
     {{-- ===========================
