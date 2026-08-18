@@ -110,26 +110,18 @@
     CABECERA
 ===========================*/
 
-.chatbot-header{
-
-    background:#5B3A29;
-
-    color:white;
-
-    border-bottom:2px solid #D6A84D;
-
-    padding:14px 18px;
-
+.chatbot-header {
+    background: #6f4e37;
+    color: #ffffff;
+    border-bottom: 2px solid #D6A84D;
+    padding: 14px 18px;
 }
 
-.chatbot-header h5{
-
-    margin:0;
-
-    font-size:18px;
-
-    font-weight:700;
-
+.chatbot-header h5 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff !important;
 }
 
 .chat-status{
