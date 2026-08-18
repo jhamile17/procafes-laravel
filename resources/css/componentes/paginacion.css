@@ -94,6 +94,138 @@
 
 }
 /*==========================================================================
+    PAGINACIÓN ADMINISTRATIVA
+==========================================================================*/
+
+.admin-pagination{
+
+    display:flex;
+
+    justify-content:center;
+
+    margin-top:1rem;
+
+}
+
+.admin-pagination-list{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.35rem;
+
+    margin:0;
+
+    padding:0;
+
+    list-style:none;
+
+}
+
+.admin-pagination-item{
+
+    display:flex;
+
+}
+
+.admin-pagination-link{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    min-width:36px;
+
+    height:36px;
+
+    padding:0 .7rem;
+
+    border:1px solid var(--color-border);
+
+    border-radius:var(--radius-sm);
+
+    background:var(--color-white);
+
+    color:var(--color-coffee);
+
+    text-decoration:none;
+
+    font-family:var(--font-body);
+
+    font-size:.78rem;
+
+    font-weight:600;
+
+    transition:var(--transition);
+
+}
+
+.admin-pagination-link:hover{
+
+    background:var(--color-primary-soft);
+
+    border-color:var(--color-primary);
+
+    color:var(--color-primary);
+
+}
+
+.admin-pagination-item.active
+.admin-pagination-link{
+
+    background:var(--color-primary);
+
+    border-color:var(--color-primary);
+
+    color:var(--color-white);
+
+}
+
+.admin-pagination-item.disabled
+.admin-pagination-link{
+
+    color:var(--color-text-disabled);
+
+    background:var(--color-disabled);
+
+    border-color:var(--color-border);
+
+    opacity:.6;
+
+    cursor:not-allowed;
+
+    pointer-events:none;
+
+}
+
+
+/*==========================================================================
+    RESPONSIVE
+==========================================================================*/
+
+@media(max-width:576px){
+
+    .admin-pagination{
+
+        justify-content:center;
+
+    }
+
+    .admin-pagination-link{
+
+        min-width:34px;
+
+        height:34px;
+
+        padding:0 .55rem;
+
+    }
+
+}
+/*==========================================================================
     ABOUT CTA
 ==========================================================================*/
 

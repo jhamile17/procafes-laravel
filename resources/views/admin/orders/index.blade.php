@@ -422,7 +422,7 @@
 
             <div class="admin-list-pagination">
 
-                {{ $orders->links() }}
+                {{ $orders->onEachSide(1)->links('vendor.pagination.paginacion-admin') }}
 
             </div>
 

@@ -1,38 +1,46 @@
 @if ($paginator->hasPages())
 
-    <nav aria-label="Paginación administrativa">
+    <nav
+        class="admin-pagination"
+        aria-label="Paginación administrativa"
+    >
 
-        <ul class="pagination pagination-sm mb-0">
+        <ul class="admin-pagination-list">
 
             {{-- Anterior --}}
             @if ($paginator->onFirstPage())
 
-                <li class="page-item disabled">
+                <li class="admin-pagination-item disabled">
 
-                    <span class="page-link">
+                    <span class="admin-pagination-link">
+
                         <i class="bi bi-chevron-left"></i>
-                        <span class="d-none d-md-inline">
+
+                        <span class="d-none d-md-inline ms-1">
                             Anterior
                         </span>
+
                     </span>
 
                 </li>
 
             @else
 
-                <li class="page-item">
+                <li class="admin-pagination-item">
 
                     <a
                         href="{{ $paginator->previousPageUrl() }}"
-                        class="page-link"
+                        class="admin-pagination-link"
                         rel="prev"
                         aria-label="Página anterior"
                     >
+
                         <i class="bi bi-chevron-left"></i>
 
-                        <span class="d-none d-md-inline">
+                        <span class="d-none d-md-inline ms-1">
                             Anterior
                         </span>
+
                     </a>
 
                 </li>
@@ -45,9 +53,9 @@
 
                 @if (is_string($element))
 
-                    <li class="page-item disabled">
+                    <li class="admin-pagination-item disabled">
 
-                        <span class="page-link">
+                        <span class="admin-pagination-link">
                             {{ $element }}
                         </span>
 
@@ -62,15 +70,9 @@
 
                         @if ($page == $paginator->currentPage())
 
-                            <li class="page-item active">
+                            <li class="admin-pagination-item active">
 
-                                <span
-                                    class="page-link"
-                                    style="
-                                        background:#D62828;
-                                        border-color:#D62828;
-                                    "
-                                >
+                                <span class="admin-pagination-link">
                                     {{ $page }}
                                 </span>
 
@@ -78,11 +80,11 @@
 
                         @else
 
-                            <li class="page-item">
+                            <li class="admin-pagination-item">
 
                                 <a
                                     href="{{ $url }}"
-                                    class="page-link"
+                                    class="admin-pagination-link"
                                 >
                                     {{ $page }}
                                 </a>
@@ -101,16 +103,16 @@
             {{-- Siguiente --}}
             @if ($paginator->hasMorePages())
 
-                <li class="page-item">
+                <li class="admin-pagination-item">
 
                     <a
                         href="{{ $paginator->nextPageUrl() }}"
-                        class="page-link"
+                        class="admin-pagination-link"
                         rel="next"
                         aria-label="Página siguiente"
                     >
 
-                        <span class="d-none d-md-inline">
+                        <span class="d-none d-md-inline me-1">
                             Siguiente
                         </span>
 
@@ -122,11 +124,11 @@
 
             @else
 
-                <li class="page-item disabled">
+                <li class="admin-pagination-item disabled">
 
-                    <span class="page-link">
+                    <span class="admin-pagination-link">
 
-                        <span class="d-none d-md-inline">
+                        <span class="d-none d-md-inline me-1">
                             Siguiente
                         </span>
 

@@ -98,7 +98,7 @@
 
             <select
                 name="estado"
-                class="admin-billing-filter-select"
+                class="admin-billing-status"
             >
 
                 <option value="">
@@ -503,11 +503,12 @@
 
         @if($orders->hasPages())
 
-            <div class="admin-billing-pagination">
+            <div class="admin-list-pagination">
 
-                {{ $orders->links('vendor.pagination.paginacion') }}
+                {{ $orders->onEachSide(1)->links('vendor.pagination.paginacion-admin') }}
 
             </div>
+
         @endif
 
     </div>

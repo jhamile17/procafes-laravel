@@ -117,7 +117,9 @@
 .admin-billing-filter-form {
     display: grid;
 
-    grid-template-columns: minmax(0, 1fr) 110px;
+    grid-template-columns:
+        minmax(0, 1fr)
+        180px;
 
     align-items: center;
 
@@ -399,22 +401,31 @@
 ========================================================= */
 
 .admin-billing-status {
-    display: inline-flex;
-    align-items: center;
+    height: 38px;
 
-    min-height: 25px;
+    min-width: 150px;
 
-    padding: .3rem .6rem;
+    padding: 0 .85rem;
 
-    color: var(--color-info);
-    background: var(--color-info-soft);
+    border: 1px solid var(--color-border);
 
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-sm);
 
-    font-size: .65rem;
-    font-weight: 600;
+    background: var(--color-white);
 
-    white-space: nowrap;
+    color: var(--color-text);
+
+    font-family: var(--font-body);
+
+    font-size: .82rem;
+
+    font-weight: 500;
+
+    outline: none;
+
+    cursor: pointer;
+
+    transition: var(--transition);
 }
 
 .admin-billing-status-warning {

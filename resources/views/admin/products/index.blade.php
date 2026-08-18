@@ -564,7 +564,7 @@
 
         <div class="admin-list-pagination">
 
-            {{ $products->onEachSide(1)->links('vendor.pagination.paginacion') }}
+            {{ $products->onEachSide(1)->links('vendor.pagination.paginacion-admin') }}
 
         </div>
 
