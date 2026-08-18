@@ -9,8 +9,6 @@ import {
 
 import {
     render,
-    showLoading,
-    hideLoading,
 } from './render';
 
 
@@ -28,12 +26,10 @@ function showCart() {
         return;
     }
 
-
     const offcanvas =
         document.getElementById(
             'cartOffcanvas'
         );
-
 
     if (
         !offcanvas ||
@@ -42,18 +38,16 @@ function showCart() {
         return;
     }
 
-
     bootstrap.Offcanvas
         .getOrCreateInstance(
             offcanvas
         )
         .show();
-
 }
 
 
 /*=========================================================
-    ALERTA DEL PRODUCTO
+    ALERTA EN TARJETA DEL PRODUCTO
 =========================================================*/
 
 function showButtonAlert(
@@ -61,25 +55,92 @@ function showButtonAlert(
     message
 ) {
 
-    const parent =
-        button.parentNode;
+    /*
+    |--------------------------------------------------------------------------
+    | Buscar la tarjeta del producto
+    |--------------------------------------------------------------------------
+    */
 
+    const card =
+        button.closest(
+            '.product-card, .product-item, .card, [data-product-id]'
+        );
+
+
+    if (!card) {
+
+        console.error(
+            'No se encontró la tarjeta del producto.'
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Buscar contenedor de alerta
+    |--------------------------------------------------------------------------
+    */
+
+    let container =
+        card.querySelector(
+            '.product-alert-container'
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Si no existe, crearlo debajo del botón
+    |--------------------------------------------------------------------------
+    */
+
+    if (!container) {
+
+        container =
+            document.createElement(
+                'div'
+            );
+
+        container.className =
+            'product-alert-container';
+
+
+        button.insertAdjacentElement(
+            'afterend',
+            container
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Eliminar alerta anterior
+    |--------------------------------------------------------------------------
+    */
 
     const old =
-        parent.querySelector(
+        container.querySelector(
             '.product-alert'
         );
 
 
     if (old) {
-
         old.remove();
-
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Crear alerta
+    |--------------------------------------------------------------------------
+    */
+
     const alert =
-        document.createElement('div');
+        document.createElement(
+            'div'
+        );
 
 
     alert.className =
@@ -90,18 +151,37 @@ function showButtonAlert(
 
         <i class="bi bi-exclamation-triangle-fill"></i>
 
-        <span>
-            ${message}
-        </span>
+        <span></span>
 
     `;
 
 
-    button.insertAdjacentElement(
-        'afterend',
+    /*
+    |--------------------------------------------------------------------------
+    | Insertar mensaje de forma segura
+    |--------------------------------------------------------------------------
+    */
+
+    const text =
+        alert.querySelector(
+            'span'
+        );
+
+
+    text.textContent =
+        message;
+
+
+    container.appendChild(
         alert
     );
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Ocultar automáticamente
+    |--------------------------------------------------------------------------
+    */
 
     setTimeout(() => {
 
@@ -112,11 +192,13 @@ function showButtonAlert(
 
         setTimeout(() => {
 
-            alert.remove();
+            if (alert.parentNode) {
+                alert.remove();
+            }
 
         }, 250);
 
-    }, 2500);
+    }, 3000);
 
 }
 
@@ -129,7 +211,9 @@ async function handleAdd(
     button
 ) {
 
-    if (button.dataset.processing === 'true') {
+    if (
+        button.dataset.processing === 'true'
+    ) {
         return;
     }
 
@@ -172,12 +256,11 @@ async function handleAdd(
 
         /*
         |--------------------------------------------------------------------------
-        | Laravel ya devuelve el carrito completo
+        | AGREGADO CORRECTAMENTE
         |--------------------------------------------------------------------------
         */
 
         render(response);
-
 
         showCart();
 
@@ -189,6 +272,15 @@ async function handleAdd(
             error
         );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | IMPORTANTE:
+        |
+        | El error aparece en la tarjeta del producto.
+        | NO abrimos el offcanvas.
+        |--------------------------------------------------------------------------
+        */
 
         showButtonAlert(
             button,
@@ -252,21 +344,28 @@ async function handleIncrement(
             );
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Si funciona, simplemente actualizamos el carrito.
+        |--------------------------------------------------------------------------
+        */
+
         render(response);
 
 
     } catch (error) {
 
+        /*
+        |--------------------------------------------------------------------------
+        | NO MOSTRAR PRODUCT-ALERT AQUÍ
+        |
+        | Los errores del + pertenecen al carrito.
+        |--------------------------------------------------------------------------
+        */
+
         console.error(
             'Error aumentando cantidad:',
             error
-        );
-
-
-        showButtonAlert(
-            button,
-            error.message ||
-            'No se pudo aumentar la cantidad.'
         );
 
     } finally {
@@ -322,21 +421,26 @@ async function handleDecrement(
             );
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Actualizar carrito
+        |--------------------------------------------------------------------------
+        */
+
         render(response);
 
 
     } catch (error) {
 
+        /*
+        |--------------------------------------------------------------------------
+        | NO MOSTRAR PRODUCT-ALERT AQUÍ
+        |--------------------------------------------------------------------------
+        */
+
         console.error(
             'Error disminuyendo cantidad:',
             error
-        );
-
-
-        showButtonAlert(
-            button,
-            error.message ||
-            'No se pudo actualizar la cantidad.'
         );
 
     } finally {
@@ -387,6 +491,8 @@ async function handleRemove(
         );
 
 
+    } finally {
+
         button.disabled =
             false;
 
@@ -428,6 +534,7 @@ async function handleClear(
             error
         );
 
+
     } finally {
 
         button.disabled =
@@ -448,6 +555,12 @@ export function initializeCartEvents() {
         'click',
         async (event) => {
 
+            /*
+            |--------------------------------------------------------------------------
+            | AGREGAR PRODUCTO
+            |--------------------------------------------------------------------------
+            */
+
             const addButton =
                 event.target.closest(
                     '.btn-add-to-cart'
@@ -466,6 +579,12 @@ export function initializeCartEvents() {
 
             }
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | INCREMENTAR
+            |--------------------------------------------------------------------------
+            */
 
             const increase =
                 event.target.closest(
@@ -486,6 +605,12 @@ export function initializeCartEvents() {
             }
 
 
+            /*
+            |--------------------------------------------------------------------------
+            | DECREMENTAR
+            |--------------------------------------------------------------------------
+            */
+
             const decrease =
                 event.target.closest(
                     '.btn-dec'
@@ -505,6 +630,12 @@ export function initializeCartEvents() {
             }
 
 
+            /*
+            |--------------------------------------------------------------------------
+            | ELIMINAR
+            |--------------------------------------------------------------------------
+            */
+
             const remove =
                 event.target.closest(
                     '.btn-remove'
@@ -523,6 +654,12 @@ export function initializeCartEvents() {
 
             }
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | VACIAR CARRITO
+            |--------------------------------------------------------------------------
+            */
 
             const clear =
                 event.target.closest(

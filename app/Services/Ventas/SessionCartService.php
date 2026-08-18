@@ -5,14 +5,22 @@ declare(strict_types=1);
 namespace App\Services\Ventas;
 
 use App\Models\Product;
+use App\Services\Inventario\InventoryService;
 use Illuminate\Http\Request;
 use RuntimeException;
 
 class SessionCartService
 {
     private const SESSION_KEY = 'cart';
+
     private const MAX_CANTIDAD = 8;
+
     private const IGV = 0.18;
+
+    public function __construct(
+        protected InventoryService $inventoryService
+    ) {
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -44,35 +52,99 @@ class SessionCartService
             $cantidad = 1;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Máximo por producto
+        |--------------------------------------------------------------------------
+        */
+
         if ($cantidad > self::MAX_CANTIDAD) {
+
             throw new RuntimeException(
                 'Solo puedes comprar hasta 8 unidades de este producto.'
             );
+
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Obtener carrito
+        |--------------------------------------------------------------------------
+        */
 
         $cart = $this->obtener($request);
 
         $id = $product->id;
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Producto ya existente
+        |--------------------------------------------------------------------------
+        */
+
         if (isset($cart[$id])) {
 
-            $nuevaCantidad = $cart[$id]['quantity'] + $cantidad;
+            $nuevaCantidad =
+                $cart[$id]['quantity'] + $cantidad;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Validar máximo de 8
+            |--------------------------------------------------------------------------
+            */
 
             if ($nuevaCantidad > self::MAX_CANTIDAD) {
+
                 throw new RuntimeException(
                     'Solo puedes comprar hasta 8 unidades de este producto.'
                 );
+
             }
 
-            $cart[$id]['quantity'] = $nuevaCantidad;
 
-            $cart[$id]['sub_total'] = bcmul(
-                (string) $cart[$id]['unit_price'],
-                (string) $nuevaCantidad,
-                2
+            /*
+            |--------------------------------------------------------------------------
+            | Validar stock REAL
+            |--------------------------------------------------------------------------
+            */
+
+            $this->inventoryService->validarStock(
+                $product,
+                $nuevaCantidad
             );
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | Actualizar carrito
+            |--------------------------------------------------------------------------
+            */
+
+            $cart[$id]['quantity'] =
+                $nuevaCantidad;
+
+            $cart[$id]['sub_total'] =
+                bcmul(
+                    (string) $cart[$id]['unit_price'],
+                    (string) $nuevaCantidad,
+                    2
+                );
+
         } else {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Producto nuevo
+            |--------------------------------------------------------------------------
+            */
+
+            $this->inventoryService->validarStock(
+                $product,
+                $cantidad
+            );
+
 
             $cart[$id] = [
 
@@ -96,10 +168,18 @@ class SessionCartService
 
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Guardar sesión
+        |--------------------------------------------------------------------------
+        */
+
         $request->session()->put(
             self::SESSION_KEY,
             $cart
         );
+
 
         return $cart;
     }
@@ -118,27 +198,120 @@ class SessionCartService
 
         $cart = $this->obtener($request);
 
-        if (! isset($cart[$productId])) {
+        if (!isset($cart[$productId])) {
             return $cart;
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Máximo 8
+        |--------------------------------------------------------------------------
+        */
+
+        if ($cantidad > self::MAX_CANTIDAD) {
+
+            throw new RuntimeException(
+                'Solo puedes comprar hasta 8 unidades de este producto.'
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cantidad mínima
+        |--------------------------------------------------------------------------
+        */
+
         $cantidad = max(
             1,
-            min($cantidad, self::MAX_CANTIDAD)
+            $cantidad
         );
 
-        $cart[$productId]['quantity'] = $cantidad;
 
-        $cart[$productId]['sub_total'] = bcmul(
-            (string) $cart[$productId]['unit_price'],
-            (string) $cantidad,
-            2
+        /*
+        |--------------------------------------------------------------------------
+        | Obtener producto actual
+        |--------------------------------------------------------------------------
+        */
+
+        $product = Product::find(
+            $productId
         );
+
+
+        if (!$product) {
+
+            unset(
+                $cart[$productId]
+            );
+
+            $request->session()->put(
+                self::SESSION_KEY,
+                $cart
+            );
+
+            return $cart;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validar stock REAL
+        |--------------------------------------------------------------------------
+        */
+
+        $this->inventoryService->validarStock(
+            $product,
+            $cantidad
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Actualizar
+        |--------------------------------------------------------------------------
+        */
+
+        $cart[$productId]['quantity'] =
+            $cantidad;
+
+        $cart[$productId]['unit_price'] =
+            $product->sale_price;
+
+        $cart[$productId]['sub_total'] =
+            bcmul(
+                (string) $product->sale_price,
+                (string) $cantidad,
+                2
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Actualizar imagen/nombre por si cambiaron
+        |--------------------------------------------------------------------------
+        */
+
+        $cart[$productId]['name'] =
+            $product->name;
+
+        $cart[$productId]['image'] =
+            $product->image_url;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Guardar sesión
+        |--------------------------------------------------------------------------
+        */
 
         $request->session()->put(
             self::SESSION_KEY,
             $cart
         );
+
 
         return $cart;
     }
@@ -156,7 +329,9 @@ class SessionCartService
 
         $cart = $this->obtener($request);
 
-        unset($cart[$productId]);
+        unset(
+            $cart[$productId]
+        );
 
         $request->session()->put(
             self::SESSION_KEY,
@@ -172,8 +347,10 @@ class SessionCartService
     |--------------------------------------------------------------------------
     */
 
-    public function vaciar(Request $request): void
-    {
+    public function vaciar(
+        Request $request
+    ): void {
+
         $request->session()->forget(
             self::SESSION_KEY
         );
@@ -185,8 +362,10 @@ class SessionCartService
     |--------------------------------------------------------------------------
     */
 
-    public function total(Request $request): float
-    {
+    public function total(
+        Request $request
+    ): float {
+
         return (float) collect(
             $this->obtener($request)
         )->sum('sub_total');
@@ -198,8 +377,10 @@ class SessionCartService
     |--------------------------------------------------------------------------
     */
 
-    public function cantidad(Request $request): int
-    {
+    public function cantidad(
+        Request $request
+    ): int {
+
         return (int) collect(
             $this->obtener($request)
         )->sum('quantity');
@@ -207,7 +388,7 @@ class SessionCartService
 
     /*
     |--------------------------------------------------------------------------
-    | Sincronizar carrito de sesión con la base de datos
+    | Sincronizar carrito de sesión
     |--------------------------------------------------------------------------
     */
 
@@ -223,6 +404,7 @@ class SessionCartService
             return;
         }
 
+
         foreach ($cart as $item) {
 
             $cartService->agregarProducto(
@@ -233,39 +415,45 @@ class SessionCartService
 
         }
 
-        $this->vaciar($request);
+
+        $this->vaciar(
+            $request
+        );
     }
+
     /*
-|--------------------------------------------------------------------------
-| Calcular resumen
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Calcular resumen
+    |--------------------------------------------------------------------------
+    */
 
-public function calcularResumen(Request $request): array
-{
-    $subtotal = round(
-        $this->total($request),
-        2
-    );
+    public function calcularResumen(
+        Request $request
+    ): array {
 
-    $igv = round(
-        $subtotal * self::IGV,
-        2
-    );
+        $subtotal = round(
+            $this->total($request),
+            2
+        );
 
-    $total = round(
-        $subtotal + $igv,
-        2
-    );
+        $igv = round(
+            $subtotal * self::IGV,
+            2
+        );
 
-    return [
+        $total = round(
+            $subtotal + $igv,
+            2
+        );
 
-        'subtotal' => $subtotal,
+        return [
 
-        'igv' => $igv,
+            'subtotal' => $subtotal,
 
-        'total' => $total,
+            'igv' => $igv,
 
-    ];
-}
+            'total' => $total,
+
+        ];
+    }
 }

@@ -1,5 +1,3 @@
-// resources/js/modules/cart/render.js
-
 import { currency } from './helpers';
 
 const MAX_CART_QUANTITY = 8;
@@ -205,18 +203,10 @@ export function renderTotals(
 /*=========================================================
     ITEM OFFCANVAS
 =========================================================*/
-
 function createOffcanvasItem(item) {
 
     const element =
         document.createElement('div');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Contenedor principal
-    |--------------------------------------------------------------------------
-    */
 
     element.className =
         'offcanvas-cart-row';
@@ -238,12 +228,6 @@ function createOffcanvasItem(item) {
         Number(item.subtotal ?? 0);
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | HTML
-    |--------------------------------------------------------------------------
-    */
-
     element.innerHTML = `
 
         <div class="offcanvas-item">
@@ -262,16 +246,11 @@ function createOffcanvasItem(item) {
                     <div class="offcanvas-item-info">
 
                         <div class="offcanvas-item-title">
-
                             ${item.name ?? 'Producto'}
-
                         </div>
 
-
                         <div class="offcanvas-item-price">
-
                             ${currency(unitPrice)}
-
                         </div>
 
                     </div>
@@ -311,9 +290,7 @@ function createOffcanvasItem(item) {
 
 
                         <span>
-
                             ${quantity}
-
                         </span>
 
 
@@ -334,12 +311,16 @@ function createOffcanvasItem(item) {
 
 
                     <div class="offcanvas-item-total">
-
                         ${currency(subtotal)}
-
                     </div>
 
                 </div>
+
+
+                <!-- ALERTA DEL PRODUCTO -->
+
+                <div class="product-alert-container"></div>
+
 
             </div>
 
@@ -349,19 +330,14 @@ function createOffcanvasItem(item) {
 
 
     return element;
-
 }
-
-
 /*=========================================================
     ITEM PÁGINA CARRITO
 =========================================================*/
-
 function createCartPageItem(item) {
 
     const element =
         document.createElement('div');
-
 
     element.className =
         'cart-page-item';
@@ -370,14 +346,11 @@ function createCartPageItem(item) {
     const quantity =
         Number(item.quantity) || 1;
 
-
     const productId =
         Number(item.product_id);
 
-
     const unitPrice =
         Number(item.unit_price ?? 0);
-
 
     const subtotal =
         Number(item.subtotal ?? 0);
@@ -398,21 +371,17 @@ function createCartPageItem(item) {
         <div class="cart-page-item-info">
 
             <h5>
-
                 ${item.name ?? 'Producto'}
-
             </h5>
 
 
             <p>
-
                 ${currency(unitPrice)}
-
             </p>
 
 
-            <div class="cart-page-item-actions">
-
+            <div class="cart-item-actions">
+                 <div class="quantity-control">
                 <button
                     type="button"
                     class="btn-dec"
@@ -425,12 +394,10 @@ function createCartPageItem(item) {
                     <i class="bi bi-dash"></i>
 
                 </button>
-
+                
 
                 <span class="cart-item-quantity">
-
                     ${quantity}
-
                 </span>
 
 
@@ -462,6 +429,10 @@ function createCartPageItem(item) {
             </div>
 
         </div>
+            <div class="product-alert-container"></div>
+
+
+        </div>
 
 
         <div class="cart-page-item-subtotal">
@@ -474,7 +445,6 @@ function createCartPageItem(item) {
 
 
     return element;
-
 }
 
 

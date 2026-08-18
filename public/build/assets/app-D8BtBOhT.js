@@ -136,7 +136,7 @@ function ar(e,t){return function(){return e.apply(t,arguments)}}const{toString:n
             </p>
 
 
-            <div class="cart-page-item-actions">
+            <div class="cart-item-actions">
 
                 <button
                     type="button"
@@ -185,16 +185,11 @@ function ar(e,t){return function(){return e.apply(t,arguments)}}const{toString:n
                 </button>
 
             </div>
-
+            <div class="product-alert-container"></div>
         </div>
-
-
         <div class="cart-page-item-subtotal">
-
             ${qt(i)}
-
         </div>
-
     `,t}function Kf(){const e=Hi();e&&(e.innerHTML="");const t=ji();t&&(t.innerHTML=`
 
             <div class="cart-empty-state">
@@ -221,7 +216,7 @@ function ar(e,t){return function(){return e.apply(t,arguments)}}const{toString:n
 
             </div>
 
-        `);const n=Vi();n&&n.classList.remove("d-none"),Ui({total:0})}function zf(e=[]){const t=Hi(),n=ji(),s=jf();if(t&&(t.innerHTML=""),n&&(n.innerHTML=""),!Array.isArray(e)||!e.length){s&&s.classList.add("d-none"),Kf();return}s&&s.classList.remove("d-none");const r=Vi();r&&r.classList.add("d-none"),e.forEach(i=>{t&&t.appendChild(Wf(i)),n&&n.appendChild(qf(i))})}function te(e={}){const t=Array.isArray(e.items)?e.items:[];Uf(e.count??0),zf(t),Ui(e),Vf()}function Yf(e){const t=document.getElementById("cart-recommendations");t&&(t.innerHTML=e??"")}function Gf(){if(document.body.classList.contains("cart-page"))return;const e=document.getElementById("cartOffcanvas");!e||typeof bootstrap>"u"||bootstrap.Offcanvas.getOrCreateInstance(e).show()}function ts(e,t){const s=e.parentNode.querySelector(".product-alert");s&&s.remove();const r=document.createElement("div");r.className="product-alert",r.innerHTML=`
+        `);const n=Vi();n&&n.classList.remove("d-none"),Ui({total:0})}function zf(e=[]){const t=Hi(),n=ji(),s=jf();if(t&&(t.innerHTML=""),n&&(n.innerHTML=""),!Array.isArray(e)||!e.length){s&&s.classList.add("d-none"),Kf();return}s&&s.classList.remove("d-none");const r=Vi();r&&r.classList.add("d-none"),e.forEach(i=>{t&&t.appendChild(Wf(i)),n&&n.appendChild(qf(i))})}function te(e={}){const t=Array.isArray(e.items)?e.items:[];Uf(e.count??0),zf(t),Ui(e),Vf()}function Yf(e){const t=document.getElementById("cart-recommendations");t&&(t.innerHTML=e??"")}function Gf(){if(document.body.classList.contains("cart-page"))return;const e=document.getElementById("cartOffcanvas");!e||typeof bootstrap>"u"||bootstrap.Offcanvas.getOrCreateInstance(e).show()}function ts(e,t){const n=e.closest(".cart-item");if(!n){console.error("No se encontró el cart-page-item");return}const s=n.querySelector(".product-alert-container");if(!s){console.error("No se encontró product-alert-container");return}const r=s.querySelector(".product-alert");r&&r.remove();const i=document.createElement("div");i.className="product-alert",i.innerHTML=`
 
         <i class="bi bi-exclamation-triangle-fill"></i>
 
@@ -229,7 +224,7 @@ function ar(e,t){return function(){return e.apply(t,arguments)}}const{toString:n
             ${t}
         </span>
 
-    `,e.insertAdjacentElement("afterend",r),setTimeout(()=>{r.classList.add("hide"),setTimeout(()=>{r.remove()},250)},2500)}async function Xf(e){if(e.dataset.processing==="true")return;e.dataset.processing="true",e.disabled=!0;const t=e.innerHTML;e.innerHTML=`
+    `,s.appendChild(i),setTimeout(()=>{i.classList.add("hide"),setTimeout(()=>{i.remove()},250)},3e3)}async function Xf(e){if(e.dataset.processing==="true")return;e.dataset.processing="true",e.disabled=!0;const t=e.innerHTML;e.innerHTML=`
 
         <span
             class="spinner-border spinner-border-sm me-2">

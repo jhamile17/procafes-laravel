@@ -135,9 +135,10 @@ class InventoryService
         }
 
         if (!$this->tieneStock($product, $cantidad)) {
-
             throw new RuntimeException(
-                'Stock insuficiente para realizar la operación.'
+                'Stock insuficiente. Solo quedan '
+                . $product->stock
+                . ' unidades disponibles.'
             );
 
         }
