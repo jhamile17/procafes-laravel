@@ -505,10 +505,9 @@
 
             <div class="admin-billing-pagination">
 
-                {{ $orders->links() }}
+                {{ $orders->links('vendor.pagination.paginacion') }}
 
             </div>
-
         @endif
 
     </div>

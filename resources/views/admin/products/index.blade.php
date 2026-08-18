@@ -560,19 +560,15 @@
              PAGINACIÓN
         ====================================================== --}}
 
-        @if($products->hasPages())
+       @if($products->hasPages())
 
-            <div class="card-footer bg-white border-0 py-2">
+        <div class="admin-list-pagination">
 
-                <div class="d-flex justify-content-center">
+            {{ $products->onEachSide(1)->links('vendor.pagination.paginacion') }}
 
-                    {{ $products->withQueryString()->links() }}
+        </div>
 
-                </div>
-
-            </div>
-
-        @endif
+    @endif
 
     </div>
 

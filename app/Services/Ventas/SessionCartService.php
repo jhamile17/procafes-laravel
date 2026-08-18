@@ -13,7 +13,15 @@ class SessionCartService
 {
     private const SESSION_KEY = 'cart';
 
-    private const MAX_CANTIDAD = 8;
+    /*
+    |--------------------------------------------------------------------------
+    | Límites de compra
+    |--------------------------------------------------------------------------
+    */
+
+    private const MAX_CANTIDAD_PRODUCTO = 8;
+
+    private const MAX_CANTIDAD_TOTAL = 15;
 
     private const IGV = 0.18;
 
@@ -38,6 +46,68 @@ class SessionCartService
 
     /*
     |--------------------------------------------------------------------------
+    | Cantidad total actual del carrito
+    |--------------------------------------------------------------------------
+    */
+
+    public function cantidad(Request $request): int
+    {
+        return (int) collect(
+            $this->obtener($request)
+        )->sum('quantity');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validar límite total del carrito
+    |--------------------------------------------------------------------------
+    */
+
+    private function validarCantidadTotal(
+        Request $request,
+        int $cantidadAgregar
+    ): void {
+
+        $cantidadActual =
+            $this->cantidad($request);
+
+        $nuevaCantidadTotal =
+            $cantidadActual + $cantidadAgregar;
+
+        if (
+            $nuevaCantidadTotal >
+            self::MAX_CANTIDAD_TOTAL
+        ) {
+
+            throw new RuntimeException(
+                'Límite de compra alcanzado. Puedes comprar hasta 10 productos por pedido.'
+            );
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validar límite individual del producto
+    |--------------------------------------------------------------------------
+    */
+
+    private function validarCantidadProducto(
+        int $cantidad
+    ): void {
+
+        if (
+            $cantidad >
+            self::MAX_CANTIDAD_PRODUCTO
+        ) {
+
+            throw new RuntimeException(
+                'Solo puedes comprar hasta 8 unidades de este producto.'
+            );
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Agregar producto
     |--------------------------------------------------------------------------
     */
@@ -54,28 +124,17 @@ class SessionCartService
 
         /*
         |--------------------------------------------------------------------------
-        | Máximo por producto
+        | Validar máximo por producto
         |--------------------------------------------------------------------------
         */
 
-        if ($cantidad > self::MAX_CANTIDAD) {
-
-            throw new RuntimeException(
-                'Solo puedes comprar hasta 8 unidades de este producto.'
-            );
-
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Obtener carrito
-        |--------------------------------------------------------------------------
-        */
+        $this->validarCantidadProducto(
+            $cantidad
+        );
 
         $cart = $this->obtener($request);
 
         $id = $product->id;
-
 
         /*
         |--------------------------------------------------------------------------
@@ -86,41 +145,34 @@ class SessionCartService
         if (isset($cart[$id])) {
 
             $nuevaCantidad =
-                $cart[$id]['quantity'] + $cantidad;
-
+                (int) $cart[$id]['quantity']
+                + $cantidad;
 
             /*
-            |--------------------------------------------------------------------------
-            | Validar máximo de 8
-            |--------------------------------------------------------------------------
+            | Máximo 8 del mismo producto
             */
 
-            if ($nuevaCantidad > self::MAX_CANTIDAD) {
-
-                throw new RuntimeException(
-                    'Solo puedes comprar hasta 8 unidades de este producto.'
-                );
-
-            }
-
+            $this->validarCantidadProducto(
+                $nuevaCantidad
+            );
 
             /*
-            |--------------------------------------------------------------------------
-            | Validar stock REAL
-            |--------------------------------------------------------------------------
+            | Máximo 10 productos en total
+            */
+
+            $this->validarCantidadTotal(
+                $request,
+                $cantidad
+            );
+
+            /*
+            | Validar stock real
             */
 
             $this->inventoryService->validarStock(
                 $product,
                 $nuevaCantidad
             );
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Actualizar carrito
-            |--------------------------------------------------------------------------
-            */
 
             $cart[$id]['quantity'] =
                 $nuevaCantidad;
@@ -136,7 +188,18 @@ class SessionCartService
 
             /*
             |--------------------------------------------------------------------------
-            | Producto nuevo
+            | Validar máximo total
+            |--------------------------------------------------------------------------
+            */
+
+            $this->validarCantidadTotal(
+                $request,
+                $cantidad
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Validar stock real
             |--------------------------------------------------------------------------
             */
 
@@ -145,6 +208,11 @@ class SessionCartService
                 $cantidad
             );
 
+            /*
+            |--------------------------------------------------------------------------
+            | Crear producto en sesión
+            |--------------------------------------------------------------------------
+            */
 
             $cart[$id] = [
 
@@ -165,13 +233,11 @@ class SessionCartService
                 ),
 
             ];
-
         }
-
 
         /*
         |--------------------------------------------------------------------------
-        | Guardar sesión
+        | Guardar carrito
         |--------------------------------------------------------------------------
         */
 
@@ -179,7 +245,6 @@ class SessionCartService
             self::SESSION_KEY,
             $cart
         );
-
 
         return $cart;
     }
@@ -202,25 +267,9 @@ class SessionCartService
             return $cart;
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | Máximo 8
-        |--------------------------------------------------------------------------
-        */
-
-        if ($cantidad > self::MAX_CANTIDAD) {
-
-            throw new RuntimeException(
-                'Solo puedes comprar hasta 8 unidades de este producto.'
-            );
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Cantidad mínima
+        | No permitir valores menores a 1
         |--------------------------------------------------------------------------
         */
 
@@ -229,36 +278,56 @@ class SessionCartService
             $cantidad
         );
 
-
         /*
         |--------------------------------------------------------------------------
-        | Obtener producto actual
+        | Máximo 8 del mismo producto
         |--------------------------------------------------------------------------
         */
 
-        $product = Product::find(
-            $productId
+        $this->validarCantidadProducto(
+            $cantidad
         );
-
-
-        if (!$product) {
-
-            unset(
-                $cart[$productId]
-            );
-
-            $request->session()->put(
-                self::SESSION_KEY,
-                $cart
-            );
-
-            return $cart;
-        }
-
 
         /*
         |--------------------------------------------------------------------------
-        | Validar stock REAL
+        | Calcular diferencia
+        |--------------------------------------------------------------------------
+        */
+
+        $cantidadActual =
+            (int) $cart[$productId]['quantity'];
+
+        $diferencia =
+            $cantidad - $cantidadActual;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Si estamos aumentando, validar máximo total
+        |--------------------------------------------------------------------------
+        */
+
+        if ($diferencia > 0) {
+
+            $this->validarCantidadTotal(
+                $request,
+                $diferencia
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Obtener producto actualizado
+        |--------------------------------------------------------------------------
+        */
+
+        $product =
+            Product::findOrFail(
+                $productId
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validar stock real
         |--------------------------------------------------------------------------
         */
 
@@ -266,7 +335,6 @@ class SessionCartService
             $product,
             $cantidad
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -276,6 +344,10 @@ class SessionCartService
 
         $cart[$productId]['quantity'] =
             $cantidad;
+
+        /*
+        | Actualizar precio por si cambió
+        */
 
         $cart[$productId]['unit_price'] =
             $product->sale_price;
@@ -287,23 +359,9 @@ class SessionCartService
                 2
             );
 
-
         /*
         |--------------------------------------------------------------------------
-        | Actualizar imagen/nombre por si cambiaron
-        |--------------------------------------------------------------------------
-        */
-
-        $cart[$productId]['name'] =
-            $product->name;
-
-        $cart[$productId]['image'] =
-            $product->image_url;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Guardar sesión
+        | Guardar
         |--------------------------------------------------------------------------
         */
 
@@ -311,7 +369,6 @@ class SessionCartService
             self::SESSION_KEY,
             $cart
         );
-
 
         return $cart;
     }
@@ -327,7 +384,8 @@ class SessionCartService
         int $productId
     ): array {
 
-        $cart = $this->obtener($request);
+        $cart =
+            $this->obtener($request);
 
         unset(
             $cart[$productId]
@@ -373,21 +431,6 @@ class SessionCartService
 
     /*
     |--------------------------------------------------------------------------
-    | Cantidad total de productos
-    |--------------------------------------------------------------------------
-    */
-
-    public function cantidad(
-        Request $request
-    ): int {
-
-        return (int) collect(
-            $this->obtener($request)
-        )->sum('quantity');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
     | Sincronizar carrito de sesión
     |--------------------------------------------------------------------------
     */
@@ -398,12 +441,12 @@ class SessionCartService
         int $userId
     ): void {
 
-        $cart = $this->obtener($request);
+        $cart =
+            $this->obtener($request);
 
         if (empty($cart)) {
             return;
         }
-
 
         foreach ($cart as $item) {
 
@@ -412,9 +455,7 @@ class SessionCartService
                 (int) $item['product_id'],
                 (int) $item['quantity']
             );
-
         }
-
 
         $this->vaciar(
             $request

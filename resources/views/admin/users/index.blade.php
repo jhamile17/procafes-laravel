@@ -355,11 +355,11 @@
              PAGINACIÓN
         ====================================================== --}}
 
-        @if(method_exists($users, 'links'))
+        @if($users->hasPages())
 
             <div class="admin-list-pagination">
 
-                {{ $users->onEachSide(1)->links() }}
+                {{ $users->onEachSide(1)->links('vendor.pagination.paginacion') }}
 
             </div>
 

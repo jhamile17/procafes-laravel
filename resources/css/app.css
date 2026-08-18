@@ -40,6 +40,7 @@
 @import './componentes/alert.css';
 @import './componentes/messages.css';
 @import './componentes/offcanvas-cart.css';
+@import './componentes/paginacion.css';
 
 @import './admin';
 @import './pages/admin/forms.css';

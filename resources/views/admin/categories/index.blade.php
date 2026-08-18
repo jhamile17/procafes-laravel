@@ -263,15 +263,15 @@
              PAGINACIÓN
         ====================================================== --}}
 
-        @if(method_exists($categories, 'links'))
+        @if($categories->hasPages())
 
-            <div class="admin-list-pagination">
+        <div class="admin-list-pagination">
 
-                {{ $categories->onEachSide(1)->links() }}
+            {{ $categories->onEachSide(1)->links('vendor.pagination.paginacion') }}
 
-            </div>
+        </div>
 
-        @endif
+    @endif
 
     </div>
 
