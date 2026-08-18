@@ -6,6 +6,7 @@ namespace App\Services\Catalogo;
 
 use App\Models\Category;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -87,9 +88,11 @@ class CategoryService
     |--------------------------------------------------------------------------
     */
 
-    public function obtenerTodos(): Collection
+    public function obtenerTodos(): LengthAwarePaginator
     {
-        return Category::orderBy('name')->get();
+        return Category::orderBy('name')
+            ->paginate(10)
+            ->withQueryString();
     }
 
     /*

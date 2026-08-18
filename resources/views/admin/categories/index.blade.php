@@ -265,13 +265,13 @@
 
         @if($categories->hasPages())
 
-        <div class="admin-list-pagination">
+            <div class="admin-list-pagination">
 
-            {{ $categories->onEachSide(1)->links('vendor.pagination.paginacion') }}
+                {{ $categories->onEachSide(1)->links('vendor.pagination.paginacion-admin') }}
 
-        </div>
+            </div>
 
-    @endif
+        @endif
 
     </div>
 
