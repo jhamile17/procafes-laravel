@@ -292,13 +292,14 @@ class OrderController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $order->update([
-            'estado_pedido_id' => $nuevoEstado->id,
-        ]);
+        $this->orderService->actualizarEstado(
+            order: $order,
+            codigoEstado: $nuevoEstado->codigo,
+        );
 
         return back()->with(
             'success',
-            'Estado actualizado correctamente.'
+            'Estado actualizado correctamente y se notificó al cliente.'
         );
-    }
+        }
     }

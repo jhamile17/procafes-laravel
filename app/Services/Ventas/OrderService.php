@@ -8,6 +8,7 @@ use App\Models\EstadoPedido;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ShippingAddress;
+use App\Notifications\PedidoEstadoActualizadoNotification;
 use App\Services\Inventario\InventoryService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -250,7 +251,35 @@ class OrderService
             return $order->delete();
         });
     }
+    /*
+        |--------------------------------------------------------------------------
+        | Actualizar estado del pedido
+        |--------------------------------------------------------------------------
+        */
+        public function actualizarEstado(
+            Order $order,
+            string $codigoEstado
+        ): Order {
 
+            return DB::transaction(function () use (
+                $order,
+                $codigoEstado
+            ) {
+
+                $order->loadMissing([
+                    'estadoPedido',
+                    'user',
+                ]);
+
+                return $this->cambiarEstado(
+                    order: $order,
+                    codigoEstado: $codigoEstado,
+                )->fresh([
+                    'estadoPedido',
+                    'user',
+                ]);
+            });
+        }
     /*
     |--------------------------------------------------------------------------
     | Completar pedido
@@ -334,27 +363,67 @@ class OrderService
     */
 
     private function cambiarEstado(
-        Order $order,
-        string $codigoEstado
+    Order $order,
+    string $codigoEstado
     ): Order {
+    $order->loadMissing(
+        'estadoPedido',
+        'user'
+    );
 
-        $estado = $this->obtenerEstadoPedido(
-            $codigoEstado
-        );
+    /*
+    |--------------------------------------------------------------------------
+    | Obtener nuevo estado
+    |--------------------------------------------------------------------------
+    */
 
-        $order->update([
+    $estado = $this->obtenerEstadoPedido(
+        $codigoEstado
+    );
 
-            'estado_pedido_id' => $estado->id,
+    /*
+    |--------------------------------------------------------------------------
+    | Evitar notificación si el estado no cambia
+    |--------------------------------------------------------------------------
+    */
 
-        ]);
-
-        $order->loadMissing(
-            'estadoPedido'
-        );
+    if ($order->estado_pedido_id === $estado->id) {
 
         return $order;
-
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Actualizar estado
+    |--------------------------------------------------------------------------
+    */
+
+    $order->update([
+
+        'estado_pedido_id' => $estado->id,
+
+    ]);
+
+    $order->load([
+        'estadoPedido',
+        'user',
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Notificar al cliente después de confirmar la transacción
+    |--------------------------------------------------------------------------
+    */
+
+    DB::afterCommit(function () use ($order) {
+
+        $order->user?->notify(
+            new PedidoEstadoActualizadoNotification($order)
+        );
+    });
+
+    return $order;
+}
         /*
     |--------------------------------------------------------------------------
     | Crear registro del pedido
