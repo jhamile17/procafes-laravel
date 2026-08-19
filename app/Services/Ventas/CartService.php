@@ -29,7 +29,7 @@ class CartService
         'Solo puedes comprar hasta 8 unidades de este producto.';
 
     private const ERROR_MAX_CANTIDAD_TOTAL =
-        'Límite de compra alcanzado. Puedes comprar hasta 10 productos por pedido.';
+        'Límite de compra alcanzado. Puedes comprar hasta 15 productos por pedido.';
 
 
     public function __construct(

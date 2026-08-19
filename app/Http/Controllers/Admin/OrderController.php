@@ -214,7 +214,6 @@ class OrderController extends Controller
     | Actualizar estado
     |--------------------------------------------------------------------------
     */
-
     public function updateStatus(
         Request $request,
         Order $order
@@ -226,51 +225,80 @@ class OrderController extends Controller
             ],
         ]);
 
-        if (
-            $order->estado_pedido_id ==
-            $request->estado_pedido_id
-        ) {
+        $nuevoEstado = EstadoPedido::query()
+            ->where('id', $request->estado_pedido_id)
+            ->where('status', true)
+            ->firstOrFail();
 
+        $order->loadMissing([
+            'estadoPedido',
+            'items.product',
+            'comprobante.electronicDocument',
+        ]);
+
+        if (
+            $order->estado_pedido_id === $nuevoEstado->id
+        ) {
             return back()->with(
                 'info',
                 'La orden ya tiene ese estado.'
             );
         }
 
-        $order->update([
-            'estado_pedido_id' =>
-                $request->estado_pedido_id,
-        ]);
+        /*
+        |--------------------------------------------------------------------------
+        | Confirmar pedido
+        |--------------------------------------------------------------------------
+        */
 
-        $order->load([
-            'estadoPedido',
-            'comprobante.electronicDocument',
-        ]);
+        if ($nuevoEstado->esConfirmado()) {
 
-        if (
-            $order->estadoPedido?->esConfirmado()
-        ) {
+            $this->orderService->confirmarPedido($order);
 
-            $this->orderService
-                ->confirmarPedido($order);
-
-            $comprobante =
-                $order->comprobante;
+            $comprobante = $order->comprobante;
 
             if (
                 $comprobante &&
                 ! $comprobante->yaFueEmitido()
             ) {
-
-                $this->nubeFactService
-                    ->emitir($comprobante);
+                $this->nubeFactService->emitir($comprobante);
             }
+
+            return back()->with(
+                'success',
+                'Pedido confirmado correctamente.'
+            );
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cancelar pedido
+        |--------------------------------------------------------------------------
+        */
+
+        if ($nuevoEstado->esCancelado()) {
+
+            $this->orderService->cancelarPedido($order);
+
+            return back()->with(
+                'success',
+                'Pedido cancelado correctamente y stock restaurado.'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Otros estados
+        |--------------------------------------------------------------------------
+        */
+
+        $order->update([
+            'estado_pedido_id' => $nuevoEstado->id,
+        ]);
 
         return back()->with(
             'success',
             'Estado actualizado correctamente.'
         );
     }
-    
-}
+    }

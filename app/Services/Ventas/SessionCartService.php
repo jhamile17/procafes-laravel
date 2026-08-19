@@ -80,7 +80,7 @@ class SessionCartService
         ) {
 
             throw new RuntimeException(
-                'Límite de compra alcanzado. Puedes comprar hasta 10 productos por pedido.'
+                'Límite de compra alcanzado. Puedes comprar hasta 15 productos por pedido.'
             );
         }
     }

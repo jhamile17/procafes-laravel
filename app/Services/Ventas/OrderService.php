@@ -50,6 +50,10 @@ class OrderService
                 order: $order,
                 cart: $cart,
             );
+            $this->descontarStock($order);
+            $order->update([
+                'stock_descontado' => true,
+            ]);
             $order->load([
                 'user',
                 'shippingAddress',
@@ -122,81 +126,129 @@ class OrderService
     /*Confirmar pedido*/
 
     public function confirmarPedido(
-        Order $order
+    Order $order
     ): Order {
+    return DB::transaction(function () use ($order) {
+        $order->loadMissing(
+            'estadoPedido',
+            'items.product',
+        );
+        /*
+        |--------------------------------------------------------------------------
+        | Evitar doble descuento
+        |--------------------------------------------------------------------------
+        */
+        if ($order->estadoPedido->esConfirmado()) {
 
-        return $this->cambiarEstado(
+            return $order->fresh([
+                'estadoPedido',
+                'items.product',
+            ]);
+        }
+        /*
+        |--------------------------------------------------------------------------
+        | Solo se pueden confirmar pedidos pendientes
+        |--------------------------------------------------------------------------
+        */
+        if (! $order->estadoPedido->esPendiente()) {
 
+            throw new RuntimeException(
+                'Solo se pueden confirmar pedidos pendientes.'
+            );
+        }
+
+        if (! $order->stock_descontado) {
+            $this->descontarStock($order);
+            $order->update([
+                'stock_descontado' => true,
+            ]);
+        }
+        $this->cambiarEstado(
             order: $order,
-
             codigoEstado: EstadoPedido::CONFIRMADO,
-
         );
 
-    }
+        return $order->fresh([
+            'estadoPedido',
+            'items.product',
+        ]);
+
+    });
+}
 
     /*
     |--------------------------------------------------------------------------
     | Cancelar pedido
     |--------------------------------------------------------------------------
     */
-
     public function cancelarPedido(
         Order $order
     ): Order {
-
+    return DB::transaction(function () use ($order) {
         $order->loadMissing(
-            'estadoPedido'
+            'estadoPedido',
+            'items.product',
         );
-
         if ($order->estadoPedido->esCancelado()) {
 
             throw new RuntimeException(
                 'El pedido ya fue cancelado.'
             );
+        }
+        if (! $order->estadoPedido->esPendiente()) {
 
+            throw new RuntimeException(
+                'Solo se pueden cancelar pedidos pendientes.'
+            );
+        }
+        if ($order->stock_descontado) {
+
+            $this->devolverStock($order);
+
+            $order->update([
+                'stock_descontado' => false,
+            ]);
         }
 
-        return $this->cambiarEstado(
-
+        $this->cambiarEstado(
             order: $order,
-
             codigoEstado: EstadoPedido::CANCELADO,
-
         );
 
-    }
+        return $order->fresh([
+            'estadoPedido',
+            'items.product',
+        ]);
+    });
+}
 
     /*
     |--------------------------------------------------------------------------
     | Eliminar pedido
     |--------------------------------------------------------------------------
     */
-
     public function eliminarPedido(
         Order $order
     ): bool {
-
-        $order->loadMissing(
-            'estadoPedido'
-        );
-
-        if (! $order->estadoPedido->esPendiente()) {
-
-            throw new RuntimeException(
-                'Solo se pueden eliminar pedidos pendientes.'
-            );
-
-        }
-
         return DB::transaction(function () use ($order) {
-
+            $order->loadMissing(
+                'estadoPedido',
+                'items.product',
+            );
+            if (! $order->estadoPedido->esPendiente()) {
+                throw new RuntimeException(
+                    'Solo se pueden eliminar pedidos pendientes.'
+                );
+            }
+            if ($order->stock_descontado) {
+                $this->devolverStock($order);
+                $order->update([
+                    'stock_descontado' => false,
+                ]);
+            }
             $order->items()->delete();
-
             return $order->delete();
-
         });
-
     }
 
     /*
@@ -206,38 +258,34 @@ class OrderService
     */
 
     public function completarPedido(
-        Order $order
+    Order $order
     ): Order {
+    return DB::transaction(function () use ($order) {
 
-        return DB::transaction(function () use ($order) {
+        $order->loadMissing(
+            'estadoPedido',
+            'items.product',
+        );
 
-            $order->loadMissing(
-                'estadoPedido',
-                'items.product',
+        if (! $order->estadoPedido->esConfirmado()) {
+
+            throw new RuntimeException(
+                'Solo se puede completar pedidos confirmados.'
             );
-            if(! $order->estadoPedido->esConfirmado()){
-                throw new RuntimeException(
-                    'Solo se puede completar pedidos confirmados.'
-                );
-            }
+        }
 
-            $this->cambiarEstado(
-                order: $order,
-                codigoEstado: EstadoPedido::ENTREGADO,
-            );
+        $this->cambiarEstado(
+            order: $order,
+            codigoEstado: EstadoPedido::ENTREGADO,
+        );
 
-            $this->descontarStock(
-                $order
-            );
+        return $order->fresh([
+            'estadoPedido',
+            'items.product',
+        ]);
 
-            return $order->fresh([
-                'estadoPedido',
-                'items.product',
-            ]);
-
-        });
-
-    }
+    });
+}
 
     /*
     |--------------------------------------------------------------------------
@@ -259,14 +307,26 @@ class OrderService
 
                 product: $item->product,
 
-                quantity: $item->quantity,
+                cantidad: $item->quantity,
 
             );
 
         }
 
     }
-
+    private function devolverStock(
+        Order $order
+    ):void{
+        $order->loadMissing(
+            'items.product'
+        );
+        foreach($order->items as $item){
+            $this->inventoryService->entrada(
+                product: $item->product,
+                cantidad: $item->quantity,
+            );
+        }
+    }
     /*
     |--------------------------------------------------------------------------
     | Cambiar estado

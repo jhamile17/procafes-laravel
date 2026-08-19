@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Checkout\CheckoutRequest;
 use App\Services\Checkout\CheckoutService;
+use App\Services\Ventas\CartService;
 use App\Services\Pagos\PaymentService;
 use App\Notifications\PedidoRealizadoNotification;
 use Illuminate\Http\RedirectResponse;
@@ -18,6 +19,7 @@ class CheckoutController extends Controller
     public function __construct(
         protected CheckoutService $checkoutService,
         protected PaymentService $paymentService,
+        protected CartService $cartService,
     ) {
     }
 
@@ -67,6 +69,9 @@ class CheckoutController extends Controller
 
             $payment = $this->paymentService
                 ->iniciarPagoPorPedido($order);
+            $this->cartService->vaciarPorUsuario(
+                auth()->id()
+            );
 
             if (! $this->paymentService->esMercadoPago($payment)) {
 

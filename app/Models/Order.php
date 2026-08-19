@@ -40,6 +40,7 @@ class Order extends Model
         'total_price',
         'delivery_type',
         'observaciones',
+        'stock_descontado'
 
     ];
 
@@ -58,6 +59,7 @@ class Order extends Model
             'subtotal' => 'decimal:2',
             'igv' => 'decimal:2',
             'total_price' => 'decimal:2',
+            'stock_descontado' => 'boolean',
         ];
     }
 
