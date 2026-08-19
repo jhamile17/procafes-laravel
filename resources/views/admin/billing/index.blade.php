@@ -98,9 +98,7 @@
 
             <select
                 name="estado"
-                class="admin-billing-status"
-            >
-
+                class="admin-billing-status">
                 <option value="">
                     Todos los estados
                 </option>
@@ -261,39 +259,21 @@
 
                                 @if($order->comprobante)
 
-                                    <div class="admin-billing-document">
+                                <div class="admin-billing-document">
 
-                                        <span class="admin-billing-document-type">
-
-                                            {{ $order->comprobante->tipo
-                                                ? ucfirst($order->comprobante->tipo)
-                                                : 'Comprobante'
-                                            }}
-
-                                        </span>
-
-                                        <strong>
-
-                                            {{ $order->comprobante->serie ?? '—' }}
-
-                                            -
-
-                                            {{ $order->comprobante->numero ?? '—' }}
-
-                                        </strong>
-
-                                    </div>
-
-                                @else
-
-                                    <span class="admin-billing-muted">
-                                        Sin comprobante
+                                    <span class="admin-billing-document-type">
+                                        {{ $order->comprobante->tipo_comprobante }}
                                     </span>
 
-                                @endif
+                                </div>
 
-                            </td>
+                            @else
 
+                                <span class="admin-billing-muted">
+                                    Sin comprobante
+                                </span>
+
+                            @endif
 
                             {{-- =================================================
                                  ESTADO

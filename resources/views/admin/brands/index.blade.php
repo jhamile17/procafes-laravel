@@ -263,13 +263,13 @@
              PAGINACIÓN
         ====================================================== --}}
 
-        @if(method_exists($brands, 'links'))
+      @if(method_exists($brands, 'links'))
 
-            <div class="admin-list-pagination">
+        <div class="admin-list-pagination">
 
-                {{ $brands->onEachSide(1)->links('vendor.pagination.paginacion') }}
+            {{ $brands->onEachSide(1)->links('vendor.pagination.paginacion-admin') }}
 
-            </div>
+        </div>
 
         @endif
 

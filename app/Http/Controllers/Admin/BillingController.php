@@ -29,7 +29,53 @@ class BillingController extends Controller
         $numeroPedido = trim(
             $request->get('numero_pedido', '')
         );
+
         $estado = $request->get('estado');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Detectar automáticamente el estado cuando se busca por pedido
+        |--------------------------------------------------------------------------
+        */
+
+        if ($numeroPedido !== '') {
+
+            $pedidoEncontrado = Order::query()
+                ->with([
+                    'comprobante.estadoComprobante',
+                ])
+                ->where(
+                    'numero_pedido',
+                    'like',
+                    '%' . $numeroPedido . '%'
+                )
+                ->first();
+
+            if ($pedidoEncontrado) {
+
+                $estado = $pedidoEncontrado
+                    ->comprobante
+                    ?->estadoComprobante
+                    ?->codigo;
+
+                /*
+                |----------------------------------------------------------------------
+                | Si no tiene comprobante, se considera PENDIENTE
+                |----------------------------------------------------------------------
+                */
+
+                if (! $estado) {
+                    $estado = 'PENDIENTE';
+                }
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pedidos
+        |--------------------------------------------------------------------------
+        */
+
         $orders = Order::query()
             ->with([
                 'user',
@@ -61,13 +107,41 @@ class BillingController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Filtrar por estado del comprobante
+            | Filtro manual por estado
             |--------------------------------------------------------------------------
+            |
+            | Solo se utiliza cuando NO se está buscando un número de pedido.
+            |
             */
 
             ->when(
-                $estado !== null && $estado !== '',
+                $numeroPedido === '' &&
+                $estado !== null &&
+                $estado !== '',
                 function ($query) use ($estado) {
+
+                    if ($estado === 'PENDIENTE') {
+
+                        $query->where(function ($query) {
+
+                            $query
+                                ->doesntHave(
+                                    'comprobante'
+                                )
+                                ->orWhereHas(
+                                    'comprobante.estadoComprobante',
+                                    function ($query) {
+
+                                        $query->where(
+                                            'codigo',
+                                            'PENDIENTE'
+                                        );
+                                    }
+                                );
+                        });
+
+                        return;
+                    }
 
                     $query->whereHas(
                         'comprobante.estadoComprobante',
@@ -92,24 +166,19 @@ class BillingController extends Controller
             ->paginate(8)
             ->withQueryString();
 
-
         /*
         |--------------------------------------------------------------------------
         | Estados disponibles
         |--------------------------------------------------------------------------
-        |
-        | estados_comprobante NO tiene columna status.
-        |
         */
 
         $estados = EstadoComprobante::query()
             ->orderBy('id')
             ->get();
 
-
         /*
         |--------------------------------------------------------------------------
-        | Estadísticas existentes
+        | Estadísticas
         |--------------------------------------------------------------------------
         */
 
@@ -125,7 +194,6 @@ class BillingController extends Controller
             'estado',
             'aceptado'
         )->count();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -147,7 +215,6 @@ class BillingController extends Controller
             )
         );
     }
-
 
     /**
      * Buscar pedido.
