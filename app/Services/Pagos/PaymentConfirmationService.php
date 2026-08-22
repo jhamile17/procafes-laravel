@@ -7,15 +7,13 @@ namespace App\Services\Pagos;
 use App\Models\Payment;
 use App\Services\Ventas\CartService;
 use App\Services\Facturacion\NubeFactService;
-use App\Services\Ventas\OrderService;
-use App\Notifications\PedidoRealizadoNotification;
+use App\Notifications\PagoConfirmadoNotification;
 use Illuminate\Support\Facades\DB;
 
 final class PaymentConfirmationService
 {
     public function __construct(
         protected PaymentService $paymentService,
-        protected OrderService $orderService,
         protected CartService $cartService,
         protected NubeFactService $nubeFactService,
     ) {
@@ -38,7 +36,6 @@ final class PaymentConfirmationService
             $transactionId,
             $transactionData
         ) {
-            
 
             /*
             |--------------------------------------------------------------------------
@@ -48,11 +45,12 @@ final class PaymentConfirmationService
 
             $payment->loadMissing([
                 'order.comprobante.electronicDocument',
+                'order.user',
             ]);
 
             /*
             |--------------------------------------------------------------------------
-            | Confirmar pago
+            | Confirmar SOLAMENTE el pago
             |--------------------------------------------------------------------------
             */
 
@@ -64,33 +62,45 @@ final class PaymentConfirmationService
 
             /*
             |--------------------------------------------------------------------------
-            | Confirmar pedido
+            | Emitir comprobante
             |--------------------------------------------------------------------------
             */
 
-            $this->orderService->confirmarPedido(
-                $payment->order
-            );
-            /*
-            |--------------------------------------------------------------------------
-            | Emitir comprobante (solo una vez)
-            |--------------------------------------------------------------------------
-            */
             $comprobante = $payment->order->comprobante;
-            if ($comprobante &&! $comprobante->yaFueEmitido()
+
+            if (
+                $comprobante &&
+                ! $comprobante->yaFueEmitido()
             ) {
                 $this->nubeFactService->emitir($comprobante);
             }
-             /*vaciar carrito despues de la compra */
+
+            /*
+            |--------------------------------------------------------------------------
+            | Vaciar carrito
+            |--------------------------------------------------------------------------
+            */
+
             $this->cartService->vaciarPorUsuario(
                 $payment->order->user_id
             );
 
-            $payment->order->user->notify(
-                new PedidoRealizadoNotification(
-                    $payment->order
-                )
-            );
+            /*
+            |--------------------------------------------------------------------------
+            | Notificar pago confirmado
+            |--------------------------------------------------------------------------
+            */
+
+            DB::afterCommit(function () use ($payment) {
+
+                $payment->order->user?->notify(
+                    new PagoConfirmadoNotification(
+                        $payment->order
+                    )
+                );
+
+            });
+
             /*
             |--------------------------------------------------------------------------
             | Retornar información actualizada
@@ -102,8 +112,6 @@ final class PaymentConfirmationService
                 'paymentMethod',
                 'estadoPago',
             ]);
-
         });
-
     }
 }

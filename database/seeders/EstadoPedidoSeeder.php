@@ -49,6 +49,15 @@ class EstadoPedidoSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'codigo' => 'LISTO_RECOJO',
+                'nombre' => 'Listo para recoger',
+                'descripcion' => 'El pedido está listo para ser recogido en tienda.',
+                'status' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+
+            ],
 
             [
                 'codigo' => 'ENTREGADO',

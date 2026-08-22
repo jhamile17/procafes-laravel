@@ -257,65 +257,232 @@ class OrderService
         |--------------------------------------------------------------------------
         */
         public function actualizarEstado(
-            Order $order,
-            string $codigoEstado
-        ): Order {
+    Order $order,
+    string $codigoEstado
+): Order {
 
-            return DB::transaction(function () use (
-                $order,
-                $codigoEstado
-            ) {
+    return DB::transaction(function () use (
+        $order,
+        $codigoEstado
+    ) {
 
-                $order->loadMissing([
-                    'estadoPedido',
-                    'user',
-                ]);
+        $order->loadMissing([
+            'estadoPedido',
+            'user',
+        ]);
+
+        $estadoActual = $order->estadoPedido;
+
+        $nuevoEstado = $this->obtenerEstadoPedido(
+            $codigoEstado
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | No hacer nada si ya tiene ese estado
+        |--------------------------------------------------------------------------
+        */
+
+        if ($order->estado_pedido_id === $nuevoEstado->id) {
+
+            return $order->fresh([
+                'estadoPedido',
+                'user',
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Estados finales
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $estadoActual->esCancelado() ||
+            $estadoActual->esEntregado()
+        ) {
+
+            throw new RuntimeException(
+                'Este pedido ya no puede cambiar de estado.'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cancelar
+        |--------------------------------------------------------------------------
+        */
+
+        if ($nuevoEstado->esCancelado()) {
+
+            return $this->cancelarPedido($order);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Confirmar
+        |--------------------------------------------------------------------------
+        |
+        | IMPORTANTE:
+        | Confirmar el pedido NO confirma el pago.
+        |
+        */
+
+        if ($nuevoEstado->esConfirmado()) {
+
+            return $this->confirmarPedido($order);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | No se puede saltar directamente desde pendiente
+        |--------------------------------------------------------------------------
+        */
+
+        if ($estadoActual->esPendiente()) {
+
+            throw new RuntimeException(
+                'Primero debes confirmar el pedido.'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONFIRMADO → PREPARACION
+        |--------------------------------------------------------------------------
+        */
+
+        if ($estadoActual->esConfirmado()) {
+
+            if ($nuevoEstado->esPreparacion()) {
 
                 return $this->cambiarEstado(
                     order: $order,
-                    codigoEstado: $codigoEstado,
+                    codigoEstado: EstadoPedido::PREPARACION,
                 )->fresh([
                     'estadoPedido',
                     'user',
                 ]);
-            });
-        }
-    /*
-    |--------------------------------------------------------------------------
-    | Completar pedido
-    |--------------------------------------------------------------------------
-    */
-
-    public function completarPedido(
-    Order $order
-    ): Order {
-    return DB::transaction(function () use ($order) {
-
-        $order->loadMissing(
-            'estadoPedido',
-            'items.product',
-        );
-
-        if (! $order->estadoPedido->esConfirmado()) {
+            }
 
             throw new RuntimeException(
-                'Solo se puede completar pedidos confirmados.'
+                'El siguiente estado debe ser En preparación.'
             );
         }
 
-        $this->cambiarEstado(
-            order: $order,
-            codigoEstado: EstadoPedido::ENTREGADO,
+        /*
+        |--------------------------------------------------------------------------
+        | PREPARACION → siguiente según entrega
+        |--------------------------------------------------------------------------
+        */
+
+        if ($estadoActual->esPreparacion()) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | RECOJO EN TIENDA
+            |--------------------------------------------------------------------------
+            */
+
+            if ($this->esRecojoEnTienda($order)) {
+
+                if ($nuevoEstado->esListoRecojo()) {
+
+                    return $this->cambiarEstado(
+                        order: $order,
+                        codigoEstado: EstadoPedido::LISTO_RECOJO,
+                    )->fresh([
+                        'estadoPedido',
+                        'user',
+                    ]);
+                }
+
+                throw new RuntimeException(
+                    'El siguiente estado para recojo en tienda debe ser Listo para recoger.'
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | DELIVERY
+            |--------------------------------------------------------------------------
+            */
+
+            if ($nuevoEstado->esEnCamino()) {
+
+                return $this->cambiarEstado(
+                    order: $order,
+                    codigoEstado: EstadoPedido::EN_CAMINO,
+                )->fresh([
+                    'estadoPedido',
+                    'user',
+                ]);
+            }
+
+            throw new RuntimeException(
+                'El siguiente estado para delivery debe ser En camino.'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | EN_CAMINO → ENTREGADO
+        |--------------------------------------------------------------------------
+        */
+
+        if ($estadoActual->esEnCamino()) {
+
+            if ($nuevoEstado->esEntregado()) {
+
+                return $this->cambiarEstado(
+                    order: $order,
+                    codigoEstado: EstadoPedido::ENTREGADO,
+                )->fresh([
+                    'estadoPedido',
+                    'user',
+                ]);
+            }
+
+            throw new RuntimeException(
+                'El siguiente estado debe ser Entregado.'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | LISTO_RECOJO → ENTREGADO
+        |--------------------------------------------------------------------------
+        */
+
+        if ($estadoActual->esListoRecojo()) {
+
+            if ($nuevoEstado->esEntregado()) {
+
+                return $this->cambiarEstado(
+                    order: $order,
+                    codigoEstado: EstadoPedido::ENTREGADO,
+                )->fresh([
+                    'estadoPedido',
+                    'user',
+                ]);
+            }
+
+            throw new RuntimeException(
+                'El siguiente estado debe ser Entregado.'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Estado no contemplado
+        |--------------------------------------------------------------------------
+        */
+
+        throw new RuntimeException(
+            'La transición de estado solicitada no es válida.'
         );
-
-        return $order->fresh([
-            'estadoPedido',
-            'items.product',
-        ]);
-
     });
 }
-
     /*
     |--------------------------------------------------------------------------
     | Descontar stock
@@ -355,6 +522,19 @@ class OrderService
                 cantidad: $item->quantity,
             );
         }
+    }
+    private function esRecojoEnTienda(
+        Order $order
+    ): bool{
+        return in_array(
+            strtoupper((string) $order->delivery_type),
+            [
+                'PICKUP',
+                'RECOJO',
+                'RECOJO_EN_TIENDA',
+            ],
+            true
+        );
     }
     /*
     |--------------------------------------------------------------------------

@@ -7,13 +7,12 @@ use App\Models\Order;
 use App\Models\EstadoPedido;
 use Illuminate\Http\Request;
 use App\Services\Ventas\OrderService;
-use App\Services\Facturacion\NubeFactService;
+use RuntimeException;
 
 class OrderController extends Controller
 {
     public function __construct(
         protected OrderService $orderService,
-        protected NubeFactService $nubeFactService,
     ) {
     }
 
@@ -59,6 +58,8 @@ class OrderController extends Controller
             ->with([
                 'user',
                 'estadoPedido',
+                'payment.paymentMethod',
+                'payment.estadoPago',
             ])
 
             ->when($q !== '', function ($query) use ($q) {
@@ -214,36 +215,42 @@ class OrderController extends Controller
     | Actualizar estado
     |--------------------------------------------------------------------------
     */
-    public function updateStatus(
-        Request $request,
-        Order $order
-    ) {
-        $request->validate([
-            'estado_pedido_id' => [
-                'required',
-                'exists:estados_pedido,id',
-            ],
-        ]);
+   public function updateStatus(
+    Request $request,
+    Order $order
+) {
+    $request->validate([
+        'estado_pedido_id' => [
+            'required',
+            'exists:estados_pedido,id',
+        ],
+    ]);
 
-        $nuevoEstado = EstadoPedido::query()
-            ->where('id', $request->estado_pedido_id)
-            ->where('status', true)
-            ->firstOrFail();
+    $nuevoEstado = EstadoPedido::query()
+        ->where('id', $request->estado_pedido_id)
+        ->where('status', true)
+        ->firstOrFail();
 
-        $order->loadMissing([
-            'estadoPedido',
-            'items.product',
-            'comprobante.electronicDocument',
-        ]);
+    $order->loadMissing([
+        'estadoPedido',
+        'items.product',
+    ]);
 
-        if (
-            $order->estado_pedido_id === $nuevoEstado->id
-        ) {
-            return back()->with(
-                'info',
-                'La orden ya tiene ese estado.'
-            );
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | El estado ya es el mismo
+    |--------------------------------------------------------------------------
+    */
+
+    if ($order->estado_pedido_id === $nuevoEstado->id) {
+
+        return back()->with(
+            'info',
+            'La orden ya tiene ese estado.'
+        );
+    }
+
+    try {
 
         /*
         |--------------------------------------------------------------------------
@@ -254,15 +261,6 @@ class OrderController extends Controller
         if ($nuevoEstado->esConfirmado()) {
 
             $this->orderService->confirmarPedido($order);
-
-            $comprobante = $order->comprobante;
-
-            if (
-                $comprobante &&
-                ! $comprobante->yaFueEmitido()
-            ) {
-                $this->nubeFactService->emitir($comprobante);
-            }
 
             return back()->with(
                 'success',
@@ -301,5 +299,13 @@ class OrderController extends Controller
             'success',
             'Estado actualizado correctamente y se notificó al cliente.'
         );
-        }
+
+    } catch (RuntimeException $e) {
+
+        return back()->with(
+            'error',
+            $e->getMessage()
+        );
     }
+}
+}

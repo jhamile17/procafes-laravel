@@ -28,19 +28,16 @@
 
         'PENDIENTE'
             => '#F59E0B',
-
         'CONFIRMADO'
             => '#16A34A',
-
         'PREPARACION'
             => '#D97706',
-
+        'LISTO_RECOJO'
+            => '#7C3AED',
         'EN_CAMINO'
             => '#2563EB',
-
         'ENTREGADO'
             => '#16A34A',
-
         'CANCELADO'
             => '#DC2626',
 
@@ -58,7 +55,8 @@
 
         'PREPARACION'
             => 'Tu pedido está siendo preparado. ¡Ya falta poco!',
-
+        'LISTO_RECOJO'
+            => 'Tu pedido está listo para recoger en nuestra tienda. Puedes acercarte a recogerlo cuando estés listo.',
         'EN_CAMINO'
             => 'Tu pedido está en camino. Pronto llegará a su destino.',
 
@@ -82,13 +80,12 @@
 
         'PREPARACION'
             => '¡Tu pedido está en preparación!',
-
+        'LISTO_RECOJO'
+            => '¡Tu pedido está listo para recoger!',
         'EN_CAMINO'
             => '¡Tu pedido está en camino!',
-
         'ENTREGADO'
             => '¡Pedido entregado!',
-
         'CANCELADO'
             => 'Pedido cancelado',
 

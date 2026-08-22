@@ -6,10 +6,6 @@
 
 <div class="admin-list-page">
 
-    {{-- =====================================================
-         ENCABEZADO
-    ====================================================== --}}
-
     <div class="admin-list-header">
 
         <div class="admin-list-heading">
@@ -35,11 +31,6 @@
         </div>
 
     </div>
-
-
-    {{-- =====================================================
-         MENSAJES
-    ====================================================== --}}
 
     @if(session('success'))
 
@@ -69,11 +60,19 @@
         </div>
 
     @endif
+    @if(session('error'))
 
+    <div class="admin-list-message admin-list-message-error">
 
-    {{-- =====================================================
-         FILTROS
-    ====================================================== --}}
+        <i class="bi bi-exclamation-triangle-fill"></i>
+
+        <span>
+            {{ session('error') }}
+        </span>
+
+    </div>
+
+    @endif
 
     <div class="admin-list-card admin-order-filter-card">
 
@@ -287,18 +286,49 @@
                                     >
 
                                         @foreach($estados as $estado)
+                                              @php
+                                                $esRecojo = in_array(
+                                                    strtoupper((string) $order->delivery_type),
+                                                    [
+                                                        'PICKUP',
+                                                        'RECOJO',
+                                                        'RECOJO_EN_TIENDA',
+                                                    ],
+                                                    true
+                                                );
+                                                $estadosPermitidos = $esRecojo
+                                                    ? [
+                                                        'PENDIENTE',
+                                                        'CONFIRMADO',
+                                                        'PREPARACION',
+                                                        'LISTO_RECOJO',
+                                                        'ENTREGADO',
+                                                        'CANCELADO',
+                                                    ]
+                                                    : [
+                                                        'PENDIENTE',
+                                                        'CONFIRMADO',
+                                                        'PREPARACION',
+                                                        'EN_CAMINO',
+                                                        'ENTREGADO',
+                                                        'CANCELADO',
+                                                    ];
+                                            @endphp
+                                                @if(in_array($estado->codigo, $estadosPermitidos, true))
 
-                                            <option
-                                                value="{{ $estado->id }}"
-                                                @selected(
-                                                    $estado->id ===
-                                                    $order->estado_pedido_id
-                                                )
-                                            >
+                                                <option
+                                                    value="{{ $estado->id }}"
+                                                    @selected(
+                                                        $estado->id ===
+                                                        $order->estado_pedido_id
+                                                    )
+                                                >
 
-                                                {{ $estado->nombre }}
+                                                    {{ $estado->nombre }}
 
-                                            </option>
+                                                </option>
+
+                                            @endif
 
                                         @endforeach
 
@@ -370,6 +400,45 @@
                                         <i class="bi bi-eye-fill"></i>
 
                                     </a>
+                                     {{-- Aprobar pago en tienda --}}
+
+                                        @if(
+                                            $order->payment &&
+                                            $order->payment->paymentMethod?->codigo === 'store' &&
+                                            $order->payment->estadoPago?->codigo === 'PENDING'
+                                        )
+
+                                            <form
+                                                action="{{ route(
+                                                    'admin.billing.approve-payment',
+                                                    $order
+                                                ) }}"
+                                                method="POST"
+                                                style="display:inline;"
+                                            >
+
+                                                @csrf
+
+                                                @method('PATCH')
+
+                                                <button
+                                                    type="submit"
+                                                    class="admin-action"
+                                                    title="Aprobar pago"
+                                                    onclick="return confirm(
+                                                        '¿Confirmas que el cliente realizó el pago?'
+                                                    )"
+                                                >
+
+                                                    <i class="bi bi-cash-coin"></i>
+
+                                                </button>
+
+                                            </form>
+
+                                        @endif
+
+                                    </div>
 
                                 </div>
 

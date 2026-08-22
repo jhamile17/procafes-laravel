@@ -18,10 +18,13 @@ class EstadoPedido extends Model
     |--------------------------------------------------------------------------
     */
 
-    public const PENDIENTE  = 'PENDIENTE';
-    public const CONFIRMADO = 'CONFIRMADO';
-    public const CANCELADO  = 'CANCELADO';
-    public const ENTREGADO  = 'ENTREGADO';
+    public const PENDIENTE     = 'PENDIENTE';
+    public const CONFIRMADO    = 'CONFIRMADO';
+    public const PREPARACION   = 'PREPARACION';
+    public const EN_CAMINO     = 'EN_CAMINO';
+    public const LISTO_RECOJO  = 'LISTO_RECOJO';
+    public const ENTREGADO     = 'ENTREGADO';
+    public const CANCELADO     = 'CANCELADO';
 
     /*
     |--------------------------------------------------------------------------
@@ -38,7 +41,7 @@ class EstadoPedido extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Conversión de atributos
+    | Casts
     |--------------------------------------------------------------------------
     */
 
@@ -73,7 +76,7 @@ class EstadoPedido extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Métodos auxiliares
+    | Helpers
     |--------------------------------------------------------------------------
     */
 
@@ -81,12 +84,6 @@ class EstadoPedido extends Model
     {
         return $this->status;
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Helpers de estado
-    |--------------------------------------------------------------------------
-    */
 
     public function esPendiente(): bool
     {
@@ -98,26 +95,48 @@ class EstadoPedido extends Model
         return $this->codigo === self::CONFIRMADO;
     }
 
-    public function esCancelado(): bool
+    public function esPreparacion(): bool
     {
-        return $this->codigo === self::CANCELADO;
+        return $this->codigo === self::PREPARACION;
+    }
+
+    public function esEnCamino(): bool
+    {
+        return $this->codigo === self::EN_CAMINO;
+    }
+
+    public function esListoRecojo(): bool
+    {
+        return $this->codigo === self::LISTO_RECOJO;
     }
 
     public function esEntregado(): bool
     {
         return $this->codigo === self::ENTREGADO;
     }
-        /**
-     * Obtener la clase CSS del estado.
-     */
+
+    public function esCancelado(): bool
+    {
+        return $this->codigo === self::CANCELADO;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Badge
+    |--------------------------------------------------------------------------
+    */
+
     public function getBadgeClass(): string
     {
         return match ($this->codigo) {
-            self::PENDIENTE  => 'pending',
-            self::CONFIRMADO => 'processing',
-            self::ENTREGADO  => 'completed',
-            self::CANCELADO  => 'cancelled',
-            default          => 'default',
+            self::PENDIENTE    => 'pending',
+            self::CONFIRMADO   => 'processing',
+            self::PREPARACION  => 'processing',
+            self::EN_CAMINO    => 'processing',
+            self::LISTO_RECOJO => 'processing',
+            self::ENTREGADO   => 'completed',
+            self::CANCELADO   => 'cancelled',
+            default            => 'default',
         };
     }
 }
