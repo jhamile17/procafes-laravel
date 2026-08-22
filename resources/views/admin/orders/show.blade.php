@@ -32,13 +32,26 @@
 
         </div>
 
-        <a
-            href="{{ route('admin.orders.index') }}"
-            class="admin-form-btn admin-form-btn-save"
-        >
-            <i class="bi bi-arrow-left"></i>
-            Volver a órdenes
-        </a>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+
+            <a
+                href="{{ route('admin.orders.download', $order) }}"
+                class="admin-form-btn admin-form-btn-save"
+                target="_blank"
+            >
+                <i class="bi bi-file-earmark-pdf-fill"></i>
+                Descargar pedido
+            </a>
+
+            <a
+                href="{{ route('admin.orders.index') }}"
+                class="admin-form-btn admin-form-btn-save"
+            >
+                <i class="bi bi-arrow-left"></i>
+                Volver a órdenes
+            </a>
+
+        </div>
 
     </div>
 
@@ -101,6 +114,36 @@
                         </strong>
 
                     </div>
+                    <div class="admin-order-detail-info">
+                    <span>
+                        Teléfono
+                    </span>
+
+                    @if($order->user?->celular)
+
+                        <a
+                            href="https://wa.me/51{{ preg_replace('/\D/', '', $order->user->celular) }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="
+                                color:#25D366;
+                                text-decoration:none;
+                                font-weight:600;
+                            "
+                        >
+                            <i class="bi bi-whatsapp"></i>
+                            {{ $order->user->celular }}
+                        </a>
+
+                    @else
+
+                        <strong>
+                            No registrado
+                        </strong>
+
+                    @endif
+
+                </div>
 
 
                     <div class="admin-order-detail-info">

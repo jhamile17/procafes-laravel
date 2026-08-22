@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\EstadoPedido;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use App\Services\Ventas\OrderService;
 use RuntimeException;
@@ -307,5 +308,64 @@ class OrderController extends Controller
             $e->getMessage()
         );
     }
+}
+/*
+|--------------------------------------------------------------------------
+| Descargar pedido en PDF
+|--------------------------------------------------------------------------
+*/
+
+public function download(Order $order)
+{
+    $order->load([
+        'user',
+        'estadoPedido',
+        'items.product',
+    ]);
+
+    $order->delivery_label = match (
+        strtoupper((string) $order->delivery_type)
+    ) {
+        'RECOJO',
+        'PICKUP',
+        'RECOJO_EN_TIENDA'
+            => 'Recojo en tienda',
+
+        'DELIVERY',
+        'ENVIO',
+        'ENVÍO'
+            => 'Delivery',
+
+        default
+            => 'Delivery',
+    };
+
+    $order->created_at_formatted =
+        $order->created_at?->format('d/m/Y H:i');
+
+    $items = $order->items;
+
+    $pdf = Pdf::loadView(
+        'admin.orders.pdf',
+        compact(
+            'order',
+            'items'
+        )
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tamaño de ticket
+    |--------------------------------------------------------------------------
+    */
+
+    $pdf->setPaper(
+        [0, 0, 226.77, 500],
+        'portrait'
+    );
+
+    return $pdf->download(
+        'orden-' . $order->numero_pedido . '.pdf'
+    );
 }
 }

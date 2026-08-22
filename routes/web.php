@@ -374,7 +374,8 @@ Route::prefix('admin')
         
         Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])
             ->name('orders.status');
-
+        Route::get('orders/{order}/download',[OrderController::class, 'download']
+                )->name('orders.download');
         Route::get(
             '/configuracion-empresa',
             [ConfiguracionEmpresaController::class, 'index']
