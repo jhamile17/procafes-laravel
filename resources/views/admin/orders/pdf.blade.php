@@ -2,6 +2,7 @@
 <html lang="es">
 
 <head>
+
     <meta charset="UTF-8">
 
     <title>
@@ -11,7 +12,6 @@
     <style>
 
         @page {
-            size: 80mm auto;
             margin: 4mm;
         }
 
@@ -27,6 +27,10 @@
             color: #222;
             font-size: 10px;
         }
+
+        /* =====================================================
+           ENCABEZADO
+        ====================================================== */
 
         .header {
             text-align: center;
@@ -46,6 +50,16 @@
             font-weight: bold;
         }
 
+        .date {
+            margin-top: 3px;
+            color: #666666;
+            font-size: 9px;
+        }
+
+        /* =====================================================
+           INFORMACIÓN DEL CLIENTE
+        ====================================================== */
+
         .info {
             padding: 7px 0;
             border-bottom: 1px dashed #555;
@@ -63,6 +77,10 @@
             font-weight: bold;
         }
 
+        /* =====================================================
+           TIPO DE ENTREGA
+        ====================================================== */
+
         .delivery {
             margin: 7px 0;
             padding: 5px;
@@ -71,6 +89,10 @@
             font-weight: bold;
             text-transform: uppercase;
         }
+
+        /* =====================================================
+           PRODUCTOS
+        ====================================================== */
 
         .products-title {
             margin-top: 7px;
@@ -103,6 +125,23 @@
             padding-left: 5px !important;
         }
 
+        /* =====================================================
+           TOTAL
+        ====================================================== */
+
+        .total {
+            margin-top: 8px;
+            padding-top: 7px;
+            border-top: 2px solid #333;
+            text-align: right;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        /* =====================================================
+           PIE
+        ====================================================== */
+
         .footer {
             margin-top: 8px;
             padding-top: 6px;
@@ -115,9 +154,12 @@
 
 </head>
 
+
 <body>
 
-    {{-- ENCABEZADO --}}
+    {{-- =====================================================
+         ENCABEZADO
+    ====================================================== --}}
 
     <div class="header">
 
@@ -129,10 +171,16 @@
             {{ $order->numero_pedido }}
         </div>
 
+        <div class="date">
+            {{ $order->created_at_formatted }}
+        </div>
+
     </div>
 
 
-    {{-- CLIENTE --}}
+    {{-- =====================================================
+         CLIENTE
+    ====================================================== --}}
 
     <div class="info">
 
@@ -145,6 +193,7 @@
             {{ $order->user?->name ?? 'No registrado' }}
 
         </div>
+
 
         <div class="info-row">
 
@@ -159,7 +208,9 @@
     </div>
 
 
-    {{-- TIPO DE ENTREGA --}}
+    {{-- =====================================================
+         TIPO DE ENTREGA
+    ====================================================== --}}
 
     <div class="delivery">
 
@@ -168,11 +219,14 @@
     </div>
 
 
-    {{-- PRODUCTOS --}}
+    {{-- =====================================================
+         PRODUCTOS
+    ====================================================== --}}
 
     <div class="products-title">
         Productos
     </div>
+
 
     <table class="products">
 
@@ -209,11 +263,28 @@
     </table>
 
 
+    {{-- =====================================================
+         TOTAL
+    ====================================================== --}}
+
+    <div class="total">
+
+        TOTAL:
+        S/ {{ number_format($order->total_price, 2) }}
+
+    </div>
+
+
+    {{-- =====================================================
+         PIE
+    ====================================================== --}}
+
     <div class="footer">
 
         PROCÁFES
 
     </div>
+
 
 </body>
 
