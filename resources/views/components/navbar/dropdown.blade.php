@@ -38,32 +38,6 @@
         </li>
 
 
-        <li>
-
-            <a
-                href="{{ route('customer.profile') }}"
-                class="navbar-dropdown-item"
-            >
-
-                <span class="navbar-dropdown-icon">
-
-                    <i
-                        class="bi bi-person"
-                        aria-hidden="true">
-                    </i>
-
-                </span>
-
-                <span class="navbar-dropdown-text">
-
-                    Mi perfil
-
-                </span>
-
-            </a>
-
-        </li>
-
 
     {{-- ==========================================================
         CLIENTE
