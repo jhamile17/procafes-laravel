@@ -24,7 +24,7 @@
             </div>
 
             <a
-                href="{{ route('products', ['category' => 'accesorios']) }}"
+                href="{{ route('products', ['categoria' => 14]) }}"
                 class="btn-link-arrow"
                 aria-label="Ver accesorios para métodos de preparación">
 
