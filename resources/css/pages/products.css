@@ -50,3 +50,1081 @@
     color:#fff;
     box-shadow:0 4px 12px rgba(175, 40, 40, .18);
 }
+/*=========================================================
+    BOTÓN VER DETALLE
+=========================================================*/
+
+.product-detail-btn {
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: .45rem;
+
+    margin-bottom: .6rem;
+
+    padding: .65rem 1rem;
+
+    border: 1px solid var(--color-primary);
+
+    border-radius: var(--radius-md);
+
+    background: transparent;
+
+    color: var(--color-primary);
+
+    font-family: var(--font-body);
+
+    font-size: .85rem;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background .2s ease,
+        color .2s ease,
+        transform .2s ease;
+}
+
+
+.product-detail-btn:hover {
+
+    background: var(--color-primary);
+
+    color: #fff;
+
+    transform: translateY(-1px);
+
+}
+
+
+.product-detail-btn i {
+
+    font-size: .9rem;
+
+}
+
+
+/*=========================================================
+    MODAL PRODUCTO
+=========================================================*/
+
+.product-detail-modal .modal-content {
+
+    border: none;
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+}
+
+
+.product-detail-modal .modal-header {
+
+    padding: 1.2rem 1.5rem;
+
+    border-bottom: 1px solid #eee;
+
+}
+
+
+.product-detail-modal .modal-title {
+
+    font-family: var(--font-heading);
+
+    font-weight: 700;
+
+}
+
+
+.product-detail-modal .modal-body {
+
+    padding: 1.5rem;
+
+}
+
+
+/*=========================================================
+    CONTENIDO
+=========================================================*/
+
+.product-detail-content {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 2rem;
+
+    align-items: center;
+
+}
+
+
+/*=========================================================
+    IMAGEN
+=========================================================*/
+
+.product-detail-image {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 320px;
+
+    background: #fafafa;
+
+    border-radius: 15px;
+
+    padding: 1.5rem;
+
+}
+
+
+.product-detail-image img {
+
+    width: 100%;
+
+    max-width: 330px;
+
+    height: 300px;
+
+    object-fit: contain;
+
+}
+
+
+/*=========================================================
+    INFORMACIÓN
+=========================================================*/
+
+.product-detail-info h2 {
+
+    margin: .5rem 0 1rem;
+
+    font-family: var(--font-heading);
+
+    font-size: 1.8rem;
+
+    font-weight: 700;
+
+}
+
+
+.product-detail-category {
+
+    display: inline-block;
+
+    padding: .35rem .7rem;
+
+    border-radius: 999px;
+
+    background: var(--color-primary-soft);
+
+    color: var(--color-primary);
+
+    font-size: .75rem;
+
+    font-weight: 600;
+
+}
+
+
+.product-detail-brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: .4rem;
+
+    margin-bottom: 1rem;
+
+    color: #777;
+
+    font-size: .85rem;
+
+}
+
+
+.product-detail-price {
+
+    margin-bottom: .8rem;
+
+    font-size: 1.5rem;
+
+    font-weight: 700;
+
+    color: var(--color-primary);
+
+}
+
+
+.product-detail-stock {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: .4rem;
+
+    margin-bottom: 1.2rem;
+
+    color: var(--color-success);
+
+    font-size: .85rem;
+
+    font-weight: 600;
+
+}
+
+
+.product-detail-description {
+
+    margin-top: 1rem;
+
+}
+
+
+.product-detail-description h6 {
+
+    margin-bottom: .4rem;
+
+    font-weight: 700;
+
+}
+
+
+.product-detail-description p {
+
+    margin: 0;
+
+    color: #666;
+
+    font-size: .9rem;
+
+    line-height: 1.6;
+
+}
+
+
+.product-detail-meta {
+
+    margin-top: 1rem;
+
+}
+
+
+.product-detail-meta > div {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: .5rem;
+
+    color: #666;
+
+    font-size: .85rem;
+
+}
+
+
+.product-detail-action {
+
+    margin-top: 1.5rem;
+
+}
+
+/*=========================================================
+    MODAL DETALLE DEL PRODUCTO
+=========================================================*/
+
+.product-detail-modal .modal-dialog {
+    max-width: 920px;
+    margin: 1.75rem auto;
+}
+
+.product-detail-modal .modal-content {
+    border: 0;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 25px 70px rgba(48, 34, 28, .22);
+}
+
+
+/*=========================================================
+    HEADER
+=========================================================*/
+
+.product-detail-modal .modal-header {
+    padding: 1.35rem 1.6rem;
+    border-bottom: 1px solid #eee8e4;
+    background: #fff;
+}
+
+.product-detail-modal .modal-title {
+    margin: 0;
+    color: #3b2b27;
+    font-family: var(--font-heading, 'Poppins', sans-serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.product-detail-modal .btn-close {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    background-color: #f7f3f0;
+    opacity: 1;
+    transition: all .2s ease;
+}
+
+.product-detail-modal .btn-close:hover {
+    background-color: #eee7e2;
+    transform: rotate(90deg);
+}
+
+
+/*=========================================================
+    BODY
+=========================================================*/
+
+.product-detail-modal .modal-body {
+    padding: 0;
+}
+
+.product-detail-content {
+    display: grid;
+    grid-template-columns: 46% 54%;
+    min-height: 480px;
+}
+
+
+/*=========================================================
+    IMAGEN
+=========================================================*/
+
+.product-detail-image {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 480px;
+    padding: 2.5rem;
+    background:
+        linear-gradient(
+            145deg,
+            #faf8f6 0%,
+            #f3eee9 100%
+        );
+}
+
+.product-detail-image::before {
+    content: "";
+    position: absolute;
+    width: 270px;
+    height: 270px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .65);
+}
+
+.product-detail-image img {
+    position: relative;
+    z-index: 1;
+
+    width: 100%;
+    max-width: 360px;
+    height: 360px;
+
+    object-fit: contain;
+
+    filter: drop-shadow(
+        0 20px 25px rgba(59, 43, 39, .14)
+    );
+
+    transition: transform .35s ease;
+}
+
+.product-detail-image:hover img {
+    transform: scale(1.04);
+}
+
+
+/*=========================================================
+    INFORMACIÓN
+=========================================================*/
+
+.product-detail-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    padding: 2.5rem 3rem;
+
+    background: #fff;
+}
+
+.product-detail-category {
+    display: inline-flex;
+    align-items: center;
+
+    width: fit-content;
+
+    margin-bottom: .75rem;
+    padding: .4rem .75rem;
+
+    border-radius: 999px;
+
+    background: #fff1f1;
+    color: #df2929;
+
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+
+.product-detail-info h2 {
+    margin: 0 0 .5rem;
+
+    color: #392b27;
+
+    font-family: var(--font-heading, 'Poppins', sans-serif);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+
+/*=========================================================
+    MARCA
+=========================================================*/
+
+.product-detail-brand {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+
+    margin-bottom: 1rem;
+
+    color: #8b817c;
+
+    font-size: .85rem;
+    font-weight: 500;
+}
+
+.product-detail-brand i {
+    color: #b49a75;
+}
+
+
+/*=========================================================
+    PRECIO
+=========================================================*/
+
+.product-detail-price {
+    margin-bottom: 1rem;
+
+    color: #df2929;
+
+    font-family: var(--font-heading, 'Poppins', sans-serif);
+    font-size: 1.8rem;
+    font-weight: 800;
+}
+
+
+/*=========================================================
+    STOCK
+=========================================================*/
+
+.product-detail-stock {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+
+    width: fit-content;
+
+    margin-bottom: 1.4rem;
+    padding: .45rem .75rem;
+
+    border-radius: 999px;
+
+    background: #edf9f1;
+    color: #18a558;
+
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.product-detail-stock i {
+    font-size: .85rem;
+}
+
+/*=========================================================
+    MODAL DETALLE DEL PRODUCTO
+=========================================================*/
+
+.product-detail-modal .modal-dialog {
+    max-width: 860px;
+    margin: 1.5rem auto;
+}
+
+.product-detail-modal .modal-content {
+    border: 0;
+    border-radius: 22px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 25px 70px rgba(48, 34, 28, .20);
+}
+
+
+/*=========================================================
+    HEADER
+=========================================================*/
+
+.product-detail-modal .modal-header {
+    padding: 1.15rem 1.5rem;
+    border-bottom: 1px solid #eee8e4;
+    background: #fff;
+}
+
+.product-detail-modal .modal-title {
+    margin: 0;
+
+    color: #3b2b27;
+
+    font-family: var(--font-heading, 'Poppins', sans-serif);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.product-detail-modal .btn-close {
+    width: 38px;
+    height: 38px;
+
+    padding: 0;
+
+    border-radius: 50%;
+
+    background-color: #f7f3f0;
+
+    opacity: 1;
+
+    transition:
+        background-color .2s ease,
+        transform .2s ease;
+}
+
+.product-detail-modal .btn-close:hover {
+    background-color: #eee7e2;
+    transform: rotate(90deg);
+}
+
+
+/*=========================================================
+    CONTENIDO
+=========================================================*/
+
+.product-detail-content {
+    display: grid;
+
+    grid-template-columns: 42% 58%;
+
+    min-height: 400px;
+}
+
+
+/*=========================================================
+    IMAGEN
+=========================================================*/
+
+.product-detail-image {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 400px;
+
+    padding: 2rem;
+
+    background:
+        linear-gradient(
+            145deg,
+            #faf8f6 0%,
+            #f3eee9 100%
+        );
+
+}
+
+
+/* Círculo decorativo */
+
+.product-detail-image::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 220px;
+    height: 220px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, .65);
+
+}
+
+
+/* Imagen */
+
+.product-detail-image img {
+
+    position: relative;
+
+    z-index: 1;
+
+    width: 100%;
+
+    max-width: 270px;
+
+    height: 270px;
+
+    object-fit: contain;
+
+    filter:
+        drop-shadow(
+            0 16px 22px rgba(59, 43, 39, .14)
+        );
+
+    transition:
+        transform .3s ease;
+}
+
+.product-detail-image:hover img {
+
+    transform: scale(1.03);
+
+}
+
+
+/*=========================================================
+    INFORMACIÓN
+=========================================================*/
+
+.product-detail-info {
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    padding: 2.25rem 2.5rem;
+
+    background: #fff;
+
+}
+
+
+/*=========================================================
+    CATEGORÍA
+=========================================================*/
+
+.product-detail-category {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    width: fit-content;
+
+    margin-bottom: .7rem;
+
+    padding: .4rem .75rem;
+
+    border-radius: 999px;
+
+    background: #fff1f1;
+
+    color: #df2929;
+
+    font-size: .7rem;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: .03em;
+
+}
+
+
+/*=========================================================
+    NOMBRE
+=========================================================*/
+
+.product-detail-info h2 {
+
+    margin: 0 0 .4rem;
+
+    color: #392b27;
+
+    font-family:
+        var(--font-heading, 'Poppins', sans-serif);
+
+    font-size: 2rem;
+
+    font-weight: 700;
+
+    line-height: 1.15;
+
+}
+
+
+/*=========================================================
+    MARCA
+=========================================================*/
+
+.product-detail-brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: .45rem;
+
+    margin-bottom: .9rem;
+
+    color: #8b817c;
+
+    font-size: .85rem;
+
+    font-weight: 500;
+}
+
+.product-detail-brand i {
+
+    color: #b49a75;
+
+}
+
+
+/*=========================================================
+    PRECIO
+=========================================================*/
+
+.product-detail-price {
+
+    margin-bottom: .8rem;
+
+    color: #df2929;
+
+    font-family:
+        var(--font-heading, 'Poppins', sans-serif);
+
+    font-size: 1.75rem;
+
+    font-weight: 800;
+
+}
+
+
+/*=========================================================
+    STOCK
+=========================================================*/
+
+.product-detail-stock {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: .45rem;
+
+    width: fit-content;
+
+    margin-bottom: 1.25rem;
+
+    padding: .4rem .7rem;
+
+    border-radius: 999px;
+
+    background: #edf9f1;
+
+    color: #18a558;
+
+    font-size: .76rem;
+
+    font-weight: 700;
+}
+
+
+/*=========================================================
+    DESCRIPCIÓN
+=========================================================*/
+
+.product-detail-description {
+
+    margin-bottom: 1.25rem;
+
+}
+
+.product-detail-description h6 {
+
+    margin-bottom: .45rem;
+
+    color: #3b2b27;
+
+    font-family:
+        var(--font-heading, 'Poppins', sans-serif);
+
+    font-size: .95rem;
+
+    font-weight: 700;
+
+}
+
+.product-detail-description p {
+
+    margin: 0;
+
+    color: #655b56;
+
+    font-family:
+        var(--font-body, 'Poppins', sans-serif);
+
+    font-size: .95rem;
+
+    font-weight: 400;
+
+    line-height: 1.65;
+
+}
+
+
+/*=========================================================
+    CARACTERÍSTICAS
+=========================================================*/
+
+.product-detail-meta {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: .6rem;
+
+    margin-bottom: 1.25rem;
+
+}
+
+.product-detail-meta > div {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: .45rem;
+
+    padding: .55rem .75rem;
+
+    border: 1px solid #eee7e2;
+
+    border-radius: 10px;
+
+    color: #655a55;
+
+    font-size: .8rem;
+
+    font-weight: 600;
+
+}
+
+.product-detail-meta i {
+
+    color: #b49a75;
+
+    font-size: .95rem;
+
+}
+
+
+/*=========================================================
+    BOTÓN CARRITO
+=========================================================*/
+
+.product-detail-action {
+
+    margin-top: .25rem;
+
+}
+
+.product-detail-action .btn-add-to-cart {
+
+    width: 100%;
+
+    min-height: 50px;
+
+    border-radius: 14px;
+
+    font-size: .9rem;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 8px 18px rgba(223, 41, 41, .16);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.product-detail-action .btn-add-to-cart:hover:not(:disabled) {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 25px rgba(223, 41, 41, .23);
+
+}
+
+
+/*=========================================================
+    ANIMACIÓN
+=========================================================*/
+
+.product-detail-modal .modal-content {
+
+    animation:
+        productModalIn .25s ease;
+
+}
+
+@keyframes productModalIn {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            scale(.97)
+            translateY(8px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            scale(1)
+            translateY(0);
+
+    }
+
+}
+
+
+/*=========================================================
+    BACKDROP
+=========================================================*/
+
+.modal-backdrop.show {
+
+    opacity: .55;
+
+}
+
+
+/*=========================================================
+    MÓVIL
+=========================================================*/
+
+@media (max-width: 767px) {
+
+    .product-detail-modal .modal-dialog {
+
+        margin: .7rem;
+
+    }
+
+    .product-detail-modal .modal-content {
+
+        border-radius: 18px;
+
+    }
+
+    .product-detail-content {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .product-detail-image {
+
+        min-height: 250px;
+
+        padding: 1.25rem;
+
+    }
+
+    .product-detail-image::before {
+
+        width: 170px;
+
+        height: 170px;
+
+    }
+
+    .product-detail-image img {
+
+        max-width: 210px;
+
+        height: 210px;
+
+    }
+
+    .product-detail-info {
+
+        padding: 1.5rem;
+
+    }
+
+    .product-detail-info h2 {
+
+        font-size: 1.45rem;
+
+    }
+
+    .product-detail-price {
+
+        font-size: 1.5rem;
+
+    }
+
+    .product-detail-description p {
+
+        font-size: .9rem;
+
+        line-height: 1.6;
+
+    }
+
+}
