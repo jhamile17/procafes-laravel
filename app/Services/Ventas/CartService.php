@@ -21,7 +21,7 @@ class CartService
 
     private const MAX_CANTIDAD_PRODUCTO = 8;
 
-    private const MAX_CANTIDAD_TOTAL = 15;
+    private const MAX_CANTIDAD_TOTAL = 10;
 
     private const IGV = 0.18;
 
@@ -29,7 +29,7 @@ class CartService
         'Solo puedes comprar hasta 8 unidades de este producto.';
 
     private const ERROR_MAX_CANTIDAD_TOTAL =
-        'Límite de compra alcanzado. Puedes comprar hasta 15 productos por pedido.';
+        'Límite de compra alcanzado. Puedes comprar hasta 10 productos por pedido.';
 
 
     public function __construct(

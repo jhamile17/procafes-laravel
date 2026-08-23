@@ -21,7 +21,7 @@ class SessionCartService
 
     private const MAX_CANTIDAD_PRODUCTO = 8;
 
-    private const MAX_CANTIDAD_TOTAL = 15;
+    private const MAX_CANTIDAD_TOTAL = 10;
 
     private const IGV = 0.18;
 
@@ -80,7 +80,7 @@ class SessionCartService
         ) {
 
             throw new RuntimeException(
-                'Límite de compra alcanzado. Puedes comprar hasta 15 productos por pedido.'
+                'Límite de compra alcanzado. Puedes comprar hasta 10 productos por pedido.'
             );
         }
     }
