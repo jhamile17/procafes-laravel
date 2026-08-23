@@ -43,9 +43,14 @@ class ConfiguracionEmpresaService
 
             $configuracion->update([
 
-                'nombre_empresa' => $datos['nombre_empresa'],
-
-                'ruc' => $datos['ruc'],
+                /*
+                |--------------------------------------------------------------------------
+                | Datos institucionales
+                |--------------------------------------------------------------------------
+                |
+                | nombre_empresa y ruc NO se actualizan desde el administrador.
+                |
+                */
 
                 'correo' => $datos['correo'],
 
@@ -53,7 +58,29 @@ class ConfiguracionEmpresaService
 
                 'direccion' => $datos['direccion'],
 
+                /*
+                |--------------------------------------------------------------------------
+                | Horario de atención
+                |--------------------------------------------------------------------------
+                */
+
+                'hora_apertura' => $datos['hora_apertura'],
+
+                'hora_cierre' => $datos['hora_cierre'],
+
+                /*
+                |--------------------------------------------------------------------------
+                | Logo
+                |--------------------------------------------------------------------------
+                */
+
                 'logo' => $datos['logo'] ?? $configuracion->logo,
+
+                /*
+                |--------------------------------------------------------------------------
+                | Redes sociales
+                |--------------------------------------------------------------------------
+                */
 
                 'facebook' => $datos['facebook'] ?? null,
 
@@ -171,7 +198,12 @@ class ConfiguracionEmpresaService
             'instagram' => $configuracion->instagram,
 
             'tiktok' => $configuracion->tiktok,
+
             'whatsapp' => $configuracion->whatsapp,
+
+            'hora_apertura' => $configuracion->hora_apertura,
+
+            'hora_cierre' => $configuracion->hora_cierre,
 
         ];
     }

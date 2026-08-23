@@ -29,8 +29,8 @@
                 </h1>
 
                 <p class="admin-form-subtitle">
-                    Administra la información institucional utilizada
-                    en la tienda y en la facturación electrónica.
+                    Administra la información institucional,
+                    el horario de atención y las redes sociales de PROCÁFES.
                 </p>
 
             </div>
@@ -138,6 +138,7 @@
     >
 
         @csrf
+
         @method('PUT')
 
 
@@ -175,7 +176,9 @@
                 <div class="admin-form-grid">
 
 
-                    {{-- NOMBRE DE EMPRESA --}}
+                    {{-- =================================================
+                        NOMBRE DE EMPRESA
+                    ================================================== --}}
 
                     <div class="admin-form-field admin-form-field-wide">
 
@@ -190,24 +193,22 @@
                         <input
                             type="text"
                             id="nombre_empresa"
-                            name="nombre_empresa"
-                            value="{{ old('nombre_empresa', $configuracion->nombre_empresa) }}"
-                            class="admin-form-input @error('nombre_empresa') is-invalid @enderror"
-                            placeholder="Nombre de la empresa"
+                            value="{{ $configuracion->nombre_empresa }}"
+                            class="admin-form-input"
+                            readonly
                         >
 
-                        @error('nombre_empresa')
-
-                            <div class="admin-form-error">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
+                        <div class="admin-form-help">
+                            <i class="bi bi-lock-fill"></i>
+                            Dato institucional no modificable.
+                        </div>
 
                     </div>
 
 
-                    {{-- RUC --}}
+                    {{-- =================================================
+                        RUC
+                    ================================================== --}}
 
                     <div class="admin-form-field">
 
@@ -222,25 +223,22 @@
                         <input
                             type="text"
                             id="ruc"
-                            name="ruc"
-                            value="{{ old('ruc', $configuracion->ruc) }}"
-                            class="admin-form-input @error('ruc') is-invalid @enderror"
-                            placeholder="20123456789"
-                            maxlength="11"
+                            value="{{ $configuracion->ruc }}"
+                            class="admin-form-input"
+                            readonly
                         >
 
-                        @error('ruc')
-
-                            <div class="admin-form-error">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
+                        <div class="admin-form-help">
+                            <i class="bi bi-lock-fill"></i>
+                            Dato fiscal no modificable.
+                        </div>
 
                     </div>
 
 
-                    {{-- CORREO --}}
+                    {{-- =================================================
+                        CORREO
+                    ================================================== --}}
 
                     <div class="admin-form-field">
 
@@ -272,7 +270,9 @@
                     </div>
 
 
-                    {{-- TELÉFONO --}}
+                    {{-- =================================================
+                        TELÉFONO
+                    ================================================== --}}
 
                     <div class="admin-form-field">
 
@@ -303,7 +303,9 @@
                     </div>
 
 
-                    {{-- DIRECCIÓN --}}
+                    {{-- =================================================
+                        DIRECCIÓN
+                    ================================================== --}}
 
                     <div class="admin-form-field-full">
 
@@ -331,6 +333,122 @@
                             </div>
 
                         @enderror
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- =================================================
+            HORARIO DE ATENCIÓN
+        ================================================== --}}
+
+        <div class="admin-form-card">
+
+            <div class="admin-form-card-header">
+
+                <div class="admin-form-section-icon admin-form-section-icon-gold">
+
+                    <i class="bi bi-clock"></i>
+
+                </div>
+
+                <div>
+
+                    <h3 class="admin-form-card-title">
+                        Horario de atención
+                    </h3>
+
+                    <p class="admin-form-card-subtitle">
+                        Define el horario en el que PROCÁFES recibe pedidos.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="admin-form-card-body">
+
+                <div class="admin-form-grid">
+
+
+                    {{-- HORA DE APERTURA --}}
+
+                    <div class="admin-form-field">
+
+                        <label
+                            for="hora_apertura"
+                            class="admin-form-label"
+                        >
+                            Hora de apertura
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="time"
+                            id="hora_apertura"
+                            name="hora_apertura"
+                            value="{{ old('hora_apertura', $configuracion->hora_apertura ? \Carbon\Carbon::parse($configuracion->hora_apertura)->format('H:i') : '08:00') }}"
+                            class="admin-form-input @error('hora_apertura') is-invalid @enderror"
+                        >
+
+                        @error('hora_apertura')
+
+                            <div class="admin-form-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    {{-- HORA DE CIERRE --}}
+
+                    <div class="admin-form-field">
+
+                        <label
+                            for="hora_cierre"
+                            class="admin-form-label"
+                        >
+                            Hora de cierre
+                            <span>*</span>
+                        </label>
+
+                        <input
+                            type="time"
+                            id="hora_cierre"
+                            name="hora_cierre"
+                            value="{{ old('hora_cierre', $configuracion->hora_cierre ? \Carbon\Carbon::parse($configuracion->hora_cierre)->format('H:i') : '23:00') }}"
+                            class="admin-form-input @error('hora_cierre') is-invalid @enderror"
+                        >
+
+                        @error('hora_cierre')
+
+                            <div class="admin-form-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    <div class="admin-form-field-full">
+
+                        <div class="admin-form-help">
+
+                            <i class="bi bi-info-circle"></i>
+
+                            Los clientes solo podrán realizar pedidos
+                            dentro de este horario.
+
+                        </div>
 
                     </div>
 

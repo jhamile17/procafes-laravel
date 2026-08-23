@@ -100,14 +100,23 @@ class CheckoutController extends Controller
                     '¡Pedido creado correctamente! Tu pedido fue registrado. Te enviamos los detalles a tu correo electrónico.'
                 );
 
-        } catch (Throwable $e) {
+        } catch (RuntimeException $e) {
 
-            report($e);
+                report($e);
 
-            return back()->with(
-                'error',
-                'Ocurrió un error al procesar el pedido.'
-            );
+                return back()->with(
+                    'error',
+                    $e->getMessage()
+                );
+
+            } catch (Throwable $e) {
+
+                report($e);
+
+                return back()->with(
+                    'error',
+                    'Ocurrió un error al procesar el pedido.'
+                );
         }
     }
 }

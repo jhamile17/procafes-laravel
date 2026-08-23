@@ -22,6 +22,8 @@ class ConfiguracionEmpresa extends Model
         'instagram',
         'tiktok',
         'whatsapp',
+        'hora_apertura',
+        'hora_cierre',
     ];
 
     /**

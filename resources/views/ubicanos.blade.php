@@ -5,21 +5,52 @@
 @section('content')
 
 @php
+
+    /*
+    |--------------------------------------------------------------------------
+    | GOOGLE MAPS
+    |--------------------------------------------------------------------------
+    */
+
     $mapsQuery = urlencode(
         $empresa->nombre_empresa . ' ' . $empresa->direccion
     );
 
     $gmapLink = "https://www.google.com/maps/search/?api=1&query={$mapsQuery}";
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HORARIO DE ATENCIÓN
+    |--------------------------------------------------------------------------
+    */
+
+    $horaApertura = $empresa->hora_apertura
+        ? \Carbon\Carbon::parse($empresa->hora_apertura)->format('g:i A')
+        : null;
+
+    $horaCierre = $empresa->hora_cierre
+        ? \Carbon\Carbon::parse($empresa->hora_cierre)->format('g:i A')
+        : null;
+
 @endphp
 
-{{-- Hero --}}
+
+{{-- ==========================================================
+    HERO
+=========================================================== --}}
+
 <x-hero
     image="ubicanos-hero.jpg"
     title="Visítanos,<br><span>te esperamos con el mejor café</span>"
     subtitle="Descubre un espacio acogedor donde el aroma, el sabor y la pasión por el café se unen para brindarte una experiencia única."
 />
 
-{{-- Información de contacto --}}
+
+{{-- ==========================================================
+    INFORMACIÓN DE CONTACTO
+=========================================================== --}}
+
 <section class="location-info">
 
     <div class="container">
@@ -37,20 +68,31 @@
             <div class="section-divider"></div>
 
             <p class="section-description">
-                Te esperamos en un ambiente cálido y acogedor, donde cada taza de café está preparada con dedicación para brindarte una experiencia única.
+
+                Te esperamos en un ambiente cálido y acogedor,
+                donde cada taza de café está preparada con dedicación
+                para brindarte una experiencia única.
+
             </p>
 
         </div>
 
+
         <div class="row g-4">
 
-            {{-- Dirección --}}
+
+            {{-- ==================================================
+                DIRECCIÓN
+            =================================================== --}}
+
             <div class="col-lg-3 col-md-6">
 
                 <article class="location-card">
 
                     <div class="location-icon">
+
                         <i class="bi bi-geo-alt"></i>
+
                     </div>
 
                     <h3 class="location-title">
@@ -58,20 +100,28 @@
                     </h3>
 
                     <p class="location-text">
+
                         {{ $empresa->direccion }}
+
                     </p>
 
                 </article>
 
             </div>
 
-            {{-- Teléfono --}}
+
+            {{-- ==================================================
+                TELÉFONO
+            =================================================== --}}
+
             <div class="col-lg-3 col-md-6">
 
                 <article class="location-card">
 
                     <div class="location-icon">
+
                         <i class="bi bi-telephone"></i>
+
                     </div>
 
                     <h3 class="location-title">
@@ -79,20 +129,28 @@
                     </h3>
 
                     <p class="location-text">
+
                         {{ $empresa->telefono }}
+
                     </p>
 
                 </article>
 
             </div>
 
-            {{-- Horario --}}
+
+            {{-- ==================================================
+                HORARIO
+            =================================================== --}}
+
             <div class="col-lg-3 col-md-6">
 
                 <article class="location-card">
 
                     <div class="location-icon">
+
                         <i class="bi bi-clock"></i>
+
                     </div>
 
                     <h3 class="location-title">
@@ -100,21 +158,40 @@
                     </h3>
 
                     <p class="location-text">
+
                         Lun - Dom<br>
-                        8:00 AM - 8:00 PM
+
+                        @if($horaApertura && $horaCierre)
+
+                            {{ $horaApertura }}
+                            -
+                            {{ $horaCierre }}
+
+                        @else
+
+                            Horario no disponible
+
+                        @endif
+
                     </p>
 
                 </article>
 
             </div>
 
-            {{-- Correo --}}
+
+            {{-- ==================================================
+                CORREO
+            =================================================== --}}
+
             <div class="col-lg-3 col-md-6">
 
                 <article class="location-card">
 
                     <div class="location-icon">
+
                         <i class="bi bi-envelope"></i>
+
                     </div>
 
                     <h3 class="location-title">
@@ -122,7 +199,9 @@
                     </h3>
 
                     <p class="location-text">
+
                         {{ $empresa->correo }}
+
                     </p>
 
                 </article>
@@ -135,7 +214,11 @@
 
 </section>
 
-{{-- Mapa --}}
+
+{{-- ==========================================================
+    MAPA
+=========================================================== --}}
+
 <section class="location-map">
 
     <div class="container">
@@ -153,10 +236,15 @@
             <div class="section-divider"></div>
 
             <p class="section-description">
-                Encuéntranos fácilmente y disfruta de un ambiente diseñado para compartir el mejor café y momentos inolvidables.
+
+                Encuéntranos fácilmente y disfruta de un ambiente
+                diseñado para compartir el mejor café y momentos
+                inolvidables.
+
             </p>
 
         </div>
+
 
         <div class="location-map-card">
 
@@ -173,7 +261,11 @@
 
 </section>
 
-{{-- CTA --}}
+
+{{-- ==========================================================
+    CTA
+=========================================================== --}}
+
 <section class="location-cta">
 
     <div class="container">
@@ -189,15 +281,25 @@
             </h2>
 
             <p class="location-cta-description">
-                Comparte un buen café con nosotros en un ambiente cálido y acogedor. En PROCÁFES cada visita está pensada para brindarte una experiencia especial.
+
+                Comparte un buen café con nosotros en un ambiente
+                cálido y acogedor. En PROCÁFES cada visita está pensada
+                para brindarte una experiencia especial.
+
             </p>
 
+
             <div class="location-cta-buttons">
+
+
+                {{-- GOOGLE MAPS --}}
 
                 <a
                     href="{{ $gmapLink }}"
                     target="_blank"
-                    class="btn-primary-custom">
+                    rel="noopener noreferrer"
+                    class="btn-primary-custom"
+                >
 
                     <i class="bi bi-geo-alt"></i>
 
@@ -205,9 +307,13 @@
 
                 </a>
 
+
+                {{-- LLAMAR --}}
+
                 <a
                     href="tel:{{ preg_replace('/\D/', '', $empresa->telefono) }}"
-                    class="btn-secondary-custom">
+                    class="btn-secondary-custom"
+                >
 
                     <i class="bi bi-telephone"></i>
 
@@ -222,5 +328,6 @@
     </div>
 
 </section>
+
 
 @endsection

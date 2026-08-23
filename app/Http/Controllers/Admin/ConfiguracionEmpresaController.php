@@ -44,23 +44,86 @@ class ConfiguracionEmpresaController extends Controller
     {
         $datos = $request->validate([
 
-            'nombre_empresa' => ['required', 'string', 'max:150'],
+            /*
+            |--------------------------------------------------------------------------
+            | Datos institucionales NO modificables
+            |--------------------------------------------------------------------------
+            |
+            | nombre_empresa y ruc no se reciben desde el formulario.
+            | Se mantienen únicamente como información de la empresa.
+            |
+            */
 
-            'ruc' => ['required', 'digits:11'],
+            'correo' => [
+                'required',
+                'email',
+                'max:150',
+            ],
 
-            'correo' => ['required', 'email', 'max:150'],
+            'telefono' => [
+                'required',
+                'string',
+                'max:20',
+            ],
 
-            'telefono' => ['required', 'string', 'max:20'],
+            'direccion' => [
+                'required',
+                'string',
+                'max:255',
+            ],
 
-            'direccion' => ['required', 'string', 'max:255'],
+            /*
+            |--------------------------------------------------------------------------
+            | Horario de atención
+            |--------------------------------------------------------------------------
+            */
 
-            'facebook' => ['nullable', 'url', 'max:255'],
+            'hora_apertura' => [
+                'required',
+                'date_format:H:i',
+            ],
 
-            'instagram' => ['nullable', 'url', 'max:255'],
+            'hora_cierre' => [
+                'required',
+                'date_format:H:i',
+            ],
 
-            'tiktok' => ['nullable', 'url', 'max:255'],
+            /*
+            |--------------------------------------------------------------------------
+            | Redes sociales
+            |--------------------------------------------------------------------------
+            */
 
-            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'facebook' => [
+                'nullable',
+                'url',
+                'max:255',
+            ],
+
+            'instagram' => [
+                'nullable',
+                'url',
+                'max:255',
+            ],
+
+            'tiktok' => [
+                'nullable',
+                'url',
+                'max:255',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Logo
+            |--------------------------------------------------------------------------
+            */
+
+            'logo' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048',
+            ],
 
         ]);
 
@@ -78,15 +141,29 @@ class ConfiguracionEmpresaController extends Controller
                 $configuracion->logo &&
                 Storage::disk('public')->exists($configuracion->logo)
             ) {
-                Storage::disk('public')->delete($configuracion->logo);
+
+                Storage::disk('public')->delete(
+                    $configuracion->logo
+                );
             }
 
             $datos['logo'] = $request
                 ->file('logo')
-                ->store('configuracion', 'public');
+                ->store(
+                    'configuracion',
+                    'public'
+                );
         }
 
-        $this->configuracionService->actualizar($datos);
+        /*
+        |--------------------------------------------------------------------------
+        | Actualizar configuración
+        |--------------------------------------------------------------------------
+        */
+
+        $this->configuracionService->actualizar(
+            $datos
+        );
 
         return redirect()
             ->route('admin.configuracion.index')
