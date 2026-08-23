@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Services\Auth\UserRegistrationService;
 use App\Services\Ventas\CartService;
 use App\Services\Ventas\SessionCartService;
+use App\Services\Ventas\SessionWishlistService;
+use App\Services\Ventas\WishlistService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -72,7 +74,9 @@ class GoogleController extends Controller
     public function callback(
         UserRegistrationService $registrationService,
         CartService $cartService,
-        SessionCartService $sessionCartService
+        SessionCartService $sessionCartService,
+        SessionWishlistService $sessionWishlistService,
+        WishlistService $wishlistService
     ): RedirectResponse {
 
         try {
@@ -312,6 +316,9 @@ class GoogleController extends Controller
             $registrationService->updateLastAccess(
                 $user
             );
+            $sessionWishlist =
+                $sessionWishlistService
+                    ->obtener(request());
 
             /*
             |--------------------------------------------------------------------------
@@ -329,7 +336,13 @@ class GoogleController extends Controller
                 $cartService,
                 $user->id
             );
-
+            $wishlistService->transferirFavoritos(
+                $user->id,
+                $sessionWishlist
+            );
+            $sessionWishlistService->vaciar(
+                request()
+            );
             request()
                 ->session()
                 ->regenerate();

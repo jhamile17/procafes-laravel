@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Notifications\WelcomeToProcafes;
 use App\Services\Auth\PendingRegistrationService;
 use App\Services\Auth\UserRegistrationService;
+use App\Services\Ventas\SessionWishlistService;
+use App\Services\Ventas\WishlistService;
 use App\Services\Ventas\CartService;
 use App\Services\Ventas\SessionCartService;
 use Illuminate\Http\RedirectResponse;
@@ -19,6 +21,8 @@ class CompleteRegistrationController extends Controller
         protected UserRegistrationService $userRegistrationService,
         protected CartService $cartService,
         protected SessionCartService $sessionCartService,
+        protected SessionWishlistService $sessionWishlistService,
+        protected WishlistService $wishlistService,
     ) {
     }
 
@@ -55,6 +59,9 @@ class CompleteRegistrationController extends Controller
                 ]);
 
         }
+        $sessionWishlist =
+            $this->sessionWishlistService
+                ->obtener(request());
 
         /*
         |--------------------------------------------------------------------------
@@ -107,6 +114,12 @@ class CompleteRegistrationController extends Controller
             $this->cartService,
             $user->id
         );
+         $this->wishlistService->transferirFavoritos(
+            $user->id,
+            $sessionWishlist
+        );
+          $this->sessionWishlistService
+            ->vaciar(request());
 
         request()->session()->regenerate();
     

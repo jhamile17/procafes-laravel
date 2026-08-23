@@ -211,4 +211,57 @@ class WishlistService
             ->delete();
 
     }
+    /*
+|--------------------------------------------------------------------------
+| TRANSFERIR FAVORITOS DE SESIÓN AL USUARIO
+|--------------------------------------------------------------------------
+*/
+
+public function transferirFavoritos(
+    int $userId,
+    Collection $sessionFavorites
+): void {
+
+    if ($sessionFavorites->isEmpty()) {
+        return;
+    }
+
+    DB::transaction(function () use (
+        $userId,
+        $sessionFavorites
+    ) {
+
+        foreach (
+            $sessionFavorites->unique()->values()
+            as $productId
+        ) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Evitar duplicados
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                !Wishlist::query()
+                    ->where('user_id', $userId)
+                    ->where('product_id', $productId)
+                    ->exists()
+            ) {
+
+                Wishlist::create([
+
+                    'user_id' => $userId,
+
+                    'product_id' => $productId,
+
+                ]);
+
+            }
+
+        }
+
+    });
+
+}
 }
