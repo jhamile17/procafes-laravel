@@ -6,12 +6,12 @@ namespace App\Services\Checkout;
 
 use App\Models\Cart;
 use App\Models\Order;
-use App\Models\ConfiguracionEmpresa;
 use App\Services\Cliente\AddressService;
+use App\Services\Facturacion\ComprobanteService;
 use App\Services\Pagos\PaymentService;
+use App\Services\Sistema\ConfiguracionEmpresaService;
 use App\Services\Ventas\CartService;
 use App\Services\Ventas\OrderService;
-use App\Services\Facturacion\ComprobanteService;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -22,7 +22,8 @@ class CheckoutService
         protected OrderService $orderService,
         protected PaymentService $paymentService,
         protected AddressService $addressService,
-        protected ComprobanteService $comprobanteService
+        protected ComprobanteService $comprobanteService,
+        protected ConfiguracionEmpresaService $configuracionService,
     ) {
     }
 
@@ -36,22 +37,51 @@ class CheckoutService
     {
         $cart = $this->validar($userId);
 
-        $resumen = $this->cartService->calcularResumen($cart);
+        $resumen = $this->cartService
+            ->calcularResumen($cart);
 
         return [
             'cart' => $cart,
-            'items' => $this->cartService->obtenerItems($cart),
-            'cantidad' => $this->cartService->contarProductos($cart),
-            'subtotal' => $resumen['subtotal'],
-            'igv' => $resumen['igv'],
-            'total' => $resumen['total'],
-            'address' => $this->addressService->obtenerDireccion($userId),
-            'permiteEnvio' => $this->permiteEnvio($cart),
-            'horarioDisponible' => $this->horarioDisponible(),
-            'horaApertura' => $this->horaApertura(),
-            'horaCierre' => $this->horaCierre(),
+
+            'items' =>
+                $this->cartService->obtenerItems($cart),
+
+            'cantidad' =>
+                $this->cartService->contarProductos($cart),
+
+            'subtotal' =>
+                $resumen['subtotal'],
+
+            'igv' =>
+                $resumen['igv'],
+
+            'total' =>
+                $resumen['total'],
+
+            'address' =>
+                $this->addressService
+                    ->obtenerDireccion($userId),
+
+            'permiteEnvio' =>
+                $this->permiteEnvio($cart),
+
+            /*
+            |--------------------------------------------------------------------------
+            | Horario
+            |--------------------------------------------------------------------------
+            */
+
+            'horarioDisponible' =>
+                $this->horarioDisponible(),
+
+            'horaApertura' =>
+                $this->horaApertura(),
+
+            'horaCierre' =>
+                $this->horaCierre(),
         ];
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -61,7 +91,8 @@ class CheckoutService
 
     public function validar(int $userId): Cart
     {
-        $cart = $this->cartService->obtenerCarrito($userId);
+        $cart = $this->cartService
+            ->obtenerCarrito($userId);
 
         if ($cart->items()->doesntExist()) {
 
@@ -72,6 +103,7 @@ class CheckoutService
 
         return $cart;
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -86,7 +118,7 @@ class CheckoutService
 
         /*
         |--------------------------------------------------------------------------
-        | Validar horario antes de procesar el pedido
+        | Validar horario antes de crear el pedido
         |--------------------------------------------------------------------------
         */
 
@@ -105,9 +137,11 @@ class CheckoutService
 
             $cart = $this->validar($userId);
 
-            $deliveryType = $data['delivery_type'];
+            $deliveryType =
+                $data['delivery_type'];
 
             $address = null;
+
 
             /*
             |--------------------------------------------------------------------------
@@ -117,8 +151,9 @@ class CheckoutService
 
             if ($deliveryType === 'delivery') {
 
-                $address = $this->addressService
-                    ->obtenerDireccion($userId);
+                $address =
+                    $this->addressService
+                        ->obtenerDireccion($userId);
 
                 if (! $address) {
 
@@ -128,14 +163,17 @@ class CheckoutService
                 }
             }
 
+
             /*
             |--------------------------------------------------------------------------
             | Calcular resumen
             |--------------------------------------------------------------------------
             */
 
-            $resumen = $this->cartService
-                ->calcularResumen($cart);
+            $resumen =
+                $this->cartService
+                    ->calcularResumen($cart);
+
 
             /*
             |--------------------------------------------------------------------------
@@ -143,12 +181,14 @@ class CheckoutService
             |--------------------------------------------------------------------------
             */
 
-            $order = $this->orderService->crearPedido(
-                cart: $cart,
-                shippingAddress: $address,
-                resumen: $resumen,
-                deliveryType: $deliveryType,
-            );
+            $order =
+                $this->orderService->crearPedido(
+                    cart: $cart,
+                    shippingAddress: $address,
+                    resumen: $resumen,
+                    deliveryType: $deliveryType,
+                );
+
 
             /*
             |--------------------------------------------------------------------------
@@ -161,6 +201,7 @@ class CheckoutService
                 data: $data,
             );
 
+
             /*
             |--------------------------------------------------------------------------
             | Registrar pago
@@ -169,8 +210,10 @@ class CheckoutService
 
             $this->paymentService->crearPago(
                 order: $order,
-                paymentMethodId: (int) $data['payment_method_id'],
+                paymentMethodId:
+                    (int) $data['payment_method_id'],
             );
+
 
             /*
             |--------------------------------------------------------------------------
@@ -189,6 +232,7 @@ class CheckoutService
         });
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | Validar horario de atención
@@ -197,21 +241,25 @@ class CheckoutService
 
     protected function validarHorarioAtencion(): void
     {
-        $configuracion = ConfiguracionEmpresa::obtener();
+        $configuracion =
+            $this->configuracionService->obtener();
 
-        $ahora = now()->format('H:i');
+        $ahora =
+            now()->format('H:i');
 
-        $apertura = substr(
-            (string) $configuracion->hora_apertura,
-            0,
-            5
-        );
+        $apertura =
+            substr(
+                (string) $configuracion->hora_apertura,
+                0,
+                5
+            );
 
-        $cierre = substr(
-            (string) $configuracion->hora_cierre,
-            0,
-            5
-        );
+        $cierre =
+            substr(
+                (string) $configuracion->hora_cierre,
+                0,
+                5
+            );
 
         if (
             $ahora < $apertura ||
@@ -224,6 +272,8 @@ class CheckoutService
             );
         }
     }
+
+
     /*
     |--------------------------------------------------------------------------
     | Verificar horario disponible
@@ -232,54 +282,65 @@ class CheckoutService
 
     protected function horarioDisponible(): bool
     {
-        $configuracion = ConfiguracionEmpresa::obtener();
+        $configuracion =
+            $this->configuracionService->obtener();
 
-        $ahora = now()->format('H:i');
+        $ahora =
+            now()->format('H:i');
 
-        $apertura = substr(
-            (string) $configuracion->hora_apertura,
-            0,
-            5
-        );
+        $apertura =
+            substr(
+                (string) $configuracion->hora_apertura,
+                0,
+                5
+            );
 
-        $cierre = substr(
-            (string) $configuracion->hora_cierre,
-            0,
-            5
-        );
+        $cierre =
+            substr(
+                (string) $configuracion->hora_cierre,
+                0,
+                5
+            );
 
-        return $ahora >= $apertura && $ahora < $cierre;
+        return
+            $ahora >= $apertura &&
+            $ahora < $cierre;
     }
+
 
     /*
     |--------------------------------------------------------------------------
-    | Hora de apertura
+    | Hora de apertura para mostrar
     |--------------------------------------------------------------------------
     */
 
     protected function horaApertura(): string
     {
-        return substr(
-            (string) ConfiguracionEmpresa::obtener()->hora_apertura,
-            0,
-            5
-        );
+        $configuracion =
+            $this->configuracionService->obtener();
+
+        return \Carbon\Carbon::parse(
+            $configuracion->hora_apertura
+        )->format('g:i a');
     }
+
 
     /*
     |--------------------------------------------------------------------------
-    | Hora de cierre
+    | Hora de cierre para mostrar
     |--------------------------------------------------------------------------
     */
 
     protected function horaCierre(): string
     {
-        return substr(
-            (string) ConfiguracionEmpresa::obtener()->hora_cierre,
-            0,
-            5
-        );
+        $configuracion =
+            $this->configuracionService->obtener();
+
+        return \Carbon\Carbon::parse(
+            $configuracion->hora_cierre
+        )->format('g:i a');
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -287,8 +348,10 @@ class CheckoutService
     |--------------------------------------------------------------------------
     */
 
-    protected function permiteEnvio(Cart $cart): bool
-    {
+    protected function permiteEnvio(
+        Cart $cart
+    ): bool {
+
         foreach ($cart->items as $item) {
 
             if ($item->product->soloRecojo()) {

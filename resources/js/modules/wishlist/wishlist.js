@@ -31,16 +31,13 @@ document.addEventListener(
             const response =
                 await getWishlist();
 
-
             initializeIcons(
                 response.items
             );
 
-
             updateBadge(
                 response.count
             );
-
 
         } catch (error) {
 
@@ -68,25 +65,20 @@ document.addEventListener(
                 '.product-wishlist'
             );
 
-
         if (!button) {
             return;
         }
 
-
         event.preventDefault();
-
 
         const productId =
             Number(
                 button.dataset.productId
             );
 
-
         if (!productId) {
             return;
         }
-
 
         try {
 
@@ -95,30 +87,24 @@ document.addEventListener(
                     productId
                 );
 
-
             if (!response.ok) {
                 return;
             }
-
 
             updateIcon(
                 button,
                 response.added
             );
 
-
             updateBadge(
                 response.count
             );
 
-
             animateBadge();
-
 
             showWishlistMessage(
                 response.added
             );
-
 
         } catch (error) {
 
@@ -146,34 +132,26 @@ document.addEventListener(
                 '.wishlist-remove'
             );
 
-
         if (!button) {
             return;
         }
 
-
         event.preventDefault();
-
 
         if (button.disabled) {
             return;
         }
-
 
         const productId =
             Number(
                 button.dataset.product
             );
 
-
         if (!productId) {
             return;
         }
 
-
-        button.disabled =
-            true;
-
+        button.disabled = true;
 
         try {
 
@@ -182,26 +160,21 @@ document.addEventListener(
                     productId
                 );
 
-
             if (!response.ok) {
 
-                button.disabled =
-                    false;
+                button.disabled = false;
 
                 return;
-
             }
-
 
             const card =
                 button.closest(
                     '.wishlist-card'
                 );
 
-
             /*
             |--------------------------------------------------------------------------
-            | Animación de eliminación manual
+            | Animación de eliminación
             |--------------------------------------------------------------------------
             */
 
@@ -210,25 +183,22 @@ document.addEventListener(
                 card.style.transition =
                     'opacity .25s ease, transform .25s ease';
 
-                card.style.opacity =
-                    '0';
+                card.style.opacity = '0';
 
                 card.style.transform =
                     'translateX(20px)';
 
-
                 setTimeout(() => {
 
-                    card.remove();
-
+                    if (card.parentNode) {
+                        card.remove();
+                    }
 
                     updateWishlistAfterChange(
                         response.count
                     );
 
-
                 }, 250);
-
 
             } else {
 
@@ -238,11 +208,7 @@ document.addEventListener(
 
             }
 
-
-            showWishlistMessage(
-                false
-            );
-
+            showWishlistMessage(false);
 
         } catch (error) {
 
@@ -251,9 +217,7 @@ document.addEventListener(
                 error
             );
 
-
-            button.disabled =
-                false;
+            button.disabled = false;
 
         }
 
@@ -274,14 +238,11 @@ document.addEventListener(
                 '.wishlist-cart'
             );
 
-
         if (!button) {
             return;
         }
 
-
         event.preventDefault();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -293,17 +254,14 @@ document.addEventListener(
             return;
         }
 
-
         const productId =
             Number(
                 button.dataset.product
             );
 
-
         if (!productId) {
             return;
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -311,23 +269,17 @@ document.addEventListener(
         |--------------------------------------------------------------------------
         */
 
-        button.disabled =
-            true;
-
+        button.disabled = true;
 
         const originalHtml =
             button.innerHTML;
 
-
         button.innerHTML = `
-
             <span
                 class="spinner-border spinner-border-sm"
                 aria-hidden="true">
             </span>
-
         `;
-
 
         try {
 
@@ -342,7 +294,6 @@ document.addEventListener(
                     productId,
                     1
                 );
-
 
             /*
             |--------------------------------------------------------------------------
@@ -361,13 +312,9 @@ document.addEventListener(
 
             }
 
-
             /*
             |--------------------------------------------------------------------------
             | ELIMINAR DE WISHLIST EN BASE DE DATOS
-            |--------------------------------------------------------------------------
-            |
-            | Esto evita que vuelva a aparecer al refrescar.
             |--------------------------------------------------------------------------
             */
 
@@ -376,52 +323,19 @@ document.addEventListener(
                     productId
                 );
 
-
             if (!wishlistResponse.ok) {
 
                 console.error(
                     'No se pudo eliminar el producto de Wishlist.'
                 );
 
-
-                button.disabled =
-                    false;
-
+                button.disabled = false;
 
                 button.innerHTML =
                     originalHtml;
 
-
                 return;
-
             }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | RESTAURAR BOTÓN INMEDIATAMENTE
-            |--------------------------------------------------------------------------
-            */
-
-            button.disabled =
-                false;
-
-
-            button.innerHTML =
-                originalHtml;
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | MOSTRAR MENSAJE
-            |--------------------------------------------------------------------------
-            */
-
-            showSuccessAlert(
-                button,
-                'Se agregó al carrito'
-            );
-
 
             /*
             |--------------------------------------------------------------------------
@@ -434,13 +348,32 @@ document.addEventListener(
                     '.wishlist-card'
                 );
 
+            /*
+            |--------------------------------------------------------------------------
+            | RESTAURAR BOTÓN
+            |--------------------------------------------------------------------------
+            */
+
+            button.disabled = false;
+
+            button.innerHTML =
+                originalHtml;
 
             /*
             |--------------------------------------------------------------------------
-            | MANTENER PRODUCTO VISIBLE
+            | MOSTRAR MENSAJE
             |--------------------------------------------------------------------------
-            |
-            | El mensaje permanece visible durante 3 segundos.
+            */
+
+            showSuccessAlert(
+                button,
+                'Se agregó al carrito'
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | MANTENER LA TARJETA VISIBLE
+            | DURANTE 1.5 SEGUNDOS
             |--------------------------------------------------------------------------
             */
 
@@ -450,45 +383,37 @@ document.addEventListener(
 
                     /*
                     |--------------------------------------------------------------------------
-                    | Comenzar salida
+                    | Animación de salida
                     |--------------------------------------------------------------------------
                     */
 
                     card.style.transition =
-                        'opacity .5s ease, transform .5s ease';
+                        'opacity .4s ease, transform .4s ease';
 
-                    card.style.opacity =
-                        '0';
+                    card.style.opacity = '0';
 
                     card.style.transform =
-                        'translateX(20px)';
-
+                        'translateX(15px)';
 
                     /*
                     |--------------------------------------------------------------------------
-                    | Eliminar después de terminar animación
+                    | Eliminar después de la animación
                     |--------------------------------------------------------------------------
                     */
 
                     setTimeout(() => {
 
                         if (card.parentNode) {
-
                             card.remove();
-
                         }
-
 
                         updateWishlistAfterCart(
                             wishlistResponse.count
                         );
 
+                    }, 400);
 
-                    }, 500);
-
-
-                }, 3000);
-
+                }, 1500);
 
             } else {
 
@@ -498,7 +423,6 @@ document.addEventListener(
 
             }
 
-
         } catch (error) {
 
             console.error(
@@ -506,16 +430,13 @@ document.addEventListener(
                 error
             );
 
-
             /*
             |--------------------------------------------------------------------------
             | Restaurar botón si ocurre un error
             |--------------------------------------------------------------------------
             */
 
-            button.disabled =
-                false;
-
+            button.disabled = false;
 
             button.innerHTML =
                 originalHtml;
@@ -538,9 +459,7 @@ function updateWishlistAfterChange(
         total
     );
 
-
     animateBadge();
-
 
     if (total === 0) {
 
@@ -569,13 +488,11 @@ function updateWishlistAfterCart(
         total
     );
 
-
     animateBadge();
-
 
     /*
     |--------------------------------------------------------------------------
-    | Si ya no quedan favoritos
+    | Si no quedan favoritos
     |--------------------------------------------------------------------------
     */
 
@@ -600,11 +517,9 @@ function showEmptyWishlist()
             '.wishlist-body'
         );
 
-
     if (!body) {
         return;
     }
-
 
     body.innerHTML = `
 
@@ -612,24 +527,20 @@ function showEmptyWishlist()
 
             <i class="bi bi-heart"></i>
 
-
             <h3>
                 Aún no tienes favoritos
             </h3>
-
 
             <p>
                 Explora nuestro catálogo y guarda
                 los productos que más te gusten.
             </p>
 
-
             <a
                 href="/products"
                 class="wishlist-empty-btn">
 
                 <i class="bi bi-shop"></i>
-
 
                 <span>
                     Ir al catálogo
@@ -656,11 +567,9 @@ function updateBadge(
     const badge =
         getWishlistBadge();
 
-
     if (!badge) {
         return;
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -670,7 +579,6 @@ function updateBadge(
 
     badge.textContent =
         total;
-
 
     badge.style.display =
         total > 0
@@ -690,19 +598,15 @@ function animateBadge()
     const badge =
         getWishlistBadge();
 
-
     if (!badge) {
         return;
     }
-
 
     badge.classList.remove(
         'badge-pop'
     );
 
-
     void badge.offsetWidth;
-
 
     badge.classList.add(
         'badge-pop'
@@ -723,25 +627,20 @@ function showWishlistMessage(
     const message =
         getWishlistMessage();
 
-
     if (!message) {
         return;
     }
-
 
     message.innerHTML =
         added
             ? '<i class="bi bi-heart-fill"></i>'
             : '<i class="bi bi-heartbreak-fill"></i>';
 
-
     message.classList.remove(
         'show'
     );
 
-
     void message.offsetWidth;
-
 
     message.classList.add(
         'show'
@@ -764,11 +663,9 @@ function showSuccessAlert(
             '.wishlist-actions'
         );
 
-
     if (!parent) {
         return;
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -781,11 +678,9 @@ function showSuccessAlert(
             '.wishlist-toast'
         );
 
-
     if (old) {
         old.remove();
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -798,10 +693,8 @@ function showSuccessAlert(
             'div'
         );
 
-
     toast.className =
         'wishlist-toast';
-
 
     toast.innerHTML = `
 
@@ -813,17 +706,15 @@ function showSuccessAlert(
 
     `;
 
-
     /*
     |--------------------------------------------------------------------------
-    | Insertar cerca del botón del carrito
+    | Insertar junto a las acciones
     |--------------------------------------------------------------------------
     */
 
     parent.appendChild(
         toast
     );
-
 
     /*
     |--------------------------------------------------------------------------
@@ -839,10 +730,9 @@ function showSuccessAlert(
 
     });
 
-
     /*
     |--------------------------------------------------------------------------
-    | Mantener visible durante 3 segundos
+    | Ocultar después de 1.5 segundos
     |--------------------------------------------------------------------------
     */
 
@@ -852,7 +742,6 @@ function showSuccessAlert(
             'show'
         );
 
-
         setTimeout(() => {
 
             if (toast.parentNode) {
@@ -861,9 +750,8 @@ function showSuccessAlert(
 
             }
 
-        }, 300);
+        }, 250);
 
-
-    }, 3000);
+    }, 1500);
 
 }

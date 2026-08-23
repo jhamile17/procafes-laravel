@@ -88,7 +88,6 @@
                     id="stepIndicator1"
                     class="checkout-step-indicator is-active"
                 >
-
                     <span class="checkout-step-number">
                         1
                     </span>
@@ -96,7 +95,6 @@
                     <span class="checkout-step-label">
                         Entrega
                     </span>
-
                 </div>
 
 
@@ -107,7 +105,6 @@
                     id="stepIndicator2"
                     class="checkout-step-indicator"
                 >
-
                     <span class="checkout-step-number">
                         2
                     </span>
@@ -115,7 +112,6 @@
                     <span class="checkout-step-label">
                         Pago
                     </span>
-
                 </div>
 
 
@@ -126,7 +122,6 @@
                     id="stepIndicator3"
                     class="checkout-step-indicator"
                 >
-
                     <span class="checkout-step-number">
                         3
                     </span>
@@ -134,7 +129,6 @@
                     <span class="checkout-step-label">
                         Comprobante
                     </span>
-
                 </div>
 
             </div>
@@ -163,6 +157,8 @@
                         <x-checkout.delivery
                             :permiteEnvio="$permiteEnvio"
                             :address="$address"
+                            :horaApertura="$horaApertura"
+                            :horaCierre="$horaCierre"
                         />
 
 
@@ -174,11 +170,9 @@
                                 class="customer-btn"
                                 @disabled(!$horarioDisponible)
                             >
-
                                 Continuar
 
                                 <i class="bi bi-arrow-right"></i>
-
                             </button>
 
                         </div>
@@ -205,11 +199,9 @@
                                 id="checkoutBack2"
                                 class="customer-btn-secondary"
                             >
-
                                 <i class="bi bi-arrow-left"></i>
 
                                 Atrás
-
                             </button>
 
 
@@ -218,11 +210,9 @@
                                 id="checkoutNext2"
                                 class="customer-btn"
                             >
-
                                 Continuar
 
                                 <i class="bi bi-arrow-right"></i>
-
                             </button>
 
                         </div>
@@ -249,11 +239,9 @@
                                 id="checkoutBack3"
                                 class="customer-btn-secondary"
                             >
-
                                 <i class="bi bi-arrow-left"></i>
 
                                 Atrás
-
                             </button>
 
 
@@ -262,11 +250,9 @@
                                 class="customer-btn"
                                 @disabled(!$horarioDisponible)
                             >
-
                                 Confirmar pedido
 
                                 <i class="bi bi-check-circle"></i>
-
                             </button>
 
                         </div>

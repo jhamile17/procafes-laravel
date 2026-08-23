@@ -86,7 +86,7 @@
             style="
                 color: var(--color-success);
                 background: var(--color-success-soft);
-                border-color: rgba(24, 165, 88, .15);
+                border-color: rgba(24,165,88,.15);
             "
         >
 
@@ -138,7 +138,6 @@
     >
 
         @csrf
-
         @method('PUT')
 
 
@@ -175,10 +174,7 @@
 
                 <div class="admin-form-grid">
 
-
-                    {{-- =================================================
-                        NOMBRE DE EMPRESA
-                    ================================================== --}}
+                    {{-- NOMBRE --}}
 
                     <div class="admin-form-field admin-form-field-wide">
 
@@ -199,16 +195,17 @@
                         >
 
                         <div class="admin-form-help">
+
                             <i class="bi bi-lock-fill"></i>
+
                             Dato institucional no modificable.
+
                         </div>
 
                     </div>
 
 
-                    {{-- =================================================
-                        RUC
-                    ================================================== --}}
+                    {{-- RUC --}}
 
                     <div class="admin-form-field">
 
@@ -229,16 +226,17 @@
                         >
 
                         <div class="admin-form-help">
+
                             <i class="bi bi-lock-fill"></i>
+
                             Dato fiscal no modificable.
+
                         </div>
 
                     </div>
 
 
-                    {{-- =================================================
-                        CORREO
-                    ================================================== --}}
+                    {{-- CORREO --}}
 
                     <div class="admin-form-field">
 
@@ -270,9 +268,7 @@
                     </div>
 
 
-                    {{-- =================================================
-                        TELÉFONO
-                    ================================================== --}}
+                    {{-- TELÉFONO --}}
 
                     <div class="admin-form-field">
 
@@ -303,9 +299,7 @@
                     </div>
 
 
-                    {{-- =================================================
-                        DIRECCIÓN
-                    ================================================== --}}
+                    {{-- DIRECCIÓN --}}
 
                     <div class="admin-form-field-full">
 
@@ -376,7 +370,6 @@
 
                 <div class="admin-form-grid">
 
-
                     {{-- HORA DE APERTURA --}}
 
                     <div class="admin-form-field">
@@ -393,7 +386,14 @@
                             type="time"
                             id="hora_apertura"
                             name="hora_apertura"
-                            value="{{ old('hora_apertura', $configuracion->hora_apertura ? \Carbon\Carbon::parse($configuracion->hora_apertura)->format('H:i') : '08:00') }}"
+                            value="{{ old(
+                                'hora_apertura',
+                                $configuracion->hora_apertura
+                                    ? \Carbon\Carbon::parse(
+                                        $configuracion->hora_apertura
+                                    )->format('H:i')
+                                    : '08:00'
+                            ) }}"
                             class="admin-form-input @error('hora_apertura') is-invalid @enderror"
                         >
 
@@ -424,7 +424,14 @@
                             type="time"
                             id="hora_cierre"
                             name="hora_cierre"
-                            value="{{ old('hora_cierre', $configuracion->hora_cierre ? \Carbon\Carbon::parse($configuracion->hora_cierre)->format('H:i') : '23:00') }}"
+                            value="{{ old(
+                                'hora_cierre',
+                                $configuracion->hora_cierre
+                                    ? \Carbon\Carbon::parse(
+                                        $configuracion->hora_cierre
+                                    )->format('H:i')
+                                    : '21:00'
+                            ) }}"
                             class="admin-form-input @error('hora_cierre') is-invalid @enderror"
                         >
 
@@ -439,6 +446,8 @@
                     </div>
 
 
+                    {{-- INFORMACIÓN --}}
+
                     <div class="admin-form-field-full">
 
                         <div class="admin-form-help">
@@ -446,7 +455,7 @@
                             <i class="bi bi-info-circle"></i>
 
                             Los clientes solo podrán realizar pedidos
-                            dentro de este horario.
+                            dentro del horario de atención configurado.
 
                         </div>
 
@@ -491,7 +500,6 @@
             <div class="admin-form-card-body">
 
                 <div class="admin-form-grid">
-
 
                     {{-- FACEBOOK --}}
 

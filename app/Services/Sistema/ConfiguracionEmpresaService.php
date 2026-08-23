@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Sistema;
 
 use App\Models\ConfiguracionEmpresa;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -21,13 +22,16 @@ class ConfiguracionEmpresaService
         $configuracion = ConfiguracionEmpresa::query()->first();
 
         if (! $configuracion) {
+
             throw new RuntimeException(
                 'No existe una configuración registrada para la empresa.'
             );
+
         }
 
         return $configuracion;
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -45,28 +49,32 @@ class ConfiguracionEmpresaService
 
                 /*
                 |--------------------------------------------------------------------------
-                | Datos institucionales
+                | Datos de contacto
                 |--------------------------------------------------------------------------
-                |
-                | nombre_empresa y ruc NO se actualizan desde el administrador.
-                |
                 */
 
-                'correo' => $datos['correo'],
+                'correo' =>
+                    $datos['correo'],
 
-                'telefono' => $datos['telefono'],
+                'telefono' =>
+                    $datos['telefono'],
 
-                'direccion' => $datos['direccion'],
+                'direccion' =>
+                    $datos['direccion'],
+
 
                 /*
                 |--------------------------------------------------------------------------
-                | Horario de atención
+                | Horario
                 |--------------------------------------------------------------------------
                 */
 
-                'hora_apertura' => $datos['hora_apertura'],
+                'hora_apertura' =>
+                    $datos['hora_apertura'],
 
-                'hora_cierre' => $datos['hora_cierre'],
+                'hora_cierre' =>
+                    $datos['hora_cierre'],
+
 
                 /*
                 |--------------------------------------------------------------------------
@@ -74,7 +82,10 @@ class ConfiguracionEmpresaService
                 |--------------------------------------------------------------------------
                 */
 
-                'logo' => $datos['logo'] ?? $configuracion->logo,
+                'logo' =>
+                    $datos['logo']
+                    ?? $configuracion->logo,
+
 
                 /*
                 |--------------------------------------------------------------------------
@@ -82,21 +93,29 @@ class ConfiguracionEmpresaService
                 |--------------------------------------------------------------------------
                 */
 
-                'facebook' => $datos['facebook'] ?? null,
+                'facebook' =>
+                    $datos['facebook']
+                    ?? null,
 
-                'instagram' => $datos['instagram'] ?? null,
+                'instagram' =>
+                    $datos['instagram']
+                    ?? null,
 
-                'tiktok' => $datos['tiktok'] ?? null,
+                'tiktok' =>
+                    $datos['tiktok']
+                    ?? null,
 
             ]);
 
             return $configuracion->fresh();
+
         });
     }
 
+
     /*
     |--------------------------------------------------------------------------
-    | Obtener nombre de la empresa
+    | Nombre de empresa
     |--------------------------------------------------------------------------
     */
 
@@ -105,9 +124,10 @@ class ConfiguracionEmpresaService
         return $this->obtener()->nombre_empresa;
     }
 
+
     /*
     |--------------------------------------------------------------------------
-    | Obtener RUC
+    | RUC
     |--------------------------------------------------------------------------
     */
 
@@ -116,9 +136,10 @@ class ConfiguracionEmpresaService
         return $this->obtener()->ruc;
     }
 
+
     /*
     |--------------------------------------------------------------------------
-    | Obtener logo
+    | Logo
     |--------------------------------------------------------------------------
     */
 
@@ -127,9 +148,10 @@ class ConfiguracionEmpresaService
         return $this->obtener()->logo;
     }
 
+
     /*
     |--------------------------------------------------------------------------
-    | Obtener datos de contacto
+    | Datos de contacto
     |--------------------------------------------------------------------------
     */
 
@@ -139,18 +161,50 @@ class ConfiguracionEmpresaService
 
         return [
 
-            'telefono' => $configuracion->telefono,
+            'telefono' =>
+                $configuracion->telefono,
 
-            'correo' => $configuracion->correo,
+            'correo' =>
+                $configuracion->correo,
 
-            'direccion' => $configuracion->direccion,
+            'direccion' =>
+                $configuracion->direccion,
+
+            'hora_apertura' =>
+                $configuracion->hora_apertura,
+
+            'hora_cierre' =>
+                $configuracion->hora_cierre,
 
         ];
     }
 
+
     /*
     |--------------------------------------------------------------------------
-    | Obtener redes sociales
+    | Horario de atención
+    |--------------------------------------------------------------------------
+    */
+
+    public function horario(): string
+    {
+        $configuracion = $this->obtener();
+
+        $apertura = Carbon::parse(
+            $configuracion->hora_apertura
+        )->format('g:i a');
+
+        $cierre = Carbon::parse(
+            $configuracion->hora_cierre
+        )->format('g:i a');
+
+        return "Lunes a Domingo · {$apertura} - {$cierre}";
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redes sociales
     |--------------------------------------------------------------------------
     */
 
@@ -160,18 +214,22 @@ class ConfiguracionEmpresaService
 
         return [
 
-            'facebook' => $configuracion->facebook,
+            'facebook' =>
+                $configuracion->facebook,
 
-            'instagram' => $configuracion->instagram,
+            'instagram' =>
+                $configuracion->instagram,
 
-            'tiktok' => $configuracion->tiktok,
+            'tiktok' =>
+                $configuracion->tiktok,
 
         ];
     }
 
+
     /*
     |--------------------------------------------------------------------------
-    | Obtener información completa para vistas públicas
+    | Información completa
     |--------------------------------------------------------------------------
     */
 
@@ -181,29 +239,41 @@ class ConfiguracionEmpresaService
 
         return [
 
-            'nombre_empresa' => $configuracion->nombre_empresa,
+            'nombre_empresa' =>
+                $configuracion->nombre_empresa,
 
-            'ruc' => $configuracion->ruc,
+            'ruc' =>
+                $configuracion->ruc,
 
-            'correo' => $configuracion->correo,
+            'correo' =>
+                $configuracion->correo,
 
-            'telefono' => $configuracion->telefono,
+            'telefono' =>
+                $configuracion->telefono,
 
-            'direccion' => $configuracion->direccion,
+            'direccion' =>
+                $configuracion->direccion,
 
-            'logo' => $configuracion->logo,
+            'logo' =>
+                $configuracion->logo,
 
-            'facebook' => $configuracion->facebook,
+            'facebook' =>
+                $configuracion->facebook,
 
-            'instagram' => $configuracion->instagram,
+            'instagram' =>
+                $configuracion->instagram,
 
-            'tiktok' => $configuracion->tiktok,
+            'tiktok' =>
+                $configuracion->tiktok,
 
-            'whatsapp' => $configuracion->whatsapp,
+            'whatsapp' =>
+                $configuracion->whatsapp,
 
-            'hora_apertura' => $configuracion->hora_apertura,
+            'hora_apertura' =>
+                $configuracion->hora_apertura,
 
-            'hora_cierre' => $configuracion->hora_cierre,
+            'hora_cierre' =>
+                $configuracion->hora_cierre,
 
         ];
     }
