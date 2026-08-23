@@ -322,7 +322,7 @@ Route::middleware('auth')
 
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'admin'])
     ->group(function () {
 
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])
