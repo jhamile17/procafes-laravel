@@ -202,7 +202,6 @@ function showButtonAlert(
 
 }
 
-
 /*=========================================================
     AGREGAR PRODUCTO
 =========================================================*/
@@ -543,8 +542,130 @@ async function handleClear(
     }
 
 }
+/*=========================================================
+    CONTINUAR COMPRA
+=========================================================*/
+
+function handleCheckout(event) {
+
+    const totalElement =
+        document.getElementById(
+            'cartPageTotal'
+        );
+
+    const emptyMessage =
+        document.getElementById(
+            'emptyCartMessage'
+        );
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Si no estamos en la página del carrito
+    |--------------------------------------------------------------------------
+    */
+
+    if (!totalElement) {
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Obtener total actual
+    |--------------------------------------------------------------------------
+    */
+
+    const totalText =
+        totalElement.textContent
+            .replace('S/', '')
+            .replace(',', '')
+            .trim();
+
+
+    const total =
+        parseFloat(totalText) || 0;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CARRITO VACÍO
+    |--------------------------------------------------------------------------
+    */
+
+    if (total <= 0) {
+
+        event.preventDefault();
+
+
+        if (!emptyMessage) {
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mostrar mensaje
+        |--------------------------------------------------------------------------
+        */
+
+        emptyMessage.classList.remove(
+            'd-none'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Reiniciar animación
+        |--------------------------------------------------------------------------
+        */
+
+        emptyMessage.classList.remove(
+            'show'
+        );
+
+        void emptyMessage.offsetWidth;
+
+        emptyMessage.classList.add(
+            'show'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ocultar mensaje
+        |--------------------------------------------------------------------------
+        */
+
+        clearTimeout(
+            emptyMessage.hideTimeout
+        );
+
+
+        emptyMessage.hideTimeout =
+            setTimeout(() => {
+
+                emptyMessage.classList.remove(
+                    'show'
+                );
+
+
+                setTimeout(() => {
+
+                    emptyMessage.classList.add(
+                        'd-none'
+                    );
+
+                }, 250);
+
+            }, 3500);
+
+    }
+
+}
+/*=========================================================
+    LISTENER PRINCIPAL
+=========================================================*/
 /*=========================================================
     LISTENER PRINCIPAL
 =========================================================*/
@@ -554,6 +675,27 @@ export function initializeCartEvents() {
     document.addEventListener(
         'click',
         async (event) => {
+
+            /*
+            |--------------------------------------------------------------------------
+            | CONTINUAR COMPRA
+            |--------------------------------------------------------------------------
+            */
+
+            const checkoutButton =
+                event.target.closest(
+                    '#checkoutBtn'
+                );
+
+
+            if (checkoutButton) {
+
+                handleCheckout(event);
+
+                return;
+
+            }
+
 
             /*
             |--------------------------------------------------------------------------

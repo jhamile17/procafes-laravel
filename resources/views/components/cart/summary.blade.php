@@ -2,55 +2,103 @@
 
     <div class="customer-card-body">
 
-    <span class="customer-card-badge">
-        Resumen
-    </span>
+        <span class="customer-card-badge">
+            Resumen
+        </span>
 
-    <h3 class="customer-card-title">
-        Resumen del pedido
-    </h3>
+        <h3 class="customer-card-title">
+            Resumen del pedido
+        </h3>
 
-    <p class="customer-card-subtitle">
-        El monto mostrado incluye todos los impuestos aplicables.
-    </p>
+        <p class="customer-card-subtitle">
+            El monto mostrado incluye todos los impuestos aplicables.
+        </p>
 
-    <div class="cart-summary-total">
 
-        <span>Total a pagar</span>
+        {{-- =====================================================
+             TOTAL
+        ====================================================== --}}
 
-        <strong id="cartPageTotal">
-            S/ 0.00
-        </strong>
+        <div class="cart-summary-total">
 
-    </div>
+            <span>
+                Total a pagar
+            </span>
 
-    <small class="cart-summary-note">
-        Precio final con IGV incluido.
-    </small>
+            <strong id="cartPageTotal">
+                S/ 0.00
+            </strong>
 
-    <div class="d-grid gap-3 mt-4">
+        </div>
 
-        <a
-            href="{{ route('checkout.index') }}"
-            data-href="{{ route('checkout.index') }}"
-            id="checkoutBtn"
-            class="customer-btn">
 
-            <i class="bi bi-bag-check-fill me-2"></i>
+        <small class="cart-summary-note">
+            Precio final con IGV incluido.
+        </small>
 
-            Continuar compra
 
-        </a>
+        {{-- =====================================================
+             MENSAJE CARRITO VACÍO
+        ====================================================== --}}
 
-        <a
-            href="{{ route('products') }}"
-            class="customer-btn-secondary">
+        <div
+            id="emptyCartMessage"
+            class="cart-empty-message d-none"
+        >
 
-            <i class="bi bi-arrow-left me-2"></i>
+            <div class="cart-empty-message-icon">
 
-            Seguir comprando
+                <i class="bi bi-cart-x"></i>
 
-        </a>
+            </div>
+
+            <div>
+
+                <strong>
+                    Tu carrito está vacío
+                </strong>
+
+                <span>
+                    Agrega al menos un producto antes de continuar.
+                </span>
+
+            </div>
+
+        </div>
+
+
+        {{-- =====================================================
+             BOTONES
+        ====================================================== --}}
+
+        <div class="d-grid gap-3 mt-4">
+
+            <a
+                href="{{ route('checkout.index') }}"
+                data-href="{{ route('checkout.index') }}"
+                id="checkoutBtn"
+                class="customer-btn"
+            >
+
+                <i class="bi bi-bag-check-fill me-2"></i>
+
+                Continuar compra
+
+            </a>
+
+
+            <a
+                href="{{ route('products') }}"
+                class="customer-btn-secondary"
+            >
+
+                <i class="bi bi-arrow-left me-2"></i>
+
+                Seguir comprando
+
+            </a>
+
+        </div>
 
     </div>
 

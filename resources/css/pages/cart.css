@@ -275,19 +275,17 @@
     font-weight:600;
 
 }
-
-
 /*==================================================
-=            ACCIONES
+=            ACCIONES DEL CARRITO
 ==================================================*/
 
-.cart-page-item-actions{
+.cart-page .cart-item-actions{
 
     display:flex;
 
     align-items:center;
 
-    gap:.4rem;
+    gap:.5rem;
 
     margin-top:.85rem;
 
@@ -295,54 +293,102 @@
 
 
 /*==================================================
-=            BOTONES CANTIDAD
+=            CONTENEDOR CANTIDAD
 ==================================================*/
 
-.cart-page-item-actions .btn-inc,
-.cart-page-item-actions .btn-dec{
-
-    width:32px;
-
-    height:32px;
-
-    padding:0;
+.cart-page .quantity-control{
 
     display:flex;
 
     align-items:center;
 
+    gap:.4rem;
+
+}
+
+
+/*==================================================
+=            BOTONES + / -
+==================================================*/
+
+.cart-page .cart-item-actions .btn-inc,
+.cart-page .cart-item-actions .btn-dec{
+
+    width:34px;
+
+    height:34px;
+
+    min-width:34px;
+
+    padding:0;
+
+    margin:0;
+
+    display:inline-flex;
+
+    align-items:center;
+
     justify-content:center;
 
-    border:1px solid #e5e7eb;
+    border:1px solid var(--color-primary);
 
-    border-radius:8px;
+    border-radius:var(--radius-sm);
 
-    background:#fff;
+    background:var(--color-surface);
 
     color:var(--color-primary);
 
-    font-size:.9rem;
+    font-family:var(--font-body);
 
-    transition:.2s ease;
+    font-size:1rem;
+
+    font-weight:700;
+
+    line-height:1;
+
+    cursor:pointer;
+
+    box-shadow:none;
+
+    transition:
+        background var(--transition),
+        border-color var(--transition),
+        color var(--transition),
+        transform var(--transition);
 
 }
 
 
-.cart-page-item-actions .btn-inc:hover:not(:disabled),
-.cart-page-item-actions .btn-dec:hover:not(:disabled){
+/*==================================================
+=            HOVER + / -
+==================================================*/
 
-    background:var(--color-background);
+.cart-page .cart-item-actions .btn-inc:hover:not(:disabled),
+.cart-page .cart-item-actions .btn-dec:hover:not(:disabled){
+
+    background:var(--color-primary);
 
     border-color:var(--color-primary);
 
+    color:var(--color-white);
+
 }
 
 
-.cart-page-item-actions button:disabled{
+/*==================================================
+=            CLICK + / -
+==================================================*/
 
-    opacity:.45;
+.cart-page .cart-item-actions .btn-inc:active:not(:disabled),
+.cart-page .cart-item-actions .btn-dec:active:not(:disabled){
 
-    cursor:not-allowed;
+    background:var(--color-primary-hover);
+
+    border-color:var(--color-primary-hover);
+
+    color:var(--color-white);
+
+    transform:scale(.92);
 
 }
 
@@ -351,32 +397,95 @@
 =            CANTIDAD
 ==================================================*/
 
-.cart-item-quantity{
+.cart-page .cart-item-actions .cart-item-quantity{
 
-    min-width:34px;
+    width:36px;
 
-    text-align:center;
+    height:34px;
 
-    font-size:.9rem;
+    min-width:36px;
+
+    padding:0;
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border:1px solid var(--color-border);
+
+    border-radius:var(--radius-sm);
+
+    background:var(--color-surface-alt);
+
+    color:var(--color-coffee);
+
+    font-family:var(--font-body);
+
+    font-size:.85rem;
 
     font-weight:700;
 
-    color:#111827;
+    line-height:1;
 
 }
 
 
 /*==================================================
-=            ELIMINAR
+=            BOTÓN ELIMINAR
 ==================================================*/
 
-.cart-page-item-actions .btn-remove{
+.cart-page .cart-item-actions .btn-remove{
 
-    width:32px;
+    width:34px;
 
-    height:32px;
+    height:34px;
 
-    margin-left:.35rem;
+    min-width:34px;
+
+    padding:0;
+
+    margin:0 0 0 .35rem;
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border:1px solid var(--color-primary);
+
+    border-radius:var(--radius-sm);
+
+    background:var(--color-primary-soft);
+
+    color:var(--color-primary);
+
+    font-family:var(--font-body);
+
+    font-size:.95rem;
+
+    line-height:1;
+
+    cursor:pointer;
+
+    box-shadow:none;
+
+    transition:
+        background var(--transition),
+        border-color var(--transition),
+        color var(--transition),
+        transform var(--transition);
+
+}
+
+
+/*==================================================
+=            ICONO TACHO
+==================================================*/
+
+.cart-page .cart-item-actions .btn-remove i{
 
     display:flex;
 
@@ -384,27 +493,67 @@
 
     justify-content:center;
 
-    border:1px solid #fee2e2;
+    color:var(--color-primary);
 
-    border-radius:8px;
+    font-size:1rem;
 
-    background:#fff;
-
-    color:#dc2626;
-
-    transition:.2s ease;
+    line-height:1;
 
 }
 
 
-.cart-page-item-actions .btn-remove:hover{
+/*==================================================
+=            HOVER TACHO
+==================================================*/
 
-    background:#fef2f2;
+.cart-page .cart-item-actions .btn-remove:hover:not(:disabled){
 
-    border-color:#fecaca;
+    background:var(--color-primary);
+
+    border-color:var(--color-primary);
+
+    color:var(--color-white);
+
+    transform:translateY(-1px);
 
 }
 
+
+.cart-page .cart-item-actions .btn-remove:hover:not(:disabled) i{
+
+    color:var(--color-white);
+
+}
+
+
+/*==================================================
+=            CLICK TACHO
+==================================================*/
+
+.cart-page .cart-item-actions .btn-remove:active:not(:disabled){
+
+    background:var(--color-primary-hover);
+
+    border-color:var(--color-primary-hover);
+
+    color:var(--color-white);
+
+    transform:scale(.92);
+
+}
+
+
+/*==================================================
+=            DESHABILITADO
+==================================================*/
+
+.cart-page .cart-item-actions button:disabled{
+
+    opacity:.45;
+
+    cursor:not-allowed;
+
+}
 
 /*==================================================
 =            SUBTOTAL
@@ -601,23 +750,190 @@
         transform .25s ease;
 
 }
+/*=========================================================
+    MENSAJE CARRITO VACÍO
+=========================================================*/
+
+.cart-empty-message{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:.8rem;
+
+    margin-top:1rem;
+
+    padding:.8rem 1rem;
+
+    border-radius:var(--radius-md);
+
+    background:var(--color-warning-soft);
+
+    border:1px solid rgba(245,158,11,.20);
+
+    color:var(--color-coffee);
+
+    opacity:0;
+
+    transform:translateY(-6px);
+
+    transition:
+        opacity var(--transition),
+        transform var(--transition);
+
+}
 
 
-@keyframes productAlertIn{
+/*=========================================================
+    MENSAJE VISIBLE
+=========================================================*/
 
-    from{
+.cart-empty-message.show{
 
-        opacity:0;
+    opacity:1;
 
-        transform:translateY(-8px);
+    transform:translateY(0);
+
+}
+
+
+/*=========================================================
+    ICONO
+=========================================================*/
+
+.cart-empty-message-icon{
+
+    width:36px;
+
+    height:36px;
+
+    flex-shrink:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:var(--color-warning-soft);
+
+    color:var(--color-warning);
+
+}
+
+
+.cart-empty-message-icon i{
+
+    font-size:1rem;
+
+}
+
+
+/*=========================================================
+    TEXTO
+=========================================================*/
+
+.cart-empty-message strong{
+
+    display:block;
+
+    margin:0;
+
+    font-size:.82rem;
+
+    font-weight:700;
+
+    color:var(--color-coffee);
+
+}
+
+
+.cart-empty-message span{
+
+    display:block;
+
+    margin-top:.15rem;
+
+    font-size:.73rem;
+
+    line-height:1.4;
+
+    color:var(--color-text-light);
+
+}
+
+
+/*=========================================================
+    RESPONSIVE
+=========================================================*/
+
+@media(max-width:576px){
+
+    .cart-empty-message{
+
+        padding:.7rem .8rem;
+
+        gap:.65rem;
 
     }
 
-    to{
 
-        opacity:1;
+    .cart-empty-message-icon{
 
-        transform:translateY(0);
+        width:32px;
+
+        height:32px;
+
+    }
+
+
+    .cart-empty-message strong{
+
+        font-size:.78rem;
+
+    }
+
+
+    .cart-empty-message span{
+
+        font-size:.7rem;
+
+    }
+     .cart-page-item-actions{
+
+        gap:.4rem;
+
+    }
+
+
+    .cart-page-item-actions{
+
+    gap:.4rem;
+
+}
+
+
+    .cart-page-item-actions .btn-inc,
+    .cart-page-item-actions .btn-dec,
+    .cart-page-item-actions .btn-remove{
+
+        width:32px;
+
+        height:32px;
+
+        min-width:32px;
+
+    }
+
+
+    .cart-page-item-actions .cart-item-quantity{
+
+        min-width:34px;
+
+        height:32px;
 
     }
 
@@ -743,6 +1059,9 @@
 
         height:30px;
 
+        min-width:30px;
+
     }
+    
 
 }
