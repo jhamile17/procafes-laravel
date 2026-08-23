@@ -1,10 +1,19 @@
 @props(['product'])
 
+@php
+    $available = $product->isAvailable();
+@endphp
+
+
+{{-- ==========================================================
+    TARJETA DEL PRODUCTO
+========================================================== --}}
+
 <div class="procafe-product-card">
 
-    {{-- ==========================================================
+    {{-- ======================================================
         IMAGEN
-    =========================================================== --}}
+    ======================================================= --}}
 
     <div class="procafe-product-image">
 
@@ -24,36 +33,49 @@
     </div>
 
 
-    {{-- ==========================================================
+    {{-- ======================================================
         INFORMACIÓN
-    =========================================================== --}}
+    ======================================================= --}}
 
     <div class="card-body d-flex flex-column">
+
+        {{-- CATEGORÍA --}}
 
         @if($product->category)
 
             <small class="procafe-product-category">
+
                 {{ $product->category->name }}
+
             </small>
 
         @endif
 
 
+        {{-- NOMBRE --}}
+
         <h5 class="procafe-product-title">
+
             {{ $product->name }}
+
         </h5>
 
+
+        {{-- MARCA --}}
 
         @if($product->brand)
 
             <small class="procafe-product-brand">
+
                 {{ $product->brand->name }}
+
             </small>
 
         @endif
 
 
         <div class="mt-auto">
+
 
             {{-- ==================================================
                 PRECIO
@@ -100,9 +122,10 @@
 </div>
 
 
+
 {{-- ==========================================================
     MODAL DETALLE DEL PRODUCTO
-=========================================================== --}}
+========================================================== --}}
 
 <div
     class="modal fade product-detail-modal"
@@ -127,8 +150,11 @@
                     class="modal-title"
                     id="productDetailModalLabel{{ $product->id }}"
                 >
+
                     Detalle del producto
+
                 </h5>
+
 
                 <button
                     type="button"
@@ -169,19 +195,30 @@
 
                     <div class="product-detail-info">
 
+
+                        {{-- CATEGORÍA --}}
+
                         @if($product->category)
 
                             <span class="product-detail-category">
+
                                 {{ $product->category->name }}
+
                             </span>
 
                         @endif
 
 
+                        {{-- NOMBRE --}}
+
                         <h2>
+
                             {{ $product->name }}
+
                         </h2>
 
+
+                        {{-- MARCA --}}
 
                         @if($product->brand)
 
@@ -189,7 +226,9 @@
 
                                 <i class="bi bi-award"></i>
 
-                                {{ $product->brand->name }}
+                                <span>
+                                    {{ $product->brand->name }}
+                                </span>
 
                             </div>
 
@@ -215,7 +254,9 @@
 
                             <i class="bi bi-box-seam"></i>
 
-                            {{ $product->stock_status }}
+                            <span>
+                                {{ $product->stock_status }}
+                            </span>
 
                         </div>
 
@@ -242,7 +283,7 @@
 
 
                         {{-- ==================================================
-                            TEMPERATURA
+                            CARACTERÍSTICAS
                         =================================================== --}}
 
                         @if($product->temperature)

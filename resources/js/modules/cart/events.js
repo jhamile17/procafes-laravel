@@ -260,8 +260,31 @@ async function handleAdd(
         */
 
         render(response);
+        const productModal =
+            button.closest(
+                '.product-detail-modal'
+            );
 
-        showCart();
+        if (productModal) {
+
+            const modal =
+                bootstrap.Modal.getInstance(
+                    productModal
+                );
+
+            if (modal) {
+
+                modal.hide();
+
+            }
+
+        }
+
+        setTimeout(() => {
+
+    showCart();
+
+}, 300);
 
 
     } catch (error) {
