@@ -36,6 +36,7 @@
 @import "./pages/checkout.css";
 @import "./pages/orders.css";
 @import "./pages/cart.css";
+@import "./pages/wishlist.css";
 
 @import './componentes/alert.css';
 @import './componentes/messages.css';
