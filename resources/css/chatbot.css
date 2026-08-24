@@ -85,13 +85,22 @@ body.cart-offcanvas-open .floating-buttons {
     border: none;
     border-radius: 50%;
 
-    background: #fff;
+    background: #FFFFFF;
 
     cursor: pointer;
 
     box-shadow: 0 10px 30px rgba(0, 0, 0, .20);
 
-    transition: transform .3s ease;
+    transition:
+        transform .3s ease,
+        box-shadow .3s ease;
+}
+
+.chatbot-button:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 14px 35px rgba(0, 0, 0, .25);
 }
 
 .chatbot-button img {
@@ -136,7 +145,10 @@ body.cart-offcanvas-open .floating-buttons {
 
     overflow: hidden;
 
-    box-shadow: 0 20px 50px rgba(0, 0, 0, .20);
+    background: #FAF8F5;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, .20);
 }
 
 
@@ -147,8 +159,9 @@ body.cart-offcanvas-open .floating-buttons {
 .chatbot-header {
     padding: 14px 18px;
 
-    background: #6f4e37;
-    color: #fff;
+    background: #6F4E37;
+
+    color: #FFFFFF;
 
     border-bottom: 2px solid #D6A84D;
 }
@@ -156,7 +169,7 @@ body.cart-offcanvas-open .floating-buttons {
 .chatbot-header h5 {
     margin: 0;
 
-    color: #fff !important;
+    color: #FFFFFF !important;
 
     font-size: 18px;
     font-weight: 700;
@@ -180,6 +193,14 @@ body.cart-offcanvas-open .floating-buttons {
 
 .chatbot-header .btn-close {
     filter: invert(1);
+
+    opacity: .85;
+
+    transition: opacity .2s ease;
+}
+
+.chatbot-header .btn-close:hover {
+    opacity: 1;
 }
 
 
@@ -194,6 +215,8 @@ body.cart-offcanvas-open .floating-buttons {
     flex-direction: column;
 
     padding: 0 !important;
+
+    background: #FAF8F5;
 }
 
 
@@ -223,7 +246,7 @@ body.cart-offcanvas-open .floating-buttons {
 
     padding: 18px;
 
-    background: #F8F8F8;
+    background: #FAF8F5;
 }
 
 .chat-messages::-webkit-scrollbar {
@@ -232,7 +255,12 @@ body.cart-offcanvas-open .floating-buttons {
 
 .chat-messages::-webkit-scrollbar-thumb {
     background: #D6A84D;
+
     border-radius: 20px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 
@@ -248,6 +276,7 @@ body.cart-offcanvas-open .floating-buttons {
 
 .user-message {
     display: flex;
+
     justify-content: flex-end;
 
     margin-bottom: 18px;
@@ -261,20 +290,40 @@ body.cart-offcanvas-open .floating-buttons {
     border-radius: 18px;
 
     font-size: 14px;
+
     line-height: 1.6;
 }
 
+
+/*---------------------------------------------------------
+    MENSAJE DEL BOT
+---------------------------------------------------------*/
+
 .bot-message .bubble {
-    background: #fff;
+    background: #FFFFFF;
 
-    border: 1px solid #E8E8E8;
+    border: 1px solid #E8E1DB;
 
-    box-shadow: 0 3px 10px rgba(0, 0, 0, .05);
+    color: #292524;
+
+    box-shadow:
+        0 3px 10px rgba(91, 58, 41, .06);
 }
+
+
+/*---------------------------------------------------------
+    MENSAJE DEL USUARIO
+---------------------------------------------------------*/
 
 .user-message .bubble {
     background: #5B3A29;
-    color: #fff;
+
+    color: #FFFFFF;
+
+    border: none;
+
+    box-shadow:
+        0 5px 14px rgba(91, 58, 41, .18);
 }
 
 
@@ -284,6 +333,7 @@ body.cart-offcanvas-open .floating-buttons {
 
 .quick-actions {
     display: flex;
+
     flex-wrap: wrap;
 
     gap: 10px;
@@ -295,25 +345,36 @@ body.cart-offcanvas-open .floating-buttons {
     padding: 8px 16px;
 
     border: none;
+
     border-radius: 30px;
 
-    background: #fff;
+    background: #FFFFFF;
+
+    color: #292524;
 
     font-size: 14px;
 
     cursor: pointer;
 
-    box-shadow: 0 3px 8px rgba(0, 0, 0, .08);
+    box-shadow:
+        0 3px 8px rgba(0, 0, 0, .08);
 
     transition:
         background .25s ease,
         color .25s ease,
-        transform .25s ease;
+        transform .25s ease,
+        box-shadow .25s ease;
 }
 
 .quick-btn:hover {
     background: #5B3A29;
-    color: #fff;
+
+    color: #FFFFFF;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 5px 12px rgba(91, 58, 41, .20);
 }
 
 
@@ -324,7 +385,7 @@ body.cart-offcanvas-open .floating-buttons {
 .typing {
     padding: 10px 18px;
 
-    color: #8A8A8A;
+    color: #8A7A70;
 
     font-style: italic;
 }
@@ -337,40 +398,68 @@ body.cart-offcanvas-open .floating-buttons {
 .chat-input {
     padding: 15px;
 
-    background: #fff;
+    background: #FFFFFF;
 
-    border-top: 1px solid #ECECEC;
+    border-top: 1px solid #E8E1DB;
 }
 
 .chat-input .form-control {
     padding: 11px 18px;
 
     border: 2px solid #D6A84D;
+
     border-radius: 30px;
+
+    color: #292524;
+
+    background: #FFFFFF;
+}
+
+.chat-input .form-control::placeholder {
+    color: #9CA3AF;
 }
 
 .chat-input .form-control:focus {
-    border-color: #5B3A29;
+    border-color: #6F4E37;
 
-    box-shadow: none;
+    box-shadow:
+        0 0 0 3px rgba(111, 78, 55, .10);
 }
+
+
+/*---------------------------------------------------------
+    BOTÓN ENVIAR
+---------------------------------------------------------*/
 
 .chat-input .btn {
     width: 50px;
 
     border: none;
+
     border-radius: 30px;
 
     background: #5B3A29;
+
+    color: #FFFFFF;
+
+    transition:
+        background .25s ease,
+        transform .2s ease;
 }
 
 .chat-input .btn:hover {
-    background: #6F4632;
+    background: #432A1F;
+
+    color: #FFFFFF;
+}
+
+.chat-input .btn:active {
+    transform: scale(.95);
 }
 
 
 /*=========================================================
-    TARJETAS DE PRODUCTOS DEL CHAT
+    TARJETAS DE PRODUCTOS
 =========================================================*/
 
 .chat-card {
@@ -379,11 +468,13 @@ body.cart-offcanvas-open .floating-buttons {
     overflow: hidden;
 
     border: none;
+
     border-radius: 16px;
 
-    background: #fff;
+    background: #FFFFFF;
 
-    box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+    box-shadow:
+        0 5px 15px rgba(91, 58, 41, .08);
 }
 
 .chat-card img {
@@ -397,16 +488,27 @@ body.cart-offcanvas-open .floating-buttons {
     padding: 14px;
 }
 
+
+/*---------------------------------------------------------
+    CATEGORÍA
+---------------------------------------------------------*/
+
 .chat-card .badge {
     padding: 6px 12px;
 
     background: #D6A84D !important;
-    color: #fff;
+
+    color: #FFFFFF;
 
     border-radius: 30px;
 
     font-size: 12px;
 }
+
+
+/*---------------------------------------------------------
+    NOMBRE
+---------------------------------------------------------*/
 
 .chat-card .card-title {
     margin: 10px 0 8px;
@@ -414,20 +516,36 @@ body.cart-offcanvas-open .floating-buttons {
     color: #3F2A1F;
 
     font-size: 18px;
+
     font-weight: 700;
 }
 
+
+/*---------------------------------------------------------
+    DESCRIPCIÓN
+---------------------------------------------------------*/
+
 .chat-card .card-text {
-    color: #666;
+    color: #666666;
 
     font-size: 14px;
 }
+
+
+/*---------------------------------------------------------
+    PRECIO
+---------------------------------------------------------*/
 
 .chat-card strong {
     color: #5B3A29;
 
     font-size: 20px;
 }
+
+
+/*---------------------------------------------------------
+    DISPONIBILIDAD
+---------------------------------------------------------*/
 
 .chat-card .text-success {
     color: #3C9A5F !important;
@@ -437,17 +555,31 @@ body.cart-offcanvas-open .floating-buttons {
     color: #C0392B !important;
 }
 
+
+/*---------------------------------------------------------
+    BOTÓN DEL PRODUCTO
+---------------------------------------------------------*/
+
 .chat-card .btn {
     border: none;
+
     border-radius: 12px;
 
     background: #5B3A29;
 
+    color: #FFFFFF;
+
     font-weight: 600;
+
+    transition:
+        background .25s ease,
+        transform .2s ease;
 }
 
 .chat-card .btn:hover {
-    background: #6F4632;
+    background: #432A1F;
+
+    color: #FFFFFF;
 }
 
 
@@ -478,7 +610,6 @@ body.cart-offcanvas-open .floating-buttons {
     100% {
         transform: translateY(0);
     }
-
 }
 
 
@@ -503,6 +634,7 @@ body.cart-offcanvas-open .floating-buttons {
 
     .chatbot-dialog {
         top: 10px;
+
         right: 10px;
         left: 10px;
 
@@ -514,6 +646,8 @@ body.cart-offcanvas-open .floating-buttons {
 
     .chatbot-modal {
         height: 95vh;
+
+        border-radius: 20px;
     }
 
     .chatbot-body {
@@ -533,4 +667,15 @@ body.cart-offcanvas-open .floating-buttons {
         height: 54px;
     }
 
+    .bubble {
+        max-width: 90%;
+
+        font-size: 14px;
+    }
+
+    .quick-btn {
+        font-size: 13px;
+
+        padding: 8px 14px;
+    }
 }

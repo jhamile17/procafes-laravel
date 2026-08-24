@@ -1,16 +1,54 @@
 console.log("✅ chatbot.js cargado");
 
-document.addEventListener("DOMContentLoaded", () => {
 
-    /*==================================================
-        ELEMENTOS
-    ==================================================*/
+/*=========================================================
+    INICIALIZAR CHATBOT
+=========================================================*/
+
+function initChatbot() {
+
+    console.log("🤖 Inicializando chatbot...");
+
+    /*=====================================================
+        ELEMENTOS PRINCIPALES
+    =====================================================*/
 
     const root = document.getElementById("procafesChat");
 
-    if (!root) return;
+    if (!root) {
+        console.log("⚠️ No se encontró #procafesChat");
+        return;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Evitar inicializar dos veces el mismo chatbot
+    |--------------------------------------------------------------------------
+    */
+
+    if (root.dataset.chatbotInitialized === "true") {
+        console.log("ℹ️ Chatbot ya estaba inicializado");
+        return;
+    }
+
+    root.dataset.chatbotInitialized = "true";
+
+
+    /*=====================================================
+        URL
+    =====================================================*/
 
     const url = root.dataset.sendUrl;
+
+    if (!url) {
+        console.error("❌ No se encontró data-send-url");
+        return;
+    }
+
+
+    /*=====================================================
+        ELEMENTOS DEL CHAT
+    =====================================================*/
 
     const form = document.getElementById("chatForm");
     const input = document.getElementById("chatMessage");
@@ -18,14 +56,44 @@ document.addEventListener("DOMContentLoaded", () => {
     const typing = document.getElementById("typingIndicator");
     const button = document.getElementById("chatSendButton");
 
-    const csrf = document
-        .querySelector('meta[name="csrf-token"]')
-        .content;
+    if (!form || !input || !messages || !button) {
+
+        console.error(
+            "❌ Faltan elementos del chatbot:",
+            {
+                form,
+                input,
+                messages,
+                button
+            }
+        );
+
+        return;
+    }
 
 
-    /*==================================================
-        VENTANA
-    ==================================================*/
+    /*=====================================================
+        CSRF
+    =====================================================*/
+
+    const csrfElement =
+        document.querySelector('meta[name="csrf-token"]');
+
+    if (!csrfElement) {
+
+        console.error(
+            "❌ No se encontró el meta csrf-token"
+        );
+
+        return;
+    }
+
+    const csrf = csrfElement.content;
+
+
+    /*=====================================================
+        VENTANA CHATBOT
+    =====================================================*/
 
     const chatbotWindow =
         document.getElementById("chatbotWindow");
@@ -36,10 +104,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatbotClose =
         document.getElementById("chatbotClose");
 
-    /* Abrir / cerrar con el botón flotante */
+
+    /*=====================================================
+        ABRIR CHATBOT
+    =====================================================*/
+
     chatbotToggle?.addEventListener("click", () => {
 
-        if (chatbotWindow.classList.contains("show")) {
+        if (!chatbotWindow) return;
+
+        if (
+            chatbotWindow.classList.contains("show")
+        ) {
 
             chatbotWindow.classList.remove("show");
 
@@ -47,22 +123,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
             chatbotWindow.classList.add("show");
 
-            input.focus();
+            setTimeout(() => {
+                input.focus();
+            }, 100);
 
         }
 
     });
 
-    /* Cerrar con la X */
+
+    /*=====================================================
+        CERRAR CHATBOT
+    =====================================================*/
+
     chatbotClose?.addEventListener("click", () => {
 
-        chatbotWindow.classList.remove("show");
+        chatbotWindow?.classList.remove("show");
 
     });
 
-    /*==================================================
+
+    /*=====================================================
         SCROLL
-    ==================================================*/
+    =====================================================*/
 
     function scrollBottom() {
 
@@ -71,11 +154,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-    /*==================================================
-        MENSAJE USUARIO
-    ==================================================*/
 
-    function userMessage(text){
+    /*=====================================================
+        MENSAJE USUARIO
+    =====================================================*/
+
+    function userMessage(text) {
+
+        const safeText =
+            escapeHtml(text);
 
         messages.insertAdjacentHTML(
 
@@ -86,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 <div class="bubble">
 
-                    ${text}
+                    ${safeText}
 
                 </div>
 
@@ -96,14 +183,14 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         scrollBottom();
-
     }
 
-    /*==================================================
-        MENSAJE BOT
-    ==================================================*/
 
-    function botMessage(text){
+    /*=====================================================
+        MENSAJE BOT
+    =====================================================*/
+
+    function botMessage(text) {
 
         messages.insertAdjacentHTML(
 
@@ -114,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 <div class="bubble">
 
-                    ${text}
+                    ${formatMessage(text)}
 
                     <br><br>
 
@@ -132,60 +219,184 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         scrollBottom();
-
     }
 
-    /*==================================================
-        ENVIAR MENSAJE
-    ==================================================*/
 
-    async function sendMessage(text){
+    /*=====================================================
+        FORMATEAR RESPUESTA DEL BOT
+    =====================================================*/
+
+    function formatMessage(text) {
+
+        if (!text) {
+            return "No encontré información.";
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Escapar HTML peligroso
+        |--------------------------------------------------------------------------
+        */
+
+        let formatted =
+            escapeHtml(String(text));
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Saltos de línea
+        |--------------------------------------------------------------------------
+        */
+
+        formatted =
+            formatted.replace(/\n/g, "<br>");
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Negritas
+        |--------------------------------------------------------------------------
+        */
+
+        formatted =
+            formatted.replace(
+                /\*\*(.*?)\*\*/g,
+                "<strong>$1</strong>"
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Links Markdown
+        |--------------------------------------------------------------------------
+        */
+
+        formatted =
+            formatted.replace(
+                /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+                '<a href="$2" target="_blank" rel="noopener">$1</a>'
+            );
+
+
+        return formatted;
+    }
+
+
+    /*=====================================================
+        ESCAPAR HTML
+    =====================================================*/
+
+    function escapeHtml(text) {
+
+        const div =
+            document.createElement("div");
+
+        div.textContent = text;
+
+        return div.innerHTML;
+    }
+
+
+    /*=====================================================
+        ENVIAR MENSAJE
+    =====================================================*/
+
+    async function sendMessage(text) {
+
+        if (!text || !text.trim()) {
+            return;
+        }
 
         userMessage(text);
 
-        typing.classList.remove("d-none");
+        if (typing) {
+            typing.classList.remove("d-none");
+        }
 
         button.disabled = true;
 
-        try{
 
-            const response = await fetch(url,{
+        try {
 
-                method:"POST",
+            const response = await fetch(
 
-                headers:{
+                url,
 
-                    "Content-Type":"application/json",
+                {
+                    method: "POST",
 
-                    "Accept":"application/json",
+                    headers: {
 
-                    "X-CSRF-TOKEN":csrf
+                        "Content-Type":
+                            "application/json",
 
-                },
+                        "Accept":
+                            "application/json",
 
-                body:JSON.stringify({
+                        "X-CSRF-TOKEN":
+                            csrf
 
-                    mensaje:text
+                    },
 
-                })
+                    body: JSON.stringify({
 
-            });
+                        mensaje: text
 
-            const data = await response.json();
+                    })
 
-            typing.classList.add("d-none");
+                }
+
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Verificar respuesta HTTP
+            |--------------------------------------------------------------------------
+            */
+
+            if (!response.ok) {
+
+                throw new Error(
+                    `Error HTTP ${response.status}`
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            if (typing) {
+                typing.classList.add("d-none");
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | RESPUESTA DEL BOT
+            |--------------------------------------------------------------------------
+            */
 
             botMessage(
 
                 data.message ??
-
                 "No encontré información."
 
             );
 
-            if(data.products){
 
-                data.products.forEach(product=>{
+            /*=================================================
+                PRODUCTOS
+            =================================================*/
+
+            if (
+                Array.isArray(data.products) &&
+                data.products.length > 0
+            ) {
+
+                data.products.forEach(product => {
 
                     messages.insertAdjacentHTML(
 
@@ -197,11 +408,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 });
 
-                document
-                    .querySelectorAll(".add-cart")
-                    .forEach(btn=>{
 
-                        btn.onclick=()=>{
+                /*
+                |--------------------------------------------------------------------------
+                | Eventos agregar al carrito
+                |--------------------------------------------------------------------------
+                */
+
+                messages
+                    .querySelectorAll(".add-cart")
+                    .forEach(btn => {
+
+                        btn.onclick = () => {
 
                             addToCart(
 
@@ -217,105 +435,159 @@ document.addEventListener("DOMContentLoaded", () => {
 
             }
 
+
             scrollBottom();
 
-        }
 
-        catch(error){
+        } catch (error) {
 
-            typing.classList.add("d-none");
+            console.error(
+                "❌ Error chatbot:",
+                error
+            );
+
+
+            if (typing) {
+                typing.classList.add("d-none");
+            }
+
 
             botMessage(
 
-                "❌ Ocurrió un error al procesar tu consulta."
+                "❌ No pude procesar tu consulta en este momento. Inténtalo nuevamente."
 
             );
 
-            console.error(error);
-
         }
+
 
         button.disabled = false;
 
     }
 
-        /*==================================================
-        TARJETA PRODUCTO
-    ==================================================*/
 
-    function productCard(product){
+    /*=====================================================
+        TARJETA PRODUCTO
+    =====================================================*/
+
+    function productCard(product) {
+
+        const image =
+            product.image ||
+            product.image_url ||
+            "";
+
+
+        const category =
+            product.category ||
+            "Producto";
+
+
+        const description =
+            product.description ||
+            "";
+
+
+        const available =
+            product.available === true;
+
+
+        const availabilityClass =
+            available
+                ? "text-success"
+                : "text-danger";
+
+
+        const availabilityText =
+            available
+                ? "Disponible"
+                : "Agotado";
+
+
+        const addButton =
+            product.can_add_to_cart !== false &&
+            available
+                ? `
+                    <button
+                        class="btn w-100 mt-3 add-cart"
+                        data-product="${product.id}"
+                        type="button"
+                    >
+                        🛒 Agregar al carrito
+                    </button>
+                `
+                : "";
+
 
         return `
 
         <div class="card chat-card">
 
             ${
-                product.image
-                ? `
-                    <img
-                        src="${product.image}"
-                        class="card-img-top"
-                        alt="${product.name}"
-                    >
-                `
-                : ""
+                image
+                    ? `
+                        <img
+                            src="${escapeHtml(image)}"
+                            class="card-img-top"
+                            alt="${escapeHtml(product.name || "")}"
+                            loading="lazy"
+                        >
+                    `
+                    : ""
             }
+
 
             <div class="card-body">
 
-                <span class="badge bg-success mb-2">
 
-                    ${product.category}
+                <span class="badge mb-2">
+
+                    ${escapeHtml(category)}
 
                 </span>
 
+
                 <h5 class="card-title">
 
-                    ${product.name}
+                    ${escapeHtml(product.name || "")}
 
                 </h5>
 
-                <p class="card-text small text-muted">
 
-                    ${product.description}
+                ${
+                    description
+                        ? `
+                            <p class="card-text small text-muted">
 
-                </p>
+                                ${escapeHtml(description)}
 
-                <div class="d-flex justify-content-between align-items-center">
+                            </p>
+                        `
+                        : ""
+                }
 
-                    <strong class="text-success">
 
-                        ${product.price}
+                <div
+                    class="d-flex justify-content-between align-items-center"
+                >
+
+                    <strong>
+
+                        ${escapeHtml(product.price || "")}
 
                     </strong>
 
-                    <span class="${
-                        product.available
-                        ? "text-success"
-                        : "text-danger"
-                    }">
 
-                        ${
-                            product.available
-                            ? "Disponible"
-                            : "Agotado"
-                        }
+                    <span class="${availabilityClass}">
+
+                        ${availabilityText}
 
                     </span>
 
                 </div>
 
-                <button
 
-                    class="btn btn-success w-100 mt-3 add-cart"
-
-                    data-product="${product.id}"
-
-                >
-
-                    🛒 Agregar al carrito
-
-                </button>
+                ${addButton}
 
             </div>
 
@@ -325,55 +597,74 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-    /*==================================================
+
+    /*=====================================================
         AGREGAR AL CARRITO
-    ==================================================*/
+    =====================================================*/
 
-    async function addToCart(productId,button){
+    async function addToCart(productId, cartButton) {
 
-        button.disabled = true;
+        if (!cartButton) return;
 
-        button.innerHTML = "Agregando...";
 
-        try{
+        cartButton.disabled = true;
 
-            const response = await fetch("/cart",{
+        cartButton.innerHTML =
+            "Agregando...";
 
-                method:"POST",
 
-                headers:{
+        try {
 
-                    "Content-Type":"application/json",
+            const response = await fetch(
 
-                    "Accept":"application/json",
+                "/cart",
 
-                    "X-CSRF-TOKEN":csrf
+                {
 
-                },
+                    method: "POST",
 
-                body: JSON.stringify({
+                    headers: {
 
-                    product_id: productId,
+                        "Content-Type":
+                            "application/json",
 
-                    cantidad: 1
+                        "Accept":
+                            "application/json",
 
-                })
+                        "X-CSRF-TOKEN":
+                            csrf
 
-            });
+                    },
 
-            const data = await response.json();
+                    body: JSON.stringify({
 
-            if(!response.ok){
+                        product_id:
+                            productId,
+
+                        cantidad: 1
+
+                    })
+
+                }
+
+            );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
 
                 throw new Error(
 
                     data.message ??
-
-                    "No se pudo agregar."
+                    "No se pudo agregar el producto."
 
                 );
 
             }
+
 
             botMessage(
 
@@ -381,94 +672,226 @@ document.addEventListener("DOMContentLoaded", () => {
 
             );
 
-            if(typeof window.refreshCart==="function"){
+
+            /*
+            |--------------------------------------------------------------------------
+            | Actualizar carrito
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                typeof window.refreshCart ===
+                "function"
+            ) {
 
                 window.refreshCart();
 
             }
 
-        }
 
-        catch(error){
+        } catch (error) {
+
+            console.error(
+                "❌ Error carrito:",
+                error
+            );
+
 
             botMessage(
 
-                "❌ " + error.message
+                "❌ " +
+                (
+                    error.message ??
+                    "No se pudo agregar el producto."
+                )
 
             );
 
         }
 
-        button.disabled = false;
 
-        button.innerHTML = "🛒 Agregar al carrito";
+        cartButton.disabled = false;
+
+        cartButton.innerHTML =
+            "🛒 Agregar al carrito";
 
     }
 
-    /*==================================================
+
+    /*=====================================================
         FORMULARIO
-    ==================================================*/
+    =====================================================*/
 
-    form.addEventListener("submit",(e)=>{
+    form.addEventListener(
+        "submit",
+        (event) => {
 
-        e.preventDefault();
+            event.preventDefault();
 
-        const text = input.value.trim();
 
-        if(text==="") return;
+            const text =
+                input.value.trim();
 
-        input.value="";
 
-        sendMessage(text);
+            if (!text) return;
 
-    });
 
-    /*==================================================
+            input.value = "";
+
+
+            sendMessage(text);
+
+        }
+    );
+
+
+    /*=====================================================
         BOTONES RÁPIDOS
-    ==================================================*/
+    =====================================================*/
 
-    document.querySelectorAll(".quick-btn").forEach(btn=>{
+    root
+        .querySelectorAll(".quick-btn")
+        .forEach(btn => {
 
-        btn.addEventListener("click",()=>{
+            btn.addEventListener(
+                "click",
+                () => {
 
-            sendMessage(
+                    const question =
+                        btn.dataset.question;
 
-                btn.dataset.question
+                    if (!question) return;
 
+                    sendMessage(question);
+
+                }
             );
 
         });
 
-    });
 
-    /*==================================================
+    /*=====================================================
         ENTER
-    ==================================================*/
+    =====================================================*/
 
-    input.addEventListener("keydown",(e)=>{
+    input.addEventListener(
+        "keydown",
+        (event) => {
 
-        if(e.key==="Enter"){
+            if (event.key === "Enter") {
 
-            e.preventDefault();
+                event.preventDefault();
 
-            form.requestSubmit();
+                form.requestSubmit();
+
+            }
 
         }
+    );
 
-    });
 
-    /*==================================================
-        CERRAR CON ESC
-    ==================================================*/
+    /*=====================================================
+        ESC
+    =====================================================*/
 
-    document.addEventListener("keydown",(e)=>{
+    /*
+    | Importante:
+    | Se utiliza una función propia para poder quitarla
+    | cuando Livewire vuelva a cambiar la página.
+    */
 
-        if(e.key==="Escape"){
+    const escapeHandler = (event) => {
+
+        if (
+            event.key === "Escape" &&
+            chatbotWindow
+        ) {
 
             chatbotWindow.classList.remove("show");
 
         }
 
-    });
+    };
 
-});
+
+    document.addEventListener(
+        "keydown",
+        escapeHandler
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Guardar referencia para poder limpiar después
+    |--------------------------------------------------------------------------
+    */
+
+    root._chatbotEscapeHandler =
+        escapeHandler;
+
+
+    console.log(
+        "✅ Chatbot inicializado correctamente"
+    );
+
+}
+
+
+/*=========================================================
+    INICIALIZACIÓN NORMAL
+=========================================================*/
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initChatbot
+);
+
+
+/*=========================================================
+    LIVEWIRE NAVIGATION
+=========================================================*/
+
+/*
+|--------------------------------------------------------------------------
+| Esto es lo importante para tu problema.
+|
+| Cuando pasas:
+|
+| Inicio → Productos
+| Productos → Nosotros
+| Nosotros → Ubícanos
+|
+| Livewire cambia el contenido sin volver a disparar
+| DOMContentLoaded.
+|--------------------------------------------------------------------------
+*/
+
+document.addEventListener(
+    "livewire:navigated",
+    () => {
+
+        console.log(
+            "🔄 Livewire navegó. Reinicializando chatbot..."
+        );
+
+        initChatbot();
+
+    }
+);
+
+
+/*=========================================================
+    TURBO / NAVEGACIÓN DINÁMICA
+=========================================================*/
+
+/*
+|--------------------------------------------------------------------------
+| Si alguna parte del proyecto utiliza Turbo,
+| también soportamos su navegación.
+|--------------------------------------------------------------------------
+*/
+
+document.addEventListener(
+    "turbo:load",
+    initChatbot
+);

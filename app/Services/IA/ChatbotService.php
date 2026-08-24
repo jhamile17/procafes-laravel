@@ -21,124 +21,216 @@ class ChatbotService
      */
     public function reply(string $message): array
     {
-        // Detectar la intención
+        /*
+        |--------------------------------------------------------------------------
+        | Detectar intención
+        |--------------------------------------------------------------------------
+        */
+
         $intent = $this->intent->detect($message);
 
-        // Decidir qué hacer
+        /*
+        |--------------------------------------------------------------------------
+        | Ejecutar intención
+        |--------------------------------------------------------------------------
+        */
+
         switch ($intent['module']) {
 
+            /*
+            |--------------------------------------------------------------------------
+            | Saludo
+            |--------------------------------------------------------------------------
+            */
+
             case 'greeting':
+
                 return [
                     'message' => '¡Hola! 😊 ¿En qué puedo ayudarte hoy?',
                     'products' => []
                 ];
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | Información del negocio
+            |--------------------------------------------------------------------------
+            */
+
             case 'business':
+
                 return $this->business->answer(
-                    $intent['action']
+                    $intent['action'] ?? ''
                 );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Productos
+            |--------------------------------------------------------------------------
+            */
 
             case 'product':
 
-            if (isset($intent['action'])) {
+                /*
+                |------------------------------------------------------------------
+                | Acciones especiales
+                |------------------------------------------------------------------
+                */
 
-                return match ($intent['action']) {
+                if (isset($intent['action'])) {
 
-                    'cheapest' => $this->products->cheapest(),
+                    $response = match ($intent['action']) {
 
-                    'expensive' => $this->products->expensive(),
+                        'cheapest' =>
+                            $this->products->cheapest(),
 
-                    'available' => $this->products->available(),
+                        'expensive' =>
+                            $this->products->expensive(),
 
-                    'best_sellers' => $this->products->bestSellers(),
+                        'available' =>
+                            $this->products->available(),
 
-                    default => [
+                        'best_sellers' =>
+                            $this->products->bestSellers(),
 
-                        'message' => 'No entendí la consulta.',
+                        default => [
+                            'message' => 'No entendí la consulta.',
+                            'products' => []
+                        ]
 
-                        'products' => []
+                    };
 
-                    ]
+                    /*
+                    |--------------------------------------------------------------
+                    | Guardar resultado
+                    |--------------------------------------------------------------
+                    */
 
-                };
+                    $this->rememberProducts($response);
 
-            }
+                    return $response;
+                }
 
-            $response = $this->products->search(
-                $intent['filters'] ?? []
-            );
+                /*
+                |------------------------------------------------------------------
+                | Búsqueda normal
+                |------------------------------------------------------------------
+                */
 
-            Session::put('chatbot.last_filters', $intent['filters']);
+                $filters = $intent['filters'] ?? [];
 
-            Session::put('chatbot.last_products', $response['products']);
-
-            if (!empty($response['products'])) {
-
-                Session::put(
-
-                    'chatbot.selected_product',
-
-                    $response['products'][0]
-
+                $response = $this->products->search(
+                    $filters
                 );
 
-            }
+                $this->rememberProducts(
+                    $response,
+                    $filters
+                );
 
-            return $response;
+                return $response;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Carrito
+            |--------------------------------------------------------------------------
+            */
 
             case 'cart':
 
-            $product = Session::get(
-                'chatbot.selected_product'
-            );
+                $product = Session::get(
+                    'chatbot.selected_product'
+                );
 
-            if(!$product){
+                if (!$product) {
+
+                    return [
+                        'message' =>
+                            'Primero selecciona un producto.',
+                        'products' => []
+                    ];
+                }
 
                 return [
 
-                    'message'=>
+                    'message' =>
+                        "Puedes agregar {$product['name']} usando el botón 🛒 que aparece debajo del producto.",
 
-                    'Primero selecciona un producto.',
-
-                    'products'=>[]
+                    'products' => [
+                        $product
+                    ]
 
                 ];
 
-            }
 
-            return [
-
-                'message'=>
-
-                "Puedes agregar {$product['name']} usando el botón 🛒 que aparece debajo del producto.",
-
-                'products'=>[
-                    $product
-                ]
-
-            ];
+            /*
+            |--------------------------------------------------------------------------
+            | Recomendaciones
+            |--------------------------------------------------------------------------
+            */
 
             case 'recommendation':
 
-                return $this->products->recommend(
-                    $intent['filters'] ?? []
+                $filters = $intent['filters'] ?? [];
+
+                $response = $this->products->recommend(
+                    $filters
                 );
+
+                $this->rememberProducts(
+                    $response,
+                    $filters
+                );
+
+                return $response;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Acompañamiento
+            |--------------------------------------------------------------------------
+            */
 
             case 'companion':
 
-            return $this->products->companion();
+                $response = $this->products->companion();
+
+                $this->rememberProducts(
+                    $response
+                );
+
+                return $response;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Conversación anterior
+            |--------------------------------------------------------------------------
+            */
 
             case 'conversation':
 
                 return [
 
-                    'message' => 'Estoy recordando tu búsqueda anterior.',
+                    'message' =>
+                        'Estoy recordando tu búsqueda anterior.',
 
-                    'products' => $this->lastProducts()
+                    'products' =>
+                        $this->lastProducts()
 
                 ];
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | IA general
+            |--------------------------------------------------------------------------
+            */
+
             case 'ai':
+
             default:
 
                 $messages = $this->prompt->build(
@@ -148,14 +240,74 @@ class ChatbotService
 
                 return [
 
-                    'message' => $this->groq->chat($messages),
+                    'message' =>
+                        $this->groq->chat($messages),
 
                     'products' => []
 
                 ];
-            
         }
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Guardar productos encontrados
+    |--------------------------------------------------------------------------
+    */
+
+    private function rememberProducts(
+        array $response,
+        array $filters = []
+    ): void {
+
+        /*
+        |----------------------------------------------------------------------
+        | Guardar filtros
+        |----------------------------------------------------------------------
+        */
+
+        Session::put(
+            'chatbot.last_filters',
+            $filters
+        );
+
+
+        /*
+        |----------------------------------------------------------------------
+        | Guardar productos
+        |----------------------------------------------------------------------
+        */
+
+        $products = $response['products'] ?? [];
+
+        Session::put(
+            'chatbot.last_products',
+            $products
+        );
+
+
+        /*
+        |----------------------------------------------------------------------
+        | Seleccionar automáticamente el primer producto
+        |----------------------------------------------------------------------
+        */
+
+        if (!empty($products)) {
+
+            Session::put(
+                'chatbot.selected_product',
+                $products[0]
+            );
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Últimos productos
+    |--------------------------------------------------------------------------
+    */
 
     private function lastProducts(): array
     {
@@ -164,6 +316,13 @@ class ChatbotService
             []
         );
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Últimos filtros
+    |--------------------------------------------------------------------------
+    */
 
     private function lastFilters(): array
     {

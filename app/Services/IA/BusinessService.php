@@ -15,15 +15,13 @@ class BusinessService
             */
 
             'hours' => [
-
                 'message' =>
                     "🕒 Nuestro horario de atención es:\n\n" .
                     "📅 Lunes a Domingo\n" .
-                    "⏰ 8:00 a.m. - 10:00 p.m.\n\n" .
+                    "⏰ 8:00 a.m. - 11:00 p.m.\n\n" .
                     "☕ ¡Te esperamos en PROCAFES!",
 
                 'products' => []
-
             ],
 
             /*
@@ -33,15 +31,13 @@ class BusinessService
             */
 
             'location' => [
-
                 'message' =>
-                    "📍 Nos encontramos en:\n\n" .
+                    "📍 Puedes visitarnos en:\n\n" .
                     "Jr. 24 de Septiembre 841\n" .
                     "Pichanaqui, Junín - Perú.\n\n" .
                     "☕ ¡Será un gusto atenderte!",
 
                 'products' => []
-
             ],
 
             /*
@@ -52,17 +48,15 @@ class BusinessService
 
             'payments' => [
 
-                'message' =>
-                    "💳 Aceptamos los siguientes métodos de pago:\n\n" .
-                    "✅ Efectivo\n" .
-                    "✅ Yape\n" .
-                    "✅ Plin\n" .
-                    "✅ Tarjetas de crédito\n" .
-                    "✅ Tarjetas de débito",
+            'message' =>
+                "💳 En PROCAFES contamos con dos métodos de pago:\n\n" .
+                "💵 Efectivo\n" .
+                "🛒 Mercado Pago\n\n" .
+                "☕ Puedes elegir el método que prefieras al realizar tu pedido.",
 
-                'products' => []
+            'products' => []
 
-            ],
+        ],
 
             /*
             |--------------------------------------------------------------------------
@@ -71,13 +65,12 @@ class BusinessService
             */
 
             'delivery' => [
-
                 'message' =>
-                    "🛵 Contamos con servicio de delivery dentro de Pichanaqui.\n\n" .
-                    "También puedes elegir la opción de recojo en tienda para algunos productos.",
+                    "🛵 Sí, contamos con servicio de delivery dentro de Pichanaqui.\n\n" .
+                    "También puedes elegir la opción de recojo en tienda para tus pedidos.\n\n" .
+                    "📦 La disponibilidad puede depender de la zona y del pedido.",
 
                 'products' => []
-
             ],
 
             /*
@@ -87,31 +80,12 @@ class BusinessService
             */
 
             'whatsapp' => [
-
                 'message' =>
-                    "📱 Puedes escribirnos por WhatsApp al:\n\n" .
-                    "📞 +51 955 236 237",
+                    "📱 Puedes comunicarte directamente con PROCAFES por WhatsApp:\n\n" .
+                    "📞 +51 955 236 237\n\n" .
+                    "☕ Estaremos encantados de atenderte.",
 
                 'products' => []
-
-            ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Redes sociales
-            |--------------------------------------------------------------------------
-            */
-
-            'social' => [
-
-                'message' =>
-                    "📲 Síguenos en nuestras redes sociales:\n\n" .
-                    "📘 Facebook\n" .
-                    "📸 Instagram\n" .
-                    "🎵 TikTok",
-
-                'products' => []
-
             ],
 
             /*
@@ -121,12 +95,11 @@ class BusinessService
             */
 
             'pickup' => [
-
                 'message' =>
-                    "🏪 Sí, puedes realizar tu pedido y recogerlo directamente en nuestra tienda.",
+                    "🏪 Sí, puedes realizar tu pedido y elegir el recojo en tienda.\n\n" .
+                    "📦 Una vez preparado tu pedido, podrás recogerlo directamente en nuestro local.",
 
                 'products' => []
-
             ],
 
             /*
@@ -136,12 +109,13 @@ class BusinessService
             */
 
             'contact' => [
-
                 'message' =>
-                    "☎️ Puedes comunicarte con nosotros mediante WhatsApp o visitarnos en nuestro local de Pichanaqui.",
+                    "☎️ Puedes comunicarte con PROCAFES a través de nuestro WhatsApp:\n\n" .
+                    "📞 +51 955 236 237\n\n" .
+                    "📍 También puedes visitarnos en:\n" .
+                    "Jr. 24 de Septiembre 841, Pichanaqui, Junín - Perú.",
 
                 'products' => []
-
             ],
 
             /*
@@ -151,12 +125,18 @@ class BusinessService
             */
 
             default => [
-
                 'message' =>
-                    "Lo siento, no tengo información sobre esa consulta.",
+                    "😔 No encontré información sobre esa consulta.\n\n" .
+                    "Puedo ayudarte con:\n\n" .
+                    "🕒 Horarios\n" .
+                    "📍 Ubicación\n" .
+                    "🛵 Delivery\n" .
+                    "💳 Métodos de pago\n" .
+                    "📱 WhatsApp\n" .
+                    "🏪 Recojo en tienda\n" .
+                    "☕ Productos",
 
                 'products' => []
-
             ]
         };
     }
