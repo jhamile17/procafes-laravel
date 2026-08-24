@@ -337,13 +337,12 @@ Route::prefix('admin')
         )->name('categories.toggle-status');
 
         Route::resource('/brands', BrandController::class);
-        Route::resource('/products', AdminProductController::class);
-        /*
-        |--------------------------------------------------------------------------
-        | Activar / Desactivar producto
-        |--------------------------------------------------------------------------
-        */
+        Route::patch(
+            '/brands/{brand}/toggle-status',
+            [BrandController::class, 'toggleStatus']
+        )->name('brands.toggle-status');
 
+        Route::resource('/products', AdminProductController::class);
         Route::patch(
             '/products/{product}/toggle-status',
             [AdminProductController::class, 'toggleStatus']

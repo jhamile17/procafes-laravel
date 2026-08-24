@@ -103,6 +103,10 @@
                             Descripción
                         </th>
 
+                        <th>
+                            Estado
+                        </th>
+
                         <th class="admin-list-actions-column">
                             Acciones
                         </th>
@@ -118,7 +122,9 @@
 
                         <tr>
 
-                            {{-- MARCA --}}
+                            {{-- =================================================
+                                 MARCA
+                            ================================================== --}}
 
                             <td>
 
@@ -139,14 +145,16 @@
                             </td>
 
 
-                            {{-- DESCRIPCIÓN --}}
+                            {{-- =================================================
+                                 DESCRIPCIÓN
+                            ================================================== --}}
 
                             <td>
 
                                 <span class="admin-list-description">
 
                                     {{ \Illuminate\Support\Str::limit(
-                                        $brand->description,
+                                        $brand->description ?? 'Sin descripción',
                                         80
                                     ) }}
 
@@ -155,11 +163,38 @@
                             </td>
 
 
-                            {{-- ACCIONES --}}
+                            {{-- =================================================
+                                 ESTADO
+                            ================================================== --}}
+
+                            <td>
+
+                                @if($brand->status)
+
+                                    <span class="badge bg-success">
+                                        Activo
+                                    </span>
+
+                                @else
+
+                                    <span class="badge bg-secondary">
+                                        Inactivo
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- =================================================
+                                 ACCIONES
+                            ================================================== --}}
 
                             <td class="admin-list-actions">
 
                                 <div class="admin-actions">
+
+                                    {{-- EDITAR --}}
 
                                     <a
                                         href="{{ route(
@@ -172,34 +207,72 @@
 
                                         <i class="bi bi-pencil-square"></i>
 
+                                        <span>
+                                            Editar
+                                        </span>
+
                                     </a>
 
 
+                                    {{-- ACTIVAR / DESACTIVAR --}}
+
                                     <form
                                         action="{{ route(
-                                            'admin.brands.destroy',
+                                            'admin.brands.toggle-status',
                                             $brand
                                         ) }}"
                                         method="POST"
                                         class="d-inline"
-                                        onsubmit="return confirm(
-                                            '¿Eliminar esta marca?'
-                                        )"
                                     >
 
                                         @csrf
 
-                                        @method('DELETE')
+                                        @method('PATCH')
 
-                                        <button
-                                            type="submit"
-                                            class="admin-action admin-action-delete"
-                                            title="Eliminar marca"
-                                        >
 
-                                            <i class="bi bi-trash3"></i>
+                                        @if($brand->status)
 
-                                        </button>
+                                            {{-- DESACTIVAR --}}
+
+                                            <button
+                                                type="submit"
+                                                class="admin-action admin-action-deactivate"
+                                                title="Desactivar marca"
+                                                onclick="return confirm(
+                                                    '¿Deseas desactivar esta marca?'
+                                                )"
+                                            >
+
+                                                <i class="bi bi-toggle-on"></i>
+
+                                                <span>
+                                                    Desactivar
+                                                </span>
+
+                                            </button>
+
+                                        @else
+
+                                            {{-- ACTIVAR --}}
+
+                                            <button
+                                                type="submit"
+                                                class="admin-action admin-action-activate"
+                                                title="Activar marca"
+                                                onclick="return confirm(
+                                                    '¿Deseas activar esta marca?'
+                                                )"
+                                            >
+
+                                                <i class="bi bi-toggle-off"></i>
+
+                                                <span>
+                                                    Activar
+                                                </span>
+
+                                            </button>
+
+                                        @endif
 
                                     </form>
 
@@ -209,12 +282,17 @@
 
                         </tr>
 
+
                     @empty
+
+                        {{-- =================================================
+                             LISTADO VACÍO
+                        ================================================== --}}
 
                         <tr>
 
                             <td
-                                colspan="3"
+                                colspan="4"
                                 class="admin-list-empty"
                             >
 
@@ -263,13 +341,16 @@
              PAGINACIÓN
         ====================================================== --}}
 
-      @if(method_exists($brands, 'links'))
+        @if($brands->hasPages())
 
-        <div class="admin-list-pagination">
+            <div class="admin-list-pagination">
 
-            {{ $brands->onEachSide(1)->links('vendor.pagination.paginacion-admin') }}
+                {{ $brands
+                    ->onEachSide(1)
+                    ->links('vendor.pagination.paginacion-admin')
+                }}
 
-        </div>
+            </div>
 
         @endif
 
