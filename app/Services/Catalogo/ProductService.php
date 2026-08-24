@@ -262,8 +262,29 @@ class ProductService
 
     public function cambiarEstado(Product $product): Product
     {
+        // Si está activo, simplemente desactivar
+        if ($product->status) {
+
+            $product->update([
+                'status' => 0,
+            ]);
+
+            return $product->fresh();
+        }
+
+        // Si está agotado, no permitir activarlo
+        if ($product->stock <= 0) {
+
+            $product->update([
+                'status' => 0,
+            ]);
+
+            return $product->fresh();
+        }
+
+        // Si tiene stock, permitir activar
         $product->update([
-            'status' => ! $product->status,
+            'status' => 1,
         ]);
 
         return $product->fresh();
@@ -271,7 +292,20 @@ class ProductService
 
     public function activar(Product $product): Product
     {
-        $product->update(['status' => 1]);
+        // No permitir activar productos agotados
+        if ($product->stock <= 0) {
+
+            $product->update([
+                'status' => 0,
+            ]);
+
+            return $product->fresh();
+        }
+
+        $product->update([
+            'status' => 1,
+        ]);
+
         return $product->fresh();
     }
 
@@ -352,34 +386,160 @@ class ProductService
         ?Product $product = null
     ): array {
 
-        // limpiar strings
+        /*
+        |--------------------------------------------------------------------------
+        | LIMPIAR STRINGS
+        |--------------------------------------------------------------------------
+        */
+
         $datos = array_map(function ($valor) {
-            return is_string($valor) ? trim($valor) : $valor;
+
+            return is_string($valor)
+                ? trim($valor)
+                : $valor;
+
         }, $datos);
 
-        // normalizar stock
+
+        /*
+        |--------------------------------------------------------------------------
+        | STOCK
+        |--------------------------------------------------------------------------
+        */
+
         if (isset($datos['stock'])) {
+
             $datos['stock'] = (int) $datos['stock'];
+
         }
 
         if (isset($datos['stock_minimo'])) {
+
             $datos['stock_minimo'] = (int) $datos['stock_minimo'];
+
         }
 
-        // normalizar precios
-        foreach (['cost_price', 'sale_price'] as $field) {
-            if (isset($datos[$field])) {
-                $datos[$field] = (float) str_replace(',', '.', $datos[$field]);
-            }
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRECIO DE VENTA
+        |--------------------------------------------------------------------------
+        */
+
+        if (isset($datos['sale_price'])) {
+
+            $datos['sale_price'] = (float) str_replace(
+                ',',
+                '.',
+                $datos['sale_price']
+            );
+
         }
 
-        // normalizar status
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRECIO DE COSTO
+        |--------------------------------------------------------------------------
+        |
+        | Ya no se solicita desde el formulario.
+        | Se guarda 0 automáticamente.
+        |
+        */
+
+        if (!isset($datos['cost_price'])) {
+
+            $datos['cost_price'] = 0;
+
+        } else {
+
+            $datos['cost_price'] = (float) str_replace(
+                ',',
+                '.',
+                $datos['cost_price']
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ESTADO
+        |--------------------------------------------------------------------------
+        */
+
         if (isset($datos['status'])) {
+
             $datos['status'] = (int) $datos['status'];
+
         }
 
-        $datos = $this->prepararSlug($datos, $product);
-        $datos = $this->prepararSku($datos, $product);
+
+        /*
+        |--------------------------------------------------------------------------
+        | STOCK AGOTADO
+        |--------------------------------------------------------------------------
+        |
+        | Si stock = 0, automáticamente queda INACTIVO.
+        |
+        */
+
+        if (
+            isset($datos['stock']) &&
+            $datos['stock'] <= 0
+        ) {
+
+            $datos['status'] = 0;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CREACIÓN
+        |--------------------------------------------------------------------------
+        |
+        | Si es un producto nuevo y tiene stock,
+        | queda activo automáticamente.
+        |
+        */
+
+        if (
+            $product === null &&
+            !isset($datos['status'])
+        ) {
+
+            $datos['status'] =
+                ($datos['stock'] ?? 0) > 0
+                    ? 1
+                    : 0;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SLUG
+        |--------------------------------------------------------------------------
+        */
+
+        $datos = $this->prepararSlug(
+            $datos,
+            $product
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SKU
+        |--------------------------------------------------------------------------
+        */
+
+        $datos = $this->prepararSku(
+            $datos,
+            $product
+        );
+
 
         return $datos;
     }

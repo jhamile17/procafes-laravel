@@ -26,9 +26,10 @@ class ProductController extends Controller
     ) {
     }
 
+
     /*
     |--------------------------------------------------------------------------
-    | Listado
+    | LISTADO
     |--------------------------------------------------------------------------
     */
 
@@ -66,9 +67,10 @@ class ProductController extends Controller
         );
     }
 
+
     /*
     |--------------------------------------------------------------------------
-    | Formulario Crear
+    | FORMULARIO CREAR
     |--------------------------------------------------------------------------
     */
 
@@ -96,9 +98,10 @@ class ProductController extends Controller
         );
     }
 
+
     /*
     |--------------------------------------------------------------------------
-    | Guardar producto
+    | GUARDAR PRODUCTO
     |--------------------------------------------------------------------------
     */
 
@@ -108,12 +111,28 @@ class ProductController extends Controller
 
         try {
 
+            /*
+            |--------------------------------------------------------------------------
+            | Datos validados
+            |--------------------------------------------------------------------------
+            */
+
             $datos = $request->validated();
+
 
             /*
             |--------------------------------------------------------------------------
-            | Imagen
+            | IMAGEN
             |--------------------------------------------------------------------------
+            |
+            | Se guarda en:
+            |
+            | storage/app/public/products
+            |
+            | Y en BD:
+            |
+            | products/nombre-generado.png
+            |
             */
 
             if ($request->hasFile('image')) {
@@ -126,13 +145,23 @@ class ProductController extends Controller
                     );
             }
 
+
             /*
             |--------------------------------------------------------------------------
-            | Crear producto
+            | CREAR PRODUCTO
             |--------------------------------------------------------------------------
+            |
+            | ProductService se encarga de:
+            |
+            | - generar SKU
+            | - generar slug
+            | - colocar cost_price = 0
+            | - determinar status según stock
+            |
             */
 
             $this->productService->crear($datos);
+
 
             return redirect()
                 ->route('admin.products.index')
@@ -141,9 +170,11 @@ class ProductController extends Controller
                     'Producto registrado correctamente.'
                 );
 
+
         } catch (\Throwable $e) {
 
             report($e);
+
 
             return back()
                 ->withInput()
@@ -154,9 +185,10 @@ class ProductController extends Controller
         }
     }
 
+
     /*
     |--------------------------------------------------------------------------
-    | Formulario Editar
+    | FORMULARIO EDITAR
     |--------------------------------------------------------------------------
     */
 
@@ -187,9 +219,10 @@ class ProductController extends Controller
         );
     }
 
+
     /*
     |--------------------------------------------------------------------------
-    | Actualizar producto
+    | ACTUALIZAR PRODUCTO
     |--------------------------------------------------------------------------
     */
 
@@ -202,24 +235,56 @@ class ProductController extends Controller
 
             $datos = $request->validated();
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | NUEVA IMAGEN
+            |--------------------------------------------------------------------------
+            */
+
             if ($request->hasFile('image')) {
 
+                /*
+                | Eliminar imagen anterior
+                */
+
                 if (
-                    $product->image &&
-                    Storage::disk('public')->exists($product->image)
+                    !empty($product->image) &&
+                    Storage::disk('public')->exists(
+                        $product->image
+                    )
                 ) {
-                    Storage::disk('public')->delete($product->image);
+
+                    Storage::disk('public')->delete(
+                        $product->image
+                    );
                 }
+
+
+                /*
+                | Guardar nueva imagen
+                */
 
                 $datos['image'] = $request
                     ->file('image')
-                    ->store('products', 'public');
+                    ->store(
+                        'products',
+                        'public'
+                    );
             }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ACTUALIZAR
+            |--------------------------------------------------------------------------
+            */
 
             $this->productService->actualizar(
                 $product,
                 $datos
             );
+
 
             return redirect()
                 ->route('admin.products.index')
@@ -228,9 +293,11 @@ class ProductController extends Controller
                     'Producto actualizado correctamente.'
                 );
 
+
         } catch (\Throwable $e) {
 
             report($e);
+
 
             return back()
                 ->withInput()
@@ -241,10 +308,102 @@ class ProductController extends Controller
         }
     }
 
+
     /*
     |--------------------------------------------------------------------------
-    | Eliminar producto
+    | ACTIVAR / DESACTIVAR
     |--------------------------------------------------------------------------
+    */
+
+    public function toggleStatus(
+        Product $product
+    ): RedirectResponse {
+
+        try {
+
+            /*
+            |--------------------------------------------------------------------------
+            | SI ESTÁ ACTIVO → DESACTIVAR
+            |--------------------------------------------------------------------------
+            */
+
+            if ($product->status) {
+
+                $this->productService->desactivar(
+                    $product
+                );
+
+                return redirect()
+                    ->route('admin.products.index')
+                    ->with(
+                        'success',
+                        'Producto desactivado correctamente.'
+                    );
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SI ESTÁ AGOTADO → NO ACTIVAR
+            |--------------------------------------------------------------------------
+            */
+
+            if ($product->stock <= 0) {
+
+                return redirect()
+                    ->route('admin.products.index')
+                    ->with(
+                        'error',
+                        'No puedes activar este producto porque está agotado. Primero repón el stock.'
+                    );
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SI TIENE STOCK → ACTIVAR
+            |--------------------------------------------------------------------------
+            */
+
+            $this->productService->activar(
+                $product
+            );
+
+
+            return redirect()
+                ->route('admin.products.index')
+                ->with(
+                    'success',
+                    'Producto activado correctamente.'
+                );
+
+
+        } catch (\Throwable $e) {
+
+            report($e);
+
+
+            return redirect()
+                ->route('admin.products.index')
+                ->with(
+                    'error',
+                    'No fue posible cambiar el estado del producto.'
+                );
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ELIMINAR
+    |--------------------------------------------------------------------------
+    |
+    | Se mantiene solamente como método técnico porque
+    | posiblemente tu Route::resource() todavía lo registra.
+    |
+    | Pero ya NO deberías mostrar el botón eliminar
+    | en la vista de productos.
+    |
     */
 
     public function destroy(
@@ -255,28 +414,36 @@ class ProductController extends Controller
 
             $product = $this->productService->obtener($id);
 
+
             /*
             |--------------------------------------------------------------------------
-            | Eliminar imagen
+            | ELIMINAR IMAGEN
             |--------------------------------------------------------------------------
             */
 
             if (
                 !empty($product->image) &&
-                Storage::disk('public')->exists($product->image)
+                Storage::disk('public')->exists(
+                    $product->image
+                )
             ) {
 
-                Storage::disk('public')
-                    ->delete($product->image);
+                Storage::disk('public')->delete(
+                    $product->image
+                );
             }
+
 
             /*
             |--------------------------------------------------------------------------
-            | Eliminar producto
+            | ELIMINAR PRODUCTO
             |--------------------------------------------------------------------------
             */
 
-            $this->productService->eliminar($product);
+            $this->productService->eliminar(
+                $product
+            );
+
 
             return redirect()
                 ->route('admin.products.index')
@@ -285,9 +452,11 @@ class ProductController extends Controller
                     'Producto eliminado correctamente.'
                 );
 
+
         } catch (\Throwable $e) {
 
             report($e);
+
 
             return redirect()
                 ->route('admin.products.index')

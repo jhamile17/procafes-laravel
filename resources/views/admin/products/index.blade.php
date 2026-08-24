@@ -475,51 +475,66 @@
 
 
                                 {{-- =================================================
-                                     ACCIONES
-                                ================================================== --}}
+                                    ACCIONES
+                                ================================================= --}}
 
                                 <td class="text-end pe-4">
 
-                                    <div class="d-flex justify-content-end gap-1">
-                                    <div class="admin-actions">
-                                        <a
-                                            href="{{ route('admin.products.edit', $product) }}"
-                                            class="admin-action admin-action-edit"
-                                            title="Editar producto">
+                                <div class="admin-actions">
 
-                                            <i class="bi bi-pencil-square"></i>
+                                    {{-- EDITAR --}}
+                                    <a
+                                        href="{{ route('admin.products.edit', $product) }}"
+                                        class="admin-action admin-action-edit"
+                                        title="Editar producto"
+                                    >
+                                        <i class="bi bi-pencil-square"></i>
+                                        <span>Editar</span>
+                                    </a>
 
-                                        </a>
 
+                                    {{-- ACTIVAR / DESACTIVAR --}}
+                                    <form
+                                        action="{{ route('admin.products.toggle-status', $product) }}"
+                                        method="POST"
+                                    >
+                                        @csrf
+                                        @method('PATCH')
 
-                                        <form
-                                            action="{{ route('admin.products.destroy', $product) }}"
-                                            method="POST"
-                                            class="d-inline"
-                                            onsubmit="return confirm('¿Eliminar este producto?')">
-
-                                            @csrf
-
-                                            @method('DELETE')
+                                        @if($product->status)
 
                                             <button
                                                 type="submit"
-                                                class="admin-action admin-action-delete"
-                                                title="Eliminar producto">
-
-                                                <i class="bi bi-trash"></i>
-
+                                                class="admin-action admin-action-deactivate"
+                                                title="Desactivar producto"
+                                                onclick="return confirm('¿Deseas desactivar este producto?')"
+                                            >
+                                                <i class="bi bi-toggle-on"></i>
+                                                <span>Desactivar</span>
                                             </button>
 
-                                        </form>
+                                        @else
 
-                                    </div>
-                                    </div>
-                                </td>
+                                            <button
+                                                type="submit"
+                                                class="admin-action admin-action-activate"
+                                                title="Activar producto"
+                                                onclick="return confirm('¿Deseas activar este producto?')"
+                                            >
+                                                <i class="bi bi-toggle-off"></i>
+                                                <span>Activar</span>
+                                            </button>
 
+                                        @endif
+
+                                    </form>
+
+                                </div>
+
+                            </td>
                             </tr>
 
-                        @empty
+                            @empty
 
                             <tr>
 
