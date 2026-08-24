@@ -78,14 +78,24 @@ class ConfiguracionEmpresaController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'hora_apertura' => [
-                'required',
+            'horarios' => [
+                'nullable',
+                'array',
+            ],
+
+            'horarios.*.hora_apertura' => [
+                'nullable',
                 'date_format:H:i',
             ],
 
-            'hora_cierre' => [
-                'required',
+            'horarios.*.hora_cierre' => [
+                'nullable',
                 'date_format:H:i',
+            ],
+
+            'horarios.*.activo' => [
+                'nullable',
+                'boolean',
             ],
 
             /*

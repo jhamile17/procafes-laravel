@@ -231,8 +231,6 @@ class CheckoutService
             ]);
         });
     }
-
-
     /*
     |--------------------------------------------------------------------------
     | Validar horario de atención
@@ -241,25 +239,66 @@ class CheckoutService
 
     protected function validarHorarioAtencion(): void
     {
-        $configuracion =
-            $this->configuracionService->obtener();
+        $configuracion = $this->configuracionService->obtener();
 
-        $ahora =
-            now()->format('H:i');
+        /*
+        |--------------------------------------------------------------------------
+        | Obtener el día actual
+        |--------------------------------------------------------------------------
+        */
 
-        $apertura =
-            substr(
-                (string) $configuracion->hora_apertura,
-                0,
-                5
+        $diaActual = strtolower(
+            now()->locale('es')->dayName
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Buscar horario del día
+        |--------------------------------------------------------------------------
+        */
+
+        $horario = $configuracion->horarios
+            ->firstWhere('dia', $diaActual);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Si no existe horario o el día está cerrado
+        |--------------------------------------------------------------------------
+        */
+
+        if (! $horario || ! $horario->activo) {
+
+            throw new RuntimeException(
+                'PROCÁFES se encuentra cerrado el día de hoy. ' .
+                'Puedes realizar tu pedido dentro de nuestro horario de atención.'
             );
+        }
 
-        $cierre =
-            substr(
-                (string) $configuracion->hora_cierre,
-                0,
-                5
-            );
+        /*
+        |--------------------------------------------------------------------------
+        | Hora actual
+        |--------------------------------------------------------------------------
+        */
+
+        $ahora = now()->format('H:i');
+
+        $apertura = substr(
+            (string) $horario->hora_apertura,
+            0,
+            5
+        );
+
+        $cierre = substr(
+            (string) $horario->hora_cierre,
+            0,
+            5
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validar horario
+        |--------------------------------------------------------------------------
+        */
 
         if (
             $ahora < $apertura ||
@@ -282,25 +321,56 @@ class CheckoutService
 
     protected function horarioDisponible(): bool
     {
-        $configuracion =
-            $this->configuracionService->obtener();
+        $configuracion = $this->configuracionService->obtener();
 
-        $ahora =
-            now()->format('H:i');
+        /*
+        |--------------------------------------------------------------------------
+        | Día actual
+        |--------------------------------------------------------------------------
+        */
 
-        $apertura =
-            substr(
-                (string) $configuracion->hora_apertura,
-                0,
-                5
-            );
+        $diaActual = strtolower(
+            now()->locale('es')->dayName
+        );
 
-        $cierre =
-            substr(
-                (string) $configuracion->hora_cierre,
-                0,
-                5
-            );
+        /*
+        |--------------------------------------------------------------------------
+        | Buscar horario
+        |--------------------------------------------------------------------------
+        */
+
+        $horario = $configuracion->horarios
+            ->firstWhere('dia', $diaActual);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Si no existe o está cerrado
+        |--------------------------------------------------------------------------
+        */
+
+        if (! $horario || ! $horario->activo) {
+            return false;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Horario del día
+        |--------------------------------------------------------------------------
+        */
+
+        $ahora = now()->format('H:i');
+
+        $apertura = substr(
+            (string) $horario->hora_apertura,
+            0,
+            5
+        );
+
+        $cierre = substr(
+            (string) $horario->hora_cierre,
+            0,
+            5
+        );
 
         return
             $ahora >= $apertura &&
@@ -316,11 +386,27 @@ class CheckoutService
 
     protected function horaApertura(): string
     {
-        $configuracion =
-            $this->configuracionService->obtener();
+        $configuracion = $this->configuracionService->obtener();
+
+        $diaActual = strtolower(
+            now()->locale('es')->dayName
+        );
+
+        $horario = $configuracion->horarios
+            ->firstWhere('dia', $diaActual);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Si el día está cerrado
+        |--------------------------------------------------------------------------
+        */
+
+        if (! $horario || ! $horario->activo) {
+            return '--';
+        }
 
         return \Carbon\Carbon::parse(
-            $configuracion->hora_apertura
+            $horario->hora_apertura
         )->format('g:i a');
     }
 
@@ -333,14 +419,29 @@ class CheckoutService
 
     protected function horaCierre(): string
     {
-        $configuracion =
-            $this->configuracionService->obtener();
+        $configuracion = $this->configuracionService->obtener();
+
+        $diaActual = strtolower(
+            now()->locale('es')->dayName
+        );
+
+        $horario = $configuracion->horarios
+            ->firstWhere('dia', $diaActual);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Si el día está cerrado
+        |--------------------------------------------------------------------------
+        */
+
+        if (! $horario || ! $horario->activo) {
+            return '--';
+        }
 
         return \Carbon\Carbon::parse(
-            $configuracion->hora_cierre
+            $horario->hora_cierre
         )->format('g:i a');
     }
-
 
     /*
     |--------------------------------------------------------------------------

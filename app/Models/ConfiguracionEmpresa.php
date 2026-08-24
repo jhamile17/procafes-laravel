@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ConfiguracionEmpresa extends Model
 {
@@ -32,5 +33,19 @@ class ConfiguracionEmpresa extends Model
     public static function obtener(): ?self
     {
         return static::query()->first();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELACIÓN CON HORARIOS
+    |--------------------------------------------------------------------------
+    */
+
+    public function horarios(): HasMany
+    {
+        return $this->hasMany(
+            HorarioEmpresa::class,
+            'configuracion_empresa_id'
+        );
     }
 }

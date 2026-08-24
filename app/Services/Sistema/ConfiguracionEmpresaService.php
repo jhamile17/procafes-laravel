@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Sistema;
 
 use App\Models\ConfiguracionEmpresa;
+use App\Models\HorarioEmpresa;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -13,23 +14,49 @@ class ConfiguracionEmpresaService
 {
     /*
     |--------------------------------------------------------------------------
-    | Obtener configuración de la empresa
+    | Días de la semana
+    |--------------------------------------------------------------------------
+    */
+
+    private array $diasSemana = [
+        'lunes',
+        'martes',
+        'miercoles',
+        'jueves',
+        'viernes',
+        'sabado',
+        'domingo',
+    ];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Obtener configuración
     |--------------------------------------------------------------------------
     */
 
     public function obtener(): ConfiguracionEmpresa
     {
-        $configuracion = ConfiguracionEmpresa::query()->first();
+        $configuracion = ConfiguracionEmpresa::query()
+            ->with('horarios')
+            ->first();
 
         if (! $configuracion) {
 
             throw new RuntimeException(
                 'No existe una configuración registrada para la empresa.'
             );
-
         }
 
-        return $configuracion;
+        /*
+        |--------------------------------------------------------------------------
+        | Crear horarios iniciales
+        |--------------------------------------------------------------------------
+        */
+
+        $this->crearHorariosIniciales($configuracion);
+
+        return $configuracion->fresh('horarios');
     }
 
 
@@ -45,36 +72,34 @@ class ConfiguracionEmpresaService
 
             $configuracion = $this->obtener();
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | Datos generales
+            |--------------------------------------------------------------------------
+            */
+
             $configuracion->update([
 
-                /*
-                |--------------------------------------------------------------------------
-                | Datos de contacto
-                |--------------------------------------------------------------------------
-                */
+                'correo' => $datos['correo'],
 
-                'correo' =>
-                    $datos['correo'],
+                'telefono' => $datos['telefono'],
 
-                'telefono' =>
-                    $datos['telefono'],
-
-                'direccion' =>
-                    $datos['direccion'],
-
+                'direccion' => $datos['direccion'],
 
                 /*
                 |--------------------------------------------------------------------------
-                | Horario
+                | Compatibilidad con horario general anterior
                 |--------------------------------------------------------------------------
                 */
 
                 'hora_apertura' =>
-                    $datos['hora_apertura'],
+                    $datos['hora_apertura']
+                    ?? $configuracion->hora_apertura,
 
                 'hora_cierre' =>
-                    $datos['hora_cierre'],
-
+                    $datos['hora_cierre']
+                    ?? $configuracion->hora_cierre,
 
                 /*
                 |--------------------------------------------------------------------------
@@ -85,7 +110,6 @@ class ConfiguracionEmpresaService
                 'logo' =>
                     $datos['logo']
                     ?? $configuracion->logo,
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -104,12 +128,112 @@ class ConfiguracionEmpresaService
                 'tiktok' =>
                     $datos['tiktok']
                     ?? null,
-
             ]);
 
-            return $configuracion->fresh();
 
+            /*
+            |--------------------------------------------------------------------------
+            | Actualizar horarios por día
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                isset($datos['horarios']) &&
+                is_array($datos['horarios'])
+            ) {
+
+                foreach ($this->diasSemana as $dia) {
+
+                    $horario = $datos['horarios'][$dia] ?? null;
+
+                    if (! is_array($horario)) {
+                        continue;
+                    }
+
+                    HorarioEmpresa::updateOrCreate(
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Buscar
+                        |--------------------------------------------------------------------------
+                        */
+
+                        [
+                            'configuracion_empresa_id' =>
+                                $configuracion->id,
+
+                            'dia' =>
+                                $dia,
+                        ],
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Actualizar
+                        |--------------------------------------------------------------------------
+                        */
+
+                        [
+                            'hora_apertura' =>
+                                $horario['hora_apertura'] ?? null,
+
+                            'hora_cierre' =>
+                                $horario['hora_cierre'] ?? null,
+
+                            'activo' =>
+                                (bool) ($horario['activo'] ?? false),
+                        ]
+                    );
+                }
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Retornar configuración actualizada
+            |--------------------------------------------------------------------------
+            */
+
+            return $configuracion->fresh('horarios');
         });
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Crear horarios iniciales
+    |--------------------------------------------------------------------------
+    */
+
+    private function crearHorariosIniciales(
+        ConfiguracionEmpresa $configuracion
+    ): void {
+
+        foreach ($this->diasSemana as $dia) {
+
+            HorarioEmpresa::firstOrCreate(
+
+                [
+                    'configuracion_empresa_id' =>
+                        $configuracion->id,
+
+                    'dia' =>
+                        $dia,
+                ],
+
+                [
+                    'hora_apertura' =>
+                        $configuracion->hora_apertura
+                        ?? '08:00:00',
+
+                    'hora_cierre' =>
+                        $configuracion->hora_cierre
+                        ?? '23:00:00',
+
+                    'activo' =>
+                        true,
+                ]
+            );
+        }
     }
 
 
@@ -182,7 +306,24 @@ class ConfiguracionEmpresaService
 
     /*
     |--------------------------------------------------------------------------
-    | Horario de atención
+    | Horarios por día
+    |--------------------------------------------------------------------------
+    */
+
+    public function horarios(): array
+    {
+        $configuracion = $this->obtener();
+
+        return $configuracion
+            ->horarios
+            ->keyBy('dia')
+            ->toArray();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Horario general
     |--------------------------------------------------------------------------
     */
 
@@ -190,17 +331,32 @@ class ConfiguracionEmpresaService
     {
         $configuracion = $this->obtener();
 
+        $diaActual = strtolower(
+            Carbon::now()->locale('es')->dayName
+        );
+
+        $horario = $configuracion
+            ->horarios
+            ->firstWhere('dia', $diaActual);
+
+        if (! $horario) {
+            return 'Horario no configurado';
+        }
+
+        if (! $horario->activo) {
+            return 'Hoy no atendemos';
+        }
+
         $apertura = Carbon::parse(
-            $configuracion->hora_apertura
+            $horario->hora_apertura
         )->format('g:i a');
 
         $cierre = Carbon::parse(
-            $configuracion->hora_cierre
+            $horario->hora_cierre
         )->format('g:i a');
 
-        return "Lunes a Domingo · {$apertura} - {$cierre}";
+        return "{$apertura} - {$cierre}";
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -274,6 +430,12 @@ class ConfiguracionEmpresaService
 
             'hora_cierre' =>
                 $configuracion->hora_cierre,
+
+            'horarios' =>
+                $configuracion
+                    ->horarios
+                    ->keyBy('dia')
+                    ->toArray(),
 
         ];
     }

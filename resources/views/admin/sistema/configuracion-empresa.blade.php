@@ -8,6 +8,21 @@
 
 @section('content')
 
+@php
+    $dias = [
+        'lunes' => 'Lunes',
+        'martes' => 'Martes',
+        'miercoles' => 'Miércoles',
+        'jueves' => 'Jueves',
+        'viernes' => 'Viernes',
+        'sabado' => 'Sábado',
+        'domingo' => 'Domingo',
+    ];
+
+    $horarios = $configuracion->horarios->keyBy('dia');
+@endphp
+
+
 <div class="admin-form-page">
 
     {{-- =====================================================
@@ -173,6 +188,7 @@
             <div class="admin-form-card-body">
 
                 <div class="admin-form-grid">
+
 
                     {{-- NOMBRE --}}
 
@@ -358,7 +374,7 @@
                     </h3>
 
                     <p class="admin-form-card-subtitle">
-                        Define el horario en el que PROCÁFES recibe pedidos.
+                        Configura los días y horarios en los que PROCÁFES atiende pedidos.
                     </p>
 
                 </div>
@@ -368,74 +384,167 @@
 
             <div class="admin-form-card-body">
 
-                <div class="admin-form-grid">
+                <div class="admin-horarios">
 
-                    {{-- HORA DE APERTURA --}}
 
-                    <div class="admin-form-field">
+                    {{-- =========================================
+                        DÍAS DE LA SEMANA
+                    ========================================== --}}
 
-                        <label
-                            for="hora_apertura"
-                            class="admin-form-label"
-                        >
-                            Hora de apertura
-                            <span>*</span>
-                        </label>
+                    @foreach($dias as $dia => $nombreDia)
 
-                        <input
-                            type="time"
-                            id="hora_apertura"
-                            name="hora_apertura"
-                            value="{{ old(
-                                'hora_apertura',
-                                $configuracion->hora_apertura
+                        @php
+
+                            $horario = $horarios->get($dia);
+
+                            $valorActivo = old(
+                                "horarios.$dia.activo",
+                                null
+                            );
+
+                            $activo = $valorActivo !== null
+                                ? $valorActivo === '1'
+                                : (bool) ($horario?->activo ?? true);
+
+                            $apertura = old(
+                                "horarios.$dia.hora_apertura",
+                                $horario?->hora_apertura
                                     ? \Carbon\Carbon::parse(
-                                        $configuracion->hora_apertura
+                                        $horario->hora_apertura
                                     )->format('H:i')
                                     : '08:00'
-                            ) }}"
-                            class="admin-form-input @error('hora_apertura') is-invalid @enderror"
-                        >
+                            );
 
-                        @error('hora_apertura')
-
-                            <div class="admin-form-error">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
-
-                    </div>
-
-
-                    {{-- HORA DE CIERRE --}}
-
-                    <div class="admin-form-field">
-
-                        <label
-                            for="hora_cierre"
-                            class="admin-form-label"
-                        >
-                            Hora de cierre
-                            <span>*</span>
-                        </label>
-
-                        <input
-                            type="time"
-                            id="hora_cierre"
-                            name="hora_cierre"
-                            value="{{ old(
-                                'hora_cierre',
-                                $configuracion->hora_cierre
+                            $cierre = old(
+                                "horarios.$dia.hora_cierre",
+                                $horario?->hora_cierre
                                     ? \Carbon\Carbon::parse(
-                                        $configuracion->hora_cierre
+                                        $horario->hora_cierre
                                     )->format('H:i')
-                                    : '21:00'
-                            ) }}"
-                            class="admin-form-input @error('hora_cierre') is-invalid @enderror"
-                        >
+                                    : '23:00'
+                            );
 
-                        @error('hora_cierre')
+                        @endphp
+
+
+                        <div class="admin-horario-row">
+
+
+                            {{-- =================================
+                                DÍA
+                            ================================== --}}
+
+                            <div class="admin-horario-day">
+
+                                <div class="admin-horario-day-icon">
+
+                                    <i class="bi bi-calendar-day"></i>
+
+                                </div>
+
+                                <strong>
+                                    {{ $nombreDia }}
+                                </strong>
+
+                            </div>
+
+
+                            {{-- =================================
+                                ESTADO
+                            ================================== --}}
+
+                            <div class="admin-horario-status">
+
+                                <label class="admin-horario-switch">
+
+                                    {{-- IMPORTANTE:
+                                         Cuando el switch está apagado,
+                                         este valor envía 0.
+                                    --}}
+
+                                    <input
+                                        type="hidden"
+                                        name="horarios[{{ $dia }}][activo]"
+                                        value="0"
+                                    >
+
+                                    <input
+                                        type="checkbox"
+                                        name="horarios[{{ $dia }}][activo]"
+                                        value="1"
+                                        class="admin-horario-checkbox"
+                                        data-dia="{{ $dia }}"
+                                        {{ $activo ? 'checked' : '' }}
+                                    >
+
+                                    <span class="admin-horario-slider"></span>
+
+                                </label>
+
+
+                                <span
+                                    class="admin-horario-status-text"
+                                    data-status="{{ $dia }}"
+                                >
+                                    {{ $activo ? 'Abierto' : 'Cerrado' }}
+                                </span>
+
+                            </div>
+
+
+                            {{-- =================================
+                                APERTURA
+                            ================================== --}}
+
+                            <div class="admin-horario-time">
+
+                                <label
+                                    for="hora_apertura_{{ $dia }}"
+                                    class="admin-form-label"
+                                >
+                                    Apertura
+                                </label>
+
+                                <input
+                                    type="time"
+                                    id="hora_apertura_{{ $dia }}"
+                                    name="horarios[{{ $dia }}][hora_apertura]"
+                                    value="{{ $apertura }}"
+                                    class="admin-form-input admin-horario-input"
+                                >
+
+                            </div>
+
+
+                            {{-- =================================
+                                CIERRE
+                            ================================== --}}
+
+                            <div class="admin-horario-time">
+
+                                <label
+                                    for="hora_cierre_{{ $dia }}"
+                                    class="admin-form-label"
+                                >
+                                    Cierre
+                                </label>
+
+                                <input
+                                    type="time"
+                                    id="hora_cierre_{{ $dia }}"
+                                    name="horarios[{{ $dia }}][hora_cierre]"
+                                    value="{{ $cierre }}"
+                                    class="admin-form-input admin-horario-input"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- ERROR APERTURA --}}
+
+                        @error("horarios.$dia.hora_apertura")
 
                             <div class="admin-form-error">
                                 {{ $message }}
@@ -443,21 +552,30 @@
 
                         @enderror
 
-                    </div>
+
+                        {{-- ERROR CIERRE --}}
+
+                        @error("horarios.$dia.hora_cierre")
+
+                            <div class="admin-form-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    @endforeach
 
 
                     {{-- INFORMACIÓN --}}
 
-                    <div class="admin-form-field-full">
+                    <div class="admin-form-help">
 
-                        <div class="admin-form-help">
+                        <i class="bi bi-info-circle"></i>
 
-                            <i class="bi bi-info-circle"></i>
-
-                            Los clientes solo podrán realizar pedidos
-                            dentro del horario de atención configurado.
-
-                        </div>
+                        Los días marcados como
+                        <strong>Abierto</strong>
+                        estarán disponibles para recibir pedidos
+                        dentro del horario indicado.
 
                     </div>
 
@@ -500,6 +618,7 @@
             <div class="admin-form-card-body">
 
                 <div class="admin-form-grid">
+
 
                     {{-- FACEBOOK --}}
 
@@ -610,16 +729,23 @@
                 href="{{ route('admin.dashboard') }}"
                 class="admin-form-btn admin-form-btn-cancel"
             >
+
                 <i class="bi bi-arrow-left"></i>
+
                 Cancelar
+
             </a>
+
 
             <button
                 type="submit"
                 class="admin-form-btn admin-form-btn-save"
             >
+
                 <i class="bi bi-check-circle-fill"></i>
+
                 Guardar configuración
+
             </button>
 
         </div>
@@ -627,5 +753,49 @@
     </form>
 
 </div>
+
+
+{{-- =====================================================
+    JAVASCRIPT
+    Cambiar Abierto / Cerrado visualmente
+====================================================== --}}
+
+@push('scripts')
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const switches = document.querySelectorAll(
+        '.admin-horario-checkbox'
+    );
+
+    switches.forEach(function (checkbox) {
+
+        checkbox.addEventListener('change', function () {
+
+            const dia = this.dataset.dia;
+
+            const texto = document.querySelector(
+                '[data-status="' + dia + '"]'
+            );
+
+            if (!texto) {
+                return;
+            }
+
+            texto.textContent = this.checked
+                ? 'Abierto'
+                : 'Cerrado';
+
+        });
+
+    });
+
+});
+
+</script>
+
+@endpush
 
 @endsection
