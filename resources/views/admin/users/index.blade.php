@@ -138,7 +138,9 @@
 
                         <tr>
 
-                            {{-- USUARIO --}}
+                            {{-- =================================================
+                                 USUARIO
+                            ================================================== --}}
 
                             <td>
 
@@ -159,7 +161,9 @@
                             </td>
 
 
-                            {{-- CORREO --}}
+                            {{-- =================================================
+                                 CORREO
+                            ================================================== --}}
 
                             <td>
 
@@ -168,7 +172,9 @@
                             </td>
 
 
-                            {{-- CELULAR --}}
+                            {{-- =================================================
+                                 CELULAR
+                            ================================================== --}}
 
                             <td>
 
@@ -177,12 +183,14 @@
                             </td>
 
 
-                            {{-- DOCUMENTO --}}
+                            {{-- =================================================
+                                 DOCUMENTO
+                            ================================================== --}}
 
                             <td>
 
                                 <strong>
-                                    {{ $user->tipo_documento }}
+                                    {{ strtoupper($user->tipo_documento) }}
                                 </strong>
 
                                 <br>
@@ -194,31 +202,41 @@
                             </td>
 
 
-                            {{-- ROL --}}
+                            {{-- =================================================
+                                 ROL
+                            ================================================== --}}
 
                             <td>
 
                                 <span class="admin-list-status">
+
                                     {{ $user->role?->nombre ?? 'Sin rol' }}
+
                                 </span>
 
                             </td>
 
 
-                            {{-- ESTADO --}}
+                            {{-- =================================================
+                                 ESTADO
+                            ================================================== --}}
 
                             <td>
 
                                 @if($user->estado)
 
                                     <span class="admin-list-status admin-list-status-success">
+
                                         Activo
+
                                     </span>
 
                                 @else
 
                                     <span class="admin-list-status admin-list-status-danger">
+
                                         Inactivo
+
                                     </span>
 
                                 @endif
@@ -226,20 +244,26 @@
                             </td>
 
 
-                            {{-- VERIFICADO --}}
+                            {{-- =================================================
+                                 VERIFICADO
+                            ================================================== --}}
 
                             <td>
 
                                 @if($user->email_verified_at)
 
                                     <span class="admin-list-status admin-list-status-success">
+
                                         Sí
+
                                     </span>
 
                                 @else
 
                                     <span class="admin-list-status admin-list-status-warning">
+
                                         No
+
                                     </span>
 
                                 @endif
@@ -247,11 +271,17 @@
                             </td>
 
 
-                            {{-- ACCIONES --}}
+                            {{-- =================================================
+                                 ACCIONES
+                            ================================================== --}}
 
                             <td class="admin-list-actions">
 
                                 <div class="admin-actions">
+
+                                    {{-- =================================================
+                                         EDITAR
+                                    ================================================== --}}
 
                                     <a
                                         href="{{ route(
@@ -260,40 +290,82 @@
                                         ) }}"
                                         class="admin-action admin-action-edit"
                                         title="Editar usuario"
-                                        aria-label="Editar usuario"
                                     >
 
                                         <i class="bi bi-pencil-square"></i>
 
+                                        <span>
+                                            Editar
+                                        </span>
+
                                     </a>
 
 
+                                    {{-- =================================================
+                                         ACTIVAR / DESACTIVAR
+                                    ================================================== --}}
+
                                     <form
                                         action="{{ route(
-                                            'admin.users.destroy',
+                                            'admin.users.toggle-status',
                                             $user
                                         ) }}"
                                         method="POST"
                                         class="d-inline"
-                                        onsubmit="return confirm(
-                                            '¿Eliminar este usuario?'
-                                        )"
                                     >
 
                                         @csrf
 
-                                        @method('DELETE')
+                                        @method('PATCH')
 
-                                        <button
-                                            type="submit"
-                                            class="admin-action admin-action-delete"
-                                            title="Eliminar usuario"
-                                            aria-label="Eliminar usuario"
-                                        >
 
-                                            <i class="bi bi-trash3"></i>
+                                        @if($user->estado)
 
-                                        </button>
+                                            {{-- =====================================
+                                                 DESACTIVAR
+                                            ====================================== --}}
+
+                                            <button
+                                                type="submit"
+                                                class="admin-action admin-action-deactivate"
+                                                title="Desactivar usuario"
+                                                onclick="return confirm(
+                                                    '¿Deseas desactivar este usuario?'
+                                                )"
+                                            >
+
+                                                <i class="bi bi-toggle-on"></i>
+
+                                                <span>
+                                                    Desactivar
+                                                </span>
+
+                                            </button>
+
+                                        @else
+
+                                            {{-- =====================================
+                                                 ACTIVAR
+                                            ====================================== --}}
+
+                                            <button
+                                                type="submit"
+                                                class="admin-action admin-action-activate"
+                                                title="Activar usuario"
+                                                onclick="return confirm(
+                                                    '¿Deseas activar este usuario?'
+                                                )"
+                                            >
+
+                                                <i class="bi bi-toggle-off"></i>
+
+                                                <span>
+                                                    Activar
+                                                </span>
+
+                                            </button>
+
+                                        @endif
 
                                     </form>
 
@@ -302,6 +374,7 @@
                             </td>
 
                         </tr>
+
 
                     @empty
 
@@ -359,7 +432,10 @@
 
             <div class="admin-list-pagination">
 
-                {{ $users->onEachSide(1)->links('vendor.pagination.paginacion-admin') }}
+                {{ $users
+                    ->onEachSide(1)
+                    ->links('vendor.pagination.paginacion-admin')
+                }}
 
             </div>
 

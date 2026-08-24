@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -16,7 +18,7 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function index()
+    public function index(): View
     {
         $users = User::with('role')
             ->latest()
@@ -35,7 +37,7 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function create()
+    public function create(): View
     {
         $roles = Role::where('estado', true)
             ->orderBy('id')
@@ -54,12 +56,24 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        $request->validate(
+        $validated = $request->validate(
             [
-                'name' => [
+                'nombres' => [
                     'required',
+                    'string',
+                    'max:255',
+                ],
+
+                'apellido_paterno' => [
+                    'required',
+                    'string',
+                    'max:255',
+                ],
+
+                'apellido_materno' => [
+                    'nullable',
                     'string',
                     'max:255',
                 ],
@@ -78,24 +92,24 @@ class UserController extends Controller
                     'confirmed',
                 ],
 
-                'phone' => [
+                'celular' => [
                     'nullable',
                     'string',
                     'max:20',
                 ],
 
-                'document_type' => [
+                'tipo_documento' => [
                     'required',
                     'in:dni,ce',
                 ],
 
-                'document_number' => [
+                'numero_documento' => [
                     'required',
                     'string',
                     'max:20',
                 ],
 
-                'address' => [
+                'direccion' => [
                     'nullable',
                     'string',
                     'max:255',
@@ -107,8 +121,11 @@ class UserController extends Controller
                 ],
             ],
             [
-                'name.required' =>
-                    'El nombre es obligatorio.',
+                'nombres.required' =>
+                    'Los nombres son obligatorios.',
+
+                'apellido_paterno.required' =>
+                    'El apellido paterno es obligatorio.',
 
                 'email.required' =>
                     'El correo electrónico es obligatorio.',
@@ -128,10 +145,10 @@ class UserController extends Controller
                 'password.confirmed' =>
                     'Las contraseñas no coinciden.',
 
-                'document_type.required' =>
+                'tipo_documento.required' =>
                     'Selecciona el tipo de documento.',
 
-                'document_number.required' =>
+                'numero_documento.required' =>
                     'El número de documento es obligatorio.',
 
                 'role_id.required' =>
@@ -144,22 +161,22 @@ class UserController extends Controller
 
 
         /*
-        |----------------------------------------------------------------------
+        |--------------------------------------------------------------------------
         | VALIDACIÓN DEL DOCUMENTO
-        |----------------------------------------------------------------------
+        |--------------------------------------------------------------------------
         */
 
-        if ($request->document_type === 'dni') {
+        if ($request->tipo_documento === 'dni') {
 
             $request->validate(
                 [
-                    'document_number' => [
+                    'numero_documento' => [
                         'required',
                         'digits:8',
                     ],
                 ],
                 [
-                    'document_number.digits' =>
+                    'numero_documento.digits' =>
                         'El DNI debe tener 8 dígitos.',
                 ]
             );
@@ -168,17 +185,17 @@ class UserController extends Controller
 
             $request->validate(
                 [
-                    'document_number' => [
+                    'numero_documento' => [
                         'required',
                         'min:9',
                         'max:12',
                     ],
                 ],
                 [
-                    'document_number.min' =>
+                    'numero_documento.min' =>
                         'El carnet de extranjería debe tener al menos 9 caracteres.',
 
-                    'document_number.max' =>
+                    'numero_documento.max' =>
                         'El carnet de extranjería no debe superar 12 caracteres.',
                 ]
             );
@@ -186,33 +203,67 @@ class UserController extends Controller
 
 
         /*
-        |----------------------------------------------------------------------
+        |--------------------------------------------------------------------------
+        | NOMBRE COMPLETO
+        |--------------------------------------------------------------------------
+        */
+
+        $nombreCompleto = User::construirNombreCompleto(
+            $validated['nombres'],
+            $validated['apellido_paterno'],
+            $validated['apellido_materno'] ?? null
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
         | CREAR USUARIO
-        |----------------------------------------------------------------------
+        |--------------------------------------------------------------------------
         */
 
         User::create([
-            'name' => $request->name,
-
-            'email' => $request->email,
-
-            'password' => Hash::make(
-                $request->password
-            ),
-
-            'phone' => $request->phone,
-
-            'document_type' =>
-                $request->document_type,
-
-            'document_number' =>
-                $request->document_number,
-
-            'address' =>
-                $request->address,
 
             'role_id' =>
-                $request->role_id,
+                $validated['role_id'],
+
+            'name' =>
+                $nombreCompleto,
+
+            'nombres' =>
+                $validated['nombres'],
+
+            'apellido_paterno' =>
+                $validated['apellido_paterno'],
+
+            'apellido_materno' =>
+                $validated['apellido_materno'] ?? null,
+
+            'tipo_documento' =>
+                $validated['tipo_documento'],
+
+            'numero_documento' =>
+                $validated['numero_documento'],
+
+            'email' =>
+                strtolower(trim($validated['email'])),
+
+            'password' =>
+                Hash::make($validated['password']),
+
+            'celular' =>
+                $validated['celular'] ?? null,
+
+            'direccion' =>
+                $validated['direccion'] ?? null,
+
+            'provider' =>
+                User::PROVIDER_LOCAL,
+
+            'has_local_password' =>
+                true,
+
+            'estado' =>
+                true,
         ]);
 
 
@@ -231,7 +282,7 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function edit(User $user)
+    public function edit(User $user): View
     {
         $roles = Role::where('estado', true)
             ->orderBy('id')
@@ -256,12 +307,24 @@ class UserController extends Controller
     public function update(
         Request $request,
         User $user
-    ) {
+    ): RedirectResponse {
 
-        $request->validate(
+        $validated = $request->validate(
             [
-                'name' => [
+                'nombres' => [
                     'required',
+                    'string',
+                    'max:255',
+                ],
+
+                'apellido_paterno' => [
+                    'required',
+                    'string',
+                    'max:255',
+                ],
+
+                'apellido_materno' => [
+                    'nullable',
                     'string',
                     'max:255',
                 ],
@@ -273,24 +336,24 @@ class UserController extends Controller
                     'unique:users,email,' . $user->id,
                 ],
 
-                'phone' => [
+                'celular' => [
                     'nullable',
                     'string',
                     'max:20',
                 ],
 
-                'document_type' => [
+                'tipo_documento' => [
                     'required',
                     'in:dni,ce',
                 ],
 
-                'document_number' => [
+                'numero_documento' => [
                     'required',
                     'string',
                     'max:20',
                 ],
 
-                'address' => [
+                'direccion' => [
                     'nullable',
                     'string',
                     'max:255',
@@ -309,8 +372,20 @@ class UserController extends Controller
                 ],
             ],
             [
+                'nombres.required' =>
+                    'Los nombres son obligatorios.',
+
+                'apellido_paterno.required' =>
+                    'El apellido paterno es obligatorio.',
+
                 'email.unique' =>
                     'Este correo electrónico ya está registrado.',
+
+                'tipo_documento.required' =>
+                    'Selecciona el tipo de documento.',
+
+                'numero_documento.required' =>
+                    'El número de documento es obligatorio.',
 
                 'role_id.required' =>
                     'Selecciona un rol.',
@@ -328,22 +403,22 @@ class UserController extends Controller
 
 
         /*
-        |----------------------------------------------------------------------
+        |--------------------------------------------------------------------------
         | VALIDACIÓN DEL DOCUMENTO
-        |----------------------------------------------------------------------
+        |--------------------------------------------------------------------------
         */
 
-        if ($request->document_type === 'dni') {
+        if ($request->tipo_documento === 'dni') {
 
             $request->validate(
                 [
-                    'document_number' => [
+                    'numero_documento' => [
                         'required',
                         'digits:8',
                     ],
                 ],
                 [
-                    'document_number.digits' =>
+                    'numero_documento.digits' =>
                         'El DNI debe tener 8 dígitos.',
                 ]
             );
@@ -352,17 +427,17 @@ class UserController extends Controller
 
             $request->validate(
                 [
-                    'document_number' => [
+                    'numero_documento' => [
                         'required',
                         'min:9',
                         'max:12',
                     ],
                 ],
                 [
-                    'document_number.min' =>
+                    'numero_documento.min' =>
                         'El carnet de extranjería debe tener al menos 9 caracteres.',
 
-                    'document_number.max' =>
+                    'numero_documento.max' =>
                         'El carnet de extranjería no debe superar 12 caracteres.',
                 ]
             );
@@ -370,45 +445,78 @@ class UserController extends Controller
 
 
         /*
-        |----------------------------------------------------------------------
+        |--------------------------------------------------------------------------
+        | NOMBRE COMPLETO
+        |--------------------------------------------------------------------------
+        */
+
+        $nombreCompleto = User::construirNombreCompleto(
+            $validated['nombres'],
+            $validated['apellido_paterno'],
+            $validated['apellido_materno'] ?? null
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
         | DATOS A ACTUALIZAR
-        |----------------------------------------------------------------------
+        |--------------------------------------------------------------------------
         */
 
         $data = [
-            'name' => $request->name,
 
-            'email' => $request->email,
+            'name' =>
+                $nombreCompleto,
 
-            'phone' => $request->phone,
+            'nombres' =>
+                $validated['nombres'],
 
-            'document_type' =>
-                $request->document_type,
+            'apellido_paterno' =>
+                $validated['apellido_paterno'],
 
-            'document_number' =>
-                $request->document_number,
+            'apellido_materno' =>
+                $validated['apellido_materno'] ?? null,
 
-            'address' =>
-                $request->address,
+            'email' =>
+                strtolower(trim($validated['email'])),
+
+            'celular' =>
+                $validated['celular'] ?? null,
+
+            'tipo_documento' =>
+                $validated['tipo_documento'],
+
+            'numero_documento' =>
+                $validated['numero_documento'],
+
+            'direccion' =>
+                $validated['direccion'] ?? null,
 
             'role_id' =>
-                $request->role_id,
+                $validated['role_id'],
         ];
 
 
         /*
-        |----------------------------------------------------------------------
+        |--------------------------------------------------------------------------
         | CONTRASEÑA
-        |----------------------------------------------------------------------
+        |--------------------------------------------------------------------------
         */
 
         if ($request->filled('password')) {
 
-            $data['password'] = Hash::make(
-                $request->password
-            );
+            $data['password'] =
+                Hash::make($request->password);
+
+            $data['has_local_password'] = true;
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACTUALIZAR
+        |--------------------------------------------------------------------------
+        */
 
         $user->update($data);
 
@@ -424,35 +532,66 @@ class UserController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | ELIMINAR
+    | ACTIVAR / DESACTIVAR USUARIO
     |--------------------------------------------------------------------------
     */
 
-    public function destroy(User $user)
+    public function toggleStatus(User $user): RedirectResponse
     {
         /*
-        |----------------------------------------------------------------------
-        | No permitir eliminar administradores
-        |----------------------------------------------------------------------
+        |--------------------------------------------------------------------------
+        | NO PERMITIR DESACTIVARSE A SÍ MISMO
+        |--------------------------------------------------------------------------
+        */
+
+        if (auth()->id() === $user->id) {
+
+            return back()->with(
+                'error',
+                'No puedes desactivar tu propia cuenta.'
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NO PERMITIR DESACTIVAR ADMINISTRADORES
+        |--------------------------------------------------------------------------
         */
 
         if ($user->role?->codigo === 'ADMIN') {
 
             return back()->with(
                 'error',
-                'No puedes eliminar administradores.'
+                'No puedes desactivar a un administrador.'
             );
         }
 
 
-        $user->delete();
+        /*
+        |--------------------------------------------------------------------------
+        | CAMBIAR ESTADO
+        |--------------------------------------------------------------------------
+        */
 
+        $user->estado = ! $user->estado;
+
+        $user->save();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | MENSAJE
+        |--------------------------------------------------------------------------
+        */
 
         return redirect()
             ->route('admin.users.index')
             ->with(
                 'success',
-                'Usuario eliminado correctamente.'
+                $user->estado
+                    ? 'Usuario activado correctamente.'
+                    : 'Usuario desactivado correctamente.'
             );
     }
 }

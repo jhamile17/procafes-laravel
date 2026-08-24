@@ -348,7 +348,12 @@ Route::prefix('admin')
             [AdminProductController::class, 'toggleStatus']
         )->name('products.toggle-status');
         
-        Route::resource('/users', UserController::class);
+        Route::resource('/users', UserController::class)
+            ->except(['destroy']);
+        Route::patch(
+            '/users/{user}/toggle-status',
+            [UserController::class, 'toggleStatus']
+        )->name('users.toggle-status');
 
         Route::get('/reports', [ReportController::class, 'index'])
             ->name('reports.index');

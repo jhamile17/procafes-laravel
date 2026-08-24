@@ -68,6 +68,26 @@ class LoginForm extends Form
 
         /*
         |--------------------------------------------------------------------------
+        | CUENTA DESACTIVADA
+        |--------------------------------------------------------------------------
+        |
+        | Se valida antes de Auth::attempt().
+        | Un usuario desactivado no puede iniciar sesión.
+        |
+        */
+
+        if (! $user->estado) {
+
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'form.email' =>
+                    'Tu cuenta está desactivada. Comunícate con el administrador.',
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
         | Cuenta sin contraseña local
         |--------------------------------------------------------------------------
         */
@@ -112,7 +132,6 @@ class LoginForm extends Form
 
         RateLimiter::clear($this->throttleKey());
     }
-
     /*
     |--------------------------------------------------------------------------
     | Limitar intentos
