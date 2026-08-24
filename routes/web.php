@@ -325,10 +325,17 @@ Route::prefix('admin')
     ->middleware(['auth', 'verified', 'admin'])
     ->group(function () {
 
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])
-        ->name('dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+            ->name('dashboard');
 
-        Route::resource('/categories', CategoryController::class);
+        Route::resource('/categories', CategoryController::class)
+            ->except(['destroy']);
+
+        Route::patch(
+            '/categories/{category}/toggle-status',
+            [CategoryController::class, 'toggleStatus']
+        )->name('categories.toggle-status');
+
         Route::resource('/brands', BrandController::class);
         Route::resource('/products', AdminProductController::class);
         /*

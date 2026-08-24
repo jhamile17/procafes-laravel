@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Services\Catalogo\CategoryService;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
     public function __construct(
         private readonly CategoryService $categoryService
-    ) {}
+    ) {
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -19,7 +22,7 @@ class CategoryController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function index()
+    public function index(): View
     {
         $categories = $this->categoryService->obtenerTodos();
 
@@ -35,7 +38,7 @@ class CategoryController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function create()
+    public function create(): View
     {
         return view('admin.categories.create');
     }
@@ -46,29 +49,35 @@ class CategoryController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                'unique:categories,name'
+                'unique:categories,name',
             ],
+
             'description' => [
                 'nullable',
-                'string'
+                'string',
             ],
         ]);
 
-        // generar slug automático si no viene
         $validated['slug'] = str($validated['name'])->slug();
+
+        // Nueva categoría = activa
+        $validated['status'] = true;
 
         $this->categoryService->crear($validated);
 
         return redirect()
             ->route('admin.categories.index')
-            ->with('success', 'Categoría creada correctamente.');
+            ->with(
+                'success',
+                'Categoría creada correctamente.'
+            );
     }
 
     /*
@@ -77,7 +86,7 @@ class CategoryController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function edit(Category $category)
+    public function edit(Category $category): View
     {
         return view(
             'admin.categories.edit',
@@ -91,52 +100,103 @@ class CategoryController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function update(Request $request, Category $category)
-    {
+    public function update(
+        Request $request,
+        Category $category
+    ): RedirectResponse {
+
         $validated = $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                'unique:categories,name,' . $category->id
+                'unique:categories,name,' . $category->id,
             ],
+
             'description' => [
                 'nullable',
-                'string'
+                'string',
             ],
         ]);
 
         $validated['slug'] = str($validated['name'])->slug();
 
-        $this->categoryService->actualizar($category, $validated);
+        // No modificamos status al editar
+        $this->categoryService->actualizar(
+            $category,
+            $validated
+        );
 
         return redirect()
             ->route('admin.categories.index')
-            ->with('success', 'Categoría actualizada correctamente.');
+            ->with(
+                'success',
+                'Categoría actualizada correctamente.'
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Activar / Desactivar
+    |--------------------------------------------------------------------------
+    */
+
+    public function toggleStatus(
+        Category $category
+    ): RedirectResponse {
+
+        try {
+
+            if ($category->status) {
+
+                $category->update([
+                    'status' => false,
+                ]);
+
+                return redirect()
+                    ->route('admin.categories.index')
+                    ->with(
+                        'success',
+                        'Categoría desactivada correctamente.'
+                    );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | ACTIVAR
+            |--------------------------------------------------------------------------
+            */
+
+            $category->update([
+                'status' => true,
+            ]);
+
+            return redirect()
+                ->route('admin.categories.index')
+                ->with(
+                    'success',
+                    'Categoría activada correctamente.'
+                );
+
+        } catch (\Throwable $e) {
+
+            report($e);
+
+            return redirect()
+                ->route('admin.categories.index')
+                ->with(
+                    'error',
+                    'No fue posible cambiar el estado de la categoría.'
+                );
+        }
     }
 
     /*
     |--------------------------------------------------------------------------
     | Eliminar
     |--------------------------------------------------------------------------
+    |
+    | Ya no utilizamos eliminación desde el panel.
+    |
     */
-
-    public function destroy(Category $category)
-    {
-        try {
-
-            $this->categoryService->eliminar($category);
-
-            return redirect()
-                ->route('admin.categories.index')
-                ->with('success', 'Categoría eliminada correctamente.');
-
-        } catch (\Throwable $e) {
-
-            return back()->with(
-                'error',
-                'No se puede eliminar la categoría porque tiene productos asociados.'
-            );
-        }
-    }
 }

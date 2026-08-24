@@ -6,25 +6,39 @@
     display: inline-flex;
     align-items: center;
     justify-content: flex-end;
-    gap: .35rem;
+    gap: .5rem;
+
+    white-space: nowrap;
 }
 
+
+/* =========================================================
+   BOTONES DE ACCIÓN
+========================================================= */
+
 .admin-action {
-    width: 32px;
-    height: 32px;
+    min-width: 38px;
+    height: 38px;
 
     display: inline-flex;
     align-items: center;
     justify-content: center;
 
-    padding: 0;
+    gap: .4rem;
+
+    padding: 0 .75rem;
 
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
 
     background: var(--color-surface);
 
-    font-size: .85rem;
+    font-size: .82rem;
+    font-weight: 600;
+
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
 
     cursor: pointer;
 
@@ -34,6 +48,16 @@
         background-color .2s ease,
         border-color .2s ease,
         box-shadow .2s ease;
+}
+
+
+/* =========================================================
+   FORMULARIOS DENTRO DE LAS ACCIONES
+========================================================= */
+
+.admin-actions form {
+    display: inline-flex;
+    margin: 0;
 }
 
 
@@ -80,11 +104,11 @@
    DESACTIVAR
 ========================================================= */
 
-.admin-action-delete {
+.admin-action-deactivate {
     color: var(--color-danger);
 }
 
-.admin-action-delete:hover {
+.admin-action-deactivate:hover {
     color: var(--color-white);
     background: var(--color-danger);
     border-color: var(--color-danger);
@@ -103,6 +127,21 @@
     color: var(--color-white);
     background: var(--color-success);
     border-color: var(--color-success);
+}
+
+
+/* =========================================================
+   ELIMINAR
+========================================================= */
+
+.admin-action-delete {
+    color: var(--color-danger);
+}
+
+.admin-action-delete:hover {
+    color: var(--color-white);
+    background: var(--color-danger);
+    border-color: var(--color-danger);
 }
 
 
@@ -133,4 +172,41 @@
     color: var(--color-white);
     background: var(--color-warning);
     border-color: var(--color-warning);
+}
+
+
+/* =========================================================
+   COLUMNAS DE ACCIONES EN LISTADOS
+========================================================= */
+
+.admin-list-actions-column {
+    width: 230px;
+    min-width: 230px;
+    text-align: right;
+}
+
+.admin-list-actions {
+    width: 230px;
+    min-width: 230px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .admin-action {
+        height: 34px;
+        padding: 0 .6rem;
+        font-size: .76rem;
+    }
+
+    .admin-actions {
+        gap: .35rem;
+    }
+
 }

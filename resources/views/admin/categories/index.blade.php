@@ -33,6 +33,8 @@
         </div>
 
 
+        {{-- NUEVA CATEGORÍA --}}
+
         <a
             href="{{ route('admin.categories.create') }}"
             class="admin-list-new"
@@ -91,6 +93,10 @@
 
             <table class="admin-list-table">
 
+                {{-- =================================================
+                     CABECERA TABLA
+                ================================================== --}}
+
                 <thead>
 
                     <tr>
@@ -103,6 +109,10 @@
                             Descripción
                         </th>
 
+                        <th>
+                            Estado
+                        </th>
+
                         <th class="admin-list-actions-column">
                             Acciones
                         </th>
@@ -112,13 +122,19 @@
                 </thead>
 
 
+                {{-- =================================================
+                     CUERPO TABLA
+                ================================================== --}}
+
                 <tbody>
 
                     @forelse($categories as $category)
 
                         <tr>
 
-                            {{-- CATEGORÍA --}}
+                            {{-- =================================================
+                                 CATEGORÍA
+                            ================================================== --}}
 
                             <td>
 
@@ -139,27 +155,72 @@
                             </td>
 
 
-                            {{-- DESCRIPCIÓN --}}
+                            {{-- =================================================
+                                 DESCRIPCIÓN
+                            ================================================== --}}
 
                             <td>
 
                                 <span class="admin-list-description">
 
-                                    {{ \Illuminate\Support\Str::limit(
-                                        $category->description,
-                                        80
-                                    ) }}
+                                    @if($category->description)
+
+                                        {{ \Illuminate\Support\Str::limit(
+                                            $category->description,
+                                            80
+                                        ) }}
+
+                                    @else
+
+                                        <span class="text-muted">
+                                            Sin descripción
+                                        </span>
+
+                                    @endif
 
                                 </span>
 
                             </td>
 
 
-                            {{-- ACCIONES --}}
+                            {{-- =================================================
+                                 ESTADO
+                            ================================================== --}}
+
+                            <td>
+
+                                @if($category->status)
+
+                                    <span
+                                        class="badge bg-success"
+                                    >
+                                        Activa
+                                    </span>
+
+                                @else
+
+                                    <span
+                                        class="badge bg-secondary"
+                                    >
+                                        Inactiva
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- =================================================
+                                 ACCIONES
+                            ================================================== --}}
 
                             <td class="admin-list-actions">
 
                                 <div class="admin-actions">
+
+                                    {{-- =================================================
+                                         EDITAR
+                                    ================================================== --}}
 
                                     <a
                                         href="{{ route(
@@ -172,34 +233,78 @@
 
                                         <i class="bi bi-pencil-square"></i>
 
+                                        <span>
+                                            Editar
+                                        </span>
+
                                     </a>
 
 
+                                    {{-- =================================================
+                                         ACTIVAR / DESACTIVAR
+                                    ================================================== --}}
+
                                     <form
                                         action="{{ route(
-                                            'admin.categories.destroy',
+                                            'admin.categories.toggle-status',
                                             $category
                                         ) }}"
                                         method="POST"
                                         class="d-inline"
-                                        onsubmit="return confirm(
-                                            '¿Eliminar esta categoría?'
-                                        )"
                                     >
 
                                         @csrf
 
-                                        @method('DELETE')
+                                        @method('PATCH')
 
-                                        <button
-                                            type="submit"
-                                            class="admin-action admin-action-delete"
-                                            title="Eliminar categoría"
-                                        >
 
-                                            <i class="bi bi-trash3"></i>
+                                        @if($category->status)
 
-                                        </button>
+                                            {{-- ================================
+                                                 DESACTIVAR
+                                            ================================= --}}
+
+                                            <button
+                                                type="submit"
+                                                class="admin-action admin-action-deactivate"
+                                                title="Desactivar categoría"
+                                                onclick="return confirm(
+                                                    '¿Deseas desactivar la categoría {{ $category->name }}?'
+                                                )"
+                                            >
+
+                                                <i class="bi bi-toggle-on"></i>
+
+                                                <span>
+                                                    Desactivar
+                                                </span>
+
+                                            </button>
+
+                                        @else
+
+                                            {{-- ================================
+                                                 ACTIVAR
+                                            ================================= --}}
+
+                                            <button
+                                                type="submit"
+                                                class="admin-action admin-action-activate"
+                                                title="Activar categoría"
+                                                onclick="return confirm(
+                                                    '¿Deseas activar la categoría {{ $category->name }}?'
+                                                )"
+                                            >
+
+                                                <i class="bi bi-toggle-off"></i>
+
+                                                <span>
+                                                    Activar
+                                                </span>
+
+                                            </button>
+
+                                        @endif
 
                                     </form>
 
@@ -209,12 +314,17 @@
 
                         </tr>
 
+
                     @empty
+
+                        {{-- =================================================
+                             SIN CATEGORÍAS
+                        ================================================== --}}
 
                         <tr>
 
                             <td
-                                colspan="3"
+                                colspan="4"
                                 class="admin-list-empty"
                             >
 
@@ -224,14 +334,17 @@
 
                                 </div>
 
+
                                 <strong>
                                     No existen categorías registradas
                                 </strong>
+
 
                                 <span>
                                     Crea una categoría para comenzar a organizar
                                     tus productos.
                                 </span>
+
 
                                 <a
                                     href="{{ route(
@@ -267,7 +380,11 @@
 
             <div class="admin-list-pagination">
 
-                {{ $categories->onEachSide(1)->links('vendor.pagination.paginacion-admin') }}
+                {{
+                    $categories
+                        ->onEachSide(1)
+                        ->links('vendor.pagination.paginacion-admin')
+                }}
 
             </div>
 
