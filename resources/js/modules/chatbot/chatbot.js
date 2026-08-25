@@ -1,13 +1,8 @@
-console.log("✅ chatbot.js cargado");
-
-
 /*=========================================================
     INICIALIZAR CHATBOT
 =========================================================*/
 
 function initChatbot() {
-
-    console.log("🤖 Inicializando chatbot...");
 
     /*=====================================================
         ELEMENTOS PRINCIPALES
@@ -16,7 +11,6 @@ function initChatbot() {
     const root = document.getElementById("procafesChat");
 
     if (!root) {
-        console.log("⚠️ No se encontró #procafesChat");
         return;
     }
 
@@ -27,7 +21,6 @@ function initChatbot() {
     */
 
     if (root.dataset.chatbotInitialized === "true") {
-        console.log("ℹ️ Chatbot ya estaba inicializado");
         return;
     }
 
@@ -829,11 +822,6 @@ function initChatbot() {
     root._chatbotEscapeHandler =
         escapeHandler;
 
-
-    console.log(
-        "✅ Chatbot inicializado correctamente"
-    );
-
 }
 
 
@@ -869,10 +857,6 @@ document.addEventListener(
 document.addEventListener(
     "livewire:navigated",
     () => {
-
-        console.log(
-            "🔄 Livewire navegó. Reinicializando chatbot..."
-        );
 
         initChatbot();
 
