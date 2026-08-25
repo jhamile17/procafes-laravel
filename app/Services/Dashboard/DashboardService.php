@@ -591,6 +591,18 @@ class DashboardService
      * =========================================================
      * ACTIVIDAD RECIENTE
      * =========================================================
+     *
+     * Muestra los últimos 5 pedidos registrados en el sistema,
+     * independientemente del estado del pedido.
+     *
+     * IMPORTANTE:
+     * Esta sección es diferente al cálculo de ventas.
+     *
+     * - Dashboard de ventas:
+     *   Solo CONFIRMADO / ENTREGADO.
+     *
+     * - Actividad reciente:
+     *   Muestra cualquier pedido reciente.
      */
     private function getRecentActivity(): array
     {
@@ -601,57 +613,102 @@ class DashboardService
                 'estadoPedido'
             ])
 
-            ->whereHas(
-                'estadoPedido',
-                function ($query) {
+            /*
+            * IMPORTANTE:
+            *
+            * NO filtramos por estado aquí.
+            *
+            * La actividad reciente debe mostrar también:
+            *
+            * PENDIENTE
+            * CONFIRMADO
+            * EN PREPARACIÓN
+            * ENTREGADO
+            * etc.
+            */
 
-                    $query->whereIn(
-                        'codigo',
-                        [
-                            \App\Models\EstadoPedido::CONFIRMADO,
-                            \App\Models\EstadoPedido::ENTREGADO,
-                        ]
-                    );
-
-                }
-            )
-
-            ->latest()
+            ->orderByDesc('created_at')
 
             ->limit(5)
 
             ->get()
 
-            ->map(
-                function ($order) {
+            ->map(function ($order) {
 
-                    $customer = optional(
-                        $order->user
-                    )->name ?? 'Cliente';
-
-
-                    return (object) [
-
-                        'title' =>
-                            'Pedido #' .
-                            ($order->numero_pedido ?? $order->id),
+                /*
+                * Nombre del cliente
+                */
+                $customer = optional(
+                    $order->user
+                )->name ?? 'Cliente';
 
 
-                        'description' =>
-                            $customer .
-                            ' realizó un pedido por S/ ' .
-                            number_format(
-                                (float) $order->total_price,
-                                2
-                            ),
+                /*
+                * Número del pedido
+                */
+                $orderNumber =
+                    $order->numero_pedido
+                    ?? $order->id;
 
 
-                        'created_at' =>
-                            $order->created_at,
+                /*
+                * Estado del pedido
+                */
+                $status = optional(
+                    $order->estadoPedido
+                )->nombre ?? null;
 
-                    ];
+
+                /*
+                * Descripción
+                */
+                $description =
+                    $customer .
+                    ' realizó un pedido por S/ ' .
+                    number_format(
+                        (float) $order->total_price,
+                        2
+                    );
+
+
+                /*
+                * Agregar estado si existe
+                */
+                if (!empty($status)) {
+
+                    $description .=
+                        ' · ' . $status;
+
                 }
-            )
+
+
+                return (object) [
+
+                    'title' =>
+                        'Pedido #' .
+                        $orderNumber,
+
+
+                    'description' =>
+                        $description,
+
+
+                    'created_at' =>
+                        $order->created_at,
+
+
+                    'order_id' =>
+                        $order->id,
+
+
+                    'status' =>
+                        $status,
+
+                ];
+
+            })
+
+            ->values()
 
             ->toArray();
     }

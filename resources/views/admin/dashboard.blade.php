@@ -998,25 +998,23 @@
 
                         <strong>
                             {{ $activity->title
-                                ?? $activity->description
                                 ?? 'Actividad registrada'
                             }}
                         </strong>
 
                         <small>
+                            {{ $activity->description
+                                ?? 'Movimiento registrado'
+                            }}
+                        </small>
 
-                            @if(!empty($activity->created_at))
-
-                                {{ \Carbon\Carbon::parse(
+                        <small>
+                            {{ !empty($activity->created_at)
+                                ? \Carbon\Carbon::parse(
                                     $activity->created_at
-                                )->diffForHumans() }}
-
-                            @else
-
-                                Recientemente
-
-                            @endif
-
+                                )->diffForHumans()
+                                : 'Recientemente'
+                            }}
                         </small>
 
                     </div>
