@@ -63,7 +63,6 @@ class LocationIQService
             report($e);
 
             return [];
-
         }
 
         if (! $response->successful()) {
@@ -72,32 +71,62 @@ class LocationIQService
 
         return collect($response->json())
 
-            ->map(fn (array $item) => $this->normalizeResult($item))
-
-            ->filter(fn (array $item) =>
-
-                filled($item['direccion']) &&
-                filled($item['departamento']) &&
-                filled($item['provincia']) &&
-                filled($item['distrito'])
-
+            ->map(
+                fn (array $item) =>
+                    $this->normalizeResult($item)
             )
 
             /*
             |--------------------------------------------------------------------------
-            | Priorizar resultados de la zona de trabajo
+            | Solo descartamos resultados que realmente no tienen
+            | información útil para representar una ubicación.
             |--------------------------------------------------------------------------
             */
 
-            ->sortByDesc(function (array $item) {
+            ->filter(
+                fn (array $item) =>
+                    filled($item['direccion']) ||
+                    filled($item['distrito']) ||
+                    filled($item['provincia']) ||
+                    filled($item['departamento'])
+            )
 
-                $text = mb_strtolower($item['label']);
+            /*
+            |--------------------------------------------------------------------------
+            | Priorizar Pichanaqui sin bloquear otras ubicaciones
+            |--------------------------------------------------------------------------
+            */
 
-                return str_contains($text, 'pichanaqui')
-                    || str_contains($text, 'junín')
-                    || str_contains($text, 'chanchamayo');
+            ->sortByDesc(
+                function (array $item) {
 
-            })
+                    $text = mb_strtolower(
+                        $item['label'] ?? ''
+                    );
+
+                    if (
+                        str_contains($text, 'pichanaqui') ||
+                        str_contains($text, 'pichanaki')
+                    ) {
+                        return 3;
+                    }
+
+                    if (
+                        str_contains($text, 'chanchamayo')
+                    ) {
+                        return 2;
+                    }
+
+                    if (
+                        str_contains($text, 'junín') ||
+                        str_contains($text, 'junin')
+                    ) {
+                        return 1;
+                    }
+
+                    return 0;
+                }
+            )
 
             ->values()
 
@@ -152,45 +181,53 @@ class LocationIQService
 
         /*
         |--------------------------------------------------------------------------
-        | Dirección corta
+        | Número
         |--------------------------------------------------------------------------
+        */
+
+        $numero = $address['house_number']
+            ?? null;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dirección
+        |--------------------------------------------------------------------------
+        |
+        | Aquí NO incluimos house_number porque tu formulario
+        | tiene un campo separado para número / interior.
+        |
         */
 
         $direccion = collect([
 
             $address['road'] ?? null,
 
-            $address['house_number'] ?? null,
+            $address['pedestrian'] ?? null,
+
+            $address['square'] ?? null,
+
+            $address['neighbourhood'] ?? null,
+
+            $address['residential'] ?? null,
+
+            $address['amenity'] ?? null,
+
+            $address['building'] ?? null,
 
         ])
 
-        ->filter()
-
-        ->implode(' ');
-
-        if (blank($direccion)) {
-
-            $direccion = collect([
-
-                $address['pedestrian'] ?? null,
-
-                $address['square'] ?? null,
-
-                $address['neighbourhood'] ?? null,
-
-                $address['residential'] ?? null,
-
-                $address['amenity'] ?? null,
-
-                $address['building'] ?? null,
-
-            ])
-
             ->filter()
+
+            ->unique()
 
             ->implode(' ');
 
-        }
+        /*
+        |--------------------------------------------------------------------------
+        | Si no encontramos una calle o dirección específica,
+        | usamos una ubicación disponible.
+        |--------------------------------------------------------------------------
+        */
 
         if (blank($direccion)) {
 
@@ -200,12 +237,15 @@ class LocationIQService
 
                 $provincia,
 
+                $departamento,
+
             ])
 
-            ->filter()
+                ->filter()
 
-            ->implode(', ');
+                ->unique()
 
+                ->implode(', ');
         }
 
         /*
@@ -214,27 +254,41 @@ class LocationIQService
         |--------------------------------------------------------------------------
         */
 
+        $ubicacion = collect([
+
+            $distrito,
+
+            $provincia,
+
+            $departamento,
+
+        ])
+
+            ->filter()
+
+            ->unique()
+
+            ->implode(', ');
+
         $label = collect([
 
             $direccion,
 
-            collect([
+            $numero,
 
-                $distrito,
-
-                $provincia,
-
-            ])
-
-            ->filter()
-
-            ->implode(', '),
+            $ubicacion,
 
         ])
 
-        ->filter()
+            ->filter()
 
-        ->implode(' · ');
+            ->implode(' · ');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Resultado
+        |--------------------------------------------------------------------------
+        */
 
         return [
 
@@ -248,11 +302,19 @@ class LocationIQService
 
             /*
             |--------------------------------------------------------------------------
-            | Guardar en ShippingAddress
+            | Dirección
             |--------------------------------------------------------------------------
             */
 
             'direccion' => $direccion,
+
+            'numero' => $numero,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Ubicación administrativa
+            |--------------------------------------------------------------------------
+            */
 
             'departamento' => $departamento,
 
