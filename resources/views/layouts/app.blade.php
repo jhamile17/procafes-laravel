@@ -62,7 +62,7 @@
             currentRoute: "{{ request()->route()?->getName() }}",
 
             auth: @json(auth()->check()),
-
+            
             routes: {
 
                 /*
@@ -153,7 +153,17 @@
         };
 
     </script>
+        @if(auth()->check())
+            <script>
+                window.addEventListener('pageshow', function (event) {
 
+                    if (event.persisted) {
+                        window.location.reload();
+                    }
+
+                });
+            </script>
+        @endif
     {{-- ===========================
         SCRIPTS
     ============================ --}}
