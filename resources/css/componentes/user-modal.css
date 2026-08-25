@@ -1,0 +1,501 @@
+/* ==========================================================
+   MODAL - EDITAR PERMISOS DE USUARIO
+   PROCÁFES
+========================================================== */
+
+.edit-user-modal {
+    --user-red: #dc2626;
+    --user-red-dark: #b91c1c;
+    --user-text: #1f2937;
+    --user-muted: #6b7280;
+    --user-border: #e5e7eb;
+    --user-bg: #f8fafc;
+}
+
+
+/* ==========================================================
+   CONTENEDOR
+========================================================== */
+
+.edit-user-modal .modal-dialog {
+    max-width: 520px;
+    margin: 1.75rem auto;
+}
+
+.edit-user-modal .modal-content {
+    border: 0;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow:
+        0 20px 50px rgba(15, 23, 42, .18),
+        0 4px 15px rgba(15, 23, 42, .08);
+}
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.edit-user-modal .modal-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 22px 24px;
+
+    background: #ffffff;
+    border-bottom: 1px solid var(--user-border);
+}
+
+
+/* Icono del encabezado */
+
+.edit-user-modal .edit-user-modal-icon {
+    width: 44px;
+    height: 44px;
+
+    flex: 0 0 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #fef2f2;
+    color: var(--user-red);
+
+    font-size: 19px;
+}
+
+
+/* Título */
+
+.edit-user-modal .modal-title {
+    margin: 0;
+
+    color: var(--user-text);
+
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+
+/* Descripción */
+
+.edit-user-modal .edit-user-modal-subtitle {
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--user-muted);
+
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+
+/* Botón cerrar */
+
+.edit-user-modal .btn-close {
+    margin-left: auto;
+
+    width: 34px;
+    height: 34px;
+
+    padding: 0;
+
+    border-radius: 9px;
+
+    background-color: #f8fafc;
+
+    opacity: 1;
+
+    transition:
+        background-color .2s ease,
+        transform .2s ease;
+}
+
+.edit-user-modal .btn-close:hover {
+    background-color: #f1f5f9;
+
+    transform: rotate(5deg);
+}
+
+
+/* ==========================================================
+   BODY
+========================================================== */
+
+.edit-user-modal .modal-body {
+    padding: 24px;
+}
+
+
+/* ==========================================================
+   INFORMACIÓN DEL USUARIO
+========================================================== */
+
+.edit-user-modal .edit-user-info {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 14px;
+
+    margin-bottom: 22px;
+}
+
+
+/* Tarjetas de información */
+
+.edit-user-modal .edit-user-info-card {
+    min-width: 0;
+
+    padding: 13px 14px;
+
+    border: 1px solid var(--user-border);
+
+    border-radius: 11px;
+
+    background: #fafafa;
+}
+
+
+/* Label */
+
+.edit-user-modal .edit-user-info-label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--user-muted);
+
+    font-size: 11px;
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: .04em;
+}
+
+
+/* Valor */
+
+.edit-user-modal .edit-user-info-value {
+    display: block;
+
+    overflow: hidden;
+
+    color: var(--user-text);
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   ESTADO
+========================================================== */
+
+.edit-user-modal .edit-user-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 22px;
+
+    padding: 11px 13px;
+
+    border: 1px solid #dcfce7;
+
+    border-radius: 10px;
+
+    background: #f0fdf4;
+
+    color: #166534;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.edit-user-modal .edit-user-status i {
+    font-size: 15px;
+}
+
+
+/* Estado inactivo */
+
+.edit-user-modal .edit-user-status.is-inactive {
+    border-color: #fee2e2;
+
+    background: #fef2f2;
+
+    color: #b91c1c;
+}
+
+
+/* ==========================================================
+   CAMPO ROL
+========================================================== */
+
+.edit-user-modal .edit-user-role-section {
+    margin-top: 4px;
+}
+
+.edit-user-modal .edit-user-label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--user-text);
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.edit-user-modal .edit-user-required {
+    color: var(--user-red);
+}
+
+
+/* Select */
+
+.edit-user-modal .edit-user-select {
+    width: 100%;
+    height: 46px;
+
+    padding: 0 42px 0 14px;
+
+    border: 1px solid #dfe3e8;
+
+    border-radius: 10px;
+
+    background-color: #ffffff;
+
+    color: var(--user-text);
+
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    outline: none;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background-color .2s ease;
+}
+
+.edit-user-modal .edit-user-select:hover {
+    border-color: #cbd5e1;
+}
+
+.edit-user-modal .edit-user-select:focus {
+    border-color: var(--user-red);
+
+    box-shadow:
+        0 0 0 3px rgba(220, 38, 38, .09);
+}
+
+
+/* Select deshabilitado */
+
+.edit-user-modal .edit-user-select:disabled {
+    background-color: #f8fafc;
+
+    color: #6b7280;
+
+    cursor: not-allowed;
+
+    opacity: 1;
+}
+
+
+/* Descripción del rol */
+
+.edit-user-modal .edit-user-help {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+
+    margin-top: 8px;
+
+    color: var(--user-muted);
+
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.edit-user-modal .edit-user-help i {
+    margin-top: 1px;
+
+    color: #9ca3af;
+}
+
+
+/* ==========================================================
+   ADVERTENCIA ADMINISTRADOR
+========================================================== */
+
+.edit-user-modal .edit-user-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+
+    margin-top: 16px;
+    padding: 12px 14px;
+
+    border: 1px solid #fde68a;
+
+    border-radius: 10px;
+
+    background: #fffbeb;
+
+    color: #92400e;
+
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.edit-user-modal .edit-user-warning i {
+    margin-top: 1px;
+
+    font-size: 15px;
+}
+
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+
+.edit-user-modal .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+
+    padding: 16px 24px;
+
+    border-top: 1px solid var(--user-border);
+
+    background: #fafafa;
+}
+
+
+/* ==========================================================
+   BOTONES
+========================================================== */
+
+.edit-user-modal .edit-user-btn {
+    height: 40px;
+
+    padding: 0 16px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    border-radius: 9px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    transition:
+        background-color .2s ease,
+        border-color .2s ease,
+        transform .15s ease,
+        box-shadow .2s ease;
+}
+
+
+/* Cancelar */
+
+.edit-user-modal .edit-user-btn-cancel {
+    border: 1px solid #e5e7eb;
+
+    background: #ffffff;
+
+    color: #374151;
+}
+
+.edit-user-modal .edit-user-btn-cancel:hover {
+    background: #f9fafb;
+
+    border-color: #d1d5db;
+}
+
+
+/* Guardar */
+
+.edit-user-modal .edit-user-btn-save {
+    border: 1px solid var(--user-red);
+
+    background: var(--user-red);
+
+    color: #ffffff;
+
+    box-shadow: 0 3px 8px rgba(220, 38, 38, .18);
+}
+
+.edit-user-modal .edit-user-btn-save:hover {
+    background: var(--user-red-dark);
+
+    border-color: var(--user-red-dark);
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 5px 12px rgba(220, 38, 38, .22);
+}
+
+
+/* ==========================================================
+   OVERLAY
+========================================================== */
+
+.edit-user-modal + .modal-backdrop,
+.modal-backdrop.show {
+    opacity: .55;
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 576px) {
+
+    .edit-user-modal .modal-dialog {
+        margin: .75rem;
+    }
+
+    .edit-user-modal .modal-header {
+        padding: 18px;
+    }
+
+    .edit-user-modal .modal-body {
+        padding: 18px;
+    }
+
+    .edit-user-modal .modal-footer {
+        padding: 14px 18px;
+    }
+
+    .edit-user-modal .edit-user-info {
+        grid-template-columns: 1fr;
+    }
+
+    .edit-user-modal .edit-user-btn {
+        flex: 1;
+    }
+
+}
+
