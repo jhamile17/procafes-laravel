@@ -58,6 +58,10 @@ class StoreProductRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
+
+                // Letras, números, espacios, punto, coma,
+                // guion, paréntesis y comillas.
+                'regex:/^[\pL\pN\s\.,"\-()]+$/u',
             ],
 
             /*
@@ -108,6 +112,24 @@ class StoreProductRequest extends FormRequest
             'description' => [
                 'nullable',
                 'string',
+                'min:10',
+                'max:1000',
+
+                /*
+                | Solo permite:
+                | - Letras
+                | - Números
+                | - Espacios
+                | - Punto
+                | - Coma
+                | - Comillas dobles
+                | - Guion
+                | - Paréntesis
+                |
+                | También permite tildes y ñ.
+                */
+
+                'regex:/^[\pL\pN\s\.,"\-()]+$/u',
             ],
 
             /*
@@ -119,7 +141,7 @@ class StoreProductRequest extends FormRequest
             'sale_price' => [
                 'required',
                 'numeric',
-                'min:0',
+                'gt:0',
             ],
 
             /*
@@ -150,10 +172,6 @@ class StoreProductRequest extends FormRequest
             |--------------------------------------------------------------------------
             | ESTADO
             |--------------------------------------------------------------------------
-            |
-            | No es obligatorio.
-            | ProductService lo determina según el stock.
-            |
             */
 
             'status' => [
@@ -176,9 +194,37 @@ class StoreProductRequest extends FormRequest
         ];
     }
 
+
     public function messages(): array
     {
         return [
+
+            /*
+            |--------------------------------------------------------------------------
+            | NOMBRE
+            |--------------------------------------------------------------------------
+            */
+
+            'name.required' =>
+                'El nombre del producto es obligatorio.',
+
+            'name.regex' =>
+                'El nombre del producto contiene caracteres no permitidos.',
+
+            /*
+            |--------------------------------------------------------------------------
+            | DESCRIPCIÓN
+            |--------------------------------------------------------------------------
+            */
+
+            'description.min' =>
+                'La descripción debe tener al menos 10 caracteres.',
+
+            'description.max' =>
+                'La descripción no puede superar los 1000 caracteres.',
+
+            'description.regex' =>
+                'La descripción solo puede contener letras, números, espacios, puntos, comas, comillas, guiones y paréntesis.',
 
             /*
             |--------------------------------------------------------------------------
@@ -192,9 +238,9 @@ class StoreProductRequest extends FormRequest
             'sale_price.numeric' =>
                 'El precio de venta debe ser un número.',
 
-            'sale_price.min' =>
-                'El precio de venta no puede ser negativo.',
-
+            'sale_price.gt' =>
+                'El precio de venta debe ser mayor a 0.',
+                
             /*
             |--------------------------------------------------------------------------
             | CATEGORÍA

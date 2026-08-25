@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -24,9 +25,16 @@ class UserController extends Controller
             ->latest()
             ->paginate(10);
 
+        $roles = Role::where('estado', true)
+            ->orderBy('id')
+            ->get();
+
         return view(
             'admin.users.index',
-            compact('users')
+            compact(
+                'users',
+                'roles'
+            )
         );
     }
 
@@ -107,6 +115,7 @@ class UserController extends Controller
                     'required',
                     'string',
                     'max:20',
+                    'unique:users,numero_documento',
                 ],
 
                 'direccion' => [
@@ -150,6 +159,9 @@ class UserController extends Controller
 
                 'numero_documento.required' =>
                     'El número de documento es obligatorio.',
+
+                'numero_documento.unique' =>
+                    'Este número de documento ya está registrado.',
 
                 'role_id.required' =>
                     'Selecciona un rol.',
@@ -297,10 +309,9 @@ class UserController extends Controller
         );
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | ACTUALIZAR
+    | ACTUALIZAR ROL / PERMISOS
     |--------------------------------------------------------------------------
     */
 
@@ -309,223 +320,68 @@ class UserController extends Controller
         User $user
     ): RedirectResponse {
 
+        /*
+        |--------------------------------------------------------------------------
+        | NO PERMITIR MODIFICAR EL PROPIO ROL
+        |--------------------------------------------------------------------------
+        */
+
+        if (auth()->id() === $user->id) {
+
+            return redirect()
+                ->route('admin.users.index')
+                ->with(
+                    'error',
+                    'No puedes modificar tu propio rol.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDAR ROL
+        |--------------------------------------------------------------------------
+        */
+
         $validated = $request->validate(
             [
-                'nombres' => [
-                    'required',
-                    'string',
-                    'max:255',
-                ],
-
-                'apellido_paterno' => [
-                    'required',
-                    'string',
-                    'max:255',
-                ],
-
-                'apellido_materno' => [
-                    'nullable',
-                    'string',
-                    'max:255',
-                ],
-
-                'email' => [
-                    'required',
-                    'email',
-                    'max:255',
-                    'unique:users,email,' . $user->id,
-                ],
-
-                'celular' => [
-                    'nullable',
-                    'string',
-                    'max:20',
-                ],
-
-                'tipo_documento' => [
-                    'required',
-                    'in:dni,ce',
-                ],
-
-                'numero_documento' => [
-                    'required',
-                    'string',
-                    'max:20',
-                ],
-
-                'direccion' => [
-                    'nullable',
-                    'string',
-                    'max:255',
-                ],
-
                 'role_id' => [
                     'required',
                     'exists:roles,id',
                 ],
-
-                'password' => [
-                    'nullable',
-                    'string',
-                    'min:6',
-                    'confirmed',
-                ],
             ],
             [
-                'nombres.required' =>
-                    'Los nombres son obligatorios.',
-
-                'apellido_paterno.required' =>
-                    'El apellido paterno es obligatorio.',
-
-                'email.unique' =>
-                    'Este correo electrónico ya está registrado.',
-
-                'tipo_documento.required' =>
-                    'Selecciona el tipo de documento.',
-
-                'numero_documento.required' =>
-                    'El número de documento es obligatorio.',
-
                 'role_id.required' =>
-                    'Selecciona un rol.',
+                    'Debes seleccionar un rol.',
 
                 'role_id.exists' =>
                     'El rol seleccionado no es válido.',
-
-                'password.min' =>
-                    'La contraseña debe tener al menos 6 caracteres.',
-
-                'password.confirmed' =>
-                    'Las contraseñas no coinciden.',
             ]
         );
 
 
         /*
         |--------------------------------------------------------------------------
-        | VALIDACIÓN DEL DOCUMENTO
+        | ACTUALIZAR ROL
         |--------------------------------------------------------------------------
         */
 
-        if ($request->tipo_documento === 'dni') {
-
-            $request->validate(
-                [
-                    'numero_documento' => [
-                        'required',
-                        'digits:8',
-                    ],
-                ],
-                [
-                    'numero_documento.digits' =>
-                        'El DNI debe tener 8 dígitos.',
-                ]
-            );
-
-        } else {
-
-            $request->validate(
-                [
-                    'numero_documento' => [
-                        'required',
-                        'min:9',
-                        'max:12',
-                    ],
-                ],
-                [
-                    'numero_documento.min' =>
-                        'El carnet de extranjería debe tener al menos 9 caracteres.',
-
-                    'numero_documento.max' =>
-                        'El carnet de extranjería no debe superar 12 caracteres.',
-                ]
-            );
-        }
+        $user->update([
+            'role_id' => $validated['role_id'],
+        ]);
 
 
         /*
         |--------------------------------------------------------------------------
-        | NOMBRE COMPLETO
+        | REDIRECCIÓN
         |--------------------------------------------------------------------------
         */
-
-        $nombreCompleto = User::construirNombreCompleto(
-            $validated['nombres'],
-            $validated['apellido_paterno'],
-            $validated['apellido_materno'] ?? null
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | DATOS A ACTUALIZAR
-        |--------------------------------------------------------------------------
-        */
-
-        $data = [
-
-            'name' =>
-                $nombreCompleto,
-
-            'nombres' =>
-                $validated['nombres'],
-
-            'apellido_paterno' =>
-                $validated['apellido_paterno'],
-
-            'apellido_materno' =>
-                $validated['apellido_materno'] ?? null,
-
-            'email' =>
-                strtolower(trim($validated['email'])),
-
-            'celular' =>
-                $validated['celular'] ?? null,
-
-            'tipo_documento' =>
-                $validated['tipo_documento'],
-
-            'numero_documento' =>
-                $validated['numero_documento'],
-
-            'direccion' =>
-                $validated['direccion'] ?? null,
-
-            'role_id' =>
-                $validated['role_id'],
-        ];
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CONTRASEÑA
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('password')) {
-
-            $data['password'] =
-                Hash::make($request->password);
-
-            $data['has_local_password'] = true;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ACTUALIZAR
-        |--------------------------------------------------------------------------
-        */
-
-        $user->update($data);
-
 
         return redirect()
             ->route('admin.users.index')
             ->with(
                 'success',
-                'Usuario actualizado correctamente.'
+                'Rol del usuario actualizado correctamente.'
             );
     }
 

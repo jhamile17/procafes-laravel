@@ -6,7 +6,10 @@
 
 <div class="admin-form-page">
 
-    {{-- ENCABEZADO --}}
+    {{-- =====================================================
+         ENCABEZADO
+    ====================================================== --}}
+
     <div class="admin-form-header">
 
         <div class="admin-form-heading">
@@ -32,7 +35,10 @@
     </div>
 
 
-    {{-- ERRORES --}}
+    {{-- =====================================================
+         ERRORES
+    ====================================================== --}}
+
     @if ($errors->any())
 
         <div class="admin-form-alert">
@@ -62,7 +68,10 @@
     @endif
 
 
-    {{-- FORMULARIO --}}
+    {{-- =====================================================
+         FORMULARIO
+    ====================================================== --}}
+
     <div class="admin-form-card">
 
         <div class="admin-form-card-header">
@@ -97,38 +106,117 @@
 
                 @csrf
 
+
                 <div class="admin-form-grid">
 
 
-                    {{-- NOMBRE --}}
+                    {{-- =================================================
+                         NOMBRES
+                    ================================================== --}}
+
                     <div class="admin-form-field">
 
                         <label
-                            for="name"
+                            for="nombres"
                             class="admin-form-label"
                         >
-                            Nombre <span>*</span>
+                            Nombres <span>*</span>
                         </label>
 
                         <input
                             type="text"
-                            id="name"
-                            name="name"
-                            value="{{ old('name') }}"
-                            class="admin-form-input @error('name') is-invalid @enderror"
+                            id="nombres"
+                            name="nombres"
+                            value="{{ old('nombres') }}"
+                            class="admin-form-input @error('nombres') is-invalid @enderror"
+                            placeholder="Ej. Sayuri Maylin"
+                            autocomplete="given-name"
                             required
                         >
 
-                        @error('name')
+                        @error('nombres')
+
                             <div class="admin-form-error">
                                 {{ $message }}
                             </div>
+
                         @enderror
 
                     </div>
 
 
-                    {{-- CORREO --}}
+                    {{-- =================================================
+                         APELLIDO PATERNO
+                    ================================================== --}}
+
+                    <div class="admin-form-field">
+
+                        <label
+                            for="apellido_paterno"
+                            class="admin-form-label"
+                        >
+                            Apellido paterno <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="apellido_paterno"
+                            name="apellido_paterno"
+                            value="{{ old('apellido_paterno') }}"
+                            class="admin-form-input @error('apellido_paterno') is-invalid @enderror"
+                            placeholder="Ej. Damian"
+                            autocomplete="family-name"
+                            required
+                        >
+
+                        @error('apellido_paterno')
+
+                            <div class="admin-form-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    {{-- =================================================
+                         APELLIDO MATERNO
+                    ================================================== --}}
+
+                    <div class="admin-form-field">
+
+                        <label
+                            for="apellido_materno"
+                            class="admin-form-label"
+                        >
+                            Apellido materno
+                        </label>
+
+                        <input
+                            type="text"
+                            id="apellido_materno"
+                            name="apellido_materno"
+                            value="{{ old('apellido_materno') }}"
+                            class="admin-form-input @error('apellido_materno') is-invalid @enderror"
+                            placeholder="Ej. Rojas"
+                        >
+
+                        @error('apellido_materno')
+
+                            <div class="admin-form-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    {{-- =================================================
+                         CORREO
+                    ================================================== --}}
+
                     <div class="admin-form-field">
 
                         <label
@@ -144,59 +232,74 @@
                             name="email"
                             value="{{ old('email') }}"
                             class="admin-form-input @error('email') is-invalid @enderror"
+                            placeholder="correo@ejemplo.com"
+                            autocomplete="email"
                             required
                         >
 
                         @error('email')
+
                             <div class="admin-form-error">
                                 {{ $message }}
                             </div>
+
                         @enderror
 
                     </div>
 
 
-                    {{-- TELÉFONO --}}
+                    {{-- =================================================
+                         CELULAR
+                    ================================================== --}}
+
                     <div class="admin-form-field">
 
                         <label
-                            for="phone"
+                            for="celular"
                             class="admin-form-label"
                         >
-                            Teléfono
+                            Celular
                         </label>
 
                         <input
                             type="text"
-                            id="phone"
-                            name="phone"
-                            value="{{ old('phone') }}"
-                            class="admin-form-input @error('phone') is-invalid @enderror"
+                            id="celular"
+                            name="celular"
+                            value="{{ old('celular') }}"
+                            class="admin-form-input @error('celular') is-invalid @enderror"
+                            placeholder="Ej. 987654321"
+                            maxlength="20"
+                            autocomplete="tel"
                         >
 
-                        @error('phone')
+                        @error('celular')
+
                             <div class="admin-form-error">
                                 {{ $message }}
                             </div>
+
                         @enderror
 
                     </div>
 
 
-                    {{-- TIPO DOCUMENTO --}}
+                    {{-- =================================================
+                         TIPO DOCUMENTO
+                    ================================================== --}}
+
                     <div class="admin-form-field">
 
                         <label
-                            for="document_type"
+                            for="tipo_documento"
                             class="admin-form-label"
                         >
                             Tipo de documento <span>*</span>
                         </label>
 
                         <select
-                            id="document_type"
-                            name="document_type"
-                            class="admin-form-input @error('document_type') is-invalid @enderror"
+                            id="tipo_documento"
+                            name="tipo_documento"
+                            class="admin-form-input @error('tipo_documento') is-invalid @enderror"
                             required
                         >
 
@@ -206,34 +309,39 @@
 
                             <option
                                 value="dni"
-                                @selected(old('document_type') === 'dni')
+                                @selected(old('tipo_documento') === 'dni')
                             >
                                 DNI
                             </option>
 
                             <option
                                 value="ce"
-                                @selected(old('document_type') === 'ce')
+                                @selected(old('tipo_documento') === 'ce')
                             >
                                 Carnet de extranjería
                             </option>
 
                         </select>
 
-                        @error('document_type')
+                        @error('tipo_documento')
+
                             <div class="admin-form-error">
                                 {{ $message }}
                             </div>
+
                         @enderror
 
                     </div>
 
 
-                    {{-- DOCUMENTO --}}
+                    {{-- =================================================
+                         NÚMERO DOCUMENTO
+                    ================================================== --}}
+
                     <div class="admin-form-field">
 
                         <label
-                            for="document_number"
+                            for="numero_documento"
                             class="admin-form-label"
                         >
                             Número de documento <span>*</span>
@@ -241,27 +349,34 @@
 
                         <input
                             type="text"
-                            id="document_number"
-                            name="document_number"
-                            value="{{ old('document_number') }}"
-                            class="admin-form-input @error('document_number') is-invalid @enderror"
+                            id="numero_documento"
+                            name="numero_documento"
+                            value="{{ old('numero_documento') }}"
+                            class="admin-form-input @error('numero_documento') is-invalid @enderror"
+                            placeholder="Ej. 73724412"
+                            maxlength="20"
                             required
                         >
 
-                        @error('document_number')
+                        @error('numero_documento')
+
                             <div class="admin-form-error">
                                 {{ $message }}
                             </div>
+
                         @enderror
 
                     </div>
 
 
-                    {{-- DIRECCIÓN --}}
+                    {{-- =================================================
+                         DIRECCIÓN
+                    ================================================== --}}
+
                     <div class="admin-form-field">
 
                         <label
-                            for="address"
+                            for="direccion"
                             class="admin-form-label"
                         >
                             Dirección
@@ -269,22 +384,30 @@
 
                         <input
                             type="text"
-                            id="address"
-                            name="address"
-                            value="{{ old('address') }}"
-                            class="admin-form-input @error('address') is-invalid @enderror"
+                            id="direccion"
+                            name="direccion"
+                            value="{{ old('direccion') }}"
+                            class="admin-form-input @error('direccion') is-invalid @enderror"
+                            placeholder="Ej. Av. Principal 123"
+                            maxlength="255"
+                            autocomplete="street-address"
                         >
 
-                        @error('address')
+                        @error('direccion')
+
                             <div class="admin-form-error">
                                 {{ $message }}
                             </div>
+
                         @enderror
 
                     </div>
 
 
-                    {{-- ROL --}}
+                    {{-- =================================================
+                         ROL
+                    ================================================== --}}
+
                     <div class="admin-form-field">
 
                         <label
@@ -319,15 +442,20 @@
                         </select>
 
                         @error('role_id')
+
                             <div class="admin-form-error">
                                 {{ $message }}
                             </div>
+
                         @enderror
 
                     </div>
 
 
-                    {{-- CONTRASEÑA --}}
+                    {{-- =================================================
+                         CONTRASEÑA
+                    ================================================== --}}
+
                     <div class="admin-form-field">
 
                         <label
@@ -342,19 +470,26 @@
                             id="password"
                             name="password"
                             class="admin-form-input @error('password') is-invalid @enderror"
+                            placeholder="Mínimo 6 caracteres"
+                            autocomplete="new-password"
                             required
                         >
 
                         @error('password')
+
                             <div class="admin-form-error">
                                 {{ $message }}
                             </div>
+
                         @enderror
 
                     </div>
 
 
-                    {{-- CONFIRMAR CONTRASEÑA --}}
+                    {{-- =================================================
+                         CONFIRMAR CONTRASEÑA
+                    ================================================== --}}
+
                     <div class="admin-form-field">
 
                         <label
@@ -369,31 +504,43 @@
                             id="password_confirmation"
                             name="password_confirmation"
                             class="admin-form-input"
+                            placeholder="Repite la contraseña"
+                            autocomplete="new-password"
                             required
                         >
 
                     </div>
 
+
                 </div>
 
 
-                {{-- ACCIONES --}}
+                {{-- =================================================
+                     ACCIONES
+                ================================================== --}}
+
                 <div class="admin-form-actions">
 
                     <a
                         href="{{ route('admin.users.index') }}"
                         class="admin-form-btn admin-form-btn-cancel"
                     >
+
                         <i class="bi bi-arrow-left"></i>
+
                         Cancelar
+
                     </a>
 
                     <button
                         type="submit"
                         class="admin-form-btn admin-form-btn-save"
                     >
+
                         <i class="bi bi-person-plus"></i>
+
                         Crear usuario
+
                     </button>
 
                 </div>

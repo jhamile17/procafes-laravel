@@ -88,6 +88,7 @@
         method="POST"
         enctype="multipart/form-data"
         class="admin-form"
+        novalidate
     >
 
         @csrf
@@ -447,10 +448,10 @@
                                 id="sale_price"
                                 name="sale_price"
                                 step="0.01"
-                                min="0"
+                                min="0.01"
                                 value="{{ old('sale_price', $product->sale_price) }}"
                                 class="admin-form-input admin-form-price-input @error('sale_price') is-invalid @enderror"
-                                placeholder="0.00"
+                                placeholder="0.01"
                             >
 
                         </div>

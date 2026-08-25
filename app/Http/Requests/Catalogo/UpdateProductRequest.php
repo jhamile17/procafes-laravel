@@ -61,6 +61,7 @@ class UpdateProductRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
+                'regex:/^[\pL\pN\s\.,"\-()]+$/u',
             ],
 
             /*
@@ -71,6 +72,8 @@ class UpdateProductRequest extends FormRequest
 
             'slug' => [
                 'nullable',
+                'string',
+                'max:255',
                 Rule::unique('products', 'slug')
                     ->ignore($product->id),
             ],
@@ -83,6 +86,8 @@ class UpdateProductRequest extends FormRequest
 
             'sku' => [
                 'nullable',
+                'string',
+                'max:50',
                 Rule::unique('products', 'sku')
                     ->ignore($product->id),
             ],
@@ -95,6 +100,8 @@ class UpdateProductRequest extends FormRequest
 
             'barcode' => [
                 'nullable',
+                'string',
+                'max:100',
                 Rule::unique('products', 'barcode')
                     ->ignore($product->id),
             ],
@@ -108,18 +115,30 @@ class UpdateProductRequest extends FormRequest
             'description' => [
                 'nullable',
                 'string',
+                'min:10',
+                'max:1000',
+
+                /*
+                | Permite:
+                | - letras
+                | - números
+                | - espacios
+                | - punto
+                | - coma
+                | - comillas dobles
+                | - guion
+                | - paréntesis
+                |
+                | También permite tildes y ñ.
+                */
+
+                'regex:/^[\pL\pN\s\.,"\-()]+$/u',
             ],
 
             /*
             |--------------------------------------------------------------------------
             | PRECIO DE COSTO
             |--------------------------------------------------------------------------
-            |
-            | No lo exigimos porque tu formulario de edición
-            | actualmente no muestra este campo.
-            |
-            | Si no se envía, se conserva el valor existente.
-            |
             */
 
             'cost_price' => [
@@ -138,7 +157,7 @@ class UpdateProductRequest extends FormRequest
             'sale_price' => [
                 'required',
                 'numeric',
-                'min:0',
+                'gt:0',
             ],
 
             /*
@@ -169,17 +188,6 @@ class UpdateProductRequest extends FormRequest
             |--------------------------------------------------------------------------
             | IMAGEN
             |--------------------------------------------------------------------------
-            |
-            | La imagen es opcional al editar.
-            |
-            | Si no se selecciona:
-            |     se conserva la imagen actual.
-            |
-            | Si se selecciona:
-            |     se reemplaza por la nueva.
-            |
-            | Máximo: 5 MB.
-            |
             */
 
             'image' => [
@@ -190,6 +198,7 @@ class UpdateProductRequest extends FormRequest
             ],
         ];
     }
+
 
     public function messages(): array
     {
@@ -227,7 +236,46 @@ class UpdateProductRequest extends FormRequest
 
             /*
             |--------------------------------------------------------------------------
-            | PRECIO
+            | NOMBRE
+            |--------------------------------------------------------------------------
+            */
+
+            'name.required' =>
+                'El nombre del producto es obligatorio.',
+
+            'name.regex' =>
+                'El nombre del producto contiene caracteres no permitidos.',
+
+            /*
+            |--------------------------------------------------------------------------
+            | DESCRIPCIÓN
+            |--------------------------------------------------------------------------
+            */
+
+            'description.min' =>
+                'La descripción debe tener al menos 10 caracteres.',
+
+            'description.max' =>
+                'La descripción no puede superar los 1000 caracteres.',
+
+            'description.regex' =>
+                'La descripción solo puede contener letras, números, espacios, puntos, comas, comillas, guiones y paréntesis.',
+
+            /*
+            |--------------------------------------------------------------------------
+            | PRECIO DE COSTO
+            |--------------------------------------------------------------------------
+            */
+
+            'cost_price.numeric' =>
+                'El precio de costo debe ser numérico.',
+
+            'cost_price.min' =>
+                'El precio de costo no puede ser negativo.',
+
+            /*
+            |--------------------------------------------------------------------------
+            | PRECIO DE VENTA
             |--------------------------------------------------------------------------
             */
 
@@ -237,9 +285,9 @@ class UpdateProductRequest extends FormRequest
             'sale_price.numeric' =>
                 'El precio de venta debe ser numérico.',
 
-            'sale_price.min' =>
-                'El precio de venta no puede ser negativo.',
-
+            'sale_price.gt' =>
+                'El precio de venta debe ser mayor a 0.',
+                
             /*
             |--------------------------------------------------------------------------
             | STOCK
