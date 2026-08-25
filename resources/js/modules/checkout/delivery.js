@@ -28,8 +28,6 @@ const Delivery = {
         this.addressTitle = document.getElementById('addressTitle');
         this.addressLocation = document.getElementById('addressLocation');
         this.addressReference = document.getElementById('addressReference');
-
-
         /*Botones */
         this.btnAdd = document.getElementById('btnAddAddress');
         this.btnEdit = document.getElementById('btnEditAddress');
@@ -189,6 +187,7 @@ const Delivery = {
         this.searchInput.value = address.direccion;
         /*campos ocultos */
         this.direccion.value = address.direccion;
+        this.numero.value = address.numero ?? '';
         this.departamento.value = address.departamento;
         this.provincia.value = address.provincia;
         this.distrito.value = address.distrito;
