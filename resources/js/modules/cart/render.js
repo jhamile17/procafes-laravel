@@ -121,15 +121,11 @@ export function hideLoading() {
     BADGE
 =========================================================*/
 
-export function renderBadge(
-    count = 0
-) {
+export function renderBadge(count = 0) {
 
-    const badge =
-        getBadge();
+    const badge = getBadge();
 
-    const label =
-        getCountLabel();
+    const label = getCountLabel();
 
     const quantity =
         Number(count) || 0;
@@ -140,9 +136,14 @@ export function renderBadge(
         badge.textContent =
             quantity;
 
-        badge.classList.toggle(
-            'd-none',
-            quantity <= 0
+        badge.style.display =
+            quantity > 0
+                ? 'flex'
+                : 'none';
+
+        badge.setAttribute(
+            'aria-label',
+            `${quantity} productos en el carrito`
         );
 
     }
@@ -158,7 +159,6 @@ export function renderBadge(
     }
 
 }
-
 
 /*=========================================================
     TOTAL
@@ -597,9 +597,7 @@ export function renderItems(
     RENDER PRINCIPAL
 =========================================================*/
 
-export function render(
-    cart = {}
-) {
+export function render(cart = {}) {
 
     const items =
         Array.isArray(cart.items)
@@ -607,19 +605,34 @@ export function render(
             : [];
 
 
-    renderBadge(
-        cart.count ?? 0
-    );
+    /*
+    |--------------------------------------------------------------------------
+    | CONTADOR DEL CARRITO
+    |--------------------------------------------------------------------------
+    |
+    | Primero usamos cart.count.
+    | Si no viene del backend, calculamos la suma
+    | de cantidades directamente desde los items.
+    |
+    */
+
+    const count =
+        cart.count !== undefined
+            ? Number(cart.count)
+            : items.reduce(
+                (total, item) =>
+                    total + (Number(item.quantity) || 0),
+                0
+            );
 
 
-    renderItems(
-        items
-    );
+    renderBadge(count);
 
 
-    renderTotals(
-        cart
-    );
+    renderItems(items);
+
+
+    renderTotals(cart);
 
 
     hideLoading();

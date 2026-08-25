@@ -1,46 +1,60 @@
-{{--==========================================================================
+{{--========================================================================== 
     NAVBAR ACTIONS
 ==========================================================================--}}
 
 <div class="navbar-actions">
 
-    {{-- Favoritos --}}
-    <a
-        href="{{ route('customer.wishlist') }}"        class="navbar-action"
-        aria-label="Lista de favoritos">
+    {{-- =========================================================
+        FAVORITOS
+    ========================================================== --}}
 
-        <i class="bi bi-heart" aria-hidden="true"></i>
+    <a
+        href="{{ route('customer.wishlist') }}"
+        class="navbar-action"
+        aria-label="Lista de favoritos"
+    >
+
+        <i
+            class="bi bi-heart"
+            aria-hidden="true"
+        ></i>
+
 
         <span
             id="wishlistBadge"
             class="navbar-badge"
-            style="display:none;">
-
+            style="display:none;"
+        >
             0
-
         </span>
 
     </a>
 
-    {{-- Carrito --}}
+
+    {{-- =========================================================
+        CARRITO
+    ========================================================== --}}
+
     <a
         href="{{ route('cart.index') }}"
         class="navbar-action"
-        aria-label="Carrito de compras">
+        aria-label="Carrito de compras"
+    >
 
-        <i class="bi bi-cart3" aria-hidden="true"></i>
+        <i
+            class="bi bi-cart3"
+            aria-hidden="true"
+        ></i>
 
-        @if(($cartCount ?? 0) > 0)
 
-            <span
-                class="navbar-badge"
-                aria-label="{{ $cartCount }} productos en el carrito">
-
-                {{ $cartCount }}
-
-            </span>
-
-        @endif
+        <span
+            id="cartBadge"
+            class="navbar-badge"
+            style="{{ ($cartCount ?? 0) > 0 ? '' : 'display:none;' }}"
+            aria-label="{{ $cartCount ?? 0 }} productos en el carrito"
+        >
+            {{ $cartCount ?? 0 }}
+        </span>
 
     </a>
 
