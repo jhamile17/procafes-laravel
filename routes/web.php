@@ -188,7 +188,7 @@ Route::get('/login-checkout', function () {
 |--------------------------------------------------------------------------
 */
     Route::prefix('cliente')
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'no-cache'])
     ->name('customer.')
     ->group(function () {
 
@@ -214,7 +214,7 @@ Route::get('/login-checkout', function () {
             ->name('wishlist');
     });
 // Checkout
-Route::middleware('auth')->group(function () {
+Route::middleware('auth', 'no-cache')->group(function () {
 
     Route::get('/checkout', [CheckoutController::class, 'index'])
         ->name('checkout.index');
@@ -233,7 +233,7 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth'])
+Route::middleware(['auth','no-cache'])
     ->prefix('customer/addresses')
     ->name('customer.addresses.')
     ->group(function () {
@@ -265,7 +265,7 @@ Route::middleware(['auth'])
 
     });
 
-Route::middleware('auth')
+Route::middleware('auth', 'no-cache')
     ->prefix('mercado-pago')
     ->name('mp.')
     ->group(function () {
@@ -298,7 +298,7 @@ Route::post('/mercado-pago/webhook', [MercadoPagoWebhookController::class, 'hand
 
 
 
-Route::middleware('auth')
+Route::middleware('auth', 'no-cache')
     ->prefix('customer/documentos')
     ->name('customer.documentos.')
     ->group(function () {
@@ -322,7 +322,7 @@ Route::middleware('auth')
 
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['auth', 'verified', 'admin'])
+    ->middleware(['auth', 'verified', 'admin', 'no-cache'])
     ->group(function () {
 
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])
