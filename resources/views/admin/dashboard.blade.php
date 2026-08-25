@@ -53,13 +53,21 @@
 
         $cantidadStockBajo = count($lowStock ?? []);
 
+        $recentActivities = collect($activities ?? [])->take(5);
+
         /*
         |--------------------------------------------------------------------------
-        | Actividad limitada
+        | FECHA MÍNIMA PARA REPORTES
         |--------------------------------------------------------------------------
+        |
+        | Actualmente el sistema trabaja con información desde el año 2026.
+        | Esto evita seleccionar fechas anteriores a dicho año.
+        |
         */
 
-        $recentActivities = collect($activities ?? [])->take(5);
+        $reportMinimumDate = now()
+            ->startOfYear()
+            ->format('Y-m-d');
 
     @endphp
 
@@ -121,13 +129,11 @@
     </section>
 
 
-
     {{-- =========================================================
         KPIs
     ========================================================== --}}
 
     <section class="dashboard-kpis">
-
 
         {{-- VENTAS --}}
 
@@ -147,21 +153,16 @@
 
             </div>
 
-
             <h2>
-
                 S/
                 {{ number_format($totalVentas, 2) }}
-
             </h2>
-
 
             <p>
                 Ingresos acumulados
             </p>
 
         </div>
-
 
 
         {{-- PEDIDOS --}}
@@ -182,20 +183,15 @@
 
             </div>
 
-
             <h2>
-
                 {{ number_format($totalPedidos) }}
-
             </h2>
-
 
             <p>
                 Pedidos registrados
             </p>
 
         </div>
-
 
 
         {{-- CLIENTES --}}
@@ -216,20 +212,15 @@
 
             </div>
 
-
             <h2>
-
                 {{ number_format($totalClientes) }}
-
             </h2>
-
 
             <p>
                 Clientes registrados
             </p>
 
         </div>
-
 
 
         {{-- PRODUCTOS --}}
@@ -250,13 +241,9 @@
 
             </div>
 
-
             <h2>
-
                 {{ number_format($totalProductos) }}
-
             </h2>
-
 
             <p>
                 Productos disponibles
@@ -264,9 +251,7 @@
 
         </div>
 
-
     </section>
-
 
 
     {{-- =========================================================
@@ -274,7 +259,6 @@
     ========================================================== --}}
 
     <section class="dashboard-main">
-
 
         {{-- =====================================================
             GRÁFICO
@@ -284,9 +268,7 @@
 
             <div class="dashboard-card">
 
-
                 <div class="card-header-custom">
-
 
                     <div>
 
@@ -333,8 +315,7 @@
                     </div>
 
 
-
-                    {{-- FILTROS --}}
+                    {{-- FILTROS DEL GRÁFICO --}}
 
                     <form
                         method="GET"
@@ -353,11 +334,9 @@
 
                                 <option
                                     value="{{ $availableYear }}"
-                                    {{ $currentYear == $availableYear ? 'selected' : '' }}
+                                    @selected($currentYear == $availableYear)
                                 >
-
                                     {{ $availableYear }}
-
                                 </option>
 
                             @endforeach
@@ -372,11 +351,9 @@
 
                             <option
                                 value=""
-                                {{ empty($selectedMonth) ? 'selected' : '' }}
+                                @selected(empty($selectedMonth))
                             >
-
                                 Todo el año
-
                             </option>
 
 
@@ -384,11 +361,9 @@
 
                                 <option
                                     value="{{ $numero }}"
-                                    {{ $selectedMonth === $numero ? 'selected' : '' }}
+                                    @selected($selectedMonth === $numero)
                                 >
-
                                     {{ $nombre }}
-
                                 </option>
 
                             @endforeach
@@ -410,7 +385,6 @@
                     </form>
 
                 </div>
-
 
 
                 {{-- GRÁFICO --}}
@@ -444,21 +418,18 @@
 
                 </div>
 
-
             </div>
 
         </div>
 
 
-
         {{-- =====================================================
-            REPORTES
+            CENTRO DE REPORTES
         ====================================================== --}}
 
         <div class="dashboard-right">
 
             <div class="dashboard-card reports-card">
-
 
                 <span class="section-badge">
 
@@ -470,29 +441,24 @@
 
 
                 <h3>
-
                     Exportar información
-
                 </h3>
 
 
                 <p>
-
                     Descarga reportes para analizar el rendimiento
                     de PROCÁFES.
-
                 </p>
-
 
 
                 <form
                     id="reportForm"
                     method="GET"
-
                 >
 
-
-                    {{-- TIPO --}}
+                    {{-- =================================================
+                        TIPO DE REPORTE
+                    ================================================== --}}
 
                     <div class="mb-3">
 
@@ -500,9 +466,7 @@
                             for="reportType"
                             class="form-label"
                         >
-
                             Reporte
-
                         </label>
 
 
@@ -545,8 +509,9 @@
                     </div>
 
 
-
-                    {{-- DESDE --}}
+                    {{-- =================================================
+                        DESDE
+                    ================================================== --}}
 
                     <div
                         id="fromGroup"
@@ -557,9 +522,7 @@
                             for="reportFrom"
                             class="form-label"
                         >
-
                             Desde
-
                         </label>
 
 
@@ -568,13 +531,21 @@
                             id="reportFrom"
                             name="from"
                             class="form-control"
+                            min="{{ $reportMinimumDate }}"
+                            value="{{ request('from') }}"
                         >
+
+
+                        <small class="text-muted d-block mt-1">
+                            Desde {{ \Carbon\Carbon::parse($reportMinimumDate)->format('d/m/Y') }}
+                        </small>
 
                     </div>
 
 
-
-                    {{-- HASTA --}}
+                    {{-- =================================================
+                        HASTA
+                    ================================================== --}}
 
                     <div
                         id="toGroup"
@@ -585,9 +556,7 @@
                             for="reportTo"
                             class="form-label"
                         >
-
                             Hasta
-
                         </label>
 
 
@@ -596,13 +565,16 @@
                             id="reportTo"
                             name="to"
                             class="form-control"
+                            min="{{ $reportMinimumDate }}"
+                            value="{{ request('to') }}"
                         >
 
                     </div>
 
 
-
-                    {{-- INFORMACIÓN --}}
+                    {{-- =================================================
+                        INFORMACIÓN DEL REPORTE
+                    ================================================== --}}
 
                     <div class="report-preview">
 
@@ -661,6 +633,9 @@
                     </div>
 
 
+                    {{-- =================================================
+                        BOTÓN
+                    ================================================== --}}
 
                     <button
                         type="submit"
@@ -673,16 +648,13 @@
 
                     </button>
 
-
                 </form>
 
             </div>
 
         </div>
 
-
     </section>
-
 
 
     {{-- =========================================================
@@ -691,13 +663,11 @@
 
     <section class="dashboard-bottom">
 
-
         {{-- =====================================================
             PRODUCTOS MÁS VENDIDOS
         ====================================================== --}}
 
         <div class="dashboard-card">
-
 
             <div class="card-header-custom">
 
@@ -738,14 +708,11 @@
             </div>
 
 
-
             <div class="top-products-list">
-
 
                 @forelse(($topProducts ?? []) as $product)
 
                     <div class="product-item">
-
 
                         @if(!empty($product->image))
 
@@ -768,9 +735,7 @@
                         <div class="flex-grow-1">
 
                             <strong>
-
                                 {{ $product->name }}
-
                             </strong>
 
 
@@ -799,7 +764,6 @@
 
                         </span>
 
-
                     </div>
 
                 @empty
@@ -820,11 +784,9 @@
 
                 @endforelse
 
-
             </div>
 
         </div>
-
 
 
         {{-- =====================================================
@@ -832,7 +794,6 @@
         ====================================================== --}}
 
         <div class="dashboard-card">
-
 
             <div class="card-header-custom">
 
@@ -873,12 +834,9 @@
             </div>
 
 
-
             <div class="stock-list">
 
-
                 @forelse(($lowStock ?? []) as $product)
-
 
                     @php
 
@@ -905,14 +863,10 @@
 
                     <div class="stock-item">
 
-
                         <div class="stock-info">
 
-
                             <strong>
-
                                 {{ $product->name }}
-
                             </strong>
 
 
@@ -938,7 +892,6 @@
 
                         <span class="stock-badge">
 
-
                             @if($stock <= 3)
 
                                 Crítico
@@ -953,15 +906,11 @@
 
                             @endif
 
-
                         </span>
-
 
                     </div>
 
-
                 @empty
-
 
                     <div class="dashboard-empty">
 
@@ -977,37 +926,38 @@
 
                     </div>
 
-
                 @endforelse
-
 
             </div>
 
         </div>
 
-
     </section>
+
 
     {{-- =========================================================
         ACTIVIDAD RECIENTE
-        ÚLTIMOS 5 MOVIMIENTOS
-    ========================================================= --}}
+    ========================================================== --}}
 
     <section class="dashboard-card dashboard-activity-card">
 
-        {{-- HEADER --}}
         <div class="card-header-custom activity-header">
 
             <div>
 
                 <span class="section-badge">
+
                     <i class="bi bi-clock-history"></i>
+
                     Sistema
+
                 </span>
+
 
                 <h3>
                     Actividad reciente
                 </h3>
+
 
                 <p>
                     Últimos movimientos registrados en PROCÁFES.
@@ -1015,47 +965,55 @@
 
             </div>
 
+
             <a
                 href="{{ route('admin.orders.index') }}"
                 class="kpi-link"
             >
+
                 Ver pedidos
+
                 <i class="bi bi-arrow-right"></i>
+
             </a>
 
         </div>
 
 
-        {{-- ACTIVIDADES --}}
         <div class="activity-list">
 
             @forelse($recentActivities->take(5) as $activity)
 
                 <div class="activity-item">
 
-                    {{-- ICONO --}}
                     <div class="activity-icon">
+
                         <i class="bi bi-check-lg"></i>
+
                     </div>
 
 
-                    {{-- INFORMACIÓN --}}
                     <div class="activity-content">
 
                         <strong>
+
                             {{ $activity->title
                                 ?? $activity->description
                                 ?? 'Actividad registrada'
                             }}
+
                         </strong>
 
+
                         <small>
+
                             {{ !empty($activity->created_at)
                                 ? \Carbon\Carbon::parse(
                                     $activity->created_at
                                 )->diffForHumans()
                                 : 'Recientemente'
                             }}
+
                         </small>
 
                     </div>
@@ -1084,53 +1042,16 @@
 
     </section>
 
+
     {{-- =========================================================
         RESUMEN ADMINISTRATIVO
     ========================================================== --}}
 
     <section class="dashboard-summary-grid">
 
-
-        {{-- TICKET --}}
-
-        {{--<div class="summary-card">
-
-
-            <div class="summary-icon red">
-
-                <i class="bi bi-receipt"></i>
-
-            </div>
-
-
-            <div>
-
-                <span>
-                    Ticket promedio
-                </span>
-
-
-                <strong>
-
-                    S/
-                    {{ number_format(
-                        $ticketPromedio,
-                        2
-                    ) }}
-
-                </strong>
-
-            </div>
-
-
-        </div>
-
-
-
         {{-- PEDIDOS --}}
 
         <div class="summary-card">
-
 
             <div class="summary-icon blue">
 
@@ -1156,15 +1077,12 @@
 
             </div>
 
-
         </div>
-
 
 
         {{-- CLIENTES --}}
 
         <div class="summary-card">
-
 
             <div class="summary-icon gold">
 
@@ -1190,15 +1108,12 @@
 
             </div>
 
-
         </div>
-
 
 
         {{-- STOCK BAJO --}}
 
         <div class="summary-card">
-
 
             <div class="summary-icon green">
 
@@ -1224,12 +1139,9 @@
 
             </div>
 
-
         </div>
 
-
     </section>
-
 
 </div>
 
@@ -1253,12 +1165,14 @@ document.addEventListener('DOMContentLoaded', function () {
        GRÁFICO DE VENTAS
     ========================================================== */
 
-    const canvas = document.getElementById('salesChart');
+    const canvas =
+        document.getElementById('salesChart');
 
 
     if (canvas) {
 
-        const ctx = canvas.getContext('2d');
+        const ctx =
+            canvas.getContext('2d');
 
 
         new Chart(ctx, {
@@ -1267,7 +1181,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             data: {
 
-                labels: @json($labels ?? []),
+                labels:
+                    @json($labels ?? []),
 
                 datasets: [
 
@@ -1275,11 +1190,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         label: 'Ventas',
 
-                        data: @json($revenue ?? []),
+                        data:
+                            @json($revenue ?? []),
 
-                        borderColor: '#D62828',
+                        borderColor:
+                            '#D62828',
 
-                        backgroundColor: 'rgba(214,40,40,.10)',
+                        backgroundColor:
+                            'rgba(214,40,40,.10)',
 
                         fill: true,
 
@@ -1289,9 +1207,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         pointHoverRadius: 7,
 
-                        pointBackgroundColor: '#D62828',
+                        pointBackgroundColor:
+                            '#D62828',
 
-                        pointBorderColor: '#ffffff',
+                        pointBorderColor:
+                            '#ffffff',
 
                         pointBorderWidth: 2,
 
@@ -1331,11 +1251,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     tooltip: {
 
-                        backgroundColor: '#202020',
+                        backgroundColor:
+                            '#202020',
 
-                        titleColor: '#fff',
+                        titleColor:
+                            '#fff',
 
-                        bodyColor: '#fff',
+                        bodyColor:
+                            '#fff',
 
                         padding: 12,
 
@@ -1344,21 +1267,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         callbacks: {
 
-                            label: function(context) {
+                            label:
+                                function(context) {
 
-                                return 'Ventas: S/ ' +
+                                    return 'Ventas: S/ ' +
 
-                                    Number(
-                                        context.raw || 0
-                                    ).toLocaleString(
-                                        'es-PE',
-                                        {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2
-                                        }
-                                    );
+                                        Number(
+                                            context.raw || 0
+                                        ).toLocaleString(
+                                            'es-PE',
+                                            {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                            }
+                                        );
 
-                            }
+                                }
 
                         }
 
@@ -1379,7 +1303,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         ticks: {
 
-                            color: '#7c7c7c'
+                            color:
+                                '#7c7c7c'
 
                         }
 
@@ -1392,19 +1317,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         ticks: {
 
-                            color: '#7c7c7c',
+                            color:
+                                '#7c7c7c',
 
-                            callback: function(value) {
+                            callback:
+                                function(value) {
 
-                                return 'S/ ' + value;
+                                    return 'S/ ' + value;
 
-                            }
+                                }
 
                         },
 
                         grid: {
 
-                            color: '#EFEFEF'
+                            color:
+                                '#EFEFEF'
 
                         }
 
@@ -1417,7 +1345,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
     }
-
 
 
     /* =========================================================
@@ -1443,24 +1370,37 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('reportTo');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | VERIFICAR FORMULARIO
-    |--------------------------------------------------------------------------
-    */
+    /* =========================================================
+       FECHA MÍNIMA
+    ========================================================== */
 
-    if (!reportForm || !reportType) {
+    const minimumDate =
+        "{{ $reportMinimumDate }}";
 
-        return;
+
+    /* =========================================================
+       CONFIGURAR FECHAS
+    ========================================================== */
+
+    if (reportFrom) {
+
+        reportFrom.min =
+            minimumDate;
 
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | RUTAS DE CADA REPORTE
-    |--------------------------------------------------------------------------
-    */
+    if (reportTo) {
+
+        reportTo.min =
+            minimumDate;
+
+    }
+
+
+    /* =========================================================
+       REPORTES
+    ========================================================== */
 
     const routes = {
 
@@ -1488,11 +1428,9 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | REPORTES QUE NECESITAN FECHA
-    |--------------------------------------------------------------------------
-    */
+    /* =========================================================
+       REPORTES QUE NECESITAN FECHAS
+    ========================================================== */
 
     const reportsWithDates = [
 
@@ -1509,11 +1447,9 @@ document.addEventListener('DOMContentLoaded', function () {
     ];
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | ACTUALIZAR FORMULARIO
-    |--------------------------------------------------------------------------
-    */
+    /* =========================================================
+       ACTUALIZAR FORMULARIO
+    ========================================================== */
 
     function updateReportForm() {
 
@@ -1521,11 +1457,9 @@ document.addEventListener('DOMContentLoaded', function () {
             reportType.value;
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | ASIGNAR RUTA CORRECTA
-        |--------------------------------------------------------------------------
-        */
+        /* =====================================================
+           RUTA
+        ====================================================== */
 
         if (routes[selectedReport]) {
 
@@ -1535,11 +1469,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | MOSTRAR / OCULTAR FECHAS
-        |--------------------------------------------------------------------------
-        */
+        /* =====================================================
+           MOSTRAR / OCULTAR FECHAS
+        ====================================================== */
 
         if (
             reportsWithDates.includes(
@@ -1549,13 +1481,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (fromGroup) {
 
-                fromGroup.style.display = '';
+                fromGroup.style.display =
+                    '';
 
             }
 
+
             if (toGroup) {
 
-                toGroup.style.display = '';
+                toGroup.style.display =
+                    '';
 
             }
 
@@ -1563,31 +1498,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (fromGroup) {
 
-                fromGroup.style.display = 'none';
+                fromGroup.style.display =
+                    'none';
 
             }
 
+
             if (toGroup) {
 
-                toGroup.style.display = 'none';
+                toGroup.style.display =
+                    'none';
 
             }
 
 
             /*
-            | Limpiar fechas porque este
-            | reporte no las necesita.
+            |--------------------------------------------------------------------------
+            | Limpiar fechas cuando el reporte
+            | no necesita rango.
+            |--------------------------------------------------------------------------
             */
 
             if (reportFrom) {
 
-                reportFrom.value = '';
+                reportFrom.value =
+                    '';
 
             }
 
+
             if (reportTo) {
 
-                reportTo.value = '';
+                reportTo.value =
+                    '';
 
             }
 
@@ -1596,137 +1539,247 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | CAMBIO DE REPORTE
-    |--------------------------------------------------------------------------
-    */
+    /* =========================================================
+       CAMBIO DE "DESDE"
+    ========================================================== */
 
-    reportType.addEventListener(
-        'change',
-        function () {
+    if (reportFrom && reportTo) {
 
-            updateReportForm();
+        reportFrom.addEventListener(
+            'change',
+            function () {
 
-        }
-    );
+                /*
+                |--------------------------------------------------------------------------
+                | Si no hay fecha Desde
+                |--------------------------------------------------------------------------
+                */
 
+                if (!reportFrom.value) {
 
-    /*
-    |--------------------------------------------------------------------------
-    | ENVÍO DEL FORMULARIO
-    |--------------------------------------------------------------------------
-    */
+                    reportTo.min =
+                        minimumDate;
 
-    reportForm.addEventListener(
-        'submit',
-        function (event) {
+                    return;
 
-            const selectedReport =
-                reportType.value;
+                }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | VERIFICAR REPORTE
-            |--------------------------------------------------------------------------
-            */
+                /*
+                |--------------------------------------------------------------------------
+                | Hasta no puede ser anterior a Desde
+                |--------------------------------------------------------------------------
+                */
 
-            if (!routes[selectedReport]) {
-
-                event.preventDefault();
-
-                alert(
-                    'Seleccione un reporte válido.'
-                );
-
-                return;
-
-            }
+                reportTo.min =
+                    reportFrom.value;
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | FORZAR LA RUTA CORRECTA
-            |
-            | Esto evita que el formulario
-            | termine enviando otro reporte.
-            |--------------------------------------------------------------------------
-            */
-
-            reportForm.action =
-                routes[selectedReport];
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | VALIDAR FECHAS
-            |--------------------------------------------------------------------------
-            */
-
-            if (
-                reportsWithDates.includes(
-                    selectedReport
-                )
-            ) {
+                /*
+                |--------------------------------------------------------------------------
+                | Si Hasta quedó inválida,
+                | la limpiamos.
+                |--------------------------------------------------------------------------
+                */
 
                 if (
-                    reportFrom &&
-                    reportTo &&
-                    reportFrom.value &&
-                    reportTo.value
+                    reportTo.value &&
+                    reportTo.value <
+                    reportFrom.value
                 ) {
 
+                    reportTo.value =
+                        '';
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =========================================================
+       SUBMIT DEL FORMULARIO
+    ========================================================== */
+
+    if (reportForm && reportType) {
+
+        reportForm.addEventListener(
+            'submit',
+            function (event) {
+
+                const selectedReport =
+                    reportType.value;
+
+
+                /* =================================================
+                   VERIFICAR REPORTE
+                ================================================== */
+
+                if (!routes[selectedReport]) {
+
+                    event.preventDefault();
+
+                    alert(
+                        'Seleccione un reporte válido.'
+                    );
+
+                    return;
+
+                }
+
+
+                /* =================================================
+                   FORZAR RUTA
+                ================================================== */
+
+                reportForm.action =
+                    routes[selectedReport];
+
+
+                /* =================================================
+                   REPORTES CON FECHAS
+                ================================================== */
+
+                if (
+                    reportsWithDates.includes(
+                        selectedReport
+                    )
+                ) {
+
+
+                    /* =============================================
+                       VALIDAR DESDE
+                    ============================================== */
+
                     if (
-                        reportFrom.value >
-                        reportTo.value
+                        reportFrom &&
+                        reportFrom.value &&
+                        reportFrom.value <
+                        minimumDate
                     ) {
 
                         event.preventDefault();
 
                         alert(
-                            'La fecha Desde no puede ser mayor que la fecha Hasta.'
+                            'La fecha Desde no puede ser anterior al 01/01/2026.'
                         );
 
                         return;
 
                     }
 
+
+                    /* =============================================
+                       VALIDAR HASTA
+                    ============================================== */
+
+                    if (
+                        reportTo &&
+                        reportTo.value &&
+                        reportTo.value <
+                        minimumDate
+                    ) {
+
+                        event.preventDefault();
+
+                        alert(
+                            'La fecha Hasta no puede ser anterior al 01/01/2026.'
+                        );
+
+                        return;
+
+                    }
+
+
+                    /* =============================================
+                       VALIDAR RANGO
+                    ============================================== */
+
+                    if (
+                        reportFrom &&
+                        reportTo &&
+                        reportFrom.value &&
+                        reportTo.value
+                    ) {
+
+                        if (
+                            reportFrom.value >
+                            reportTo.value
+                        ) {
+
+                            event.preventDefault();
+
+                            alert(
+                                'La fecha Desde no puede ser mayor que la fecha Hasta.'
+                            );
+
+                            return;
+
+                        }
+
+                    }
+
                 }
 
+
+                /* =================================================
+                   DEBUG
+                ================================================== */
+
+                console.log(
+                    'Reporte seleccionado:',
+                    selectedReport
+                );
+
+                console.log(
+                    'Desde:',
+                    reportFrom
+                        ? reportFrom.value
+                        : null
+                );
+
+                console.log(
+                    'Hasta:',
+                    reportTo
+                        ? reportTo.value
+                        : null
+                );
+
+                console.log(
+                    'Ruta:',
+                    reportForm.action
+                );
+
             }
+        );
+
+    }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | IMPORTANTE
-            |
-            | El reporte seleccionado se envía
-            | a SU PROPIA RUTA.
-            |--------------------------------------------------------------------------
-            */
-
-            console.log(
-                'Reporte seleccionado:',
-                selectedReport
-            );
-
-            console.log(
-                'Ruta de descarga:',
-                reportForm.action
-            );
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | INICIALIZAR
-    |--------------------------------------------------------------------------
-    */
+    /* =========================================================
+       INICIALIZAR
+    ========================================================== */
 
     updateReportForm();
+
+
+    /* =========================================================
+       RESTAURAR REGLA DE "HASTA"
+       SI YA EXISTE UN "DESDE"
+    ========================================================== */
+
+    if (
+        reportFrom &&
+        reportTo &&
+        reportFrom.value
+    ) {
+
+        reportTo.min =
+            reportFrom.value;
+
+    }
 
 });
 

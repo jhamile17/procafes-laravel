@@ -42,7 +42,27 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
+    /*
+    |--------------------------------------------------------------------------
+    | PERFIL
+    |--------------------------------------------------------------------------
+    */
 
+    Route::get(
+        '/profile',
+        [AuthController::class, 'profile']
+    );
+
+    Route::put(
+        '/profile',
+        [AuthController::class, 'updateProfile']
+    );
+
+    Route::put(
+        '/profile/password',
+        [AuthController::class, 'changePassword']
+    );
+    
     /*
     |--------------------------------------------------------------------------
     | PRODUCTOS

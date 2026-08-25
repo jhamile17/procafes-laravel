@@ -6,9 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | LOGIN
+    |--------------------------------------------------------------------------
+    */
+
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -25,7 +32,6 @@ class AuthController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        // La aplicación móvil es exclusivamente para administradores
         if (!$user->isAdmin()) {
             Auth::logout();
 
@@ -34,7 +40,6 @@ class AuthController extends Controller
             ], 403);
         }
 
-        // Verificar que la cuenta esté activa
         if (!$user->isActive()) {
             Auth::logout();
 
@@ -43,13 +48,13 @@ class AuthController extends Controller
             ], 403);
         }
 
-        // Crear token para Flutter mediante Sanctum
         $token = $user
             ->createToken('mobile-token')
             ->plainTextToken;
 
         return response()->json([
             'token' => $token,
+
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -58,15 +63,123 @@ class AuthController extends Controller
         ]);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | LOGOUT
+    |--------------------------------------------------------------------------
+    */
+
     public function logout(Request $request)
     {
-        $request->user()->tokens()->where(
-            'id',
-            $request->user()->currentAccessToken()->id
-        )->delete();
+        $token = $request->user()->currentAccessToken();
+
+        if ($token) {
+            $token->delete();
+        }
 
         return response()->json([
             'message' => 'Sesión cerrada correctamente',
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PERFIL
+    |--------------------------------------------------------------------------
+    */
+
+    public function profile(Request $request)
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACTUALIZAR PERFIL
+    |--------------------------------------------------------------------------
+    */
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                'unique:users,email,' . $user->id,
+            ],
+        ]);
+
+        $user->update([
+            'name' => $data['name'],
+            'email' => $data['email'],
+        ]);
+
+        return response()->json([
+            'message' =>
+                'Perfil actualizado correctamente',
+
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CAMBIAR CONTRASEÑA
+    |--------------------------------------------------------------------------
+    */
+
+    public function changePassword(Request $request)
+    {
+        $data = $request->validate([
+            'current_password' => [
+                'required',
+                'string',
+            ],
+
+            'new_password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+            ],
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check(
+            $data['current_password'],
+            $user->password
+        )) {
+            return response()->json([
+                'message' =>
+                    'La contraseña actual es incorrecta.',
+            ], 422);
+        }
+
+        $user->update([
+            'password' => Hash::make(
+                $data['new_password']
+            ),
+        ]);
+
+        return response()->json([
+            'message' =>
+                'Contraseña actualizada correctamente.',
         ]);
     }
 }

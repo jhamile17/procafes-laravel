@@ -2591,3 +2591,508 @@ textarea{
     min-height: 70px;
     padding: 14px 18px;
 }
+
+/*==============================================================================
+    PROCÁFES - DASHBOARD COMPACTO
+    Reduce el tamaño visual general sin modificar la estructura
+==============================================================================*/
+
+
+/*==============================================================================
+    CONTENEDOR PRINCIPAL
+==============================================================================*/
+
+.dashboard-container {
+    padding: 1.25rem 1.5rem;
+}
+
+.dashboard-page {
+    gap: 18px;
+}
+
+
+/*==============================================================================
+    HEADER DEL DASHBOARD
+==============================================================================*/
+
+.dashboard-header {
+    padding: 22px 26px;
+    border-radius: 18px;
+    gap: 25px;
+}
+
+.dashboard-badge {
+    padding: 6px 13px;
+    margin-bottom: 12px;
+    font-size: .72rem;
+}
+
+.dashboard-header h1 {
+    margin-bottom: 7px;
+    font-size: 1.35rem;
+}
+
+.dashboard-header p {
+    max-width: 650px;
+    font-size: .88rem;
+    line-height: 1.55;
+}
+
+.today-card {
+    min-width: 250px;
+    padding: 16px 18px;
+    border-radius: 16px;
+}
+
+.today-card span {
+    gap: 9px;
+    font-size: .88rem;
+}
+
+.today-card i {
+    font-size: 1rem;
+}
+
+
+/*==============================================================================
+    KPI
+==============================================================================*/
+
+.dashboard-kpis {
+    gap: 18px;
+}
+
+.kpi-card {
+    padding: 18px;
+    border-radius: 18px;
+}
+
+.kpi-card::before {
+    height: 4px;
+}
+
+.kpi-top {
+    margin-bottom: 14px;
+}
+
+.kpi-top span {
+    font-size: .84rem;
+}
+
+.kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    font-size: 1.1rem;
+}
+
+.kpi-card h2 {
+    margin-bottom: 6px;
+    font-size: 1.8rem;
+}
+
+.kpi-card p {
+    font-size: .80rem;
+}
+
+.kpi-footer {
+    margin-top: 14px;
+}
+
+.kpi-success {
+    padding: 5px 10px;
+    font-size: .70rem;
+}
+
+.kpi-link {
+    font-size: .74rem;
+}
+
+
+/*==============================================================================
+    CONTENIDO PRINCIPAL
+==============================================================================*/
+
+.dashboard-main {
+    grid-template-columns: minmax(0, 2fr) 340px;
+    gap: 18px;
+}
+
+.dashboard-card {
+    border-radius: 18px;
+}
+
+
+/*==============================================================================
+    HEADER DE TARJETAS
+==============================================================================*/
+
+.card-header-custom {
+    padding: 20px 22px;
+    gap: 18px;
+}
+
+.card-header-custom h3 {
+    margin: 7px 0;
+    font-size: 1.18rem;
+}
+
+.card-header-custom p {
+    font-size: .84rem;
+}
+
+.section-badge {
+    padding: 6px 12px;
+    font-size: .70rem;
+    gap: 6px;
+}
+
+
+/*==============================================================================
+    FILTROS DEL GRÁFICO
+==============================================================================*/
+
+.card-actions {
+    width: 160px;
+    gap: 8px;
+}
+
+.card-actions .btn {
+    height: 39px;
+}
+
+.card-actions .form-select {
+    min-height: 39px;
+    height: 39px;
+    font-size: .82rem;
+}
+
+
+/*==============================================================================
+    GRÁFICO
+==============================================================================*/
+
+.chart-wrapper {
+    height: 330px;
+    padding: 18px;
+}
+
+
+/*==============================================================================
+    REPORTES
+==============================================================================*/
+
+.reports-card {
+    padding: 21px;
+}
+
+.reports-card h3 {
+    margin: 13px 0 6px;
+    font-size: 1.15rem;
+}
+
+.reports-card p {
+    margin-bottom: 18px;
+    font-size: .82rem;
+    line-height: 1.5;
+}
+
+.reports-card .form-label {
+    font-size: .82rem;
+    margin-bottom: 5px;
+}
+
+.reports-card .form-control,
+.reports-card .form-select {
+    height: 40px;
+    min-height: 40px;
+    border-radius: 10px;
+    font-size: .82rem;
+}
+
+.reports-card .btn {
+    border-radius: 10px;
+    padding: 10px;
+    font-size: .82rem;
+}
+
+
+/*==============================================================================
+    VISTA INFERIOR
+==============================================================================*/
+
+.dashboard-bottom {
+    gap: 18px;
+}
+
+
+/*==============================================================================
+    LISTAS
+==============================================================================*/
+
+.top-products-list,
+.activity-list {
+    gap: 12px;
+    padding: 18px 20px;
+}
+
+
+/*==============================================================================
+    PRODUCTOS
+==============================================================================*/
+
+.product-item {
+    gap: 13px;
+    padding: 13px;
+    border-radius: 14px;
+}
+
+.product-item img,
+.product-placeholder {
+    width: 55px;
+    height: 55px;
+    border-radius: 13px;
+}
+
+.product-placeholder i {
+    font-size: 1.35rem;
+}
+
+.product-item strong {
+    margin-bottom: 4px;
+    font-size: .84rem;
+}
+
+.product-item small {
+    font-size: .75rem;
+}
+
+.product-item .badge {
+    padding: 5px 10px;
+    font-size: .70rem;
+}
+
+
+/*==============================================================================
+    STOCK
+==============================================================================*/
+
+.stock-list {
+    gap: 11px;
+    padding: 18px 20px;
+}
+
+.stock-item {
+    padding: 13px;
+    border-radius: 14px;
+}
+
+.stock-info strong {
+    margin-bottom: 3px;
+    font-size: .84rem;
+}
+
+.stock-info span {
+    font-size: .74rem;
+}
+
+.stock-progress {
+    margin-top: 7px;
+    height: 6px;
+}
+
+.stock-badge {
+    margin-left: 12px;
+    padding: 5px 10px;
+    font-size: .70rem;
+}
+
+
+/*==============================================================================
+    ACTIVIDAD RECIENTE
+==============================================================================*/
+
+.dashboard-activity-card {
+    margin-top: 18px;
+}
+
+.dashboard-activity-card .activity-header {
+    padding: 20px 22px;
+}
+
+.dashboard-activity-card .activity-header h3 {
+    margin: 7px 0 4px;
+    font-size: 1.15rem;
+}
+
+.dashboard-activity-card .activity-header p {
+    font-size: .82rem;
+}
+
+.dashboard-activity-card .activity-list {
+    gap: 8px;
+    padding: 14px 20px 18px;
+}
+
+.dashboard-activity-card .activity-item {
+    min-height: 56px;
+    padding: 9px 12px;
+    border-radius: 12px;
+}
+
+.dashboard-activity-card .activity-icon {
+    width: 36px;
+    height: 36px;
+    margin-right: 11px;
+    border-radius: 10px;
+}
+
+.dashboard-activity-card .activity-icon i {
+    font-size: .9rem;
+}
+
+.dashboard-activity-card .activity-content {
+    gap: 2px;
+}
+
+.dashboard-activity-card .activity-content strong {
+    font-size: .80rem;
+}
+
+.dashboard-activity-card .activity-content small {
+    font-size: .70rem;
+}
+
+
+/*==============================================================================
+    RESUMEN
+==============================================================================*/
+
+.dashboard-summary-grid {
+    gap: 18px;
+}
+
+.summary-card {
+    min-height: 88px;
+    padding: 16px;
+    gap: 13px;
+    border-radius: 17px;
+}
+
+.summary-icon {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border-radius: 14px;
+    font-size: 1.05rem;
+}
+
+.summary-card span {
+    font-size: .76rem;
+}
+
+.summary-card strong {
+    font-size: 1.25rem;
+}
+
+
+/*==============================================================================
+    REPORTE PREVIEW
+==============================================================================*/
+
+.report-preview {
+    margin-bottom: 16px;
+    padding: 14px;
+    border-radius: 14px;
+}
+
+.report-preview h6 {
+    margin-bottom: 11px;
+    font-size: .84rem;
+}
+
+.preview-item {
+    margin-bottom: 7px;
+    font-size: .75rem;
+}
+
+.preview-item i {
+    font-size: .85rem;
+}
+
+
+/*==============================================================================
+    RESPONSIVE
+==============================================================================*/
+
+@media (max-width: 1200px) {
+
+    .dashboard-container {
+        padding: 1.2rem;
+    }
+
+    .dashboard-main {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-kpis {
+        gap: 16px;
+    }
+}
+
+
+@media (max-width: 992px) {
+
+    .dashboard-header {
+        padding: 20px;
+    }
+
+    .today-card {
+        min-width: 230px;
+    }
+
+    .dashboard-kpis {
+        gap: 14px;
+    }
+}
+
+
+@media (max-width: 768px) {
+
+    .dashboard-container {
+        padding: 1rem;
+    }
+
+    .dashboard-header {
+        padding: 18px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.2rem;
+    }
+
+    .dashboard-header p {
+        font-size: .82rem;
+    }
+
+    .kpi-card {
+        padding: 16px;
+    }
+
+    .kpi-card h2 {
+        font-size: 1.65rem;
+    }
+
+    .chart-wrapper {
+        height: 300px;
+        padding: 14px;
+    }
+
+    .card-header-custom {
+        padding: 18px;
+    }
+
+    .reports-card {
+        padding: 18px;
+    }
+}
