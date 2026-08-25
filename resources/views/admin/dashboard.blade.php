@@ -53,7 +53,20 @@
 
         $cantidadStockBajo = count($lowStock ?? []);
 
-        $recentActivities = collect($activities ?? [])->take(5);
+        /*
+        |--------------------------------------------------------------------------
+        | ACTIVIDAD RECIENTE
+        |--------------------------------------------------------------------------
+        | Ordenamos de la actividad más reciente a la más antigua
+        | y mostramos únicamente los últimos 5 movimientos.
+        */
+
+        $recentActivities = collect($activities ?? [])
+            ->sortByDesc(function ($activity) {
+                return $activity->created_at ?? null;
+            })
+            ->take(5)
+            ->values();
 
         /*
         |--------------------------------------------------------------------------
@@ -946,18 +959,13 @@
             <div>
 
                 <span class="section-badge">
-
                     <i class="bi bi-clock-history"></i>
-
                     Sistema
-
                 </span>
-
 
                 <h3>
                     Actividad reciente
                 </h3>
-
 
                 <p>
                     Últimos movimientos registrados en PROCÁFES.
@@ -965,16 +973,12 @@
 
             </div>
 
-
             <a
                 href="{{ route('admin.orders.index') }}"
                 class="kpi-link"
             >
-
                 Ver pedidos
-
                 <i class="bi bi-arrow-right"></i>
-
             </a>
 
         </div>
@@ -982,37 +986,36 @@
 
         <div class="activity-list">
 
-            @forelse($recentActivities->take(5) as $activity)
+            @forelse($recentActivities as $activity)
 
                 <div class="activity-item">
 
                     <div class="activity-icon">
-
                         <i class="bi bi-check-lg"></i>
-
                     </div>
-
 
                     <div class="activity-content">
 
                         <strong>
-
                             {{ $activity->title
                                 ?? $activity->description
                                 ?? 'Actividad registrada'
                             }}
-
                         </strong>
-
 
                         <small>
 
-                            {{ !empty($activity->created_at)
-                                ? \Carbon\Carbon::parse(
+                            @if(!empty($activity->created_at))
+
+                                {{ \Carbon\Carbon::parse(
                                     $activity->created_at
-                                )->diffForHumans()
-                                : 'Recientemente'
-                            }}
+                                )->diffForHumans() }}
+
+                            @else
+
+                                Recientemente
+
+                            @endif
 
                         </small>
 
