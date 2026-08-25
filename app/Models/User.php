@@ -103,15 +103,37 @@ class User extends Authenticatable
         return $this->role?->codigo === 'ADMIN';
     }
 
+    /**
+     * Determina si el usuario es el administrador principal
+     * de PROCÁFES.
+     */
+    public function isAdminPrincipal(): bool
+    {
+        return $this->isAdmin()
+            && strtolower(trim((string) $this->email))
+                === 'procafes3@gmail.com';
+    }
+
+    /**
+     * Determina si el usuario es un administrador secundario.
+     */
+    public function isAdminSecundario(): bool
+    {
+        return $this->isAdmin()
+            && ! $this->isAdminPrincipal();
+    }
+
     public function isCustomer(): bool
     {
         return $this->role?->codigo === 'CUSTOMER';
     }
+
     public function isActive(): bool
     {
         return $this->estado;
     }
-        /*
+    
+    /*
     |--------------------------------------------------------------------------
     | Construir nombre completo
     |--------------------------------------------------------------------------

@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -19,15 +18,106 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $users = User::with('role')
+        $query = User::with('role');
+
+        /*
+        |--------------------------------------------------------------------------
+        | BÚSQUEDA
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('buscar')) {
+
+            $buscar = trim($request->buscar);
+
+            $query->where(function ($q) use ($buscar) {
+
+                $q->where('name', 'like', "%{$buscar}%")
+                    ->orWhere('nombres', 'like', "%{$buscar}%")
+                    ->orWhere('apellido_paterno', 'like', "%{$buscar}%")
+                    ->orWhere('apellido_materno', 'like', "%{$buscar}%")
+                    ->orWhere('email', 'like', "%{$buscar}%")
+                    ->orWhere('numero_documento', 'like', "%{$buscar}%")
+                    ->orWhere('celular', 'like', "%{$buscar}%");
+
+            });
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTRO POR ROL
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('rol')) {
+
+            $query->where('role_id', $request->rol);
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTRO POR ESTADO
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('estado')) {
+
+            $query->where(
+                'estado',
+                $request->estado
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTRO POR VERIFICACIÓN
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('verificado')) {
+
+            if ($request->verificado === '1') {
+
+                $query->whereNotNull('email_verified_at');
+
+            } elseif ($request->verificado === '0') {
+
+                $query->whereNull('email_verified_at');
+
+            }
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | USUARIOS
+        |--------------------------------------------------------------------------
+        */
+
+        $users = $query
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ROLES
+        |--------------------------------------------------------------------------
+        */
 
         $roles = Role::where('estado', true)
             ->orderBy('id')
             ->get();
+
 
         return view(
             'admin.users.index',
@@ -37,7 +127,6 @@ class UserController extends Controller
             )
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -292,6 +381,10 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     | FORMULARIO EDITAR
     |--------------------------------------------------------------------------
+    |
+    | Se mantiene por Route::resource().
+    | Actualmente el listado utiliza modal.
+    |
     */
 
     public function edit(User $user): View
@@ -309,6 +402,7 @@ class UserController extends Controller
         );
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | ACTUALIZAR ROL / PERMISOS
@@ -319,6 +413,23 @@ class UserController extends Controller
         Request $request,
         User $user
     ): RedirectResponse {
+
+        /*
+        |--------------------------------------------------------------------------
+        | SOLO ADMINISTRADOR PRINCIPAL
+        |--------------------------------------------------------------------------
+        */
+
+        if (! auth()->user()->isAdminPrincipal()) {
+
+            return redirect()
+                ->route('admin.users.index')
+                ->with(
+                    'error',
+                    'No tienes permisos para modificar los roles de los usuarios.'
+                );
+        }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -392,8 +503,10 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function toggleStatus(User $user): RedirectResponse
-    {
+    public function toggleStatus(
+        User $user
+    ): RedirectResponse {
+
         /*
         |--------------------------------------------------------------------------
         | NO PERMITIR DESACTIVARSE A SÍ MISMO
@@ -413,13 +526,20 @@ class UserController extends Controller
         |--------------------------------------------------------------------------
         | NO PERMITIR DESACTIVAR ADMINISTRADORES
         |--------------------------------------------------------------------------
+        |
+        | Para cambiar los permisos de un administrador:
+        |
+        | ADMIN → CLIENTE
+        |
+        | debe utilizarse el modal de roles.
+        |
         */
 
-        if ($user->role?->codigo === 'ADMIN') {
+        if ($user->isAdmin()) {
 
             return back()->with(
                 'error',
-                'No puedes desactivar a un administrador.'
+                'No puedes activar o desactivar una cuenta de administrador desde esta opción.'
             );
         }
 
