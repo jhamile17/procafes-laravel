@@ -32,20 +32,6 @@
 
         </div>
 
-
-        {{-- NUEVO USUARIO --}}
-
-        <a
-            href="{{ route('admin.users.create') }}"
-            class="admin-list-new"
-        >
-
-            <i class="bi bi-person-plus-fill"></i>
-
-            Nuevo usuario
-
-        </a>
-
     </div>
 
 
@@ -84,14 +70,205 @@
 
 
     {{-- =====================================================
-         TARJETA DEL LISTADO
+         FILTROS
+    ====================================================== --}}
+
+    <div class="admin-users-filter-card">
+
+        <form
+            method="GET"
+            action="{{ route('admin.users.index') }}"
+        >
+
+            <div class="admin-users-filter-grid">
+
+
+                {{-- =================================================
+                     BUSCAR
+                ================================================== --}}
+
+                <div class="admin-users-filter-search">
+
+                    <label
+                        for="buscar"
+                        class="admin-users-filter-label"
+                    >
+                        Buscar
+                    </label>
+
+                    <div class="admin-users-search-wrapper">
+
+                        <i class="bi bi-search"></i>
+
+                        <input
+                            type="text"
+                            id="buscar"
+                            name="buscar"
+                            value="{{ request('buscar') }}"
+                            class="admin-users-filter-input"
+                            placeholder="Nombre, correo o documento"
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                {{-- =================================================
+                     ROL
+                ================================================== --}}
+
+                <div class="admin-users-filter-field">
+
+                    <label
+                        for="rol"
+                        class="admin-users-filter-label"
+                    >
+                        Rol
+                    </label>
+
+                    <select
+                        name="rol"
+                        id="rol"
+                        class="admin-users-filter-input"
+                    >
+
+                        <option value="">
+                            Todos los roles
+                        </option>
+
+                        @foreach($roles as $role)
+
+                            <option
+                                value="{{ $role->id }}"
+                                @selected(request('rol') == $role->id)
+                            >
+                                {{ $role->nombre }}
+                            </option>
+
+                        @endforeach
+
+                    </select>
+
+                </div>
+
+
+                {{-- =================================================
+                     ESTADO
+                ================================================== --}}
+
+                <div class="admin-users-filter-field">
+
+                    <label
+                        for="estado"
+                        class="admin-users-filter-label"
+                    >
+                        Estado
+                    </label>
+
+                    <select
+                        name="estado"
+                        id="estado"
+                        class="admin-users-filter-input"
+                    >
+
+                        <option value="">
+                            Todos los estados
+                        </option>
+
+                        <option
+                            value="1"
+                            @selected(request('estado') === '1')
+                        >
+                            Activos
+                        </option>
+
+                        <option
+                            value="0"
+                            @selected(request('estado') === '0')
+                        >
+                            Inactivos
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                {{-- =================================================
+                     VERIFICACIÓN
+                ================================================== --}}
+
+                <div class="admin-users-filter-field">
+
+                    <label
+                        for="verificado"
+                        class="admin-users-filter-label"
+                    >
+                        Verificación
+                    </label>
+
+                    <select
+                        name="verificado"
+                        id="verificado"
+                        class="admin-users-filter-input"
+                    >
+
+                        <option value="">
+                            Todos
+                        </option>
+
+                        <option
+                            value="1"
+                            @selected(request('verificado') === '1')
+                        >
+                            Verificados
+                        </option>
+
+                        <option
+                            value="0"
+                            @selected(request('verificado') === '0')
+                        >
+                            No verificados
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                {{-- =================================================
+                     BOTÓN BUSCAR
+                ================================================== --}}
+
+                <div class="admin-users-filter-button">
+
+                    <button
+                        type="submit"
+                        class="admin-users-search-btn"
+                    >
+
+                        <i class="bi bi-search"></i>
+
+                        Buscar
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    {{-- =====================================================
+         LISTADO DE USUARIOS
     ====================================================== --}}
 
     <div class="admin-list-card">
-
-        {{-- =================================================
-             TABLA
-        ================================================== --}}
 
         <div class="admin-list-table-wrapper">
 
@@ -236,17 +413,13 @@
                                 @if($user->estado)
 
                                     <span class="admin-list-status admin-list-status-success">
-
                                         Activo
-
                                     </span>
 
                                 @else
 
                                     <span class="admin-list-status admin-list-status-danger">
-
                                         Inactivo
-
                                     </span>
 
                                 @endif
@@ -255,7 +428,7 @@
 
 
                             {{-- =================================================
-                                 VERIFICADO
+                                 VERIFICACIÓN
                             ================================================== --}}
 
                             <td>
@@ -263,17 +436,13 @@
                                 @if($user->email_verified_at)
 
                                     <span class="admin-list-status admin-list-status-success">
-
                                         Sí
-
                                     </span>
 
                                 @else
 
                                     <span class="admin-list-status admin-list-status-warning">
-
                                         No
-
                                     </span>
 
                                 @endif
@@ -289,9 +458,10 @@
 
                                 <div class="admin-actions">
 
-                                    {{-- =================================================
-                                         EDITAR PERMISOS
-                                    ================================================== --}}
+
+                                    {{-- =========================================
+                                         EDITAR ROL
+                                    ========================================== --}}
 
                                     <button
                                         type="button"
@@ -299,7 +469,6 @@
                                         data-bs-toggle="modal"
                                         data-bs-target="#editUserModal{{ $user->id }}"
                                         title="Editar permisos"
-                                        aria-label="Editar permisos"
                                     >
 
                                         <i class="bi bi-pencil-square"></i>
@@ -311,9 +480,9 @@
                                     </button>
 
 
-                                    {{-- =================================================
+                                    {{-- =========================================
                                          ACTIVAR / DESACTIVAR
-                                    ================================================== --}}
+                                    ========================================== --}}
 
                                     @if(auth()->id() !== $user->id)
 
@@ -333,15 +502,10 @@
 
                                             @if($user->estado)
 
-                                                {{-- =================================
-                                                     DESACTIVAR
-                                                ================================== --}}
-
                                                 <button
                                                     type="submit"
                                                     class="admin-action admin-action-deactivate"
                                                     title="Desactivar usuario"
-                                                    aria-label="Desactivar usuario"
                                                     onclick="return confirm(
                                                         '¿Deseas desactivar este usuario?'
                                                     )"
@@ -357,15 +521,10 @@
 
                                             @else
 
-                                                {{-- =================================
-                                                     ACTIVAR
-                                                ================================== --}}
-
                                                 <button
                                                     type="submit"
                                                     class="admin-action admin-action-activate"
                                                     title="Activar usuario"
-                                                    aria-label="Activar usuario"
                                                     onclick="return confirm(
                                                         '¿Deseas activar este usuario?'
                                                     )"
@@ -385,13 +544,9 @@
 
                                     @else
 
-                                        {{-- =========================================
-                                             USUARIO ACTUAL
-                                        ========================================== --}}
-
                                         <span
                                             class="admin-action admin-action-disabled"
-                                            title="No puedes modificar tu propia cuenta"
+                                            title="Esta es tu cuenta"
                                         >
 
                                             <i class="bi bi-shield-lock"></i>
@@ -413,9 +568,9 @@
 
                     @empty
 
-                        {{-- =====================================================
-                             SIN USUARIOS
-                        ====================================================== --}}
+                        {{-- =================================================
+                             SIN RESULTADOS
+                        ================================================== --}}
 
                         <tr>
 
@@ -431,24 +586,13 @@
                                 </div>
 
                                 <strong>
-                                    No existen usuarios registrados
+                                    No se encontraron usuarios
                                 </strong>
 
                                 <span>
-                                    Registra un usuario para comenzar a
-                                    administrar las cuentas de PROCÁFES.
+                                    No existen usuarios que coincidan
+                                    con los filtros seleccionados.
                                 </span>
-
-                                <a
-                                    href="{{ route('admin.users.create') }}"
-                                    class="admin-list-empty-btn"
-                                >
-
-                                    <i class="bi bi-plus-circle"></i>
-
-                                    Crear usuario
-
-                                </a>
 
                             </td>
 
@@ -461,301 +605,6 @@
             </table>
 
         </div>
-
-
-        {{-- =====================================================
-             MODALES DE EDITAR PERMISOS
-             
-             IMPORTANTE:
-             Los modales están FUERA de la tabla.
-        ====================================================== --}}
-
-        @foreach($users as $user)
-
-            <div
-                class="modal fade"
-                id="editUserModal{{ $user->id }}"
-                tabindex="-1"
-                aria-labelledby="editUserModalLabel{{ $user->id }}"
-                aria-hidden="true"
-            >
-
-                <div class="modal-dialog modal-dialog-centered">
-
-                    <div class="modal-content">
-
-
-                        {{-- =================================================
-                             ENCABEZADO DEL MODAL
-                        ================================================== --}}
-
-                        <div class="modal-header">
-
-                            <div>
-
-                                <h5
-                                    class="modal-title"
-                                    id="editUserModalLabel{{ $user->id }}"
-                                >
-
-                                    <i class="bi bi-shield-lock me-2"></i>
-
-                                    Editar permisos
-
-                                </h5>
-
-                                <small class="text-muted">
-
-                                    Modifica el nivel de acceso del usuario.
-
-                                </small>
-
-                            </div>
-
-
-                            <button
-                                type="button"
-                                class="btn-close"
-                                data-bs-dismiss="modal"
-                                aria-label="Cerrar"
-                            ></button>
-
-                        </div>
-
-
-                        {{-- =================================================
-                             FORMULARIO
-                        ================================================== --}}
-
-                        <form
-                            action="{{ route(
-                                'admin.users.update',
-                                $user
-                            ) }}"
-                            method="POST"
-                        >
-
-                            @csrf
-
-                            @method('PUT')
-
-
-                            <div class="modal-body">
-
-
-                                {{-- =================================================
-                                     USUARIO
-                                ================================================== --}}
-
-                                <div class="mb-3">
-
-                                    <label
-                                        class="form-label fw-semibold"
-                                    >
-
-                                        Usuario
-
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        value="{{ $user->nombre_completo }}"
-                                        readonly
-                                    >
-
-                                </div>
-
-
-                                {{-- =================================================
-                                     CORREO
-                                ================================================== --}}
-
-                                <div class="mb-3">
-
-                                    <label
-                                        class="form-label fw-semibold"
-                                    >
-
-                                        Correo electrónico
-
-                                    </label>
-
-                                    <input
-                                        type="email"
-                                        class="form-control"
-                                        value="{{ $user->email }}"
-                                        readonly
-                                    >
-
-                                </div>
-
-
-                                {{-- =================================================
-                                     ESTADO
-                                ================================================== --}}
-
-                                <div class="mb-3">
-
-                                    <label
-                                        class="form-label fw-semibold"
-                                    >
-
-                                        Estado actual
-
-                                    </label>
-
-                                    <div>
-
-                                        @if($user->estado)
-
-                                            <span class="admin-list-status admin-list-status-success">
-
-                                                <i class="bi bi-check-circle me-1"></i>
-
-                                                Activo
-
-                                            </span>
-
-                                        @else
-
-                                            <span class="admin-list-status admin-list-status-danger">
-
-                                                <i class="bi bi-x-circle me-1"></i>
-
-                                                Inactivo
-
-                                            </span>
-
-                                        @endif
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- =================================================
-                                     ROL
-                                ================================================== --}}
-
-                                <div class="mb-3">
-
-                                    <label
-                                        for="role_id_{{ $user->id }}"
-                                        class="form-label fw-semibold"
-                                    >
-
-                                        Rol del usuario
-
-                                        <span class="text-danger">
-                                            *
-                                        </span>
-
-                                    </label>
-
-
-                                    <select
-                                        id="role_id_{{ $user->id }}"
-                                        name="role_id"
-                                        class="form-select"
-                                        required
-                                        @disabled(
-                                            auth()->id() === $user->id
-                                        )
-                                    >
-
-                                        @foreach($roles as $role)
-
-                                            <option
-                                                value="{{ $role->id }}"
-                                                @selected(
-                                                    $user->role_id == $role->id
-                                                )
-                                            >
-
-                                                {{ $role->nombre }}
-
-                                            </option>
-
-                                        @endforeach
-
-                                    </select>
-
-
-                                    <div class="form-text">
-
-                                        El rol determina los permisos
-                                        de acceso dentro del sistema.
-
-                                    </div>
-
-                                </div>
-
-
-                                {{-- =================================================
-                                     AVISO SI ES EL ADMINISTRADOR ACTUAL
-                                ================================================== --}}
-
-                                @if(auth()->id() === $user->id)
-
-                                    <div class="alert alert-warning mb-0">
-
-                                        <i class="bi bi-exclamation-triangle me-2"></i>
-
-                                        No puedes modificar tu propio rol.
-
-                                    </div>
-
-                                @endif
-
-                            </div>
-
-
-                            {{-- =================================================
-                                 FOOTER DEL MODAL
-                            ================================================== --}}
-
-                            <div class="modal-footer">
-
-                                <button
-                                    type="button"
-                                    class="btn btn-light"
-                                    data-bs-dismiss="modal"
-                                >
-
-                                    <i class="bi bi-x-lg me-1"></i>
-
-                                    Cancelar
-
-                                </button>
-
-
-                                @if(auth()->id() !== $user->id)
-
-                                    <button
-                                        type="submit"
-                                        class="btn btn-primary"
-                                    >
-
-                                        <i class="bi bi-check-circle me-1"></i>
-
-                                        Guardar cambios
-
-                                    </button>
-
-                                @endif
-
-                            </div>
-
-                        </form>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        @endforeach
 
 
         {{-- =====================================================
@@ -776,6 +625,269 @@
         @endif
 
     </div>
+
+
+    {{-- =====================================================
+         MODALES
+    ====================================================== --}}
+
+    @foreach($users as $user)
+
+        <div
+            class="modal fade"
+            id="editUserModal{{ $user->id }}"
+            tabindex="-1"
+            aria-labelledby="editUserModalLabel{{ $user->id }}"
+            aria-hidden="true"
+        >
+
+            <div class="modal-dialog modal-dialog-centered">
+
+                <div class="modal-content">
+
+
+                    {{-- =============================================
+                         HEADER
+                    ============================================== --}}
+
+                    <div class="modal-header">
+
+                        <div>
+
+                            <h5
+                                class="modal-title"
+                                id="editUserModalLabel{{ $user->id }}"
+                            >
+
+                                <i class="bi bi-shield-lock me-2"></i>
+
+                                Editar permisos
+
+                            </h5>
+
+                            <small class="text-muted">
+                                Modifica el nivel de acceso del usuario.
+                            </small>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Cerrar"
+                        ></button>
+
+                    </div>
+
+
+                    {{-- =============================================
+                         FORMULARIO
+                    ============================================== --}}
+
+                    <form
+                        action="{{ route(
+                            'admin.users.update',
+                            $user
+                        ) }}"
+                        method="POST"
+                    >
+
+                        @csrf
+
+                        @method('PUT')
+
+
+                        <div class="modal-body">
+
+
+                            {{-- USUARIO --}}
+
+                            <div class="mb-3">
+
+                                <label class="form-label fw-semibold">
+                                    Usuario
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    value="{{ $user->nombre_completo }}"
+                                    readonly
+                                >
+
+                            </div>
+
+
+                            {{-- CORREO --}}
+
+                            <div class="mb-3">
+
+                                <label class="form-label fw-semibold">
+                                    Correo electrónico
+                                </label>
+
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    value="{{ $user->email }}"
+                                    readonly
+                                >
+
+                            </div>
+
+
+                            {{-- ESTADO --}}
+
+                            <div class="mb-3">
+
+                                <label class="form-label fw-semibold">
+                                    Estado actual
+                                </label>
+
+                                <div>
+
+                                    @if($user->estado)
+
+                                        <span class="admin-list-status admin-list-status-success">
+
+                                            <i class="bi bi-check-circle me-1"></i>
+
+                                            Activo
+
+                                        </span>
+
+                                    @else
+
+                                        <span class="admin-list-status admin-list-status-danger">
+
+                                            <i class="bi bi-x-circle me-1"></i>
+
+                                            Inactivo
+
+                                        </span>
+
+                                    @endif
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- ROL --}}
+
+                            <div class="mb-3">
+
+                                <label
+                                    for="role_id_{{ $user->id }}"
+                                    class="form-label fw-semibold"
+                                >
+
+                                    Rol del usuario
+
+                                    <span class="text-danger">
+                                        *
+                                    </span>
+
+                                </label>
+
+                                <select
+                                    id="role_id_{{ $user->id }}"
+                                    name="role_id"
+                                    class="form-select"
+                                    required
+                                    @disabled(auth()->id() === $user->id)
+                                >
+
+                                    @foreach($roles as $role)
+
+                                        <option
+                                            value="{{ $role->id }}"
+                                            @selected(
+                                                $user->role_id == $role->id
+                                            )
+                                        >
+
+                                            {{ $role->nombre }}
+
+                                        </option>
+
+                                    @endforeach
+
+                                </select>
+
+                                <div class="form-text">
+
+                                    El rol determina los permisos
+                                    de acceso dentro del sistema.
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- AVISO PROPIO ADMINISTRADOR --}}
+
+                            @if(auth()->id() === $user->id)
+
+                                <div class="alert alert-warning mb-0">
+
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+
+                                    No puedes modificar tu propio rol.
+
+                                </div>
+
+                            @endif
+
+                        </div>
+
+
+                        {{-- =============================================
+                             FOOTER
+                        ============================================== --}}
+
+                        <div class="modal-footer">
+
+                            <button
+                                type="button"
+                                class="btn btn-light"
+                                data-bs-dismiss="modal"
+                            >
+
+                                <i class="bi bi-x-lg me-1"></i>
+
+                                Cancelar
+
+                            </button>
+
+
+                            @if(auth()->id() !== $user->id)
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                                >
+
+                                    <i class="bi bi-check-circle me-1"></i>
+
+                                    Guardar cambios
+
+                                </button>
+
+                            @endif
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    @endforeach
 
 </div>
 

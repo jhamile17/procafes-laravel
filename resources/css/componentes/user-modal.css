@@ -1,0 +1,564 @@
+/* ==========================================================
+   MODAL - EDITAR PERMISOS DE USUARIO
+   PROCÁFES
+========================================================== */
+
+.edit-user-modal {
+    --user-red: #dc2626;
+    --user-red-dark: #b91c1c;
+    --user-text: #1f2937;
+    --user-muted: #6b7280;
+    --user-border: #e5e7eb;
+}
+
+
+/* ==========================================================
+   CONTENEDOR
+========================================================== */
+
+.edit-user-modal .modal-dialog {
+    max-width: 460px;
+    margin: 1.25rem auto;
+}
+
+.edit-user-modal .modal-content {
+    border: 0;
+    border-radius: 16px;
+    overflow: hidden;
+
+    background: #fff;
+
+    box-shadow:
+        0 20px 50px rgba(15, 23, 42, .16),
+        0 4px 14px rgba(15, 23, 42, .07);
+}
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.edit-user-modal .modal-header {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    padding: 17px 20px;
+
+    background: #fff;
+
+    border-bottom: 1px solid #f0f0f0;
+}
+
+
+/* ==========================================================
+   ICONO
+========================================================== */
+
+.edit-user-modal .edit-user-modal-icon {
+    width: 38px;
+    height: 38px;
+
+    flex: 0 0 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #fff1f1;
+    color: var(--user-red);
+
+    font-size: 16px;
+}
+
+
+/* ==========================================================
+   TÍTULO
+========================================================== */
+
+.edit-user-modal .modal-title {
+    margin: 0;
+
+    color: var(--user-text);
+
+    font-size: 18px;
+    font-weight: 700;
+
+    line-height: 1.2;
+}
+
+
+/* ==========================================================
+   SUBTÍTULO
+========================================================== */
+
+.edit-user-modal .edit-user-modal-subtitle {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--user-muted);
+
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+
+/* ==========================================================
+   CERRAR
+========================================================== */
+
+.edit-user-modal .btn-close {
+    margin-left: auto;
+
+    width: 30px;
+    height: 30px;
+
+    padding: 0;
+
+    border-radius: 8px;
+
+    background-color: #f8fafc;
+
+    opacity: 1;
+
+    transition:
+        background-color .2s ease,
+        transform .2s ease;
+}
+
+.edit-user-modal .btn-close:hover {
+    background-color: #f1f5f9;
+
+    transform: rotate(5deg);
+}
+
+
+/* ==========================================================
+   BODY
+========================================================== */
+
+.edit-user-modal .modal-body {
+    padding: 18px 20px;
+}
+
+
+/* ==========================================================
+   INFORMACIÓN DEL USUARIO
+========================================================== */
+
+.edit-user-modal .edit-user-info {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+
+    margin-bottom: 16px;
+}
+
+
+/* ==========================================================
+   TARJETAS DE INFORMACIÓN
+========================================================== */
+
+.edit-user-modal .edit-user-info-card {
+    min-width: 0;
+
+    padding: 10px 12px;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 10px;
+
+    background: #fafafa;
+}
+
+
+/* ==========================================================
+   LABEL
+========================================================== */
+
+.edit-user-modal .edit-user-info-label {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: var(--user-muted);
+
+    font-size: 10px;
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: .04em;
+}
+
+
+/* ==========================================================
+   VALOR
+========================================================== */
+
+.edit-user-modal .edit-user-info-value {
+    display: block;
+
+    overflow: hidden;
+
+    color: var(--user-text);
+
+    font-size: 12px;
+    font-weight: 600;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   ESTADO
+========================================================== */
+
+.edit-user-modal .edit-user-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    margin-bottom: 16px;
+
+    padding: 9px 11px;
+
+    border: 1px solid #dcfce7;
+
+    border-radius: 9px;
+
+    background: #f0fdf4;
+
+    color: #166534;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.edit-user-modal .edit-user-status i {
+    font-size: 14px;
+}
+
+
+/* INACTIVO */
+
+.edit-user-modal .edit-user-status.is-inactive {
+    border-color: #fee2e2;
+
+    background: #fef2f2;
+
+    color: #b91c1c;
+}
+
+
+/* ==========================================================
+   CAMPO ROL
+========================================================== */
+
+.edit-user-modal .edit-user-role-section {
+    margin-top: 2px;
+}
+
+
+/* LABEL ROL */
+
+.edit-user-modal .edit-user-label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: var(--user-text);
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.edit-user-modal .edit-user-required {
+    color: var(--user-red);
+}
+
+
+/* ==========================================================
+   SELECT
+========================================================== */
+
+.edit-user-modal .edit-user-select {
+    width: 100%;
+    height: 42px;
+
+    padding: 0 38px 0 13px;
+
+    border: 1px solid #dfe3e8;
+
+    border-radius: 9px;
+
+    background: #fff;
+
+    color: var(--user-text);
+
+    font-size: 13px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    outline: none;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+.edit-user-modal .edit-user-select:hover {
+    border-color: #cbd5e1;
+}
+
+.edit-user-modal .edit-user-select:focus {
+    border-color: var(--user-red);
+
+    box-shadow:
+        0 0 0 3px rgba(220, 38, 38, .08);
+}
+
+
+/* DESHABILITADO */
+
+.edit-user-modal .edit-user-select:disabled {
+    background-color: #f8fafc;
+
+    color: #6b7280;
+
+    cursor: not-allowed;
+
+    opacity: 1;
+}
+
+
+/* ==========================================================
+   AYUDA
+========================================================== */
+
+.edit-user-modal .edit-user-help {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+
+    margin-top: 6px;
+
+    color: var(--user-muted);
+
+    font-size: 11px;
+
+    line-height: 1.4;
+}
+
+.edit-user-modal .edit-user-help i {
+    margin-top: 1px;
+
+    color: #9ca3af;
+}
+
+
+/* ==========================================================
+   ADVERTENCIA ADMINISTRADOR
+========================================================== */
+
+.edit-user-modal .edit-user-warning {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 8px;
+
+    margin-top: 13px;
+
+    padding: 10px 12px;
+
+    border: 1px solid #fde68a;
+
+    border-radius: 9px;
+
+    background: #fffbeb;
+
+    color: #92400e;
+
+    font-size: 11px;
+
+    line-height: 1.4;
+}
+
+.edit-user-modal .edit-user-warning i {
+    margin-top: 1px;
+
+    font-size: 14px;
+}
+
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+
+.edit-user-modal .modal-footer {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    padding: 12px 20px;
+
+    border-top: 1px solid #f0f0f0;
+
+    background: #fcfcfc;
+}
+
+
+/* ==========================================================
+   BOTONES
+========================================================== */
+
+.edit-user-modal .edit-user-btn {
+    height: 37px;
+
+    padding: 0 14px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    transition:
+        background-color .2s ease,
+        border-color .2s ease,
+        transform .15s ease,
+        box-shadow .2s ease;
+}
+
+
+/* ==========================================================
+   CANCELAR
+========================================================== */
+
+.edit-user-modal .edit-user-btn-cancel {
+    border: 1px solid #e5e7eb;
+
+    background: #fff;
+
+    color: #374151;
+}
+
+.edit-user-modal .edit-user-btn-cancel:hover {
+    background: #f9fafb;
+
+    border-color: #d1d5db;
+}
+
+
+/* ==========================================================
+   GUARDAR
+========================================================== */
+
+.edit-user-modal .edit-user-btn-save {
+    border: 1px solid var(--user-red);
+
+    background: var(--user-red);
+
+    color: #fff;
+
+    box-shadow:
+        0 3px 8px rgba(220, 38, 38, .16);
+}
+
+.edit-user-modal .edit-user-btn-save:hover {
+    background: var(--user-red-dark);
+
+    border-color: var(--user-red-dark);
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 5px 12px rgba(220, 38, 38, .20);
+}
+
+
+/* ==========================================================
+   OVERLAY
+========================================================== */
+
+.edit-user-modal + .modal-backdrop,
+.modal-backdrop.show {
+    opacity: .50;
+}
+
+
+/* ==========================================================
+   ANIMACIÓN
+========================================================== */
+
+.edit-user-modal .modal-content {
+    animation: editUserModalIn .18s ease-out;
+}
+
+@keyframes editUserModalIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 576px) {
+
+    .edit-user-modal .modal-dialog {
+        max-width: none;
+
+        margin: .6rem;
+    }
+
+    .edit-user-modal .modal-header {
+        padding: 15px 17px;
+    }
+
+    .edit-user-modal .modal-body {
+        padding: 16px 17px;
+    }
+
+    .edit-user-modal .modal-footer {
+        padding: 11px 17px;
+    }
+
+    .edit-user-modal .edit-user-info {
+        grid-template-columns: 1fr;
+    }
+
+    .edit-user-modal .edit-user-btn {
+        flex: 1;
+    }
+
+}
