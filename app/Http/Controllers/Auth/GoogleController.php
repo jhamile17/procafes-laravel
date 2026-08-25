@@ -41,6 +41,7 @@ class GoogleController extends Controller
             ->redirect();
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | Redirección Registro
@@ -64,6 +65,7 @@ class GoogleController extends Controller
             ])
             ->redirect();
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -93,6 +95,7 @@ class GoogleController extends Controller
                 trim((string) $googleUser->getEmail())
             );
 
+
             /*
             |--------------------------------------------------------------------------
             | Validar correo
@@ -109,6 +112,7 @@ class GoogleController extends Controller
                     ]);
             }
 
+
             /*
             |--------------------------------------------------------------------------
             | Obtener flujo
@@ -120,11 +124,13 @@ class GoogleController extends Controller
                 'login'
             );
 
+
             Log::info('GOOGLE CALLBACK', [
                 'flow' => $flow,
                 'session_id' => session()->getId(),
                 'email' => $email,
             ]);
+
 
             /*
             |--------------------------------------------------------------------------
@@ -138,6 +144,7 @@ class GoogleController extends Controller
                     [$email]
                 )
                 ->first();
+
 
             /*
             |--------------------------------------------------------------------------
@@ -154,6 +161,27 @@ class GoogleController extends Controller
                 */
 
                 if ($user) {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | CUENTA DESACTIVADA
+                    |--------------------------------------------------------------------------
+                    |
+                    | Si el correo ya pertenece a una cuenta desactivada,
+                    | no permitimos registrarla nuevamente.
+                    |
+                    */
+
+                    if (! $user->isActive()) {
+
+                        return redirect()
+                            ->route('register')
+                            ->withErrors([
+                                'form.email' =>
+                                    'Esta cuenta está desactivada. Comunícate con el administrador.',
+                            ]);
+                    }
+
 
                     /*
                     |--------------------------------------------------------------------------
@@ -174,6 +202,7 @@ class GoogleController extends Controller
                             ]);
                     }
 
+
                     /*
                     |--------------------------------------------------------------------------
                     | Cuenta tradicional
@@ -188,6 +217,7 @@ class GoogleController extends Controller
                         ]);
                 }
 
+
                 /*
                 |--------------------------------------------------------------------------
                 | Crear nueva cuenta Google
@@ -201,10 +231,12 @@ class GoogleController extends Controller
                     )
                 );
 
+
                 $parts = preg_split(
                     '/\s+/',
                     $fullName
                 );
+
 
                 $nombres = $parts[0] ?? 'Usuario';
 
@@ -217,8 +249,11 @@ class GoogleController extends Controller
                     )
                     : '';
 
+
                 $user = $registrationService->register([
-                    'nombres' => $nombres,
+
+                    'nombres' =>
+                        $nombres,
 
                     'apellido_paterno' =>
                         $apellidoPaterno,
@@ -226,16 +261,20 @@ class GoogleController extends Controller
                     'apellido_materno' =>
                         $apellidoMaterno,
 
-                    'tipo_documento' => null,
+                    'tipo_documento' =>
+                        null,
 
-                    'numero_documento' => null,
+                    'numero_documento' =>
+                        null,
 
-                    'email' => $email,
+                    'email' =>
+                        $email,
 
                     'password' =>
                         bin2hex(random_bytes(32)),
 
-                    'has_local_password' => false,
+                    'has_local_password' =>
+                        false,
 
                     'provider' =>
                         User::PROVIDER_GOOGLE,
@@ -243,16 +282,20 @@ class GoogleController extends Controller
                     'provider_id' =>
                         $googleUser->getId(),
 
-                    'celular' => '',
+                    'celular' =>
+                        '',
 
-                    'direccion' => '',
+                    'direccion' =>
+                        '',
 
                     'foto_perfil' =>
                         $googleUser->getAvatar(),
 
-                    'email_verified_at' => now(),
+                    'email_verified_at' =>
+                        now(),
                 ]);
             }
+
 
             /*
             |--------------------------------------------------------------------------
@@ -269,6 +312,41 @@ class GoogleController extends Controller
                             'No existe una cuenta registrada con este correo. Puedes registrarte primero.',
                     ]);
             }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | VERIFICAR ESTADO DE LA CUENTA
+            |--------------------------------------------------------------------------
+            |
+            | ESTA ES LA PARTE NUEVA E IMPORTANTE.
+            |
+            | Si el administrador desactivó al usuario,
+            | Google tampoco podrá iniciar sesión.
+            |
+            */
+
+            if (! $user->isActive()) {
+
+                Log::warning(
+                    'Intento de acceso Google de usuario desactivado.',
+                    [
+                        'user_id' =>
+                            $user->id,
+
+                        'email' =>
+                            $user->email,
+                    ]
+                );
+
+                return redirect()
+                    ->route('login')
+                    ->withErrors([
+                        'form.email' =>
+                            'Tu cuenta está desactivada. Comunícate con el administrador.',
+                    ]);
+            }
+
 
             /*
             |--------------------------------------------------------------------------
@@ -289,6 +367,7 @@ class GoogleController extends Controller
                     ]);
             }
 
+
             /*
             |--------------------------------------------------------------------------
             | Vincular Google con cuenta local
@@ -307,6 +386,7 @@ class GoogleController extends Controller
                 );
             }
 
+
             /*
             |--------------------------------------------------------------------------
             | Actualizar último acceso
@@ -316,9 +396,18 @@ class GoogleController extends Controller
             $registrationService->updateLastAccess(
                 $user
             );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Obtener favoritos de sesión
+            |--------------------------------------------------------------------------
+            */
+
             $sessionWishlist =
                 $sessionWishlistService
                     ->obtener(request());
+
 
             /*
             |--------------------------------------------------------------------------
@@ -331,21 +420,47 @@ class GoogleController extends Controller
                 true
             );
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | Sincronizar carrito
+            |--------------------------------------------------------------------------
+            */
+
             $sessionCartService->sincronizar(
                 request(),
                 $cartService,
                 $user->id
             );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Transferir favoritos
+            |--------------------------------------------------------------------------
+            */
+
             $wishlistService->transferirFavoritos(
                 $user->id,
                 $sessionWishlist
             );
+
+
             $sessionWishlistService->vaciar(
                 request()
             );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Regenerar sesión
+            |--------------------------------------------------------------------------
+            */
+
             request()
                 ->session()
                 ->regenerate();
+
 
             /*
             |--------------------------------------------------------------------------
@@ -359,6 +474,7 @@ class GoogleController extends Controller
                     route('admin.dashboard')
                 );
             }
+
 
             return redirect()->intended(
                 route('products')
@@ -383,6 +499,7 @@ class GoogleController extends Controller
                 ]
             );
 
+
             return redirect()
                 ->route('login')
                 ->withErrors([
@@ -391,6 +508,7 @@ class GoogleController extends Controller
                 ]);
         }
     }
+
 
     /*
     |--------------------------------------------------------------------------
